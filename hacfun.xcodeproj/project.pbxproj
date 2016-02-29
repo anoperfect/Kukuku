@@ -485,6 +485,17 @@
 			path = images;
 			sourceTree = "<group>";
 		};
+		B564D08F1C84A0D700E903B6 /* Vendor */ = {
+			isa = PBXGroup;
+			children = (
+				B58D880E1B85608E00B9A1BA /* fmdb */,
+				B523C9B11B78FA8B00944004 /* VIPhotoView */,
+				B523C9B51B78FAA000944004 /* RTLabel */,
+				B523C96F1B78FA7500944004 /* AMSlideMenu */,
+			);
+			name = Vendor;
+			sourceTree = "<group>";
+		};
 		B58D872E1B81E19B00B9A1BA /* ImplementViewController */ = {
 			isa = PBXGroup;
 			children = (
@@ -516,10 +527,7 @@
 		B5D8D4671B52060C0091DA20 = {
 			isa = PBXGroup;
 			children = (
-				B58D880E1B85608E00B9A1BA /* fmdb */,
-				B523C9B11B78FA8B00944004 /* VIPhotoView */,
-				B523C9B51B78FAA000944004 /* RTLabel */,
-				B523C96F1B78FA7500944004 /* AMSlideMenu */,
+				B564D08F1C84A0D700E903B6 /* Vendor */,
 				B5D8D4721B52060C0091DA20 /* hacfun */,
 				B5D8D48C1B52060C0091DA20 /* hacfunTests */,
 				B5D8D4711B52060C0091DA20 /* Products */,
