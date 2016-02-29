@@ -527,8 +527,8 @@
 		B5D8D4671B52060C0091DA20 = {
 			isa = PBXGroup;
 			children = (
-				B564D08F1C84A0D700E903B6 /* Vendor */,
 				B5D8D4721B52060C0091DA20 /* hacfun */,
+				B564D08F1C84A0D700E903B6 /* Vendor */,
 				B5D8D48C1B52060C0091DA20 /* hacfunTests */,
 				B5D8D4711B52060C0091DA20 /* Products */,
 			);
