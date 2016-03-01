@@ -16,7 +16,8 @@
 
 
 #if SHOW_TASK
-颜文字
+此处更新一些任务及记录.
+颜文字 (完成,需更改为输出代理和collection.)
 图片发送
 图片picker
 拍照
@@ -24,11 +25,11 @@
 图片保存  YES
 收藏使用数据库
 我的发帖
-cookie确认
-cookie管理
+cookie确认 (暂不实现)
+cookie管理 (暂不实现)
 postdata到cell的转换 YES
 引用图标
-画图板
+画图板 (暂不实现)
 下拉刷新取消
 栏目 YES
 栏目更新 YES
