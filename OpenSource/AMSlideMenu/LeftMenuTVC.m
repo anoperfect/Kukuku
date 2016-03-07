@@ -33,10 +33,22 @@
     
     UITableView *tableView = self.view;
     UIView *viewT = [[UIView alloc] initWithFrame:[[UIScreen mainScreen] applicationFrame]];
-    [viewT setBackgroundColor:[AppConfig backgroundColorFor:@"ViewController"]];
-    [viewT setBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:@"bg"]]];
+//    [viewT setBackgroundColor:[AppConfig backgroundColorFor:@"ViewController"]];
+//    [viewT setBackgroundColor:[UIColor whiteColor]];
+//    [viewT setBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:@"bg.png"]]];
+#if 0
+    
+    UIImageView *bgImageView = [[UIImageView alloc] initWithFrame:[viewT bounds]];
+    [bgImageView setImage:[UIImage imageNamed:@"bg"]];
+    [viewT addSubview:bgImageView];
+    [viewT sendSubviewToBack:bgImageView];
+#endif
+    
     self.view = (UITableView*)viewT;
     [self.view addSubview:tableView];
+    [self.view setBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:@"bg.png"]]];
+//    [self.view setBackgroundColor:[UIColor whiteColor]];
+    
     [tableView setFrame:CGRectMake(0, 100, self.view.frame.size.width, self.view.frame.size.height - 100)];
     [tableView setBackgroundColor:[UIColor clearColor]];
 }

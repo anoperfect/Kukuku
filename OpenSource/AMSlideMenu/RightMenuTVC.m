@@ -37,6 +37,7 @@
 //    self.tableData = [@[@"综合版1",@"动画",@"摄影"] mutableCopy];
     
     [self.view setBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:@"bg"]]];
+//    [self.view setBackgroundColor:[UIColor whiteColor]];
     
     self.categories = [[NSArray alloc] initWithArray:[[AppConfig sharedConfigDB] configDBGet:@"categories"]];
     self.tableData = [[NSMutableArray alloc] init];
