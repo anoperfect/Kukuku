@@ -100,6 +100,7 @@
 		B5F24BB21C49EBF70027DAB2 /* LocaleViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B5F24BB11C49EBF70027DAB2 /* LocaleViewController.m */; };
 		B5F24BB51C49F0C40027DAB2 /* DBData.m in Sources */ = {isa = PBXBuildFile; fileRef = B5F24BB41C49F0C40027DAB2 /* DBData.m */; };
 		B5F24BB81C49F27E0027DAB2 /* NetworkThreadViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B5F24BB71C49F27E0027DAB2 /* NetworkThreadViewController.m */; };
+		F2BE53211B4A355678A70BF5 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 338BA2420EBCE9402F13ED98 /* libPods.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -113,6 +114,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		1B2B07837930733F6B985C6A /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
+		338BA2420EBCE9402F13ED98 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		AADBBF3ED2F206120C64FEE5 /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
 		B500F83E1B95F92B004702F0 /* RecordViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RecordViewController.h; sourceTree = "<group>"; };
 		B500F83F1B95F92B004702F0 /* RecordViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RecordViewController.m; sourceTree = "<group>"; };
 		B500F8411B98083C004702F0 /* PostDataCellViewLoad.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PostDataCellViewLoad.h; sourceTree = "<group>"; };
@@ -276,6 +280,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B58D88201B85621500B9A1BA /* libsqlite3.dylib in Frameworks */,
+				F2BE53211B4A355678A70BF5 /* libPods.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -289,6 +294,23 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		15A9D44EB4021D7ED16A2CCF /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				338BA2420EBCE9402F13ED98 /* libPods.a */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		8C726A920C6B5E19A4949F62 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				1B2B07837930733F6B985C6A /* Pods.debug.xcconfig */,
+				AADBBF3ED2F206120C64FEE5 /* Pods.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
 		B523C96F1B78FA7500944004 /* AMSlideMenu */ = {
 			isa = PBXGroup;
 			children = (
@@ -531,6 +553,8 @@
 				B564D08F1C84A0D700E903B6 /* Vendor */,
 				B5D8D48C1B52060C0091DA20 /* hacfunTests */,
 				B5D8D4711B52060C0091DA20 /* Products */,
+				8C726A920C6B5E19A4949F62 /* Pods */,
+				15A9D44EB4021D7ED16A2CCF /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -597,9 +621,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = B5D8D4931B52060C0091DA20 /* Build configuration list for PBXNativeTarget "hacfun" */;
 			buildPhases = (
+				8B20144018185F2F13896B6B /* Check Pods Manifest.lock */,
 				B5D8D46C1B52060C0091DA20 /* Sources */,
 				B5D8D46D1B52060C0091DA20 /* Frameworks */,
 				B5D8D46E1B52060C0091DA20 /* Resources */,
+				84D1F55173D692AADBAD6521 /* Embed Pods Frameworks */,
+				1330428717D8FC89E37293C0 /* Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -634,11 +661,12 @@
 		B5D8D4681B52060C0091DA20 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0610;
+				LastUpgradeCheck = 0720;
 				ORGANIZATIONNAME = Ben;
 				TargetAttributes = {
 					B5D8D46F1B52060C0091DA20 = {
 						CreatedOnToolsVersion = 6.1;
+						DevelopmentTeam = 4ELM59EN5N;
 					};
 					B5D8D4881B52060C0091DA20 = {
 						CreatedOnToolsVersion = 6.1;
@@ -716,6 +744,54 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		1330428717D8FC89E37293C0 /* Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods/Pods-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		84D1F55173D692AADBAD6521 /* Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods/Pods-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		8B20144018185F2F13896B6B /* Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		B5D8D46C1B52060C0091DA20 /* Sources */ = {
@@ -839,6 +915,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -897,26 +974,36 @@
 		};
 		B5D8D4941B52060C0091DA20 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 1B2B07837930733F6B985C6A /* Pods.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_PREFIX_HEADER = "/Applications/workspace/hacfun/OpenSource/AMSlideMenu/AMSlideMenuWithoutStoryboard-Prefix.pch";
 				INFOPLIST_FILE = hacfun/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.uzhaobin.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
 		B5D8D4951B52060C0091DA20 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = AADBBF3ED2F206120C64FEE5 /* Pods.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_PREFIX_HEADER = "/Applications/workspace/hacfun/OpenSource/AMSlideMenu/AMSlideMenuWithoutStoryboard-Prefix.pch";
 				INFOPLIST_FILE = hacfun/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.uzhaobin.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
@@ -935,6 +1022,7 @@
 				);
 				INFOPLIST_FILE = hacfunTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.uzhaobin.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/hacfun.app/hacfun";
 			};
@@ -950,6 +1038,7 @@
 				);
 				INFOPLIST_FILE = hacfunTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.uzhaobin.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/hacfun.app/hacfun";
 			};
