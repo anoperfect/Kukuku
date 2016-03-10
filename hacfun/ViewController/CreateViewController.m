@@ -42,10 +42,6 @@
 
 
 
-
-
-
-
 @property (assign,nonatomic) CGRect    rectKeyboard;
 @property (assign,nonatomic) BOOL      enabledKeyboard;
 @property (assign,nonatomic) CGRect    frameEmoticonView;
@@ -133,8 +129,9 @@
         _textView.text = [NSString stringWithFormat:@">>No.%zi\n", self.idReference];
     }
     
-    _timerOpenKeypad =
-            [NSTimer scheduledTimerWithTimeInterval:0.6 target:self selector:@selector(focusToInput) userInfo:nil repeats:NO];
+//    _timerOpenKeypad =
+//            [NSTimer scheduledTimerWithTimeInterval:0.6 target:self selector:@selector(focusToInput) userInfo:nil repeats:NO];
+    [self performSelector:@selector(focusToInput) withObject:nil afterDelay:3.f];
 }
 
 
@@ -316,8 +313,8 @@
 
 
 - (void)focusToInput {
-    [_timerOpenKeypad invalidate];
-    _timerOpenKeypad = nil;
+    //[_timerOpenKeypad invalidate];
+    //_timerOpenKeypad = nil;
     
     [_textView becomeFirstResponder];
 }

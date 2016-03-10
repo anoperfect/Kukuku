@@ -31,8 +31,8 @@
     
     //banner.
     BannerView *bannerView = [[BannerView alloc] init];
-    [self.view addSubview:bannerView];
     [bannerView setTag:(NSInteger)@"BannerView"];
+    [self.view addSubview:bannerView];
     [bannerView.buttonTopic addTarget:self action:@selector(clickButtonTopic) forControlEvents:UIControlEventTouchDown];
     
     NSMutableArray *ary = [self getButtonDatas];
@@ -72,6 +72,8 @@
         CGRect frame = bannerView.frame;
         y = frame.origin.y + frame.size.height;
     }
+    
+    NSLog(@"y:%f", y);
     
     return y;
 }

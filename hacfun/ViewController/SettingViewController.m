@@ -32,6 +32,7 @@
     self.textTopic = @"设置";
     
     CGFloat y = [self getOriginYBelowView];
+    y = 60;
     
     UITableView *tableView = [[UITableView alloc] initWithFrame:CGRectMake(16, y, self.view.frame.size.width - 16*2, self.view.frame.size.height - y - 20) style:UITableViewStyleGrouped];
     [tableView setTag:100];

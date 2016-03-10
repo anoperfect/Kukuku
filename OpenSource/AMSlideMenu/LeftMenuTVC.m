@@ -35,7 +35,7 @@
     UIView *viewT = [[UIView alloc] initWithFrame:[[UIScreen mainScreen] applicationFrame]];
 //    [viewT setBackgroundColor:[AppConfig backgroundColorFor:@"ViewController"]];
 //    [viewT setBackgroundColor:[UIColor whiteColor]];
-//    [viewT setBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:@"bg.png"]]];
+//    [viewT setBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:@"bg"]]];
 #if 0
     
     UIImageView *bgImageView = [[UIImageView alloc] initWithFrame:[viewT bounds]];
@@ -46,7 +46,7 @@
     
     self.view = (UITableView*)viewT;
     [self.view addSubview:tableView];
-    [self.view setBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:@"bg.png"]]];
+    [self.view setBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:@"bg"]]];
 //    [self.view setBackgroundColor:[UIColor whiteColor]];
     
     [tableView setFrame:CGRectMake(0, 100, self.view.frame.size.width, self.view.frame.size.height - 100)];

@@ -64,7 +64,7 @@
     //得到图片的路径
     NSString *path = [[NSBundle mainBundle] pathForResource:@"1" ofType:@"gif"];
     //将图片转为NSData
-    NSData *gifData = [NSData dataWithContentsOfFile:path];
+    //NSData *gifData = [NSData dataWithContentsOfFile:path];
     //创建一个webView，添加到界面
     UIWebView *webView = [[UIWebView alloc] initWithFrame:CGRectMake(0, 150, 200, 200)];
     [self.view addSubview:webView];
@@ -76,7 +76,7 @@
     webView.backgroundColor = [AppConfig backgroundColorFor:@"clearColor"];
     webView.opaque = 0;
     //加载数据
-    [webView loadData:gifData MIMEType:@"image/gif" textEncodingName:nil baseURL:nil];
+    //[webView loadData:gifData MIMEType:@"image/gif" textEncodingName:nil baseURL:nil];
 }
 
 
