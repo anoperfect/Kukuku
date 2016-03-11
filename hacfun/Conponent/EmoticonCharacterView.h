@@ -14,8 +14,10 @@ typedef void(^inputAction)(NSString *EmoticonString);
 @interface EmoticonCharacterView : UIView
 
 @property (nonatomic,copy)inputAction action;
+@property (nonatomic,assign)BOOL isShow;
 
 - (void)setInputAction:(inputAction)action;
-
+- (void)emoticonsShow;
+- (void)emoticonsHidden;
 
 @end

@@ -8,6 +8,9 @@
 
 #import <Foundation/Foundation.h>
 
+@interface FuncDefine : NSObject
++ (NSTimeInterval)timeIntervalCountWithRecount:(BOOL)recount;
+@end
 
 #define WIDTH_FIT(v, mx) { CGRect frameOriginal = v.frame; CGFloat x = frameOriginal.origin.x; CGFloat width = v.superview.frame.size.width - x - mx ; width = width > 0 ? width : 0; [v setFrame: CGRectMake(x, frameOriginal.origin.y, width, frameOriginal.size.height)]; }
 
@@ -74,7 +77,7 @@
 
 #define NSLog(FORMAT, ...) {\
     NSMutableString *str = [[NSMutableString alloc] init];\
-    [str appendFormat:@"%60s %6d : ", __FUNCTION__, __LINE__ ];\
+    [str appendFormat:@"%60s %6d %3.6f: ", __FUNCTION__, __LINE__, [FuncDefine timeIntervalCountWithRecount:false] ];\
     [str appendFormat:FORMAT, ##__VA_ARGS__];\
     printf("%s\n", [str UTF8String]);\
 }
@@ -103,6 +106,3 @@
 
 
 
-@interface FuncDefine : NSObject
-
-@end

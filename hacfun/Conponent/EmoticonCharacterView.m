@@ -33,24 +33,7 @@
     self = [super initWithFrame:frame];
     
     if(self) {
-        
-        _EmoticonStrings = [self getEmoticonStrings];
-        NSInteger num = [_EmoticonStrings count];
-        
-        GridView *buttonsGridView = [[GridView alloc] initWithFrame:CGRectMake(0, 0, frame.size.width, frame.size.height)];
-        buttonsGridView.numberInLine = 4;
-        [self addSubview:buttonsGridView];
-        
-        for(NSInteger i = 0; i<num; i++) {
-        
-            UIButton *button = [[UIButton alloc] init];
-            [button setTitle:[_EmoticonStrings objectAtIndex:i] forState:UIControlStateNormal];
-            [button setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-            [button addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchDown];
-            [button.layer setBorderWidth:1.0];
-            [button.layer setBorderColor:[UIColor blueColor].CGColor];
-            [buttonsGridView addCellView:button];
-        }
+        //[self emoticonsShow];
     }
     
     return self;
@@ -58,7 +41,14 @@
 
 
 - (void)layoutSubviews {
-    
+    LOG_POSTION
+    //[self emoticonsShow];
+}
+
+
+- (void)emoticonsShow
+{
+    self.isShow = YES;
     //移除前一个grid.
     [[self viewWithTag:1] removeFromSuperview];
     
@@ -86,6 +76,14 @@
 }
 
 
+- (void)emoticonsHidden
+{
+    self.isShow = NO;
+    //移除前一个grid.
+    [[self viewWithTag:1] removeFromSuperview];
+}
+
+
 - (void)setInputAction:(inputAction)action {
     _action = action;
     
@@ -96,6 +94,7 @@
     NSString *title = [button titleForState:UIControlStateNormal];
     if(self.action) {
         self.action(title);
+        [self emoticonsHidden];
     }
 }
 

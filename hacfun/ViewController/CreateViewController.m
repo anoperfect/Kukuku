@@ -41,7 +41,6 @@
 }
 
 
-
 @property (assign,nonatomic) CGRect    rectKeyboard;
 @property (assign,nonatomic) BOOL      enabledKeyboard;
 @property (assign,nonatomic) CGRect    frameEmoticonView;
@@ -59,9 +58,9 @@
 
 
 
-- (void)viewDidLoad {
+- (void)viewDidLoad
+{
     [super viewDidLoad];
-    // Do any additional setup after loading the view, typically from a nib.
     
     _viewContent = [[UIView alloc] init];
     [self.view addSubview:_viewContent];
@@ -74,6 +73,7 @@
     _textView.delegate = self;
     _textView.returnKeyType = UIReturnKeyDefault;
     _textView.keyboardType = UIKeyboardTypeDefault;
+    [self performSelector:@selector(focusToInput) withObject:nil afterDelay:1.0f];
     
     /* 颜文字, 图片, 发送按钮. */
     _actionsContainerView = [[UIView alloc] init];
@@ -99,12 +99,11 @@
     [button addTarget:self action:@selector(removeImage) forControlEvents:UIControlEventTouchDown];
     [button setTitle:@"X" forState:UIControlStateNormal];
     
-    /* 颜文字. */
+    // 颜文字.
+    // 颜文字优化有问题. 一开始便创建所有颜文字冤死的话会卡顿. 修改为点击图标后显示.
     _emoticonView = [[EmoticonCharacterView alloc] init];
     [self.view addSubview:_emoticonView];
     [_emoticonView setTag:2];
-//    [_emoticonView setHidden:YES];
-    [_emoticonView setBackgroundColor:[UIColor yellowColor]];
     __block CreateViewController *selfBlock = self;
     [_emoticonView setInputAction:^(NSString *emoticonString){
         [selfBlock inputEmoticon:emoticonString];
@@ -115,8 +114,6 @@
     //通知中心.
     //键盘出现时,重置textView高度和btn的高度.
     [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(keyboardChangeFrame:) name:UIKeyboardWillChangeFrameNotification object:nil];
-    
-//    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(emoticonCharacterInput:) name:@"emoticonCharacterInput" object:nil];
     
     if(0 != self.id) {
         self.textTopic = [NSString stringWithFormat:@"No.%zi", self.id];
@@ -129,13 +126,13 @@
         _textView.text = [NSString stringWithFormat:@">>No.%zi\n", self.idReference];
     }
     
-//    _timerOpenKeypad =
-//            [NSTimer scheduledTimerWithTimeInterval:0.6 target:self selector:@selector(focusToInput) userInfo:nil repeats:NO];
-    [self performSelector:@selector(focusToInput) withObject:nil afterDelay:3.f];
+    
+    NSLog(@"finish.")
 }
 
 
-- (void)viewWillLayoutSubviews {
+- (void)viewWillLayoutSubviews
+{
     [super viewWillLayoutSubviews];
     
     CGRect viewFrame = self.view.frame;
@@ -205,8 +202,8 @@
 
 
 //当 _actionsContainerView调整时, 调整各按钮.
-- (void)layoutSubviewActions {
-    
+- (void)layoutSubviewActions
+{
     float leftBorder = 10.0;
     float leftPadding = 10.0;
     float topBorder = 6.0;
@@ -225,7 +222,8 @@
 }
 
 
-- (void)layoutSubviewAttachPicture {
+- (void)layoutSubviewAttachPicture
+{
     float height = _viewAttachPicture.frame.size.height;
     float width = height;
     
@@ -243,8 +241,8 @@
 }
 
 
-- (void)setActionButtons {
-    
+- (void)setActionButtons
+{
     NSMutableArray *buttonDataArray = [[NSMutableArray alloc] init];
     ButtonData *data ;
     
@@ -312,7 +310,8 @@
 }
 
 
-- (void)focusToInput {
+- (void)focusToInput
+{
     //[_timerOpenKeypad invalidate];
     //_timerOpenKeypad = nil;
     
@@ -320,7 +319,8 @@
 }
 
 
-- (void)inputEmoticon:(NSString*)emoticonString {
+- (void)inputEmoticon:(NSString*)emoticonString
+{
     // 需在光标处插入键入内容, 不能直接append.
     // 获得光标所在的位置
     NSRange range = _textView.selectedRange;
@@ -340,10 +340,14 @@
 
 
 - (void)emoticon {
-    LOG_POSTION
-    UIView *emoticonView = [[self.view viewWithTag:1] viewWithTag:2];
-    [emoticonView setHidden:NO];
-    [_textView resignFirstResponder];
+    if([_emoticonView isShow]) {
+        [_textView becomeFirstResponder];
+        [_emoticonView emoticonsHidden];
+    }
+    else {
+        [_textView resignFirstResponder];
+        [_emoticonView emoticonsShow];
+    }
 }
 
 
