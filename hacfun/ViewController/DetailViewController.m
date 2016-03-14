@@ -53,6 +53,19 @@
 //                  options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld
 //                  context:nil];
         
+        
+        ButtonData *actionData = nil;
+        
+        actionData = [[ButtonData alloc] init];
+        actionData.keyword  = @"reply";
+        actionData.image    = @"reply";
+        [self actionAddData:actionData];
+        
+        actionData = [[ButtonData alloc] init];
+        actionData.keyword  = @"收藏";
+//        actionData.image    = @"edit";
+        [self actionAddData:actionData];
+        
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reloadFromCreateReplyFinish:) name:@"CreateReplyFinish" object:nil];
     }
     
@@ -112,43 +125,18 @@
 }
 
 
-- (NSMutableArray*)getButtonDatas {
-    NSMutableArray *ary = [[NSMutableArray alloc] init];
-    ButtonData *data ;
-    data = [[ButtonData alloc] init];
-    data.keyword = @"reply";
-    data.id = 'p';
-    data.superId = 0;
-    data.image = @"reply";
-    data.title = @"";
-    data.method = 1;
-    data.target = self;
-    data.sel = @selector(createReplyPost);
-    [ary addObject:data];
+- (void)actionViaString:(NSString*)string
+{
+    NSLog(@"action string : %@", string);
+    if([string isEqualToString:@"reply"]) {
+        [self createReplyPost];
+        return;
+    }
     
-    data = [[ButtonData alloc] init];
-    data.keyword = @"收藏";
-    data.id = 's';
-    data.superId = 0;
-    data.image = @"";
-    data.title = @"收藏";
-    data.method = 2;
-    data.target = self;
-    data.sel = @selector(collection);
-    [ary addObject:data];
-    
-    data = [[ButtonData alloc] init];
-    data.keyword = @"more";
-    data.id = 'm';
-    data.superId = 0;
-    data.image = @"more";
-    data.title = @"";
-    data.method = 1;
-    data.target = self;
-//    data.sel = @selector(addToPost);
-    [ary addObject:data];
-    
-    return ary;
+    if([string isEqualToString:@"收藏"]) {
+        [self collection];
+        return;
+    }
 }
 
 
@@ -390,12 +378,22 @@
     
     [cellView.layer removeAllAnimations];
     
-    float borderHeight = 0.3;
     CALayer *border = [CALayer layer];
-    border.frame = CGRectMake(0.0f, cellView.frame.size.height-borderHeight, cellView.frame.size.width, borderHeight);
-    border.backgroundColor = [[UIColor blueColor] CGColor];
     if(0 == row) {
         border.backgroundColor = [[UIColor redColor] CGColor];
+        float borderHeight = 1.0;
+        border.frame = CGRectMake(0.0f,
+                                  cellView.frame.size.height-borderHeight,
+                                  cellView.frame.size.width,
+                                  borderHeight);
+    }
+    else {
+        border.backgroundColor = [HexRGBAlpha(0x000011, 0.2) CGColor];
+        float borderHeight = 1.0;
+        border.frame = CGRectMake(0.0f,
+                                  cellView.frame.size.height-borderHeight,
+                                  cellView.frame.size.width,
+                                  borderHeight);
     }
     
     [cellView.layer addSublayer:border];

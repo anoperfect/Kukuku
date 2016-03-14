@@ -64,7 +64,7 @@
         [aryColor addObject:HexRGBAlpha(0x808080, 0.6)];
         
         [aryName addObject:@"BannerView"];
-        [aryColor addObject:HexRGBAlpha(0xa0a0a0,0.2)];
+        [aryColor addObject:HexRGBAlpha(0xa0a0a0,0.0)];
         
         [aryName addObject:@"PostView"];
         [aryColor addObject:[UIColor lightGrayColor]];

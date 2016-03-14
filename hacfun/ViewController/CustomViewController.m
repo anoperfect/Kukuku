@@ -53,54 +53,39 @@
     self.view.backgroundColor = [AppConfig backgroundColorFor:@"ViewController"];
     self.view.backgroundColor = [UIColor colorWithPatternImage:[UIImage imageNamed:@"bg"]];
     
-#if 0
-    //隐藏那个导航栏.
-    self.navigationController.navigationBar.hidden = NO ;
-    NSLog(@"%@", self.navigationController.navigationBar);
-    NSLog(@"%@", self.navigationItem);
-    LOG_RECT(self.navigationController.navigationBar.frame, @"1");
-#endif
-    
-    //banner.
-    self.bannerView = [[BannerView alloc] init];
-    [self.bannerView setTag:(NSInteger)@"BannerView"];
-    //[self.view addSubview:self.bannerView];
-    [self.navigationController.navigationBar addSubview:self.bannerView];
-    NSLog(@"%@", self.navigationController.navigationBar);
-    NSLog(@"%@", self.navigationController.navigationBar.subviews);
-    [self.bannerView.buttonTopic addTarget:self action:@selector(clickButtonTopic) forControlEvents:UIControlEventTouchDown];
-    
-    // 布局功能键.
-    [self loadActionButtons];
 }
 
 
 - (void)viewWillLayoutSubviews {
-    LOG_POSTION
-    BannerView *bannerView = self.bannerView;
-    CGFloat yBanner = 0;
-    if(self.view.frame.size.width < self.view.frame.size.height) {
-        yBanner = 0;
-    }
-    CGFloat heightBanner = 36;
-    CGRect bannerViewRect = CGRectMake(0, yBanner, self.view.frame.size.width, heightBanner);
-    [bannerView setFrame:bannerViewRect];
-    [bannerView setNeedsLayout];
+    [super viewWillLayoutSubviews];
     
-    [self layoutActionButtons:bannerView];
+    [self layoutBannerView];
+    [self layoutActionButtons:self.bannerView];
 }
 
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    LOG_POSTION
-    //[self.navigationController setNavigationBarHidden:YES];
-    BannerView *bannerView = self.bannerView;
-    [bannerView setTextTopic:self.textTopic];
+    [self.navigationItem setHidesBackButton:YES];
     
     [self.navigationController.navigationBar setBackgroundImage:[UIImage imageNamed:@"bg"] forBarMetrics:UIBarMetricsDefault];
     
-    
+    self.bannerView = [[BannerView alloc] init];
+    [self.bannerView setTag:(NSInteger)@"BannerView"];
+    [self.navigationController.navigationBar addSubview:self.bannerView];
+    [self.bannerView.buttonTopic addTarget:self action:@selector(clickButtonTopic) forControlEvents:UIControlEventTouchDown];
+    [self.bannerView setTextTopic:self.textTopic];
+
+    [self layoutBannerView];
+
+    // 布局功能键.
+    [self loadActionButtons];
+}
+
+
+- (void)viewWillDisappear:(BOOL)animated {
+    LOG_RECT(self.bannerView.frame, @"111")
+    [self.bannerView removeFromSuperview];
 }
 
 
@@ -112,6 +97,21 @@
     UIGraphicsEndImageContext();
     
     return scaledImage;
+}
+
+
+- (void)layoutBannerView
+{
+    //banner.
+    CGFloat heightBanner = 36;
+    
+    CGFloat yBanner = -2;
+    if(self.view.frame.size.width < self.view.frame.size.height) {
+        yBanner = 4;
+    }
+    CGRect bannerViewRect = CGRectMake(0, yBanner, self.view.frame.size.width, heightBanner);
+    [self.bannerView setFrame:bannerViewRect];
+    LOG_RECT(self.bannerView.frame, @"111")
 }
 
 
@@ -143,6 +143,8 @@
         
         index ++;
     }
+    
+    [self layoutActionButtons:self.bannerView];
 }
 
 
@@ -204,12 +206,6 @@
     else {
         [self.navigationController popViewControllerAnimated:YES];
     }
-}
-
-
-//重载设置按钮参数数据.
-- (NSMutableArray*)getButtonDatas {
-    return nil;
 }
 
 

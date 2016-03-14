@@ -15,8 +15,12 @@
 #import "AppConfig.h"
 #import "PopupView.h"
 #import "ReferencePopupView.h"
-@interface ThreadsViewController () <UITableViewDataSource, UITableViewDelegate, RTLabelDelegate>
 
+
+
+
+
+@interface ThreadsViewController () <UITableViewDataSource, UITableViewDelegate, RTLabelDelegate>
 
 
 @end
@@ -27,9 +31,11 @@
 @implementation ThreadsViewController
 
 
+
 -(instancetype) init {
     
     if(self = [super init]) {
+        self.status = ThreadsStatusInit;
     }
     
     return self;
@@ -117,7 +123,21 @@
 
 - (void)clickFootView {
     LOG_POSTION
-    [self reloadPostData];
+    
+    [self loadMore];
+}
+
+
+- (void)loadMore
+{
+    //判断一下状态.如果是正在reload的状态则进行reload.
+    if(self.status != ThreadsStatusLoading) {
+        self.status = ThreadsStatusLoading;
+        [self reloadPostData];
+    }
+    else {
+        NSLog(@"in loading.");
+    }
 }
 
 
@@ -177,7 +197,7 @@
     //could be override.
     [self clearDataAdditional];
         
-    [self reloadPostData];
+    [self loadMore];
 }
 
 
@@ -340,16 +360,37 @@
 
 
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
-    NSLog(@"cell %zd willDisplayCell.", indexPath.row);
+    //NSLog(@"cell %zd willDisplayCell.", indexPath.row);
     [self layoutCell:cell withRow:indexPath.row withPostData:[self.postViewCellDatas objectAtIndex:indexPath.row]];
 }
 
 
 - (void)layoutCell: (UITableViewCell *)cell withRow:(NSInteger)row withPostData:(PostData*)postData {
-    NSLog(@"");
+    //NSLog(@"");
     
     
 }
+
+
+//增加上拉刷新.
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    CGFloat offsetY = scrollView.contentOffset.y;
+    CGFloat judgeOffsetY = scrollView.contentSize.height
+                            + scrollView.contentInset.bottom
+                            - scrollView.frame.size.height;
+                            //    - self.postView.tableFooterView.frame.size.height;
+    
+    //NSLog(@"&&&&&&&&&&&&&&%f %f", offsetY, judgeOffsetY);
+    //拉到低栏20及以上才出发上拉刷新.
+    if(offsetY >= judgeOffsetY + 36) {
+        NSLog(@"xxxxx")
+        [self clickFootView];
+        
+    }
+}
+
+
+
 
 
 - (void)didSelectRow:(NSInteger)row {

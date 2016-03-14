@@ -62,6 +62,10 @@
     [self.buttonTopic setTitleEdgeInsets:UIEdgeInsetsMake(0, image.frame.origin.x + image.frame.size.width + 2, 0, 0)];
     [self.buttonTopic setContentHorizontalAlignment:UIControlContentHorizontalAlignmentLeft];
     
+    LOG_RECT(imageBack.frame, @"1");
+    LOG_RECT(self.buttonTopic.frame, @"2");
+    
+#if 0
     NSInteger numFirstLevelButton = [self.buttons count];
     
     yBorder = 10;
@@ -103,7 +107,7 @@
         
         indexBtn ++;
     }
-    
+#endif
 }
 
 

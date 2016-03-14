@@ -64,7 +64,15 @@
 @property (strong,nonatomic) NSString *host;
 @property (strong,nonatomic) NSMutableData *jsonData;
 
+typedef enum : NSUInteger {
+    ThreadsStatusInit,
+    ThreadsStatusLoading,
+    ThreadsStatusLoadFinish,
+    ThreadsStatusLoadFailed,
+} ThreadsStatus;
 
+
+@property (nonatomic, assign) ThreadsStatus status;
 
 - (void)showfootViewWithTitle:(NSString*)title andActivityIndicator:(BOOL)isActive andDate:(BOOL)isShowDate;
 - (NSInteger)appendParsedPostDatas:(NSMutableArray*)parsedPostDatasArray ;

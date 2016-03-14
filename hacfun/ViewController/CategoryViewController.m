@@ -78,47 +78,6 @@
 }
 
 
-- (NSMutableArray*)getButtonDatas { return nil;
-    NSMutableArray *ary = [[NSMutableArray alloc] init];
-    ButtonData *data ;
-    
-    data = [[ButtonData alloc] init];
-    data.keyword = @"refresh";
-    data.id = 'r';
-    data.superId = 0;
-    data.image = @"refresh";
-    data.title = @"";
-    data.method = 1;
-    data.target = self;
-    data.sel = @selector(refreshPostData);
-    [ary addObject:data];
-    
-    data = [[ButtonData alloc] init];
-    data.keyword = @"new";
-    data.id = 'n';
-    data.superId = 0;
-    data.image = @"edit";
-    data.title = @"";
-    data.method = 1;
-    data.target = self;
-    data.sel = @selector(createNewPost);
-    [ary addObject:data];
-    
-    data = [[ButtonData alloc] init];
-    data.keyword = @"more";
-    data.id = 'm';
-    data.superId = 0;
-    data.image = @"more";
-    data.title = @"";
-    data.method = 1;
-    data.target = self;
-//    data.sel = @selector(showMoreMenu);
-//    [ary addObject:data];
-    
-    return ary;
-}
-
-
 - (void)createNewPost {
     CreateViewController *vc = [[CreateViewController alloc]init];
     [vc setCategory:self.nameCategory];

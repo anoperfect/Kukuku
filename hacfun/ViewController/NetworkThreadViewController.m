@@ -100,10 +100,13 @@
     if(nil == parsedPostDatas) {
         NSLog(@"xxxxxx parse json error \n%@",[[NSString alloc] initWithData:data  encoding:NSUTF8StringEncoding]);
         [self showfootViewWithTitle:NSSTRING_LOAD_FAILED andActivityIndicator:NO andDate:NO];
+        
+        self.status = ThreadsStatusLoadFailed;
     }
     else if(0 == [parsedPostDatas count]) {
         NSLog(@"xxxxxx no more new data");
         [self showfootViewWithTitle:NSSTRING_NO_MORE_DATA andActivityIndicator:NO andDate:NO];
+        self.status = ThreadsStatusLoadFailed;
     }
     else {
         NSInteger numAdd = [self appendParsedPostDatas:parsedPostDatas];
@@ -118,6 +121,7 @@
             [self.postView setHidden:NO];
             [self showfootViewWithTitle:NSSTRING_LOAD_SUCCESSFUL andActivityIndicator:NO andDate:YES];
         }
+        self.status = ThreadsStatusLoadFinish;
     }
     
     //根据刷新的原因分类. 1.栏目刷新. 2.加载. 3.下拉刷新.

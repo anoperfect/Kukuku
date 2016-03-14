@@ -27,9 +27,6 @@
 //重载按钮行为(默认openLeftMenu).
 - (void)clickButtonTopic ;
 
-//重载设置按钮参数数据.
-- (NSMutableArray*)getButtonDatas ;
-
 
 
 - (void)actionAddData:(ButtonData*)actionData;

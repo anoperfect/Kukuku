@@ -27,11 +27,30 @@
 
 @implementation ImageViewController
 
+
+-(instancetype) init
+{
+    if (self = [super init]) {
+        
+        ButtonData *actionData = nil;
+        
+        actionData = [[ButtonData alloc] init];
+        actionData.keyword  = @"保存";
+        //        actionData.image    = @"edit";
+        [self actionAddData:actionData];
+        
+        self.textTopic = @"图片";
+    }
+    
+    return self;
+}
+
+
+
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
-    
-    self.textTopic = @"图片";
     
     self.labelPercentage = [[UILabel alloc] init];
     [self.view addSubview:self.labelPercentage];
@@ -41,7 +60,6 @@
 
 - (void)viewWillLayoutSubviews {
     [super viewWillLayoutSubviews];
-    
     [self.labelPercentage setFrame:CGRectMake(100, self.yBolowView, 100, 36)];
 }
 
@@ -50,7 +68,6 @@
     [super viewDidAppear:animated];
     
     //查看是否有cache数据. 否则重新申请网络下载.
-    
     NSData *dataRead = [ImageViewCache getImageViewCache:self.stringUrl];
     NS0Log(@"%zi", [dataRead length]);
     if([dataRead length] > 0) {
@@ -75,6 +92,16 @@
 }
 
 
+- (void)actionViaString:(NSString*)string
+{
+    NSLog(@"action string : %@", string);
+    if([string isEqualToString:@"保存"]) {
+        [self toAlbum];
+        return;
+    }
+}
+
+
 - (void)toAlbum {
     UIImage *image = [UIImage imageWithData:self.imageData];
     UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil);
@@ -86,25 +113,6 @@
     popupView.borderLabel = 30;
     popupView.line = 3;
     [popupView popupInSuperView:self.view];
-}
-
-
-- (NSMutableArray*)getButtonDatas {
-    NSMutableArray *ary = [[NSMutableArray alloc] init];
-    ButtonData *data ;
-    
-    data = [[ButtonData alloc] init];
-    data.keyword = @"保存";
-    data.id = 's';
-    data.superId = 0;
-    data.image = @"";
-    data.title = @"保存";
-    data.method = 2;
-    data.target = self;
-    data.sel = @selector(toAlbum);
-    [ary addObject:data];
-    
-    return ary;
 }
 
 
