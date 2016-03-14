@@ -33,7 +33,6 @@
 */
 
 - (instancetype)init {
-    LOG_POSTION0
     self = [super init];
     
     if(self) {

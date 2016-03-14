@@ -60,9 +60,6 @@
     UILongPressGestureRecognizer *longPressGr = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(longPressToDo:)];
     [self.postView addGestureRecognizer:longPressGr];
     
-    //隐藏那个导航栏.
-    self.navigationController.navigationBar.hidden = YES ;
-    
     //UIRefreshControll
     [self setBeginRefreshing];
     
@@ -96,7 +93,7 @@
     
     //tableview
     CGFloat yTableViewBorder = 0;
-    CGFloat yTableView = [self getOriginYBelowView] + yTableViewBorder;
+    CGFloat yTableView = self.yBolowView + yTableViewBorder;
     
     CGFloat xTableViewBorder = 0;
     [self.postView setFrame:CGRectMake(xTableViewBorder, yTableView, self.view.frame.size.width - 2*xTableViewBorder, self.view.frame.size.height - yTableView)];

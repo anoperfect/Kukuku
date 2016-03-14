@@ -24,9 +24,33 @@
 @implementation CategoryViewController
 
 
+
+- (instancetype)init
+{
+    self = [super init];
+    
+    if(nil  != self) {
+        ButtonData *actionData = nil;
+        
+        actionData = [[ButtonData alloc] init];
+        actionData.keyword  = @"refresh";
+        actionData.image    = @"refresh";
+        [self actionAddData:actionData];
+        
+        actionData = [[ButtonData alloc] init];
+        actionData.keyword  = @"new";
+        actionData.image    = @"edit";
+        [self actionAddData:actionData];
+    }
+    
+    return self;
+}
+
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    
 }
 
 
@@ -39,7 +63,22 @@
 }
 
 
-- (NSMutableArray*)getButtonDatas {
+- (void)actionViaString:(NSString*)string
+{
+    NSLog(@"action string : %@", string);
+    if([string isEqualToString:@"refresh"]) {
+        [self refreshPostData];
+        return;
+    }
+    
+    if([string isEqualToString:@"new"]) {
+        [self createNewPost];
+        return;
+    }
+}
+
+
+- (NSMutableArray*)getButtonDatas { return nil;
     NSMutableArray *ary = [[NSMutableArray alloc] init];
     ButtonData *data ;
     

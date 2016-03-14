@@ -50,7 +50,7 @@
     {
         CGRect openedFrame = mainVC.currentActiveNVC.view.frame;
         [mainVC.currentActiveNVC.view removeFromSuperview];
-        mainVC.currentActiveNVC.viewControllers = nil;
+        //mainVC.currentActiveNVC.viewControllers = nil;
         mainVC.currentActiveNVC = nil;
         
         mainVC.currentActiveNVC = destinationNVC;
@@ -65,7 +65,7 @@
         [mainVC configureLeftMenuButton:leftBtn];
         [leftBtn addTarget:mainVC action:@selector(openLeftMenu) forControlEvents:UIControlEventTouchUpInside];
         
-        navItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:leftBtn];
+//        navItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:leftBtn];
     }
     
     if (mainVC.rightMenu)
@@ -74,7 +74,7 @@
         [mainVC configureRightMenuButton:rightBtn];
         [rightBtn addTarget:mainVC action:@selector(openRightMenu) forControlEvents:UIControlEventTouchUpInside];
         
-        navItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:rightBtn];
+//        navItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:rightBtn];
     }
 
 

@@ -8,7 +8,6 @@
 
 #import "ImageViewController.h"
 #import "FuncDefine.h"
-#import "BannerView.h"
 #import "VIPhotoView.h"
 #import "AppConfig.h"
 #import "ImageViewCache.h"
@@ -34,19 +33,16 @@
     
     self.textTopic = @"图片";
     
-    //banner. 下载百分比显示.
-    BannerView *bannerView = [self getBannerView];
     self.labelPercentage = [[UILabel alloc] init];
-    [bannerView addSubview:self.labelPercentage];
-    [self.labelPercentage setFont:[AppConfig fontFor:@"BannerView"]];
+    [self.view addSubview:self.labelPercentage];
+    [self.labelPercentage setFont:[AppConfig fontFor:@"NavigationInfo"]];
 }
 
 
 - (void)viewWillLayoutSubviews {
     [super viewWillLayoutSubviews];
     
-    BannerView *bannerView = [self getBannerView];
-    [self.labelPercentage setFrame:CGRectMake(100, 0, 100, bannerView.frame.size.height)];
+    [self.labelPercentage setFrame:CGRectMake(100, self.yBolowView, 100, 36)];
 }
 
 
@@ -166,7 +162,7 @@
 - (void)updateImageView {
     
     UIImage *image = [UIImage imageWithData:self.imageData];
-    CGFloat y = [self getOriginYBelowView];
+    CGFloat y = self.yBolowView;
     self.imageView = [[VIPhotoView alloc] initWithFrame:CGRectMake(0, y, self.view.frame.size.width, self.view.frame.size.height - y) andImage:image];
     self.imageView.autoresizingMask = (1 << 6) - 1;
     [self.view addSubview:self.imageView];

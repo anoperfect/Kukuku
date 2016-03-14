@@ -63,6 +63,7 @@
     
     //得到图片的路径
     NSString *path = [[NSBundle mainBundle] pathForResource:@"1" ofType:@"gif"];
+    path = nil;
     //将图片转为NSData
     //NSData *gifData = [NSData dataWithContentsOfFile:path];
     //创建一个webView，添加到界面

@@ -6,7 +6,6 @@
 //  Copyright (c) 2015年 Ben. All rights reserved.
 //
 #import "CreateViewController.h"
-#import "BannerView.h"
 #import "FuncDefine.h"
 #import "AppConfig.h"
 #import "PopupView.h"
@@ -137,9 +136,6 @@
     
     CGRect viewFrame = self.view.frame;
     
-    BannerView *bannerView = [self getBannerView];
-    CGRect bannerViewRect = bannerView.frame;
-    
     CGRect rectContentView = viewFrame;
     CGRect rectTextView = viewFrame;
     CGRect rectViewAttachPicture = viewFrame;
@@ -148,7 +144,7 @@
     
     //viewContent布局在BannerView和Keyboard间.
     //其他布局在viewContent上.
-    rectContentView.origin.y = (bannerViewRect.origin.y + bannerViewRect.size.height);
+    rectContentView.origin.y = self.yBolowView;
     
     //如果有soft keyboard的notification, 则emoticonView的frame与soft keyboard相同.
     if(self.enabledKeyboard) {
@@ -165,10 +161,9 @@
         self.frameEmoticonView = CGRectMakeByPercentageFrameVertical(viewFrame, 0.6, 0.4);
     }
     
-    rectContentView.size.height = self.frameEmoticonView.origin.y
-                                    - (bannerViewRect.origin.y + bannerViewRect.size.height);
+    rectContentView.size.height = self.frameEmoticonView.origin.y - self.yBolowView;
     
-    rectTextView.origin.y = (bannerViewRect.origin.y + bannerViewRect.size.height);
+    rectTextView.origin.y = self.yBolowView;
     CGRect rectContentLeft = rectContentView;
     rectContentLeft.size.height -= rectActionsContainerView.size.height;
     if(_imageDataPost) {

@@ -60,6 +60,24 @@
 }
 
 
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    LOG_POSTION
+    
+#if 0
+    [self.navigationController.navigationItem setLeftItemsSupplementBackButton:NO];
+    [self.navigationController.navigationItem setHidesBackButton:YES];
+    [self.navigationController setNavigationBarHidden:NO];
+    
+    [self.navigationItem setHidesBackButton:YES];
+    [self.navigationItem setRightBarButtonItem:nil];
+    
+    self.navigationController.navigationBar.shadowImage = [UIImage imageNamed:@"bg"];
+#endif
+}
+
+
 - (void)reloadFromCreateReplyFinish:(NSNotification*)notification {
     LOG_POSTION
     

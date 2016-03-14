@@ -20,28 +20,41 @@
 @property (strong,nonatomic) NSMutableArray *arraySettingItem ;
 @property (strong,nonatomic) NSMutableDictionary *cellDict;
 @property (strong,nonatomic) UISegmentedControl *viewSelectHostName;
+@property (nonatomic, strong) UITableView *tableView ;
 
 @end
 
 @implementation SettingViewController
 
+- (instancetype)init
+{
+    self = [super init];
+    if(nil != self) {
+        self.textTopic = @"设置";
+        
+        UIView *viewa = [[UIView alloc] init];
+        UIView *viewb = [[UIView alloc] init];
+        NSLog(@"viewa init : %zd", viewa.init);
+        NSLog(@"viewb init : %zd", viewb.init);
+        
+        
+    }
+    
+    return self;
+}
+
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     
-    self.textTopic = @"设置";
+    CGRect frameTableView = CGRectZero;
+    self.tableView = [[UITableView alloc] initWithFrame:frameTableView style:UITableViewStyleGrouped];
+    [self.view addSubview:self.tableView];
+    [self.tableView setBackgroundColor:[AppConfig backgroundColorFor:@"whiteColor"]];
+    [self.tableView setDelegate:self];
+    [self.tableView setDataSource:self];
     
-    CGFloat y = [self getOriginYBelowView];
-    y = 60;
-    
-    UITableView *tableView = [[UITableView alloc] initWithFrame:CGRectMake(16, y, self.view.frame.size.width - 16*2, self.view.frame.size.height - y - 20) style:UITableViewStyleGrouped];
-    [tableView setTag:100];
-    [self.view addSubview:tableView];
-    [tableView setBackgroundColor:[AppConfig backgroundColorFor:@"whiteColor"]];
-    [tableView setDelegate:self];
-    [tableView setDataSource:self];
-    
-//    self.arraySettingItem = [@[@"无图模式", @"自动存图", @"", @"清除缓存",@"版本",@"反馈建议"] mutableCopy];
     self.arraySettingItem = [[NSMutableArray alloc] init];
     [self.arraySettingItem addObject:@"无图模式"];
     [self.arraySettingItem addObject:@"自动存图"];
@@ -53,6 +66,24 @@
     [self.arraySettingItem addObject:@"反馈建议"];
     
     self.cellDict = [[NSMutableDictionary alloc] init];
+}
+
+
+- (void)viewWillLayoutSubviews {
+    [super viewWillLayoutSubviews];
+    
+    CGRect frameTableView = CGRectMake(
+                                       16,
+                                       self.yBolowView,
+                                       self.view.frame.size.width - 16*2,
+                                       self.view.frame.size.height - self.yBolowView - 20);
+    [self.tableView setFrame:frameTableView];
+    
+    
+    
+    
+    
+    
 }
 
 
