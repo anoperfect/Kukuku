@@ -18,7 +18,10 @@
 @property (nonatomic, strong) NSString *titleString;
 @property (nonatomic, strong) NSString *infoString;
 
-@property (nonatomic, assign) CGFloat yBolowView;
+@property (nonatomic, assign) CGFloat   yBolowView;
+@property (nonatomic, assign) CGFloat   heightWastageByNavigationBar;
+@property (nonatomic, assign) CGRect    frameSoftKeyboard;
+@property (nonatomic, assign) BOOL      isShowingSoftKeyboard;
 
 
 - (void)setTopic:(NSString*)str ;

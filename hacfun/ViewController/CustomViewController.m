@@ -40,6 +40,9 @@
         self.yBolowView = 0;
         self.heightBanner = 36;
         self.tagButtons = 100;
+        self.heightWastageByNavigationBar = 64;
+        self.frameSoftKeyboard = CGRectZero;
+        self.isShowingSoftKeyboard = NO;
     }
     
     return self;
@@ -52,7 +55,6 @@
     
     self.view.backgroundColor = [AppConfig backgroundColorFor:@"ViewController"];
     self.view.backgroundColor = [UIColor colorWithPatternImage:[UIImage imageNamed:@"bg"]];
-    
 }
 
 
@@ -111,7 +113,7 @@
     }
     CGRect bannerViewRect = CGRectMake(0, yBanner, self.view.frame.size.width, heightBanner);
     [self.bannerView setFrame:bannerViewRect];
-    LOG_RECT(self.bannerView.frame, @"111")
+    LOG_RECT(self.bannerView.frame, @"bannerView")
 }
 
 

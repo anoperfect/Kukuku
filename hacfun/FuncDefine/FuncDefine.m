@@ -26,6 +26,38 @@
 }
 
 
++ (NSString*)stringFromCGRect:(CGRect)rect
+{
+    return [NSString stringWithFormat:@
+            "%3zd.%zd, "
+            "%3zd.%zd, "
+            "%3zd.%zd, "
+            "%3zd.%zd"
+            ,
+            (NSInteger)rect.origin.x,       (NSInteger)(rect.origin.x       * 10.0) % 10,
+            (NSInteger)rect.origin.y,       (NSInteger)(rect.origin.y       * 10.0) % 10,
+            (NSInteger)rect.size.width,     (NSInteger)(rect.size.width     * 10.0) % 10,
+            (NSInteger)rect.size.height,    (NSInteger)(rect.size.height    * 10.0) % 10
+            ];
+}
+
+
++ (NSString*)stringFromViewFrame:(UIView*)view
+{
+    CGRect frame = view.frame;
+    return [self stringFromCGRect:frame];
+}
+
+
+
+
+
+
+
+
+
+
+
 
 @end
 

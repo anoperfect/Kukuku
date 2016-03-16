@@ -59,6 +59,7 @@
 }
 
 
+#if 0
 - (void)showGif1 {
     
     //得到图片的路径
@@ -100,7 +101,7 @@
     //开始播放动画
     [imageView startAnimating];
 }
-
+#endif
 
 
 - (void)didReceiveMemoryWarning {

@@ -10,6 +10,8 @@
 
 @interface FuncDefine : NSObject
 + (NSTimeInterval)timeIntervalCountWithRecount:(BOOL)recount;
++ (NSString*)stringFromCGRect:(CGRect)rect;
++ (NSString*)stringFromViewFrame:(UIView*)view;
 @end
 
 #define WIDTH_FIT(v, mx) { CGRect frameOriginal = v.frame; CGFloat x = frameOriginal.origin.x; CGFloat width = v.superview.frame.size.width - x - mx ; width = width > 0 ? width : 0; [v setFrame: CGRectMake(x, frameOriginal.origin.y, width, frameOriginal.size.height)]; }
@@ -27,14 +29,16 @@
 
 //    CGRect frame = [[UIScreen mainScreen] bounds];
 
-#define LOG_VIEW_RECT(v, name) { CGRect frame = v.frame; NSLog(@"x:%.2f, y:%.2f, w:%.2f, h:%.2f ------[%@]", frame.origin.x, frame.origin.y, frame.size.width, frame.size.height, name); }
+
+#define LOG_RECT(rect, name)        NSLog(@"[%@] - %@", [FuncDefine stringFromCGRect:rect], name);
+#define LOG_VIEW_RECT(view, name)   NSLog(@"[%@] - %@", [FuncDefine stringFromViewFrame:view], name);
 
 
-#define LOG_RECT(frame, name) { NSLog(@"x:%.2f, y:%.2f, w:%.2f, h:%.2f ------[%@]", frame.origin.x, frame.origin.y, frame.size.width, frame.size.height, name); }
 
 
 
 #define LOG_VIEW_REC0(v, name) {}
+#define LOG_REC0(v, name) {}
 #define NS0Log(x...) {}
 
 

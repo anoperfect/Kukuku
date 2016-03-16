@@ -40,9 +40,6 @@
 }
 
 
-@property (assign,nonatomic) CGRect    rectKeyboard;
-@property (assign,nonatomic) BOOL      enabledKeyboard;
-@property (assign,nonatomic) CGRect    frameEmoticonView;
 
 
 @property (strong,nonatomic) NSString *nameCategory;
@@ -50,6 +47,8 @@
 @property (assign,nonatomic) NSInteger idReference;
 
 @property (assign,nonatomic) NSInteger threadsId;
+
+@property (nonatomic, strong) UIView *viewInputContainer;
 
 @end
 
@@ -65,14 +64,15 @@
     [self.view addSubview:_viewContent];
     [_viewContent setTag:1];
     
-    _textView = [[UITextView alloc] init];
-    [_viewContent addSubview:_textView];
-    LAYOUT_BORDER_BLUE(_textView)
     
-    _textView.delegate = self;
-    _textView.returnKeyType = UIReturnKeyDefault;
-    _textView.keyboardType = UIKeyboardTypeDefault;
-    [self performSelector:@selector(focusToInput) withObject:nil afterDelay:1.0f];
+//    _textView = [[UITextView alloc] init];
+//    [_viewContent addSubview:_textView];
+//    LAYOUT_BORDER_BLUE(_textView)
+//    
+//    _textView.delegate = self;
+//    _textView.returnKeyType = UIReturnKeyDefault;
+//    _textView.keyboardType = UIKeyboardTypeDefault;
+//    [self performSelector:@selector(focusToInput) withObject:nil afterDelay:1.0f];
     
     /* 颜文字, 图片, 发送按钮. */
     _actionsContainerView = [[UIView alloc] init];
@@ -146,26 +146,38 @@
     //其他布局在viewContent上.
     rectContentView.origin.y = self.yBolowView;
     
-    //如果有soft keyboard的notification, 则emoticonView的frame与soft keyboard相同.
-    if(self.enabledKeyboard) {
-        if(self.frameEmoticonView.origin.y > 0.0) {
-            LOG_RECT(self.frameEmoticonView, @"emoticonView");
-        }
-        else {
-            NSLog(@"enabled keyboard. but not got frameEmoticonView.");
-            self.frameEmoticonView = CGRectMakeByPercentageFrameVertical(viewFrame, 0.6, 0.4);
-        }
+    CGRect frameAll = CGRectMake(0, self.yBolowView, self.view.frame.size.width, self.view.frame.size.height);
+    CGRect frameEmoticonView = frameAll;
+    
+    LOG_RECT(self.view.frame, @"self.view.frame")
+    LOG_RECT(frameAll, @"all0")
+    
+#define RECT_Y_BELOW_FRAME(frame) (frame.origin.y + frame.size.height)
+    //如果有记录软键盘的frame, 则设置emoticon的高度与软键盘匹配.
+    if(!CGRectIsEmpty(self.frameSoftKeyboard)) {
+        NSLog(@"got softkeyboard frame.[showing : %d]", self.isShowingSoftKeyboard);
+        frameAll.size.height = self.view.frame.size.height
+                                - self.frameSoftKeyboard.size.height;
+        frameEmoticonView.size.height = self.frameSoftKeyboard.size.height;
+        frameEmoticonView.origin.y = RECT_Y_BELOW_FRAME(frameAll);
     }
     else {
-        NSLog(@"soft keyboard not shown.");
-        self.frameEmoticonView = CGRectMakeByPercentageFrameVertical(viewFrame, 0.6, 0.4);
+        NSLog(@"not got softkeyboard frame.");
+        frameAll.size.height = self.view.frame.size.height;
+        frameAll = CGRectMakeByPercentageFrameVertical(frameAll, 0.0, 0.6);
+        frameEmoticonView = CGRectMakeByPercentageFrameVertical(frameAll, 0.6, 0.4);
     }
+    LOG_RECT(frameAll, @"all1")
+    LOG_RECT(frameEmoticonView, @"emoticon")
     
-    rectContentView.size.height = self.frameEmoticonView.origin.y - self.yBolowView;
+    rectActionsContainerView = frameEmoticonView;
+    rectActionsContainerView.origin.y -= 36;
+    rectActionsContainerView.size.height = 36;
+    LOG_RECT(rectActionsContainerView, @"Actions")
     
-    rectTextView.origin.y = self.yBolowView;
-    CGRect rectContentLeft = rectContentView;
-    rectContentLeft.size.height -= rectActionsContainerView.size.height;
+    CGRect rectContentLeft = frameAll;
+    rectContentLeft.size.height -= 36;
+    
     if(_imageDataPost) {
         rectTextView = CGRectMakeByPercentageFrameVertical(rectContentLeft, 0.0, 0.8);
         rectViewAttachPicture = CGRectMakeByPercentageFrameVertical(rectContentLeft, 0.8, 0.2);
@@ -174,16 +186,14 @@
         rectTextView = CGRectMakeByPercentageFrameVertical(rectContentLeft, 0.0, 1.0);
         rectViewAttachPicture = CGRectMakeByPercentageFrameVertical(rectContentLeft, 1.0, 0.0);
     }
-#define RECT_Y_BELOW_FRAME(frame) (frame.origin.y + frame.size.height)
-    rectActionsContainerView.origin.y = RECT_Y_BELOW_FRAME(rectViewAttachPicture);
     
     [_viewContent setFrame:rectContentView];
     [_textView setFrame:rectTextView];
     [_viewAttachPicture setFrame:rectViewAttachPicture];
     [_actionsContainerView setFrame:rectActionsContainerView];
-    [_emoticonView setFrame:self.frameEmoticonView];
+    [_emoticonView setFrame:frameEmoticonView];
 
-    LOG_VIEW_RECT(_viewContent, @"viewContent")
+    LOG_RECT(rectContentLeft, @"viewContentLeft")
     LOG_VIEW_RECT(_textView, @"textView")
     LOG_VIEW_RECT(_viewAttachPicture, @"_viewAttachPicture")
     LOG_VIEW_RECT(_actionsContainerView, @"_actionsContainerView")
@@ -193,6 +203,8 @@
     
     //重新布置_imageView,_actionsContainerView subviews.
 //    _imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, _viewAttachPicture.frame.size.width - _viewAttachPicture.frame.size.height, _viewAttachPicture.frame.size.height)];
+    
+    NSLog(@"view superView : %@", [self.view superview]);
 }
 
 
@@ -209,7 +221,8 @@
     for(NSInteger index=0; index<numberOfInputTypes; index++) {
         frameButton.origin.x = leftBorder + index * (leftPadding + width);
         [[_actionsContainerView viewWithTag:(10+index)] setFrame:frameButton];
-        LOG_RECT(frameButton, @"1")
+        NSString *s = [NSString stringWithFormat:@"button%zd", index];
+        LOG_RECT(frameButton, s)
     }
     
     CGRect frameButtonSend = CGRectMake(_actionsContainerView.frame.size.width - 60, topBorder, 60, height);
@@ -302,6 +315,25 @@
     [_btnSend addTarget:self action:@selector(clickSend) forControlEvents:UIControlEventTouchDown];
     [_actionsContainerView addSubview:_btnSend];
     //[self.view addSubview:_btnSend];
+}
+
+
+- (void)viewDidAppear:(BOOL)animated
+{
+    if(nil == _textView) {
+        _textView = [[UITextView alloc] init];
+        [_viewContent addSubview:_textView];
+        LAYOUT_BORDER_BLUE(_textView)
+        
+        _textView.delegate = self;
+        _textView.returnKeyType = UIReturnKeyDefault;
+        _textView.keyboardType = UIKeyboardTypeDefault;
+        
+        if(self.idReference > 0) {
+            _textView.text = [NSString stringWithFormat:@">>No.%zi\n", self.idReference];
+        }
+    }
+    [self performSelector:@selector(focusToInput) withObject:nil afterDelay:0.0f];
 }
 
 
@@ -475,6 +507,26 @@
     return ;
 }
 
+
+- (void)keyboardChangeFrame:(NSNotification*)notification {
+    NSDictionary *info = [notification userInfo];
+    CGRect softKeyboardFrame = [[info objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
+    LOG_RECT(softKeyboardFrame, @"softKeyboardFrame")
+    
+    //判断软键盘是否隐藏.
+    //if(self.frameKeyboard.origin.y >= self.view.frame.size.height ) {
+    if(!CGRectIntersectsRect(softKeyboardFrame, self.view.frame)) {
+        NSLog(@"soft keypad not shown.");
+        self.isShowingSoftKeyboard = NO;
+    }
+    else {
+        NSLog(@"soft keypad shown.");
+        self.isShowingSoftKeyboard = YES;
+        self.frameSoftKeyboard = softKeyboardFrame;
+    }
+    
+    [self.view setNeedsLayout];
+}
 
 
 - (void)clickSend {
@@ -724,23 +776,7 @@
 }
 
 
-- (void)keyboardChangeFrame:(NSNotification*)notification {
-    self.enabledKeyboard = YES;
-    NSDictionary *info = [notification userInfo];
-    self.rectKeyboard = [[info objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
-    LOG_RECT(self.rectKeyboard, @"keyboardChangeFrame frame")
-    
-    //判断软键盘是否隐藏.
-    if(self.rectKeyboard.origin.y >= self.view.frame.size.height) {
-        NSLog(@"soft keypad not shown.");
-        self.rectKeyboard = CGRectMake(0, 0, 0, 0);
-    }
-    else {
-        self.frameEmoticonView = self.rectKeyboard;
-    }
-    
-    [self.view setNeedsLayout];
-}
+
 
 
 - (void)didReceiveMemoryWarning {
