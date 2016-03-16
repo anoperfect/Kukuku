@@ -531,7 +531,7 @@
 
 - (void)clickSend {
     
-    //[_textView resignFirstResponder];
+    [_textView resignFirstResponder];
     
     NSString *host = [[AppConfig sharedConfigDB] configDBGet:@"host"];
     NSString *str = nil;
@@ -660,7 +660,10 @@
     popupView.line = 3;
     popupView.stringIncrease = @".";
     popupView.secondsOfstringIncrease = 1;
-    popupView.finish = ^(void) { NSLog(@"-=-=-=%@", self); };
+    popupView.finish = ^(void) {
+        NSLog(@"-=-=-=%@", self);
+        [_textView becomeFirstResponder];
+    };
     [popupView setTag:(NSInteger)@"PopupView"];
     [popupView popupInSuperView:self.view];
 }
@@ -762,6 +765,19 @@
     }
     
     [[CookieManage sharedCookieManage] showCookie:@"cookie after POST."];
+}
+
+
+- (void)connection:(NSURLConnection *)connection
+   didSendBodyData:(NSInteger)bytesWritten
+ totalBytesWritten:(NSInteger)totalBytesWritten
+totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
+{
+    NSLog(@"%6zd, %6zd, %6zd", bytesWritten, totalBytesWritten, totalBytesExpectedToWrite);
+    PopupView *popupView = (PopupView*)[self.view viewWithTag:(NSInteger)@"PopupView"];
+    popupView.numofTapToClose = 1;
+    popupView.secondsOfstringIncrease = 0;
+    popupView.titleLabel = [NSString stringWithFormat:@"发送中 - %zd%%", totalBytesWritten * 100 / totalBytesExpectedToWrite];
 }
 
 
