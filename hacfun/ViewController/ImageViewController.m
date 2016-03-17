@@ -46,8 +46,6 @@
 }
 
 
-
-
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
@@ -60,7 +58,8 @@
 
 - (void)viewWillLayoutSubviews {
     [super viewWillLayoutSubviews];
-    [self.labelPercentage setFrame:CGRectMake(100, self.yBolowView, 100, 36)];
+    [self.labelPercentage setFrame:CGRectMake((self.view.frame.size.width - 100) / 2, self.yBolowView, 100, 36)];
+    [self.labelPercentage setTextAlignment:NSTextAlignmentCenter];
 }
 
 
@@ -103,6 +102,15 @@
 
 
 - (void)toAlbum {
+    if(nil == self.imageData) {
+        return;
+    }
+    
+    UIActivityViewController *activiryViewController = [[UIActivityViewController alloc] initWithActivityItems:@[self.imageData] applicationActivities:nil];
+    [self presentViewController:activiryViewController animated:YES completion:^(void){
+        
+    }];
+    
     UIImage *image = [UIImage imageWithData:self.imageData];
     UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil);
     

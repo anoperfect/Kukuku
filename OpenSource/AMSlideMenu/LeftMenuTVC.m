@@ -29,7 +29,7 @@
     // Do any additional setup after loading the view from its nib.
     
     // Initilizing data souce
-    self.tableData = [@[@"搜索",@"测试",@"收藏", @"发帖", @"回复", @"设置"] mutableCopy];
+    self.tableData = [@[@"搜索",@"收藏", @"发帖", @"回复", @"设置"] mutableCopy];
     
     UITableView *tableView = self.view;
     UIView *viewT = [[UIView alloc] initWithFrame:[[UIScreen mainScreen] applicationFrame]];

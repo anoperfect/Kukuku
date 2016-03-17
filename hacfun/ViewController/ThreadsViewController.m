@@ -22,6 +22,7 @@
 
 @interface ThreadsViewController () <UITableViewDataSource, UITableViewDelegate, RTLabelDelegate>
 
+@property (nonatomic, strong) UILabel *viewIndication;
 
 @end
 
@@ -58,7 +59,7 @@
     self.postView.delegate = self;
     self.postView.dataSource = self;
     self.postView.tag = 1;
-    self.postView.backgroundColor = [AppConfig backgroundColorFor:@"PostViewCell"];
+    self.postView.backgroundColor = [AppConfig backgroundColorFor:@"PostTableView"];
     self.postView.separatorStyle = UITableViewCellSeparatorStyleNone;
     [self.postView reloadData];
     
@@ -90,6 +91,8 @@
         [self startAction];
     });
     
+    self.viewIndication = [[UILabel alloc] init];
+    
     return;
 }
 
@@ -102,7 +105,8 @@
     CGFloat yTableView = self.yBolowView + yTableViewBorder;
     
     CGFloat xTableViewBorder = 0;
-    [self.postView setFrame:CGRectMake(xTableViewBorder, yTableView, self.view.frame.size.width - 2*xTableViewBorder, self.view.frame.size.height - yTableView)];
+    CGRect framePostView = CGRectMake(xTableViewBorder, yTableView, self.view.frame.size.width - 2*xTableViewBorder, self.view.frame.size.height - yTableView);
+    [self.postView setFrame:framePostView];
     
     LOG_VIEW_REC0(self.view, @"view")
     LOG_VIEW_REC0(self.postView, @"postView")
@@ -111,8 +115,22 @@
     //footview.
     [self.footView setFrame:CGRectMake(0, 0, self.view.frame.size.width, 36)];
     self.postView.tableFooterView = self.footView;
+    
+    CGFloat heightViewIndication = 36;
+    CGRect frameViewIndication = framePostView;
+    frameViewIndication.origin.x = framePostView.size.width - heightViewIndication;
+    frameViewIndication.origin.y = heightViewIndication;
+    frameViewIndication.size.width = heightViewIndication;
+    frameViewIndication.size.height = heightViewIndication;
+    [self.viewIndication setFrame:frameViewIndication];
+    [self.viewIndication setBackgroundColor:HexRGBAlpha(0xeeeeee, 0.6)];
+    [self.viewIndication setText:@"1"];
+    [self.viewIndication setTextAlignment:NSTextAlignmentCenter];
+    [self.viewIndication setTextColor:HexRGBAlpha(0x000000, 0.2)];
+    [self.viewIndication.layer setCornerRadius:heightViewIndication / 2];
+    [self.viewIndication.layer setMasksToBounds:YES];
+    [self.view addSubview:self.viewIndication];
 }
-
 
 
 - (void)startAction {

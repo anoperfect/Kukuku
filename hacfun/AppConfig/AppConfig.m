@@ -69,6 +69,9 @@
         [aryName addObject:@"PostView"];
         [aryColor addObject:[UIColor lightGrayColor]];
         
+        [aryName addObject:@"PostTableView"];
+        [aryColor addObject:HexRGBAlpha(0xffffff, 0.6)];
+        
         [aryName addObject:@"MenuAction"];
         [aryColor addObject:[UIColor blueColor]];
         

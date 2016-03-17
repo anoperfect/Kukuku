@@ -64,14 +64,16 @@
     [self addSubview:buttonsGridView];
     
     for(NSInteger i = 0; i<num; i++) {
-        
         UIButton *button = [[UIButton alloc] init];
         [button setTitle:[_EmoticonStrings objectAtIndex:i] forState:UIControlStateNormal];
         [button setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+        [button setTitleColor:[UIColor blueColor] forState:UIControlStateSelected];
         [button addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchDown];
-        [button.layer setBorderWidth:1.0];
-        [button.layer setBorderColor:[UIColor blueColor].CGColor];
+        [button.layer setBorderWidth:0.5];
+        [button.layer setBorderColor:HexRGBAlpha(0x0000ff, 0.1).CGColor];
         [buttonsGridView addCellView:button];
+        button.adjustsImageWhenHighlighted = YES;
+        button.showsTouchWhenHighlighted = YES;
     }
 }
 
@@ -94,7 +96,6 @@
     NSString *title = [button titleForState:UIControlStateNormal];
     if(self.action) {
         self.action(title);
-        [self emoticonsHidden];
     }
 }
 

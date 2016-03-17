@@ -117,6 +117,7 @@
 - (void)setPostData:(NSDictionary*)data inRow:(NSInteger)row {
     
     NS0Log(@"******setPostData");
+    CGFloat borderTopAndBottom = 10;
 
     NSString *title = (NSString*)[data objectForKey:@"title"];
     title = title?title:@"null";
@@ -136,7 +137,7 @@
     NS0Log(@"xxxxxx optimumSize.height : %lf", size.height);
     
     #define Y_BLOW(view, border) (view.frame.origin.y + view.frame.size.height + border)
-    CGFloat viewHeight = Y_BLOW(self.contentLabel, 6);
+    CGFloat viewHeight = Y_BLOW(self.contentLabel, borderTopAndBottom);
     
     //UIViewImage
     NSString *thumb = (NSString*)[data objectForKey:@"thumb"];
@@ -152,7 +153,7 @@
         NSString *imageHost = [[AppConfig sharedConfigDB] configDBGet:@"imageHost"];
         [self.imageView setDownloadUrlString:[NSString stringWithFormat:@"%@/%@", imageHost, thumb]];
         
-        viewHeight = Y_BLOW(self.imageView, 6);
+        viewHeight = Y_BLOW(self.imageView, borderTopAndBottom);
         
         NS0Log(@"//////set image");
     }

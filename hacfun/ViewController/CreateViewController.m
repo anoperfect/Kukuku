@@ -362,6 +362,8 @@
     range.length = 0;
     _textView.selectedRange = range;
     
+    //选择后即回到编辑状态.
+    [_emoticonView emoticonsHidden];
     [_textView becomeFirstResponder];
 }
 
@@ -565,7 +567,7 @@
     //参数的集合的所有key的集合
     NSMutableDictionary *dic = [NSMutableDictionary dictionaryWithCapacity:30];
     [dic setObject:@"" forKey:@"name"];
-    [dic setObject:@"sage" forKey:@"email"]; //莫拉岛民的平均值.
+    [dic setObject:@"" forKey:@"email"]; //莫拉岛民的平均值.
     [dic setObject:@"" forKey:@"title"];
     NSString *contentInput = [NSString stringWithFormat:@"客户端测试.[%@]沉的快...", self.nameCategory];
     contentInput = _textView.text;
