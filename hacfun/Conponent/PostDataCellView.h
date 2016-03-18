@@ -25,9 +25,19 @@
 - (UIView*)getThumbImage;
 - (UIView*)getContentLabel;
 
-typedef void (^layoutPostDataCellView)(PostDataCellView *cell, NSInteger row);
 
-@property (assign,nonatomic)layoutPostDataCellView layout;
++ (PostDataCellView*)threadCellViewWithData:(NSDictionary*)dict andInitFrame:(CGRect)frame;
+
+
+#if 0
+typedef void (^blockLayoutPostDataCellView)(PostDataCellView *cell, NSInteger row);
+@property (assign,nonatomic)blockLayoutPostDataCellView layout;
+#endif
+
+
+
+
+
 
 
 

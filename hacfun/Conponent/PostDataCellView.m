@@ -27,6 +27,14 @@
 @property (strong,nonatomic) PostImageView *imageView;
 
 @property (assign,nonatomic) NSInteger row;
+
+
+@property (nonatomic, strong) NSDictionary *data;
+@property (nonatomic, assign) CGFloat borderTop;
+@property (nonatomic, assign) CGFloat borderLeft;
+
+
+
 @end
 
 
@@ -91,7 +99,9 @@
 }
 
 
+#if 0
 - (void)layoutSubviews {
+    [self doesNotRecognizeSelector:@selector(layoutSubviews)];
     
     CGRect frame = self.frame;
     
@@ -112,6 +122,7 @@
     LOG_VIEW_REC0(self.contentLabel, @"cell-content")
     LOG_VIEW_REC0(self, @"cell")
 }
+#endif
 
 
 - (void)setPostData:(NSDictionary*)data inRow:(NSInteger)row {
@@ -235,7 +246,164 @@
 }
 
 
+- (instancetype)initWithFrame1:(CGRect)frame
+{
+    self = [super initWithFrame:frame];
+    
+    if (self) {
+        
+        self.row = -1;
+        self.backgroundColor = [AppConfig backgroundColorFor:@"PostDataCellView"];
+        
+        if(!self.titleLabel) {
+            self.titleLabel = [[RTLabel alloc] init];
+            self.titleLabel.text = @"yyyy-mm-dd xyu-ACV-";
+            self.titleLabel.font = [AppConfig fontFor:@"PostContent"];
+            self.titleLabel.textColor = [AppConfig textColorFor:@"CellTitle"];
+            self.titleLabel.lineBreakMode = RTTextLineBreakModeWordWrapping;
+            [self addSubview:self.titleLabel];
+        }
+        
+        if(!self.infoLabel) {
+            self.infoLabel = [[RTLabel alloc] init];
+            self.infoLabel.text = [NSString stringWithFormat:@"回应: %ld", -1L];
+            
+            self.infoLabel.font = [AppConfig fontFor:@"PostContent"];
+            self.infoLabel.textColor = [AppConfig textColorFor:@"CellInfo"];
+            [self.infoLabel setTextAlignment:RTTextAlignmentRight];
+            
+            [self addSubview:self.infoLabel];
+        }
+        
+        if(!self.contentLabel) {
+            self.contentLabel = [[RTLabel alloc] init];
+            [self addSubview:self.contentLabel];
+            
+            self.contentLabel.text = @"content\n内容\n示范";
+            
+            self.contentLabel.lineBreakMode = NSLineBreakByWordWrapping;
+            self.contentLabel.font = [AppConfig fontFor:@"PostContent"];
+            self.contentLabel.textColor = [AppConfig textColorFor:@"Black"];
+        }
+        
+        if(!self.imageView) {
+            self.imageView = [[PostImageView alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
+            [self addSubview:self.imageView];
+        }
+    }
+    
+    [self addObserver:self forKeyPath:@"frame" options:NSKeyValueObservingOptionNew context:nil];
+    
+    return self;
+}
 
+
+- (void)setContent
+{
+    NSString *title = [self.data objectForKey:@"title"];
+    title = title?title:@"null";
+    [self.titleLabel setText:title];
+    
+    NSString *info = [self.data objectForKey:@"info"];
+    info = info?info:@"null";
+    [self.infoLabel setText:info];
+    
+    NSString *content = [self.data objectForKey:@"content"];
+    content = content?content:@"null\n111";
+    [self.contentLabel setText:content];
+    
+    //UIViewImage
+    NSString *thumb = [self.data objectForKey:@"thumb"];
+    
+    //判断是否设置无图模式.
+    NSString *value = [[AppConfig sharedConfigDB] configDBSettingKVGet:@"disableimageshow"] ;
+    BOOL b = [value boolValue];
+    if(nil == thumb || [thumb isEqualToString:@""] || b) {
+        self.imageView.hidden = YES;
+    }
+    else {
+        self.imageView.hidden = NO;
+        NSString *imageHost = [[AppConfig sharedConfigDB] configDBGet:@"imageHost"];
+        [self.imageView setDownloadUrlString:[NSString stringWithFormat:@"%@/%@", imageHost, thumb]];
+    }
+}
+
+
+- (void)layoutContent
+{
+    CGRect frameTitleLabel          = CGRectZero;
+    CGRect frameInfoLabel           = CGRectZero;
+    CGRect frameContentLabel        = CGRectZero;
+    CGRect frameImageViewContent    = CGRectZero;
+    UIEdgeInsets edge = UIEdgeInsetsMake(10, 10, 10, 10);
+    
+    FrameLayout *layout = [[FrameLayout alloc] initWithSize:CGSizeMake(self.frame.size.width, 10000)];
+    //设置外边框.
+    [layout setUseEdge:@"LayoutAll" in:NAME_MAIN_FRAME withEdgeValue:edge];
+    
+    //Title line布局在最上. title与info的宽度按照比例分配.
+    [layout setUseIncludedMode:@"TitleLine" includedTo:@"LayoutAll" withPostion:FrameLayoutPositionTop andSizeValue:20.0];
+    [layout divideInVertical:@"TitleLine" to:@"Title" and:@"Info" withPercentage:0.66];
+    frameTitleLabel     = [layout getCGRect:@"Title"];
+    frameInfoLabel      = [layout getCGRect:@"Info"];
+    
+    //Title和正文间设置间距.
+    [layout setUseBesideMode:@"PaddingTitleContent" besideTo:@"TitleLine" withDirection:FrameLayoutDirectionBelow andSizeValue:10.0];
+    
+    //设置正文.
+    [layout setUseLeftMode:@"Content" standardTo:@"PaddingTitleContent" withDirection:FrameLayoutDirectionBelow];
+    //contentLabel需自调整高度.
+    frameContentLabel = [layout getCGRect:@"Content"];
+    self.contentLabel.frame = frameContentLabel;
+    CGSize size = [self.contentLabel optimumSize];
+    frameContentLabel.size.height = size.height;
+    //重新设置
+    [layout setCGRect:frameContentLabel toName:@"Content"];
+    
+    //Content和image之间的间距.
+    [layout setUseBesideMode:@"PaddingContentImage" besideTo:@"Content" withDirection:FrameLayoutDirectionBelow andSizeValue:10.0];
+    
+    CGFloat heightAdjust = 0.0;
+    if(self.imageView.hidden) {
+        heightAdjust = FRAMELAYOUT_Y_BLOW_FRAME(frameContentLabel) + edge.bottom;
+    }
+    else {
+        CGFloat heightImage = 68.0;
+        [layout setUseBesideMode:@"ImageLine" besideTo:@"PaddingContentImage" withDirection:FrameLayoutDirectionBelow andSizeValue:heightImage];
+        [layout divideInVertical:@"ImageLine" to:@"Image" and:@"ImageLeft" withWidthValue:100.0];
+        frameImageViewContent = [layout getCGRect:@"Image"];
+        
+        heightAdjust = FRAMELAYOUT_Y_BLOW_FRAME(frameImageViewContent) + edge.bottom;
+    }
+    
+    self.titleLabel.frame   = frameTitleLabel;
+    self.infoLabel.frame    = frameInfoLabel;
+    self.contentLabel.frame = frameContentLabel;
+    self.imageView.frame    = frameImageViewContent;
+    
+    LOG_RECT(frameTitleLabel, @"frameTitleLabel")
+    LOG_RECT(frameInfoLabel, @"frameInfoLabel")
+    LOG_RECT(frameContentLabel, @"frameContentLabel")
+    LOG_RECT(frameImageViewContent, @"frameImageViewContent")
+    
+    FRAMELAYOUT_SET_HEIGHT(self, heightAdjust);
+    NSLog(@"adjust height to %f.", heightAdjust);
+}
+
+
++ (PostDataCellView*)threadCellViewWithData:(NSDictionary*)dict andInitFrame:(CGRect)frame
+{
+    PostDataCellView *cellView = [[PostDataCellView alloc] initWithFrame1:frame];
+    cellView.data = [dict copy];
+    
+    //设置各空间的现实内容.
+    [cellView setContent];
+    
+    //调整layout.
+    [cellView layoutContent];
+    
+    return cellView;
+}
 
 
 - (void)dealloc {

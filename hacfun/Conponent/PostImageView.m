@@ -20,7 +20,6 @@
 @property (assign,nonatomic) SEL selector;
 
 
-
 @end
 
 
@@ -34,9 +33,9 @@
     NS0Log(@"url:%@", urlstr);
     
     //把图片转换为二进制的数据
-    NSData *data=[NSData dataWithContentsOfURL:urlstr];//这一行操作会比较耗时
+    NSData *data = [NSData dataWithContentsOfURL:urlstr];//这一行操作会比较耗时
     if(data) {
-        [self performSelectorOnMainThread:@selector(updateImageByData:) withObject:data waitUntilDone:NO];
+        [self performSelectorOnMainThread:@selector(updateImageByDownloadedData:) withObject:data waitUntilDone:NO];
     }
     else {
         NSLog(@"error : url[%@] content return nil ", urlstr);
@@ -44,17 +43,45 @@
 }
 
 
-- (void)updateImageByData:(NSData*)data {
-    UIImage *image = [UIImage imageWithData:data];
-    NS0Log(@"%lf, %lf", image.size.width, image.size.height);
-    
-//    UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil);
+- (void)layoutSubviews
+{
+    UIImageView *embedImageView = (UIImageView*)[self viewWithTag:100];
+    if(embedImageView) {
+        CGRect frameEmbedImageView = CGRectZero;
+        UIImage *image = embedImageView.image;
+        if(image.size.height > 0) {
+            CGFloat width = self.frame.size.height * image.size.width / image.size.height;
+            frameEmbedImageView = CGRectMake(0, 0, width, self.frame.size.height);
+        }
+        embedImageView.frame = frameEmbedImageView;
+    }
+}
+
+
+- (void)updateImageByDownloadedData:(NSData*)data
+{
     [ImageViewCache setImageViewCache:self.downloadString withData:data];
     
-    CGFloat widht = self.frame.size.height * image.size.width / image.size.height;
-    [self setFrame:CGRectMake(self.frame.origin.x, self.frame.origin.y, widht, self.frame.size.height)];
-    
-    [self setImage:image forState:UIControlStateNormal];
+    UIImage *image = [UIImage imageWithData:data];
+    [self updateImage:image];
+}
+
+
+- (void)updateImageByCachedData:(NSData*)data
+{
+    UIImage *image = [UIImage imageWithData:data];
+    [self updateImage:image];
+}
+
+
+- (void)updateImage:(UIImage*)image
+{
+    if(image) {
+        [[self viewWithTag:100] removeFromSuperview];
+        UIImageView *embedImageView = [[UIImageView alloc] initWithImage:image];
+        embedImageView.tag = 100;
+        [self addSubview:embedImageView];
+    }
 }
 
 
@@ -67,12 +94,12 @@
     NS0Log(@"%zi", [dataRead length]);
     if([dataRead length] > 0) {
         NS0Log(@"------ use downloaded image.");
-        [self updateImageByData:dataRead];
+        [self updateImageByCachedData:dataRead];
     }
     else {
         NS0Log(@"------ start download.");
-        [self setImage:[UIImage imageNamed:@"zheshiluwei.jpg"] forState:UIControlStateNormal];
         [self performSelectorInBackground:@selector(setBackgroundDownload) withObject:nil];
+        [self updateImage:[UIImage imageNamed:@"zheshiluwei.jpg"]];
     }
 }
 

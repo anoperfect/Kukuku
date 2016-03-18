@@ -41,6 +41,7 @@
 }
 
 
+#if 0
 - (void)layoutCell: (UITableViewCell *)cell withRow:(NSInteger)row withPostData:(PostData*)postData {
     
     UIView *view = [cell viewWithTag:102];
@@ -59,6 +60,7 @@
         [view setBackgroundColor:[UIColor whiteColor]];
     }
 }
+#endif
 
 
 - (NSArray*)getAllLocaleData {

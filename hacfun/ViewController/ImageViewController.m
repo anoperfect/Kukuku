@@ -111,6 +111,7 @@
         
     }];
     
+#if 0
     UIImage *image = [UIImage imageWithData:self.imageData];
     UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil);
     
@@ -121,6 +122,7 @@
     popupView.borderLabel = 30;
     popupView.line = 3;
     [popupView popupInSuperView:self.view];
+#endif
 }
 
 

@@ -369,7 +369,7 @@
 
 
 - (void)layoutCell: (UITableViewCell *)cell withRow:(NSInteger)row withPostData:(PostData *)postData{
-    [cell.layer removeAllAnimations];
+//    [cell.layer removeAllAnimations];
     
     NSLog(@"row at : %zi", row);
     PostDataCellView *cellView = (PostDataCellView*)[cell viewWithTag:100];

@@ -113,7 +113,10 @@
 
 - (void)layoutCell: (UITableViewCell *)cell withRow:(NSInteger)row withPostData:(PostData*)postData {
     NSLog(@"cell %zd layoutCell.", row);
+    [super layoutCell:cell withRow:row withPostData:postData];
+    return ;
     
+#if 0
     UIView *view = [cell viewWithTag:102];
     if(NULL == view) {
         
@@ -129,6 +132,7 @@
         [view setTag:102];
         [view setBackgroundColor:[UIColor whiteColor]];
     }
+#endif
 }
 
 

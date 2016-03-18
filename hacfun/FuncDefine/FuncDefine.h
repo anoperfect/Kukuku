@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-
+#import "FrameLayout.h"
 @interface FuncDefine : NSObject
 + (NSTimeInterval)timeIntervalCountWithRecount:(BOOL)recount;
 + (NSString*)stringFromCGRect:(CGRect)rect;
@@ -28,6 +28,18 @@
 
 
 //    CGRect frame = [[UIScreen mainScreen] bounds];
+
+
+
+
+
+//#define CGRECT_X_RIGHT_OF(frame) (frame.origin.x + frame.size.width)
+
+
+
+//#define CGRECT_ROW_RIGHT(frame, border, w)      CGRectMake(frame.origin.x + frame.size.width + border, frame.origin.y, w, frame.size.height)
+
+#define CGRECT_BLOW(frame, borderv, heightv) CGRectMake(frame.origin.x, frame.origin.y + frame.size.height + borderv, frame.size.width, heightv)
 
 
 #define LOG_RECT(rect, name)        NSLog(@"[%@] - %@", [FuncDefine stringFromCGRect:rect], name);

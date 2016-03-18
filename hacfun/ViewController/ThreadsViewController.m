@@ -328,6 +328,7 @@
 }
 
 
+#if 0
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     NSLog(@"cell %zd build.", indexPath.row);
     
@@ -364,6 +365,42 @@
     
     return cell;
 }
+#endif
+
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    NSLog(@"cell %zd build.", indexPath.row);
+    
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"cell"];
+    if (cell == nil) {
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"cell"];
+        CGRect frame = cell.frame;
+        frame.size.width = tableView.frame.size.width;
+        [cell setFrame:frame];
+    }
+    else {
+        [cell.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
+    }
+    cell.tag = indexPath.row;
+    
+    PostDataCellView *v = [PostDataCellView threadCellViewWithData:[self.postViewCellDatas objectAtIndex:indexPath.row]
+                                                      andInitFrame:CGRectMake(0, 0, cell.frame.size.width, 100)];
+    [cell addSubview:v];
+    [v setTag:100];
+
+    UIView *viewThumb = [v getThumbImage];
+    [viewThumb setTag:indexPath.row];
+    [(UIButton*)viewThumb addTarget:self action:@selector(clickViewThumb:) forControlEvents:UIControlEventTouchDown];
+    
+    RTLabel *contentLabel = (RTLabel*)[v getContentLabel];
+    contentLabel.delegate = self;
+    
+    PostData* pd = ((PostData*)[self.postDatas objectAtIndex:indexPath.row]);
+    pd.height = v.frame.size.height;
+    
+    
+    return cell;
+}
 
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -385,8 +422,15 @@
 
 - (void)layoutCell: (UITableViewCell *)cell withRow:(NSInteger)row withPostData:(PostData*)postData {
     //NSLog(@"");
-    
-    
+    PostDataCellView * v = [cell viewWithTag:100];
+    if(v) {
+        v.layer.backgroundColor = [UIColor whiteColor].CGColor;
+        v.layer.borderWidth = 5;
+//        v.layer.borderColor = [UIColor clearColor].CGColor;
+        v.layer.borderColor = HexRGBAlpha(0xdddddd, 0.5).CGColor;
+//        v.layer.shadowOpacity = 0.7;
+//        v.layer.shadowRadius = 10.0;
+    }
 }
 
 
@@ -406,9 +450,6 @@
         
     }
 }
-
-
-
 
 
 - (void)didSelectRow:(NSInteger)row {

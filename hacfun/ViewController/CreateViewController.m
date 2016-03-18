@@ -14,7 +14,7 @@
 #import "DetailViewController.h"
 #import "CategoryViewController.h"
 #import "EmoticonCharacterView.h"
-
+#import "FrameLayout.h"
 #import "PercentageLayout.h"
 
 
@@ -25,7 +25,6 @@
 
 @interface CreateViewController () <UITextViewDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate> {
     
-    UIView                  * _viewContent;
     UITextView              * _textView;
     UIButton                * _btnSend;
     EmoticonCharacterView   * _emoticonView;
@@ -38,6 +37,7 @@
 
     UIView                  * _actionsContainerView; //放置点击按钮的容器view.
 }
+
 
 
 
@@ -60,37 +60,23 @@
 {
     [super viewDidLoad];
     
-    _viewContent = [[UIView alloc] init];
-    [self.view addSubview:_viewContent];
-    [_viewContent setTag:1];
-    
-    
-//    _textView = [[UITextView alloc] init];
-//    [_viewContent addSubview:_textView];
-//    LAYOUT_BORDER_BLUE(_textView)
-//    
-//    _textView.delegate = self;
-//    _textView.returnKeyType = UIReturnKeyDefault;
-//    _textView.keyboardType = UIKeyboardTypeDefault;
-//    [self performSelector:@selector(focusToInput) withObject:nil afterDelay:1.0f];
+    // 延时加载UITextView, 否则可能产生不流畅现象.
     
     /* 颜文字, 图片, 发送按钮. */
     _actionsContainerView = [[UIView alloc] init];
-    [_viewContent addSubview:_actionsContainerView];
-    //[self.view addSubview:_actionsContainerView];
+    [self.view addSubview:_actionsContainerView];
     [self setActionButtons];
     LAYOUT_BORDER_ORANGE(_actionsContainerView)
     
     /* 图片附件. */
     _viewAttachPicture = [[UIView alloc] init];
-    [_viewContent addSubview:_viewAttachPicture];
-    //[_viewAttachPicture setHidden:YES];
-    [_viewAttachPicture setBackgroundColor:[UIColor blueColor]];
-    [_viewAttachPicture setTag:(NSInteger)@"ImageAttachView"];
+    [self.view addSubview:_viewAttachPicture];
+    _viewAttachPicture.backgroundColor  = [UIColor blueColor];
+    _viewAttachPicture.tag              = (NSInteger)@"ImageAttachView";
     
     _imageView = [[UIImageView alloc] init];
-    [_imageView setTag:(NSInteger)@"ImageView"];
     [_viewAttachPicture addSubview:_imageView];
+    _imageView.tag = (NSInteger)@"ImageView";
     
     UIButton *button = [[UIButton alloc] init];
     [_viewAttachPicture addSubview:button];
@@ -102,7 +88,7 @@
     // 颜文字优化有问题. 一开始便创建所有颜文字冤死的话会卡顿. 修改为点击图标后显示.
     _emoticonView = [[EmoticonCharacterView alloc] init];
     [self.view addSubview:_emoticonView];
-    [_emoticonView setTag:2];
+    _emoticonView.tag = 2;
     __block CreateViewController *selfBlock = self;
     [_emoticonView setInputAction:^(NSString *emoticonString){
         [selfBlock inputEmoticon:emoticonString];
@@ -125,12 +111,11 @@
         _textView.text = [NSString stringWithFormat:@">>No.%zi\n", self.idReference];
     }
     
-    
     NSLog(@"finish.")
 }
 
 
-- (void)viewWillLayoutSubviews
+- (void)viewWillLayoutSubviews1
 {
     [super viewWillLayoutSubviews];
     
@@ -187,7 +172,7 @@
         rectViewAttachPicture = CGRectMakeByPercentageFrameVertical(rectContentLeft, 1.0, 0.0);
     }
     
-    [_viewContent setFrame:rectContentView];
+//    [_viewContent setFrame:rectContentView];
     [_textView setFrame:rectTextView];
     [_viewAttachPicture setFrame:rectViewAttachPicture];
     [_actionsContainerView setFrame:rectActionsContainerView];
@@ -205,6 +190,43 @@
 //    _imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, _viewAttachPicture.frame.size.width - _viewAttachPicture.frame.size.height, _viewAttachPicture.frame.size.height)];
     
     NSLog(@"view superView : %@", [self.view superview]);
+}
+
+
+- (void)viewWillLayoutSubviews
+{
+    [super viewWillLayoutSubviews];
+    
+    FrameLayout *layout = [[FrameLayout alloc] initWithSize:self.view.frame.size];
+    if(!CGRectIsEmpty(self.frameSoftKeyboard)) {
+        NSLog(@"got softkeyboard frame.[showing : %d]", self.isShowingSoftKeyboard);
+        [layout setUseIncludedMode:@"Emoticon" includedTo:NAME_MAIN_FRAME withPostion:FrameLayoutPositionBottom andSizeValue:self.frameSoftKeyboard.size.height];
+    }
+    else {
+        NSLog(@"not got softkeyboard frame.");
+        [layout setUseIncludedMode:@"Emoticon" includedTo:NAME_MAIN_FRAME withPostion:FrameLayoutPositionBottom andSizePercentage:0.4];
+    }
+    
+    [layout setUseBesideMode:@"Action" besideTo:@"Emoticon" withDirection:FrameLayoutDirectionAbove andSizeValue:36];
+    [layout setUseLeftMode:@"InputAll" standardTo:@"Action" withDirection:FrameLayoutDirectionAbove];
+    if(_imageDataPost) {
+        [layout divideInHerizon:@"InputAll" to:@"TextView" and:@"ViewAttachPicture" withPercentage:0.8];
+    }
+    else {
+        [layout divideInHerizon:@"InputAll" to:@"TextView" and:@"ViewAttachPicture" withPercentage:1.0];
+    }
+    
+    [_textView              setFrame:[layout getCGRect:@"TextView"]];
+    [_viewAttachPicture     setFrame:[layout getCGRect:@"ViewAttachPicture"]];
+    [_actionsContainerView  setFrame:[layout getCGRect:@"Action"]];
+    [_emoticonView          setFrame:[layout getCGRect:@"Emoticon"]];
+    
+    LOG_VIEW_RECT(_textView, @"textView")
+    LOG_VIEW_RECT(_viewAttachPicture, @"_viewAttachPicture")
+    LOG_VIEW_RECT(_actionsContainerView, @"_actionsContainerView")
+    
+    [self layoutSubviewActions];
+    [self layoutSubviewAttachPicture];
 }
 
 
@@ -241,11 +263,6 @@
     CGRect frameButton = CGRectMake(_viewAttachPicture.frame.size.width - width, 0, width, height);
     UIButton *button = (UIButton*)[_viewAttachPicture viewWithTag:10];
     [button setFrame:frameButton];
-
-//重新布置_imageView,_actionsContainerView subviews.
-//    _imageView = [[UIImageView alloc] initWithFrame:CGRectMake(
-
-
 }
 
 
@@ -322,7 +339,7 @@
 {
     if(nil == _textView) {
         _textView = [[UITextView alloc] init];
-        [_viewContent addSubview:_textView];
+        [self.view addSubview:_textView];
         LAYOUT_BORDER_BLUE(_textView)
         
         _textView.delegate = self;
@@ -333,6 +350,7 @@
             _textView.text = [NSString stringWithFormat:@">>No.%zi\n", self.idReference];
         }
     }
+    
     [self performSelector:@selector(focusToInput) withObject:nil afterDelay:0.0f];
 }
 
