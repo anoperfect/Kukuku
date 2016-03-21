@@ -7,37 +7,21 @@
 //
 
 #import "RightMenuTVC.h"
-#import "ForthVC.h"
-#import "FiveVC.h"
 #import "CategoryViewController.h"
 #import "AppConfig.h"
 #import "AMSlideMenuMainViewController.h"
 
 @interface RightMenuTVC ()
 @property (strong,nonatomic) NSArray *categories;
+@property (strong, nonatomic) NSMutableArray *tableData;
 @end
 
 @implementation RightMenuTVC
 @dynamic view;
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
-{
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-    if (self) {
-        // Custom initialization
-    }
-    return self;
-}
-
 - (void)viewDidLoad
 {
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
-    
-    // Initilizing data souce
-//    self.tableData = [@[@"综合版1",@"动画",@"摄影"] mutableCopy];
-    
-    [self.view setBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:@"bg"]]];
-//    [self.view setBackgroundColor:[UIColor whiteColor]];
     
     self.categories = [[NSArray alloc] initWithArray:[[AppConfig sharedConfigDB] configDBGet:@"categories"]];
     self.tableData = [[NSMutableArray alloc] init];
@@ -46,6 +30,8 @@
 //        [self.tableData addObject:[NSString stringWithFormat:@"%@ %@", [dic objectForKey:@"name"], [dic objectForKey:@"click"]]];
     }
     
+//    [self.view setBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:@"bg"]]];
+    self.tableView.backgroundView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"bgleft"]];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateCategories) name:@"UpdateCategories" object:nil];
 }
 
@@ -59,7 +45,13 @@
 //        [self.tableData addObject:[NSString stringWithFormat:@"%@ %@", [dic objectForKey:@"name"], [dic objectForKey:@"click"]]];
     }
     
-    [self.view reloadData];
+    [self.tableView reloadData];
+}
+
+
+- (void)viewDidAppear:(BOOL)animated
+{
+    NSLog(@"x-%@", NSStringFromUIEdgeInsets(self.tableView.contentInset));
 }
 
 
@@ -92,6 +84,7 @@
 {
     UINavigationController *nvc;
     UIViewController *rootVC;
+#if 0
     switch (indexPath.row) {
         case 0:
         {
@@ -106,7 +99,7 @@
         default:
             break;
     }
-    
+#endif
     //rootVC = [[PostDataViewController alloc] init ];
     rootVC = [[CategoryViewController alloc] init ];
     NSDictionary *dict = [self.categories objectAtIndex:indexPath.row];

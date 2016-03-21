@@ -7,14 +7,10 @@
 //
 
 #import "AMSlideMenuLeftTableViewController.h"
-
 @interface LeftMenuTVC : AMSlideMenuLeftTableViewController
 
+@end
 
-#pragma mark - Outlets
-@property (strong, nonatomic) IBOutlet UITableView *view;
 
 #pragma mark - Properties
-@property (strong, nonatomic) NSMutableArray *tableData;
 
-@end

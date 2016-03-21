@@ -7,9 +7,6 @@
 //
 
 #import "LeftMenuTVC.h"
-#import "FirstVC.h"
-#import "SecondVC.h"
-#import "ThirdVC.h"
 #import "DetailViewController.h"
 #import "TestViewController.h"
 #import "CollectionViewController.h"
@@ -18,7 +15,7 @@
 #import "AppConfig.h"
 #import "PopupView.h"
 @interface LeftMenuTVC ()
-
+@property (strong, nonatomic) NSMutableArray *tableData;
 @end
 
 @implementation LeftMenuTVC
@@ -31,38 +28,16 @@
     // Initilizing data souce
     self.tableData = [@[@"搜索",@"收藏", @"发帖", @"回复", @"设置"] mutableCopy];
     
-    UITableView *tableView = self.view;
-    UIView *viewT = [[UIView alloc] initWithFrame:[[UIScreen mainScreen] applicationFrame]];
-//    [viewT setBackgroundColor:[AppConfig backgroundColorFor:@"ViewController"]];
-//    [viewT setBackgroundColor:[UIColor whiteColor]];
-//    [viewT setBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:@"bg"]]];
-#if 0
-    
-    UIImageView *bgImageView = [[UIImageView alloc] initWithFrame:[viewT bounds]];
-    [bgImageView setImage:[UIImage imageNamed:@"bg"]];
-    [viewT addSubview:bgImageView];
-    [viewT sendSubviewToBack:bgImageView];
-#endif
-    
-    self.view = (UITableView*)viewT;
-    [self.view addSubview:tableView];
-    [self.view setBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:@"bg"]]];
-//    [self.view setBackgroundColor:[UIColor whiteColor]];
-    
-    [tableView setFrame:CGRectMake(0, 100, self.view.frame.size.width, self.view.frame.size.height - 100)];
-    [tableView setBackgroundColor:[UIColor clearColor]];
+//    [self.view setBackgroundColor:[UIColor blueColor]];
+//    [self.view setBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:@"bg"]]];
+    self.tableView.contentInset = UIEdgeInsetsMake(100,0,0,0);
+    self.tableView.backgroundView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"bgright"]];
 }
 
 
 - (void)viewDidAppear:(BOOL)animated {
 //        [self.view setFrame:CGRectMake(0, 20, self.view.frame.size.width, self.view.frame.size.height - 20)];
     [[[UIApplication sharedApplication] keyWindow] setBackgroundColor:[UIColor purpleColor]];
-    
-    
-    
-    
-    
-    
 }
 
 
@@ -76,6 +51,13 @@
 {
     return [self.tableData count];
 }
+
+
+- (CGFloat)tableView:(UITableView *)tableView h1eightForHeaderInSection:(NSInteger)section
+{
+    return 100.0;
+}
+
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
@@ -187,6 +169,9 @@
     
     [self openContentNavigationController:nvc];
 }
+
+
+
 
 
 @end

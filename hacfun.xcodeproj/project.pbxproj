@@ -19,21 +19,10 @@
 		B523C99C1B78FA7500944004 /* AMSlideMenuMainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B523C9771B78FA7500944004 /* AMSlideMenuMainViewController.m */; settings = {COMPILER_FLAGS = "-w"; }; };
 		B523C99D1B78FA7500944004 /* AMSlideMenuRightMenuSegue.m in Sources */ = {isa = PBXBuildFile; fileRef = B523C97A1B78FA7500944004 /* AMSlideMenuRightMenuSegue.m */; };
 		B523C99E1B78FA7500944004 /* AMSlideMenuRightTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B523C97C1B78FA7500944004 /* AMSlideMenuRightTableViewController.m */; };
-		B523C99F1B78FA7500944004 /* FirstVC.m in Sources */ = {isa = PBXBuildFile; fileRef = B523C97F1B78FA7500944004 /* FirstVC.m */; };
-		B523C9A01B78FA7500944004 /* FirstVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = B523C9801B78FA7500944004 /* FirstVC.xib */; };
-		B523C9A11B78FA7500944004 /* FiveVC.m in Sources */ = {isa = PBXBuildFile; fileRef = B523C9821B78FA7500944004 /* FiveVC.m */; };
-		B523C9A21B78FA7500944004 /* FiveVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = B523C9831B78FA7500944004 /* FiveVC.xib */; };
-		B523C9A31B78FA7500944004 /* ForthVC.m in Sources */ = {isa = PBXBuildFile; fileRef = B523C9851B78FA7500944004 /* ForthVC.m */; };
-		B523C9A41B78FA7500944004 /* ForthVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = B523C9861B78FA7500944004 /* ForthVC.xib */; };
 		B523C9A51B78FA7500944004 /* icon-menu.png in Resources */ = {isa = PBXBuildFile; fileRef = B523C9871B78FA7500944004 /* icon-menu.png */; };
 		B523C9A61B78FA7500944004 /* icon-menu@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = B523C9881B78FA7500944004 /* icon-menu@2x.png */; };
 		B523C9A91B78FA7500944004 /* MainVC.m in Sources */ = {isa = PBXBuildFile; fileRef = B523C98D1B78FA7500944004 /* MainVC.m */; };
 		B523C9AA1B78FA7500944004 /* RightMenuTVC.m in Sources */ = {isa = PBXBuildFile; fileRef = B523C98F1B78FA7500944004 /* RightMenuTVC.m */; };
-		B523C9AB1B78FA7500944004 /* RightMenuTVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = B523C9901B78FA7500944004 /* RightMenuTVC.xib */; };
-		B523C9AC1B78FA7500944004 /* SecondVC.m in Sources */ = {isa = PBXBuildFile; fileRef = B523C9921B78FA7500944004 /* SecondVC.m */; };
-		B523C9AD1B78FA7500944004 /* SecondVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = B523C9931B78FA7500944004 /* SecondVC.xib */; };
-		B523C9AE1B78FA7500944004 /* ThirdVC.m in Sources */ = {isa = PBXBuildFile; fileRef = B523C9951B78FA7500944004 /* ThirdVC.m */; };
-		B523C9AF1B78FA7500944004 /* ThirdVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = B523C9961B78FA7500944004 /* ThirdVC.xib */; };
 		B523C9B01B78FA7500944004 /* UIViewController+AMSlideMenu.m in Sources */ = {isa = PBXBuildFile; fileRef = B523C9981B78FA7500944004 /* UIViewController+AMSlideMenu.m */; };
 		B523C9B41B78FA8B00944004 /* VIPhotoView.m in Sources */ = {isa = PBXBuildFile; fileRef = B523C9B31B78FA8B00944004 /* VIPhotoView.m */; };
 		B523C9B81B78FAA000944004 /* RTLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = B523C9B71B78FAA000944004 /* RTLabel.m */; settings = {COMPILER_FLAGS = "-Wno-shorten-64-to-32"; }; };
@@ -72,18 +61,18 @@
 		B523CA211B78FDB100944004 /* reply2.png in Resources */ = {isa = PBXBuildFile; fileRef = B523CA0F1B78FDB100944004 /* reply2.png */; };
 		B523CA221B78FDB100944004 /* zheshiluwei.jpg in Resources */ = {isa = PBXBuildFile; fileRef = B523CA101B78FDB100944004 /* zheshiluwei.jpg */; };
 		B52C72011B7C4F8100C50D1E /* LeftMenuTVC.m in Sources */ = {isa = PBXBuildFile; fileRef = B52C71FF1B7C4F8100C50D1E /* LeftMenuTVC.m */; };
-		B52C72021B7C4F8100C50D1E /* LeftMenuTVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = B52C72001B7C4F8100C50D1E /* LeftMenuTVC.xib */; };
 		B55E9D771C9B091400F581F5 /* FrameLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = B55E9D761C9B091400F581F5 /* FrameLayout.m */; };
+		B55E9D7E1C9CFD7D00F581F5 /* capture.png in Resources */ = {isa = PBXBuildFile; fileRef = B55E9D7B1C9CFD7D00F581F5 /* capture.png */; };
+		B55E9D7F1C9CFD7D00F581F5 /* photolibrary.png in Resources */ = {isa = PBXBuildFile; fileRef = B55E9D7C1C9CFD7D00F581F5 /* photolibrary.png */; };
+		B55E9D801C9CFD7D00F581F5 /* yantext1.png in Resources */ = {isa = PBXBuildFile; fileRef = B55E9D7D1C9CFD7D00F581F5 /* yantext1.png */; };
 		B564D0F71C9189C400E903B6 /* bg.png in Resources */ = {isa = PBXBuildFile; fileRef = B564D0F61C9189C400E903B6 /* bg.png */; };
 		B564D1AC1C94238300E903B6 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = B564D1AB1C94238300E903B6 /* Default-568h@2x.png */; };
-		B58D87311B81E1FC00B9A1BA /* RightMenu.m in Sources */ = {isa = PBXBuildFile; fileRef = B58D87301B81E1FC00B9A1BA /* RightMenu.m */; };
 		B58D87341B81F2AC00B9A1BA /* CustomViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B58D87331B81F2AC00B9A1BA /* CustomViewController.m */; };
 		B58D88201B85621500B9A1BA /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B58D881F1B85621500B9A1BA /* libsqlite3.dylib */; };
 		B5A058571B9DE86200370557 /* PostViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B5A058561B9DE86200370557 /* PostViewController.m */; };
 		B5A0585A1B9DE87A00370557 /* ReplyViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B5A058591B9DE87A00370557 /* ReplyViewController.m */; };
-		B5A400F61B8984D30077F535 /* yantext1.png in Resources */ = {isa = PBXBuildFile; fileRef = B5A400F51B8984D30077F535 /* yantext1.png */; };
-		B5BC10501B8988240006EDD4 /* capture.png in Resources */ = {isa = PBXBuildFile; fileRef = B5BC104F1B8988240006EDD4 /* capture.png */; };
-		B5BC10521B8988420006EDD4 /* photolibrary.png in Resources */ = {isa = PBXBuildFile; fileRef = B5BC10511B8988420006EDD4 /* photolibrary.png */; };
+		B5AFCA0E1C9FFE5A00D9DDB5 /* bgleft.png in Resources */ = {isa = PBXBuildFile; fileRef = B5AFCA0C1C9FFE5A00D9DDB5 /* bgleft.png */; };
+		B5AFCA0F1C9FFE5A00D9DDB5 /* bgright.png in Resources */ = {isa = PBXBuildFile; fileRef = B5AFCA0D1C9FFE5A00D9DDB5 /* bgright.png */; };
 		B5BC10541B8988EE0006EDD4 /* emoticon.png in Resources */ = {isa = PBXBuildFile; fileRef = B5BC10531B8988EE0006EDD4 /* emoticon.png */; };
 		B5D8D4761B52060C0091DA20 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = B5D8D4751B52060C0091DA20 /* main.m */; };
 		B5D8D4791B52060C0091DA20 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = B5D8D4781B52060C0091DA20 /* AppDelegate.m */; };
@@ -139,15 +128,6 @@
 		B523C97B1B78FA7500944004 /* AMSlideMenuRightTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AMSlideMenuRightTableViewController.h; sourceTree = "<group>"; };
 		B523C97C1B78FA7500944004 /* AMSlideMenuRightTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AMSlideMenuRightTableViewController.m; sourceTree = "<group>"; };
 		B523C97D1B78FA7500944004 /* AMSlideMenuWithoutStoryboard-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "AMSlideMenuWithoutStoryboard-Prefix.pch"; sourceTree = "<group>"; };
-		B523C97E1B78FA7500944004 /* FirstVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FirstVC.h; sourceTree = "<group>"; };
-		B523C97F1B78FA7500944004 /* FirstVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FirstVC.m; sourceTree = "<group>"; };
-		B523C9801B78FA7500944004 /* FirstVC.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = FirstVC.xib; sourceTree = "<group>"; };
-		B523C9811B78FA7500944004 /* FiveVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FiveVC.h; sourceTree = "<group>"; };
-		B523C9821B78FA7500944004 /* FiveVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FiveVC.m; sourceTree = "<group>"; };
-		B523C9831B78FA7500944004 /* FiveVC.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = FiveVC.xib; sourceTree = "<group>"; };
-		B523C9841B78FA7500944004 /* ForthVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ForthVC.h; sourceTree = "<group>"; };
-		B523C9851B78FA7500944004 /* ForthVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ForthVC.m; sourceTree = "<group>"; };
-		B523C9861B78FA7500944004 /* ForthVC.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ForthVC.xib; sourceTree = "<group>"; };
 		B523C9871B78FA7500944004 /* icon-menu.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-menu.png"; sourceTree = "<group>"; };
 		B523C9881B78FA7500944004 /* icon-menu@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-menu@2x.png"; sourceTree = "<group>"; };
 		B523C9891B78FA7500944004 /* LeftMenuTVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LeftMenuTVC.h; sourceTree = "<group>"; };
@@ -155,13 +135,6 @@
 		B523C98D1B78FA7500944004 /* MainVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MainVC.m; sourceTree = "<group>"; };
 		B523C98E1B78FA7500944004 /* RightMenuTVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RightMenuTVC.h; sourceTree = "<group>"; };
 		B523C98F1B78FA7500944004 /* RightMenuTVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RightMenuTVC.m; sourceTree = "<group>"; };
-		B523C9901B78FA7500944004 /* RightMenuTVC.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = RightMenuTVC.xib; sourceTree = "<group>"; };
-		B523C9911B78FA7500944004 /* SecondVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SecondVC.h; sourceTree = "<group>"; };
-		B523C9921B78FA7500944004 /* SecondVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SecondVC.m; sourceTree = "<group>"; };
-		B523C9931B78FA7500944004 /* SecondVC.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SecondVC.xib; sourceTree = "<group>"; };
-		B523C9941B78FA7500944004 /* ThirdVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ThirdVC.h; sourceTree = "<group>"; };
-		B523C9951B78FA7500944004 /* ThirdVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ThirdVC.m; sourceTree = "<group>"; };
-		B523C9961B78FA7500944004 /* ThirdVC.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ThirdVC.xib; sourceTree = "<group>"; };
 		B523C9971B78FA7500944004 /* UIViewController+AMSlideMenu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIViewController+AMSlideMenu.h"; sourceTree = "<group>"; };
 		B523C9981B78FA7500944004 /* UIViewController+AMSlideMenu.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIViewController+AMSlideMenu.m"; sourceTree = "<group>"; };
 		B523C9B21B78FA8B00944004 /* VIPhotoView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VIPhotoView.h; sourceTree = "<group>"; };
@@ -219,13 +192,13 @@
 		B523CA0F1B78FDB100944004 /* reply2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = reply2.png; sourceTree = "<group>"; };
 		B523CA101B78FDB100944004 /* zheshiluwei.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = zheshiluwei.jpg; sourceTree = "<group>"; };
 		B52C71FF1B7C4F8100C50D1E /* LeftMenuTVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LeftMenuTVC.m; sourceTree = "<group>"; };
-		B52C72001B7C4F8100C50D1E /* LeftMenuTVC.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = LeftMenuTVC.xib; sourceTree = "<group>"; };
 		B55E9D751C9B091400F581F5 /* FrameLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FrameLayout.h; sourceTree = "<group>"; };
 		B55E9D761C9B091400F581F5 /* FrameLayout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FrameLayout.m; sourceTree = "<group>"; };
+		B55E9D7B1C9CFD7D00F581F5 /* capture.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = capture.png; sourceTree = "<group>"; };
+		B55E9D7C1C9CFD7D00F581F5 /* photolibrary.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = photolibrary.png; sourceTree = "<group>"; };
+		B55E9D7D1C9CFD7D00F581F5 /* yantext1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = yantext1.png; sourceTree = "<group>"; };
 		B564D0F61C9189C400E903B6 /* bg.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bg.png; sourceTree = "<group>"; };
 		B564D1AB1C94238300E903B6 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default-568h@2x.png"; path = "../../../Default-568h@2x.png"; sourceTree = "<group>"; };
-		B58D872F1B81E1FC00B9A1BA /* RightMenu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RightMenu.h; path = ImplementViewController/RightMenu.h; sourceTree = "<group>"; };
-		B58D87301B81E1FC00B9A1BA /* RightMenu.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RightMenu.m; path = ImplementViewController/RightMenu.m; sourceTree = "<group>"; };
 		B58D87321B81F2AC00B9A1BA /* CustomViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomViewController.h; sourceTree = "<group>"; };
 		B58D87331B81F2AC00B9A1BA /* CustomViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CustomViewController.m; sourceTree = "<group>"; };
 		B58D881F1B85621500B9A1BA /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
@@ -233,9 +206,8 @@
 		B5A058561B9DE86200370557 /* PostViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PostViewController.m; sourceTree = "<group>"; };
 		B5A058581B9DE87A00370557 /* ReplyViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReplyViewController.h; sourceTree = "<group>"; };
 		B5A058591B9DE87A00370557 /* ReplyViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReplyViewController.m; sourceTree = "<group>"; };
-		B5A400F51B8984D30077F535 /* yantext1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = yantext1.png; path = ../../ViewController/yantext1.png; sourceTree = "<group>"; };
-		B5BC104F1B8988240006EDD4 /* capture.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = capture.png; path = ../../ViewController/capture.png; sourceTree = "<group>"; };
-		B5BC10511B8988420006EDD4 /* photolibrary.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = photolibrary.png; path = ../../ViewController/photolibrary.png; sourceTree = "<group>"; };
+		B5AFCA0C1C9FFE5A00D9DDB5 /* bgleft.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bgleft.png; sourceTree = "<group>"; };
+		B5AFCA0D1C9FFE5A00D9DDB5 /* bgright.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bgright.png; sourceTree = "<group>"; };
 		B5BC10531B8988EE0006EDD4 /* emoticon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = emoticon.png; sourceTree = "<group>"; };
 		B5D8D4701B52060C0091DA20 /* hacfun.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = hacfun.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B5D8D4741B52060C0091DA20 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -301,7 +273,6 @@
 		B523C96F1B78FA7500944004 /* AMSlideMenu */ = {
 			isa = PBXGroup;
 			children = (
-				B58D872E1B81E19B00B9A1BA /* ImplementViewController */,
 				B523C9701B78FA7500944004 /* AMSlideMenuContentSegue.h */,
 				B523C9711B78FA7500944004 /* AMSlideMenuContentSegue.m */,
 				B523C9721B78FA7500944004 /* AMSlideMenuLeftMenuSegue.h */,
@@ -316,33 +287,16 @@
 				B523C97B1B78FA7500944004 /* AMSlideMenuRightTableViewController.h */,
 				B523C97C1B78FA7500944004 /* AMSlideMenuRightTableViewController.m */,
 				B523C97D1B78FA7500944004 /* AMSlideMenuWithoutStoryboard-Prefix.pch */,
-				B523C97E1B78FA7500944004 /* FirstVC.h */,
-				B523C97F1B78FA7500944004 /* FirstVC.m */,
-				B523C9801B78FA7500944004 /* FirstVC.xib */,
-				B523C9811B78FA7500944004 /* FiveVC.h */,
-				B523C9821B78FA7500944004 /* FiveVC.m */,
-				B523C9831B78FA7500944004 /* FiveVC.xib */,
-				B523C9841B78FA7500944004 /* ForthVC.h */,
-				B523C9851B78FA7500944004 /* ForthVC.m */,
-				B523C9861B78FA7500944004 /* ForthVC.xib */,
-				B523C9871B78FA7500944004 /* icon-menu.png */,
-				B523C9881B78FA7500944004 /* icon-menu@2x.png */,
-				B523C9891B78FA7500944004 /* LeftMenuTVC.h */,
-				B52C71FF1B7C4F8100C50D1E /* LeftMenuTVC.m */,
-				B52C72001B7C4F8100C50D1E /* LeftMenuTVC.xib */,
-				B523C98C1B78FA7500944004 /* MainVC.h */,
-				B523C98D1B78FA7500944004 /* MainVC.m */,
-				B523C98E1B78FA7500944004 /* RightMenuTVC.h */,
-				B523C98F1B78FA7500944004 /* RightMenuTVC.m */,
-				B523C9901B78FA7500944004 /* RightMenuTVC.xib */,
-				B523C9911B78FA7500944004 /* SecondVC.h */,
-				B523C9921B78FA7500944004 /* SecondVC.m */,
-				B523C9931B78FA7500944004 /* SecondVC.xib */,
-				B523C9941B78FA7500944004 /* ThirdVC.h */,
-				B523C9951B78FA7500944004 /* ThirdVC.m */,
-				B523C9961B78FA7500944004 /* ThirdVC.xib */,
 				B523C9971B78FA7500944004 /* UIViewController+AMSlideMenu.h */,
 				B523C9981B78FA7500944004 /* UIViewController+AMSlideMenu.m */,
+				B523C9871B78FA7500944004 /* icon-menu.png */,
+				B523C9881B78FA7500944004 /* icon-menu@2x.png */,
+				B523C98C1B78FA7500944004 /* MainVC.h */,
+				B523C98D1B78FA7500944004 /* MainVC.m */,
+				B523C9891B78FA7500944004 /* LeftMenuTVC.h */,
+				B52C71FF1B7C4F8100C50D1E /* LeftMenuTVC.m */,
+				B523C98E1B78FA7500944004 /* RightMenuTVC.h */,
+				B523C98F1B78FA7500944004 /* RightMenuTVC.m */,
 			);
 			name = AMSlideMenu;
 			path = OpenSource/AMSlideMenu;
@@ -467,15 +421,17 @@
 		B523C9FE1B78FDB100944004 /* images */ = {
 			isa = PBXGroup;
 			children = (
+				B55E9D7B1C9CFD7D00F581F5 /* capture.png */,
+				B55E9D7C1C9CFD7D00F581F5 /* photolibrary.png */,
+				B55E9D7D1C9CFD7D00F581F5 /* yantext1.png */,
 				B564D1AB1C94238300E903B6 /* Default-568h@2x.png */,
 				B564D0F61C9189C400E903B6 /* bg.png */,
-				B5BC104F1B8988240006EDD4 /* capture.png */,
 				B5BC10531B8988EE0006EDD4 /* emoticon.png */,
-				B5BC10511B8988420006EDD4 /* photolibrary.png */,
-				B5A400F51B8984D30077F535 /* yantext1.png */,
 				B523C9FF1B78FDB100944004 /* 1.gif */,
 				B523CA001B78FDB100944004 /* appicon.png */,
 				B523CA011B78FDB100944004 /* appicon0.png */,
+				B5AFCA0C1C9FFE5A00D9DDB5 /* bgleft.png */,
+				B5AFCA0D1C9FFE5A00D9DDB5 /* bgright.png */,
 				B523CA021B78FDB100944004 /* appicont.png */,
 				B523CA031B78FDB100944004 /* back.png */,
 				B523CA041B78FDB100944004 /* back1.png */,
@@ -512,15 +468,6 @@
 				B523C96F1B78FA7500944004 /* AMSlideMenu */,
 			);
 			name = Vendor;
-			sourceTree = "<group>";
-		};
-		B58D872E1B81E19B00B9A1BA /* ImplementViewController */ = {
-			isa = PBXGroup;
-			children = (
-				B58D872F1B81E1FC00B9A1BA /* RightMenu.h */,
-				B58D87301B81E1FC00B9A1BA /* RightMenu.m */,
-			);
-			name = ImplementViewController;
 			sourceTree = "<group>";
 		};
 		B5D8D4671B52060C0091DA20 = {
@@ -643,7 +590,6 @@
 				TargetAttributes = {
 					B5D8D46F1B52060C0091DA20 = {
 						CreatedOnToolsVersion = 6.1;
-						DevelopmentTeam = 4ELM59EN5N;
 					};
 					B5D8D4881B52060C0091DA20 = {
 						CreatedOnToolsVersion = 6.1;
@@ -678,38 +624,33 @@
 				B523CA161B78FDB100944004 /* back1.png in Resources */,
 				B523CA1F1B78FDB100944004 /* reply.png in Resources */,
 				B523CA1D1B78FDB100944004 /* new1.png in Resources */,
+				B55E9D7E1C9CFD7D00F581F5 /* capture.png in Resources */,
 				B523CA181B78FDB100944004 /* edit.png in Resources */,
 				B523CA1A1B78FDB100944004 /* jumppage.png in Resources */,
 				B523CA221B78FDB100944004 /* zheshiluwei.jpg in Resources */,
 				B523CA191B78FDB100944004 /* edit1.png in Resources */,
 				B523C9A51B78FA7500944004 /* icon-menu.png in Resources */,
 				B523CA151B78FDB100944004 /* back.png in Resources */,
-				B523C9AF1B78FA7500944004 /* ThirdVC.xib in Resources */,
-				B5BC10501B8988240006EDD4 /* capture.png in Resources */,
 				B523CA111B78FDB100944004 /* 1.gif in Resources */,
-				B523C9AB1B78FA7500944004 /* RightMenuTVC.xib in Resources */,
+				B55E9D7F1C9CFD7D00F581F5 /* photolibrary.png in Resources */,
 				B523CA121B78FDB100944004 /* appicon.png in Resources */,
 				B523CA1E1B78FDB100944004 /* refresh.png in Resources */,
-				B5BC10521B8988420006EDD4 /* photolibrary.png in Resources */,
-				B5A400F61B8984D30077F535 /* yantext1.png in Resources */,
 				B523CA1C1B78FDB100944004 /* new.png in Resources */,
 				B5D8D4841B52060C0091DA20 /* LaunchScreen.xib in Resources */,
-				B523C9A21B78FA7500944004 /* FiveVC.xib in Resources */,
 				B523CA171B78FDB100944004 /* backn.png in Resources */,
 				B523CA1B1B78FDB100944004 /* more.png in Resources */,
 				B523CA131B78FDB100944004 /* appicon0.png in Resources */,
 				B523C9A61B78FA7500944004 /* icon-menu@2x.png in Resources */,
 				B564D0F71C9189C400E903B6 /* bg.png in Resources */,
-				B523C9AD1B78FA7500944004 /* SecondVC.xib in Resources */,
-				B523C9A41B78FA7500944004 /* ForthVC.xib in Resources */,
+				B5AFCA0E1C9FFE5A00D9DDB5 /* bgleft.png in Resources */,
 				B523CA211B78FDB100944004 /* reply2.png in Resources */,
 				B523CA141B78FDB100944004 /* appicont.png in Resources */,
 				B5BC10541B8988EE0006EDD4 /* emoticon.png in Resources */,
+				B55E9D801C9CFD7D00F581F5 /* yantext1.png in Resources */,
 				B5D8D4811B52060C0091DA20 /* Images.xcassets in Resources */,
-				B52C72021B7C4F8100C50D1E /* LeftMenuTVC.xib in Resources */,
+				B5AFCA0F1C9FFE5A00D9DDB5 /* bgright.png in Resources */,
 				B523CA201B78FDB100944004 /* reply1.png in Resources */,
 				B564D1AC1C94238300E903B6 /* Default-568h@2x.png in Resources */,
-				B523C9A01B78FA7500944004 /* FirstVC.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -793,19 +734,14 @@
 				B523C9D41B78FAB500944004 /* ImageViewController.m in Sources */,
 				B523C9FB1B78FD6F00944004 /* BannerView.m in Sources */,
 				B5D8D47C1B52060C0091DA20 /* ViewController.m in Sources */,
-				B523C9A11B78FA7500944004 /* FiveVC.m in Sources */,
-				B523C9AC1B78FA7500944004 /* SecondVC.m in Sources */,
 				B523C99A1B78FA7500944004 /* AMSlideMenuLeftMenuSegue.m in Sources */,
 				B50F99861C15B70A00240C9D /* PercentageLayout.m in Sources */,
 				B523C9D91B78FAB500944004 /* DetailViewController.m in Sources */,
-				B58D87311B81E1FC00B9A1BA /* RightMenu.m in Sources */,
 				B523C9FC1B78FD6F00944004 /* PostImageView.m in Sources */,
 				B523C9DA1B78FAB500944004 /* TestViewController.m in Sources */,
 				B5E1378B1B7CDB76002B5979 /* CollectionViewController.m in Sources */,
 				B523C9D21B78FAB500944004 /* CategoryViewController.m in Sources */,
-				B523C9A31B78FA7500944004 /* ForthVC.m in Sources */,
 				B58D87341B81F2AC00B9A1BA /* CustomViewController.m in Sources */,
-				B523C9AE1B78FA7500944004 /* ThirdVC.m in Sources */,
 				B5D8D4791B52060C0091DA20 /* AppDelegate.m in Sources */,
 				B523C99E1B78FA7500944004 /* AMSlideMenuRightTableViewController.m in Sources */,
 				B55E9D771C9B091400F581F5 /* FrameLayout.m in Sources */,
@@ -820,7 +756,6 @@
 				B523C99C1B78FA7500944004 /* AMSlideMenuMainViewController.m in Sources */,
 				B523C9EE1B78FADC00944004 /* ReferencePopupView.m in Sources */,
 				B523C9AA1B78FA7500944004 /* RightMenuTVC.m in Sources */,
-				B523C99F1B78FA7500944004 /* FirstVC.m in Sources */,
 				B523C9EC1B78FADC00944004 /* PostData.m in Sources */,
 				B523C9B81B78FAA000944004 /* RTLabel.m in Sources */,
 				B523C9E91B78FADC00944004 /* ButtonData.m in Sources */,

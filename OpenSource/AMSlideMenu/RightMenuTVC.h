@@ -7,14 +7,6 @@
 //
 
 #import "AMSlideMenuRightTableViewController.h"
-
 @interface RightMenuTVC : AMSlideMenuRightTableViewController
-
-#pragma mark - Outlets
-@property (strong, nonatomic) IBOutlet UITableView *view;
-
-#pragma mark - Properties
-@property (strong, nonatomic) NSMutableArray *tableData;
-
 
 @end
