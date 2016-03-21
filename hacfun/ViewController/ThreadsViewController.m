@@ -7,7 +7,6 @@
 //
 
 #import "ThreadsViewController.h"
-#import "PostDataCellView.h"
 #import "FuncDefine.h"
 #import "DetailViewController.h"
 #import "CreateViewController.h"
@@ -80,6 +79,7 @@
     self.postView.tableFooterView = self.footView;
     
     UIActivityIndicatorView* activityIndicatorView = [[UIActivityIndicatorView alloc] initWithFrame:CGRectMake(40, 0, 36, 36)];
+    [activityIndicatorView setColor:[UIColor blackColor]];
     [activityIndicatorView setTag:1];
     [self.footView addSubview:activityIndicatorView];
     
@@ -298,78 +298,45 @@
 
 
 - (NSInteger) numberOfSectionsInTableView:(UITableView *)tableView {
+    NSLog(@"------tableView------");
     return 1;
 }
 
 
 -(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
+    NSLog(@"------tableView------");
     return 1.0;
 }
 
 
 -(CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section {
+    NSLog(@"------tableView------");
     return 1.0;
 }
 
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     
-    CGFloat height = 100;
+    CGFloat height = tableView.bounds.size.height;
     PostData* pd = (PostData*)([self.postDatas objectAtIndex:indexPath.row]);
-    height = pd.height;
+    if(pd.height > 1.0) {
+        height = pd.height;
+    }
     
-    NSLog(@"cell %zd return height %.1f", indexPath.row, height);
+    NSLog(@"------tableView[%zd] heightForRowAtIndexPath return %.1f", indexPath.row, height);
     return height;
 }
 
 
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return [self.postDatas count];
+    NSInteger rows = [self.postDatas count];
+    NSLog(@"------tableView numberOfRowsInSection : %zd", rows);
+    return rows;
 }
 
 
-#if 0
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    NSLog(@"cell %zd build.", indexPath.row);
-    
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"cell"];
-    if (cell == nil) {
-        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"cell"];
-        CGRect frame = cell.frame;
-        frame.size.width = tableView.frame.size.width;
-        [cell setFrame:frame];
-    }
-    else {
-        [cell.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
-        
-    }
-    cell.tag = indexPath.row;
-    cell.backgroundColor = [AppConfig backgroundColorFor:@"PostViewCell"];
-    
-    PostDataCellView *v = nil;
-    v = [[PostDataCellView alloc] initWithFrame:CGRectMake(0, 0, cell.frame.size.width, 100)];
-    [cell addSubview:v];
-    [v setTag:100];
-    [v setPostData:[self.postViewCellDatas objectAtIndex:indexPath.row] inRow:indexPath.row];
-    [v setBackgroundColor:[UIColor clearColor]];
-    
-    UIView *viewThumb = [v getThumbImage];
-    [viewThumb setTag:indexPath.row];
-    [(UIButton*)viewThumb addTarget:self action:@selector(clickViewThumb:) forControlEvents:UIControlEventTouchDown];
-    
-    RTLabel *contentLabel = (RTLabel*)[v getContentLabel];
-    contentLabel.delegate = self;
-    
-    PostData* pd = ((PostData*)[self.postDatas objectAtIndex:indexPath.row]);
-    pd.height = v.frame.size.height;
-    
-    return cell;
-}
-#endif
-
-
--(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    NSLog(@"cell %zd build.", indexPath.row);
+    NSLog(@"------tableView[%zd] cellForRowAtIndexPath", indexPath.row);
     
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"cell"];
     if (cell == nil) {
@@ -386,7 +353,7 @@
     PostDataCellView *v = [PostDataCellView threadCellViewWithData:[self.postViewCellDatas objectAtIndex:indexPath.row]
                                                       andInitFrame:CGRectMake(0, 0, cell.frame.size.width, 100)];
     [cell addSubview:v];
-    [v setTag:100];
+    [v setTag:TAG_PostDataCellView];
 
     UIView *viewThumb = [v getThumbImage];
     [viewThumb setTag:indexPath.row];
@@ -398,7 +365,8 @@
     PostData* pd = ((PostData*)[self.postDatas objectAtIndex:indexPath.row]);
     pd.height = v.frame.size.height;
     
-    
+    FRAMELAYOUT_SET_HEIGHT(cell, v.frame.size.height);
+
     return cell;
 }
 
@@ -415,14 +383,13 @@
 
 
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
-    //NSLog(@"cell %zd willDisplayCell.", indexPath.row);
+    NSLog(@"------tableView[%zd] willDisplayCell", indexPath.row);
     [self layoutCell:cell withRow:indexPath.row withPostData:[self.postViewCellDatas objectAtIndex:indexPath.row]];
 }
 
 
 - (void)layoutCell: (UITableViewCell *)cell withRow:(NSInteger)row withPostData:(PostData*)postData {
-    //NSLog(@"");
-    PostDataCellView * v = [cell viewWithTag:100];
+    PostDataCellView * v = [cell viewWithTag:TAG_PostDataCellView];
     if(v) {
         v.layer.backgroundColor = [UIColor whiteColor].CGColor;
         v.layer.borderWidth = 5;
@@ -436,6 +403,7 @@
 
 //增加上拉刷新.
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+//    NSLog(@"------scrollView------")
     CGFloat offsetY = scrollView.contentOffset.y;
     CGFloat judgeOffsetY = scrollView.contentSize.height
                             + scrollView.contentInset.bottom
@@ -444,10 +412,10 @@
     
     //NSLog(@"&&&&&&&&&&&&&&%f %f", offsetY, judgeOffsetY);
     //拉到低栏20及以上才出发上拉刷新.
-    if(offsetY >= judgeOffsetY + 36) {
+    CGFloat heightTrigger = 36.0;
+    if(offsetY >= judgeOffsetY + heightTrigger) {
         NSLog(@"xxxxx")
         [self clickFootView];
-        
     }
 }
 

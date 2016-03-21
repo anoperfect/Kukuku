@@ -39,45 +39,7 @@
 - (void)viewDidLoad {
     
     LOG_POSTION
-//    self.loadFromNetwork = NO;
-//    self.arrayAllRecord = [self getDataFromRecord];
-//    if(0 == [self.arrayAllRecord count]) {
-//        
-//        PopupView *popupView = [[PopupView alloc] init];
-//        //popupView.numofTapToClose = 1;
-//        //popupView.secondsOfAutoClose = 2;
-//        popupView.titleLabel = [self getNofifyStringForNone];
-//        [popupView popupInSuperView:self.view];
-//        
-//        return ;
-//    }
-    
-//    self.textTopic = @"我的发帖";
-//    self.pageNum = 0;
-    
-    
     [super viewDidLoad];
-}
-
-
-- (void)layoutCell: (UITableViewCell *)cell withRow:(NSInteger)row withPostData:(PostData*)postData {
-    NSLog(@"");
-    
-    UIView *view = [cell viewWithTag:102];
-    if(NULL == view) {
-        
-        CGRect frame = [cell viewWithTag:100].frame;
-        frame.origin.x += 3;
-        frame.origin.y += 3;
-        frame.size.width -= 2 * 3;
-        frame.size.height -= 2 * 3;
-        
-        view = [[UIView alloc] initWithFrame:frame];
-        [cell addSubview:view];
-        [cell sendSubviewToBack:view];
-        [view setTag:102];
-        [view setBackgroundColor:[UIColor whiteColor]];
-    }
 }
 
 

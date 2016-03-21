@@ -8,6 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import "PostData.h"
+#import "PostDataCellView.h"
 #import "CustomViewController.h"
 
 
@@ -21,6 +22,8 @@
 #define NSSTRING_LOAD_FAILED        @"加载失败. － oops ! 点击重新加载."
 #define NSSTRING_NO_MORE_DATA       @"加载无更多数据. - 已经没有了."
 #define NSSTRING_HAA                @"芦苇 芦苇 ......"
+
+#define TAG_PostDataCellView    (4500000 + 1)
 
 @property (assign,nonatomic) NSInteger  numberInOnePage;
 @property (assign,nonatomic) NSInteger  numberOfAll;
@@ -52,9 +55,6 @@
 //标记时属于加载或者是刷新.
 @property (assign,nonatomic) BOOL boolRefresh;
 
-//网络加载时的等待提示.
-@property (strong,nonatomic) UIView *viewLoading;
-
 //more按钮显示出的action menu.
 @property (strong,nonatomic) UIView *actionMenu;
 
@@ -85,6 +85,5 @@ typedef enum : NSUInteger {
 
 - (void)layoutCell: (UITableViewCell *)cell withRow:(NSInteger)row withPostData:(PostData*)postData ;
 - (void)clearDataAdditional ;
-
 
 @end

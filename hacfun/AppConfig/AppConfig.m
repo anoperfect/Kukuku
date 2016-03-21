@@ -137,6 +137,9 @@
         [aryName addObject:@"CellInfo"];
         [aryColor addObject:HexRGBAlpha(0x0, 0.66)];
         
+        [aryName addObject:@"CellInfoAdditional"];
+        [aryColor addObject:HexRGBAlpha(0x0, 0.66)];
+        
         [aryName addObject:@"RefreshTint"];
         [aryColor addObject:[UIColor redColor]];
         
@@ -177,9 +180,11 @@
         [aryName addObject:@""];
         [aryFont addObject:[UIFont systemFontOfSize:[UIFont smallSystemFontSize]]];
         
+        [aryName addObject:@"PostTitle"];
+        [aryFont addObject:[UIFont systemFontOfSize:applicationFrame.size.width*0.036]];
+        
         [aryName addObject:@"PostContent"];
-//        [aryFont addObject:[UIFont systemFontOfSize:[UIFont smallSystemFontSize]]];
-        [aryFont addObject:[UIFont systemFontOfSize:applicationFrame.size.width*0.0400]];
+        [aryFont addObject:[UIFont systemFontOfSize:applicationFrame.size.width*0.045]];
         
         [aryName addObject:@"ButtonTopic"];
         [aryFont addObject:[UIFont systemFontOfSize:16.0]];

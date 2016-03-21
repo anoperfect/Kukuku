@@ -10,14 +10,11 @@
 #import "FuncDefine.h"
 #import "AppConfig.h"
 @interface NetworkThreadViewController ()
-
 @end
 
 
 
-
 @implementation NetworkThreadViewController
-
 
 
 - (void)reloadPostData{
@@ -93,7 +90,6 @@
 
 
 - (void)parseAndFresh:(NSData*)data {
-    [self dismissLoadingView];
     self.boolRefresh = NO;
     
     NSMutableArray* parsedPostDatas = [self parseDownloadedData:data];
@@ -128,45 +124,5 @@
     self.refresh.attributedTitle = [[NSAttributedString alloc]initWithString:@"刷新完成"];
     [self.refresh endRefreshing];
 }
-
-
-- (void)showLoadingView {
-    if(!self.viewLoading) {
-        self.viewLoading = [[UIView alloc]initWithFrame:self.view.frame];
-        [self.viewLoading setFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height - 0)];
-        [self.viewLoading setBackgroundColor:[AppConfig backgroundColorFor:@"LoadingView"]];
-        [self.viewLoading setAlpha:0.8];
-        UIActivityIndicatorView* activityIndicatorView = [[UIActivityIndicatorView alloc] initWithFrame:CGRectMake(0, 0, 40, 40)];
-        
-        [activityIndicatorView setTag:1];
-        [self.viewLoading addSubview:activityIndicatorView];
-        [activityIndicatorView setCenter:self.viewLoading.center];
-    }
-    
-    [self.view addSubview:self.viewLoading];
-    UIActivityIndicatorView* activityIndicatorView = (UIActivityIndicatorView*)[self.viewLoading viewWithTag:1];
-    [activityIndicatorView startAnimating];
-    
-    [self.view bringSubviewToFront:self.viewLoading];
-    
-}
-
-
-- (void)dismissLoadingView {
-    if(self.viewLoading) {
-        
-        [self.viewLoading removeFromSuperview];
-        UIActivityIndicatorView* activityIndicatorView = (UIActivityIndicatorView*)[self.viewLoading viewWithTag:1];
-        [activityIndicatorView stopAnimating];
-        
-        [self.view sendSubviewToBack:self.viewLoading];
-    }
-}
-
-
-
-
-
-
 
 @end

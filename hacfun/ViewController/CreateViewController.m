@@ -26,14 +26,17 @@
 @interface CreateViewController () <UITextViewDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate> {
     
     UITextView              * _textView;
-    UIButton                * _btnSend;
-    EmoticonCharacterView   * _emoticonView;
     UIView                  * _viewAttachPicture;
-    UIView                  * _imageView;
+    UIImageView             * _imageView;
+    UIButton                * _postImageRemoveButton;
+    UIButton                * _emoticonButton;
+    UIButton                * _captureButton;
+    UIButton                * _photoLibraryButton;
+    UIButton                * _sendButton;
+    EmoticonCharacterView   * _emoticonView;
     
     NSData                  * _imageDataPost;
     NSMutableDictionary     * _dictConnectionData;
-    NSTimer                 * _timerOpenKeypad;
 
     UIView                  * _actionsContainerView; //放置点击按钮的容器view.
 }
@@ -62,11 +65,13 @@
     
     // 延时加载UITextView, 否则可能产生不流畅现象.
     
+#if 0
     /* 颜文字, 图片, 发送按钮. */
     _actionsContainerView = [[UIView alloc] init];
     [self.view addSubview:_actionsContainerView];
     [self setActionButtons];
     LAYOUT_BORDER_ORANGE(_actionsContainerView)
+#endif
     
     /* 图片附件. */
     _viewAttachPicture = [[UIView alloc] init];
@@ -75,14 +80,35 @@
     _viewAttachPicture.tag              = (NSInteger)@"ImageAttachView";
     
     _imageView = [[UIImageView alloc] init];
-    [_viewAttachPicture addSubview:_imageView];
+    [self.view addSubview:_imageView];
     _imageView.tag = (NSInteger)@"ImageView";
     
-    UIButton *button = [[UIButton alloc] init];
-    [_viewAttachPicture addSubview:button];
-    button.tag = 10;
-    [button addTarget:self action:@selector(removeImage) forControlEvents:UIControlEventTouchDown];
-    [button setTitle:@"X" forState:UIControlStateNormal];
+    _postImageRemoveButton = [[UIButton alloc] init];
+    [self.view addSubview:_postImageRemoveButton];
+    _postImageRemoveButton.tag = 10;
+    [_postImageRemoveButton addTarget:self action:@selector(removeImage) forControlEvents:UIControlEventTouchDown];
+    [_postImageRemoveButton setTitle:@"X" forState:UIControlStateNormal];
+    
+    _emoticonButton = [[UIButton alloc] init];
+    [self.view addSubview:_emoticonButton];
+    [_emoticonButton addTarget:self action:@selector(emoticon) forControlEvents:UIControlEventTouchDown];
+    [_emoticonButton setImage:[UIImage imageNamed:@"emoticon"] forState:UIControlStateNormal];
+    
+    _captureButton = [[UIButton alloc] init];
+    [self.view addSubview:_captureButton];
+    [_captureButton addTarget:self action:@selector(capture) forControlEvents:UIControlEventTouchDown];
+    [_captureButton setImage:[UIImage imageNamed:@"capture"] forState:UIControlStateNormal];
+    
+    _photoLibraryButton = [[UIButton alloc] init];
+    [self.view addSubview:_photoLibraryButton];
+    [_photoLibraryButton addTarget:self action:@selector(photoLibrary) forControlEvents:UIControlEventTouchDown];
+    [_photoLibraryButton setImage:[UIImage imageNamed:@"photolibrary"] forState:UIControlStateNormal];
+    
+    _sendButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    [_sendButton setTitle:@"发送" forState:UIControlStateNormal];
+    [_sendButton setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
+    [_sendButton addTarget:self action:@selector(clickSend) forControlEvents:UIControlEventTouchDown];
+    [self.view addSubview:_sendButton];
     
     // 颜文字.
     // 颜文字优化有问题. 一开始便创建所有颜文字冤死的话会卡顿. 修改为点击图标后显示.
@@ -115,84 +141,6 @@
 }
 
 
-- (void)viewWillLayoutSubviews1
-{
-    [super viewWillLayoutSubviews];
-    
-    CGRect viewFrame = self.view.frame;
-    
-    CGRect rectContentView = viewFrame;
-    CGRect rectTextView = viewFrame;
-    CGRect rectViewAttachPicture = viewFrame;
-    CGRect rectActionsContainerView = viewFrame;
-    rectActionsContainerView.size.height = 36;
-    
-    //viewContent布局在BannerView和Keyboard间.
-    //其他布局在viewContent上.
-    rectContentView.origin.y = self.yBolowView;
-    
-    CGRect frameAll = CGRectMake(0, self.yBolowView, self.view.frame.size.width, self.view.frame.size.height);
-    CGRect frameEmoticonView = frameAll;
-    
-    LOG_RECT(self.view.frame, @"self.view.frame")
-    LOG_RECT(frameAll, @"all0")
-    
-#define RECT_Y_BELOW_FRAME(frame) (frame.origin.y + frame.size.height)
-    //如果有记录软键盘的frame, 则设置emoticon的高度与软键盘匹配.
-    if(!CGRectIsEmpty(self.frameSoftKeyboard)) {
-        NSLog(@"got softkeyboard frame.[showing : %d]", self.isShowingSoftKeyboard);
-        frameAll.size.height = self.view.frame.size.height
-                                - self.frameSoftKeyboard.size.height;
-        frameEmoticonView.size.height = self.frameSoftKeyboard.size.height;
-        frameEmoticonView.origin.y = RECT_Y_BELOW_FRAME(frameAll);
-    }
-    else {
-        NSLog(@"not got softkeyboard frame.");
-        frameAll.size.height = self.view.frame.size.height;
-        frameAll = CGRectMakeByPercentageFrameVertical(frameAll, 0.0, 0.6);
-        frameEmoticonView = CGRectMakeByPercentageFrameVertical(frameAll, 0.6, 0.4);
-    }
-    LOG_RECT(frameAll, @"all1")
-    LOG_RECT(frameEmoticonView, @"emoticon")
-    
-    rectActionsContainerView = frameEmoticonView;
-    rectActionsContainerView.origin.y -= 36;
-    rectActionsContainerView.size.height = 36;
-    LOG_RECT(rectActionsContainerView, @"Actions")
-    
-    CGRect rectContentLeft = frameAll;
-    rectContentLeft.size.height -= 36;
-    
-    if(_imageDataPost) {
-        rectTextView = CGRectMakeByPercentageFrameVertical(rectContentLeft, 0.0, 0.8);
-        rectViewAttachPicture = CGRectMakeByPercentageFrameVertical(rectContentLeft, 0.8, 0.2);
-    }
-    else {
-        rectTextView = CGRectMakeByPercentageFrameVertical(rectContentLeft, 0.0, 1.0);
-        rectViewAttachPicture = CGRectMakeByPercentageFrameVertical(rectContentLeft, 1.0, 0.0);
-    }
-    
-//    [_viewContent setFrame:rectContentView];
-    [_textView setFrame:rectTextView];
-    [_viewAttachPicture setFrame:rectViewAttachPicture];
-    [_actionsContainerView setFrame:rectActionsContainerView];
-    [_emoticonView setFrame:frameEmoticonView];
-
-    LOG_RECT(rectContentLeft, @"viewContentLeft")
-    LOG_VIEW_RECT(_textView, @"textView")
-    LOG_VIEW_RECT(_viewAttachPicture, @"_viewAttachPicture")
-    LOG_VIEW_RECT(_actionsContainerView, @"_actionsContainerView")
-    
-    [self layoutSubviewActions];
-    [self layoutSubviewAttachPicture];
-    
-    //重新布置_imageView,_actionsContainerView subviews.
-//    _imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, _viewAttachPicture.frame.size.width - _viewAttachPicture.frame.size.height, _viewAttachPicture.frame.size.height)];
-    
-    NSLog(@"view superView : %@", [self.view superview]);
-}
-
-
 - (void)viewWillLayoutSubviews
 {
     [super viewWillLayoutSubviews];
@@ -207,132 +155,57 @@
         [layout setUseIncludedMode:@"Emoticon" includedTo:NAME_MAIN_FRAME withPostion:FrameLayoutPositionBottom andSizePercentage:0.4];
     }
     
-    [layout setUseBesideMode:@"Action" besideTo:@"Emoticon" withDirection:FrameLayoutDirectionAbove andSizeValue:36];
+    CGFloat heightActionButtons = 36;
+    CGFloat widthActionButtons = heightActionButtons * 1.5;
+    [layout setUseBesideMode:@"Action" besideTo:@"Emoticon" withDirection:FrameLayoutDirectionAbove andSizeValue:heightActionButtons];
+    [layout setUseIncludedMode:@"EmoticonButton" includedTo:@"Action" withPostion:FrameLayoutPositionLeft andSizeValue:widthActionButtons];
+    [layout setUseBesideMode:@"CaptureButton" besideTo:@"EmoticonButton" withDirection:FrameLayoutDirectionRigth andSizeValue:widthActionButtons];
+    [layout setUseBesideMode:@"PhotoLibraryButton" besideTo:@"CaptureButton" withDirection:FrameLayoutDirectionRigth andSizeValue:widthActionButtons];
+    CGFloat widthSendButton = 60;
+    [layout setUseIncludedMode:@"SendButton" includedTo:@"Action" withPostion:FrameLayoutPositionRight andSizeValue:widthSendButton];
+    
     [layout setUseLeftMode:@"InputAll" standardTo:@"Action" withDirection:FrameLayoutDirectionAbove];
     if(_imageDataPost) {
         [layout divideInHerizon:@"InputAll" to:@"TextView" and:@"ViewAttachPicture" withPercentage:0.8];
+        CGRect frameViewAttachPicture = [layout getCGRect:@"ViewAttachPicture"];
+        [layout setUseIncludedMode:@"ImageView" includedTo:@"ViewAttachPicture" withPostion:FrameLayoutPositionLeft andSizeValue:frameViewAttachPicture.size.height];
+        [layout setUseIncludedMode:@"PostImageRemoveButton" includedTo:@"ViewAttachPicture" withPostion:FrameLayoutPositionRight andSizeValue:frameViewAttachPicture.size.height];
     }
     else {
         [layout divideInHerizon:@"InputAll" to:@"TextView" and:@"ViewAttachPicture" withPercentage:1.0];
+        [layout setCGRect:CGRectZero toName:@"ImageView"];
+        [layout setCGRect:CGRectZero toName:@"PostImageRemoveButton"];
     }
     
     [_textView              setFrame:[layout getCGRect:@"TextView"]];
-    [_viewAttachPicture     setFrame:[layout getCGRect:@"ViewAttachPicture"]];
-    [_actionsContainerView  setFrame:[layout getCGRect:@"Action"]];
+//    [_viewAttachPicture     setFrame:[layout getCGRect:@"ViewAttachPicture"]];
+    [_imageView             setFrame:[layout getCGRect:@"ImageView"]];
+    [_postImageRemoveButton setFrame:[layout getCGRect:@"PostImageRemoveButton"]];
+//    [_actionsContainerView  setFrame:[layout getCGRect:@"Action"]];
+    [_emoticonButton        setFrame:[layout getCGRect:@"EmoticonButton"]];
+    [_captureButton         setFrame:[layout getCGRect:@"CaptureButton"]];
+    [_photoLibraryButton    setFrame:[layout getCGRect:@"PhotoLibraryButton"]];
+    [_sendButton            setFrame:[layout getCGRect:@"SendButton"]];
+    
     [_emoticonView          setFrame:[layout getCGRect:@"Emoticon"]];
+    
+    CGSize sizeButtons = _emoticonButton.frame.size;
+    CGFloat leftEdge = (sizeButtons.width - sizeButtons.height ) / 2  + 1;
+    UIEdgeInsets actionsButtonEdge = UIEdgeInsetsMake(1, leftEdge, 1, leftEdge);
+    [_emoticonButton        setImageEdgeInsets:actionsButtonEdge];
+    [_captureButton         setImageEdgeInsets:actionsButtonEdge];
+    [_photoLibraryButton    setImageEdgeInsets:actionsButtonEdge];
     
     LOG_VIEW_RECT(_textView, @"textView")
     LOG_VIEW_RECT(_viewAttachPicture, @"_viewAttachPicture")
     LOG_VIEW_RECT(_actionsContainerView, @"_actionsContainerView")
     
-    [self layoutSubviewActions];
-    [self layoutSubviewAttachPicture];
+//    [self layoutSubviewActions];
+    //[self layoutSubviewAttachPicture];
+    
+    NSLog(@"%@", layout);
 }
 
-
-//当 _actionsContainerView调整时, 调整各按钮.
-- (void)layoutSubviewActions
-{
-    float leftBorder = 10.0;
-    float leftPadding = 10.0;
-    float topBorder = 6.0;
-    float height = _actionsContainerView.frame.size.height - 2 * topBorder;
-    float width = height;
-    CGRect frameButton = CGRectMake(leftBorder, topBorder, width, height);
-    NSInteger numberOfInputTypes = 3;
-    for(NSInteger index=0; index<numberOfInputTypes; index++) {
-        frameButton.origin.x = leftBorder + index * (leftPadding + width);
-        [[_actionsContainerView viewWithTag:(10+index)] setFrame:frameButton];
-        NSString *s = [NSString stringWithFormat:@"button%zd", index];
-        LOG_RECT(frameButton, s)
-    }
-    
-    CGRect frameButtonSend = CGRectMake(_actionsContainerView.frame.size.width - 60, topBorder, 60, height);
-    [_btnSend setFrame:frameButtonSend];
-}
-
-
-- (void)layoutSubviewAttachPicture
-{
-    float height = _viewAttachPicture.frame.size.height;
-    float width = height;
-    
-    CGRect frameImageView = CGRectMake(0, 0, width, height);
-    [_imageView setFrame:frameImageView];
-    
-    CGRect frameButton = CGRectMake(_viewAttachPicture.frame.size.width - width, 0, width, height);
-    UIButton *button = (UIButton*)[_viewAttachPicture viewWithTag:10];
-    [button setFrame:frameButton];
-}
-
-
-- (void)setActionButtons
-{
-    NSMutableArray *buttonDataArray = [[NSMutableArray alloc] init];
-    ButtonData *data ;
-    
-    data = [[ButtonData alloc] init];
-    data.keyword = @"emoticon";
-    data.id = 'r';
-    data.superId = 0;
-    data.image = @"emoticon";
-    data.title = @"";
-    data.method = 1;
-    data.target = self;
-    data.sel = @selector(emoticon);
-    [buttonDataArray addObject:data];
-    
-    data = [[ButtonData alloc] init];
-    data.keyword = @"capture";
-    data.id = 'n';
-    data.superId = 0;
-    data.image = @"capture";
-    data.title = @"";
-    data.method = 1;
-    data.target = self;
-    data.sel = @selector(capture);
-    [buttonDataArray addObject:data];
-    
-    data = [[ButtonData alloc] init];
-    data.keyword = @"photolibrary";
-    data.id = 'm';
-    data.superId = 0;
-    data.image = @"photolibrary";
-    data.title = @"";
-    data.method = 1;
-    data.target = self;
-    data.sel = @selector(photoLibrary);
-    [buttonDataArray addObject:data];
-    
-
-    //subview从基数10开始.
-    NSInteger index = 10;
-    for(ButtonData *data in buttonDataArray) {
-        UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
-        button.tag = index ++;
-        button.adjustsImageWhenHighlighted = YES;
-        [button setContentMode:UIViewContentModeScaleAspectFit];
-        
-        if(data.method == 1) {
-            [button setImage:[UIImage imageNamed:data.image] forState:UIControlStateNormal];
-        }
-        else {
-            [button setTitle:data.title forState:UIControlStateNormal];
-        }
-        
-        [button.titleLabel setFont:[AppConfig fontFor:@"BannerButtonMenu"]];
-        [button setTitleColor:[AppConfig textColorFor:@"BannerButtonMenu"] forState:UIControlStateNormal];
-        [button addTarget:data.target action:data.sel forControlEvents:UIControlEventTouchDown];
-        [_actionsContainerView addSubview:button];
-    }
-    
-    _btnSend = [UIButton buttonWithType:UIButtonTypeCustom];
-    [_btnSend setTitle:@"发送" forState:UIControlStateNormal];
-    [_btnSend setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
-    [_btnSend addTarget:self action:@selector(clickSend) forControlEvents:UIControlEventTouchDown];
-    [_actionsContainerView addSubview:_btnSend];
-    //[self.view addSubview:_btnSend];
-}
 
 
 - (void)viewDidAppear:(BOOL)animated
@@ -357,10 +230,13 @@
 
 - (void)focusToInput
 {
-    //[_timerOpenKeypad invalidate];
-    //_timerOpenKeypad = nil;
-    
     [_textView becomeFirstResponder];
+}
+
+
+- (void)notFocusToInput
+{
+    [_textView resignFirstResponder];
 }
 
 
@@ -382,17 +258,17 @@
     
     //选择后即回到编辑状态.
     [_emoticonView emoticonsHidden];
-    [_textView becomeFirstResponder];
+    [self focusToInput];
 }
 
 
 - (void)emoticon {
     if([_emoticonView isShow]) {
-        [_textView becomeFirstResponder];
+        [self focusToInput];
         [_emoticonView emoticonsHidden];
     }
     else {
-        [_textView resignFirstResponder];
+        [self notFocusToInput];
         [_emoticonView emoticonsShow];
     }
 }
@@ -400,6 +276,11 @@
 
 - (void)capture {
     LOG_POSTION
+    
+    UIImagePickerController *picker = [[UIImagePickerController alloc] init];
+    picker.delegate = self;
+    picker.sourceType = UIImagePickerControllerSourceTypeCamera;
+    [self presentViewController:picker animated:YES completion:^{}];
 }
 
 
@@ -418,45 +299,27 @@
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
     
     [picker dismissViewControllerAnimated:YES completion:^{}];
-    
-    UIView *view = [self.view viewWithTag:(NSInteger)@"ImageAttachView"];
-    
-    if(view) {
-        
-        
-    }
-    else {
-    
-
-    }
-    
     UIImage *image = [info objectForKey:UIImagePickerControllerOriginalImage];
-    UIImageView *imageView = (UIImageView*)[view viewWithTag:(NSInteger)@"ImageView"];
-    [imageView setContentMode:(UIViewContentModeScaleAspectFit)];
-//    [imageView setAutoresizingMask:UIViewAutoresizingFlexibleHeight];
-    [imageView setImage:image];
+    [self updatePostImage:image];
+}
+
+
+- (void)updatePostImage:(UIImage*)image
+{
+    [_imageView setContentMode:(UIViewContentModeScaleAspectFit)];
+    //    [imageView setAutoresizingMask:UIViewAutoresizingFlexibleHeight];
+    [_imageView setImage:image];
     
-//    imageDataPost = UIImagePNGRepresentation(image);
+    //    imageDataPost = UIImagePNGRepresentation(image);
     _imageDataPost = UIImageJPEGRepresentation(image, 0.8);
     NSLog(@"imageData length : %zi", [_imageDataPost length]);
     
-    [_textView becomeFirstResponder];
+    [self focusToInput];
 }
 
 
 - (void)removeImage {
-    
-    //输入框恢复原高度.
-//    FRAME_SET_HEIGHT(_textView, _textView.frame.size.height * 4 / 3)
-    
-    //输入图片栏取消.
-//    UIView *view = [self.view viewWithTag:(NSInteger)@"ImageAttachView"];
-//    [view removeFromSuperview];
-    
-    UIView *view = [self.view viewWithTag:(NSInteger)@"ImageAttachView"];
-    UIImageView *imageView = (UIImageView*)[view viewWithTag:(NSInteger)@"ImageView"];
-    [imageView setImage:nil];
-    
+    [_imageView setImage:nil];
     _imageDataPost = nil;
     
     [self.view setNeedsLayout];
@@ -550,8 +413,7 @@
 
 
 - (void)clickSend {
-    
-    [_textView resignFirstResponder];
+    [self notFocusToInput];
     
     NSString *host = [[AppConfig sharedConfigDB] configDBGet:@"host"];
     NSString *str = nil;
@@ -682,7 +544,7 @@
     popupView.secondsOfstringIncrease = 1;
     popupView.finish = ^(void) {
         NSLog(@"-=-=-=%@", self);
-        [_textView becomeFirstResponder];
+        [self focusToInput];
     };
     [popupView setTag:(NSInteger)@"PopupView"];
     [popupView popupInSuperView:self.view];

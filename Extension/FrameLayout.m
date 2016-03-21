@@ -488,7 +488,10 @@
 }
 
 
-
+- (NSString*)description
+{
+    return [NSString stringWithFormat:@"%@", self.frames];
+}
 
 
 

@@ -10,7 +10,7 @@
 #import "CreateViewController.h"
 #import "DetailViewController.h"
 #import "AppConfig.h"
-
+#import "MainVC.h"
 
 
 @interface CategoryViewController ()
@@ -41,6 +41,8 @@
         actionData.keyword  = @"new";
         actionData.image    = @"edit";
         [self actionAddData:actionData];
+        
+        NSLog(@"kcountObject %@ : %zd", @"PostDataCellView", [PostDataCellView countObject]);
     }
     
     return self;
@@ -50,6 +52,15 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+}
+
+
+- (void)viewDidAppear:(BOOL)animated
+{
+    NSLog(@"main : %@", [AMSlideMenuMainViewController allInstances]);
+    NSLog(@"main getInstanceForVC : %@", [AMSlideMenuMainViewController getInstanceForVC:self]);
+    NSLog(@"main nvc : %@", [AMSlideMenuMainViewController getInstanceForVC:self].currentActiveNVC);
+    NSLog(@"self nvc : %@", self.navigationController);
 }
 
 
@@ -112,27 +123,7 @@
 
 
 - (void)layoutCell: (UITableViewCell *)cell withRow:(NSInteger)row withPostData:(PostData*)postData {
-    NSLog(@"cell %zd layoutCell.", row);
     [super layoutCell:cell withRow:row withPostData:postData];
-    return ;
-    
-#if 0
-    UIView *view = [cell viewWithTag:102];
-    if(NULL == view) {
-        
-        CGRect frame = [cell viewWithTag:100].frame;
-        frame.origin.x += 3;
-        frame.origin.y += 3;
-        frame.size.width -= 2 * 3;
-        frame.size.height -= 2 * 3;
-        
-        view = [[UIView alloc] initWithFrame:frame];
-        [cell addSubview:view];
-        [cell sendSubviewToBack:view];
-        [view setTag:102];
-        [view setBackgroundColor:[UIColor whiteColor]];
-    }
-#endif
 }
 
 

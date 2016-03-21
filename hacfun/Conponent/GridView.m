@@ -17,6 +17,7 @@
     NSMutableArray *_cellViews;
 }
 
+#define TAG_Offset (45000000)
 
 @end
 
@@ -62,7 +63,7 @@
     
     [cellView setFrame:CGRectMake(xCell, yCell, _sizeFitCell.width, _sizeFitCell.height)];
     LOG_VIEW_REC0(cellView, @"")
-    [cellView setTag:_number];
+    [cellView setTag:_number+TAG_Offset];
     [self addSubview:cellView];
     
     _number ++;
@@ -80,7 +81,7 @@
 
 
 - (UIView*)cellViewAt:(NSInteger)index {
-    return [self viewWithTag:index];
+    return [self viewWithTag:index+TAG_Offset];
 }
 
 

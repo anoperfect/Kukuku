@@ -32,7 +32,7 @@
     self = [super initWithFrame:frame];
     
     self.threadId = id;
-    [self setPostDataInitThreadId:self.threadId];
+//    [self setPostDataInitThreadId:self.threadId];
     
     UIActivityIndicatorView *view = [[UIActivityIndicatorView alloc] init];
     [view setCenter:CGPointMake(self.frame.size.width/2, self.frame.size.height/2)];
@@ -96,7 +96,7 @@
 
 
 - (void)parseAndFresh:(NSData*)data {
-    
+#if 0
     PostData *postData = [self parseFromJsonData:data];
     if(nil == postData) {
         NSLog(@"加载失败");
@@ -109,6 +109,7 @@
         postData.mode = 2;
         [self setPostData:[postData toCellUsingDataWithId] inRow:0];
     }
+#endif
 }
 
 

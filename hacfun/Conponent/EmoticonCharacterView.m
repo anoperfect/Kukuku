@@ -16,6 +16,7 @@
     NSArray *_EmoticonStrings;
     
 };
+@property (nonatomic, strong) GridView *buttonsGridView;
 
 @end
 
@@ -50,7 +51,7 @@
 {
     self.isShow = YES;
     //移除前一个grid.
-    [[self viewWithTag:1] removeFromSuperview];
+    [self.buttonsGridView removeFromSuperview];
     
     _EmoticonStrings = [self getEmoticonStrings];
     NSInteger num = [_EmoticonStrings count];
@@ -58,10 +59,9 @@
     CGRect frame = self.frame;
     LOG_RECT(frame, @"emoticonview")
     
-    GridView *buttonsGridView = [[GridView alloc] initWithFrame:CGRectMake(0, 0, frame.size.width, frame.size.height)];
-    buttonsGridView.tag = 1;
-    buttonsGridView.numberInLine = 4;
-    [self addSubview:buttonsGridView];
+    self.buttonsGridView = [[GridView alloc] initWithFrame:CGRectMake(0, 0, frame.size.width, frame.size.height)];
+    self.buttonsGridView.numberInLine = self.frame.size.width / 80;
+    [self addSubview:self.buttonsGridView];
     
     for(NSInteger i = 0; i<num; i++) {
         UIButton *button = [[UIButton alloc] init];
@@ -71,7 +71,7 @@
         [button addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchDown];
         [button.layer setBorderWidth:0.5];
         [button.layer setBorderColor:HexRGBAlpha(0x0000ff, 0.1).CGColor];
-        [buttonsGridView addCellView:button];
+        [self.buttonsGridView addCellView:button];
         button.adjustsImageWhenHighlighted = YES;
         button.showsTouchWhenHighlighted = YES;
     }
@@ -82,13 +82,13 @@
 {
     self.isShow = NO;
     //移除前一个grid.
-    [[self viewWithTag:1] removeFromSuperview];
+    [self.buttonsGridView removeFromSuperview];
+    self.buttonsGridView = nil;
 }
 
 
 - (void)setInputAction:(inputAction)action {
     _action = action;
-    
 }
 
 

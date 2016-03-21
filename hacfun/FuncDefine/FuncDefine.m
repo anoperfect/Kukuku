@@ -1779,3 +1779,336 @@ NSString *pathJsonCache = [NSString stringWithFormat:@"%@/Post_%08zi.json", json
     
 }
 #endif
+
+
+
+
+#if CreateViewVontroller
+- (void)viewWillLayoutSubviews1
+{
+    [super viewWillLayoutSubviews];
+    
+    CGRect viewFrame = self.view.frame;
+    
+    CGRect rectContentView = viewFrame;
+    CGRect rectTextView = viewFrame;
+    CGRect rectViewAttachPicture = viewFrame;
+    CGRect rectActionsContainerView = viewFrame;
+    rectActionsContainerView.size.height = 36;
+    
+    //viewContent布局在BannerView和Keyboard间.
+    //其他布局在viewContent上.
+    rectContentView.origin.y = self.yBolowView;
+    
+    CGRect frameAll = CGRectMake(0, self.yBolowView, self.view.frame.size.width, self.view.frame.size.height);
+    CGRect frameEmoticonView = frameAll;
+    
+    LOG_RECT(self.view.frame, @"self.view.frame")
+    LOG_RECT(frameAll, @"all0")
+    
+#define RECT_Y_BELOW_FRAME(frame) (frame.origin.y + frame.size.height)
+    //如果有记录软键盘的frame, 则设置emoticon的高度与软键盘匹配.
+    if(!CGRectIsEmpty(self.frameSoftKeyboard)) {
+        NSLog(@"got softkeyboard frame.[showing : %d]", self.isShowingSoftKeyboard);
+        frameAll.size.height = self.view.frame.size.height
+        - self.frameSoftKeyboard.size.height;
+        frameEmoticonView.size.height = self.frameSoftKeyboard.size.height;
+        frameEmoticonView.origin.y = RECT_Y_BELOW_FRAME(frameAll);
+    }
+    else {
+        NSLog(@"not got softkeyboard frame.");
+        frameAll.size.height = self.view.frame.size.height;
+        frameAll = CGRectMakeByPercentageFrameVertical(frameAll, 0.0, 0.6);
+        frameEmoticonView = CGRectMakeByPercentageFrameVertical(frameAll, 0.6, 0.4);
+    }
+    LOG_RECT(frameAll, @"all1")
+    LOG_RECT(frameEmoticonView, @"emoticon")
+    
+    rectActionsContainerView = frameEmoticonView;
+    rectActionsContainerView.origin.y -= 36;
+    rectActionsContainerView.size.height = 36;
+    LOG_RECT(rectActionsContainerView, @"Actions")
+    
+    CGRect rectContentLeft = frameAll;
+    rectContentLeft.size.height -= 36;
+    
+    if(_imageDataPost) {
+        rectTextView = CGRectMakeByPercentageFrameVertical(rectContentLeft, 0.0, 0.8);
+        rectViewAttachPicture = CGRectMakeByPercentageFrameVertical(rectContentLeft, 0.8, 0.2);
+    }
+    else {
+        rectTextView = CGRectMakeByPercentageFrameVertical(rectContentLeft, 0.0, 1.0);
+        rectViewAttachPicture = CGRectMakeByPercentageFrameVertical(rectContentLeft, 1.0, 0.0);
+    }
+    
+    //    [_viewContent setFrame:rectContentView];
+    [_textView setFrame:rectTextView];
+    [_viewAttachPicture setFrame:rectViewAttachPicture];
+    [_actionsContainerView setFrame:rectActionsContainerView];
+    [_emoticonView setFrame:frameEmoticonView];
+    
+    LOG_RECT(rectContentLeft, @"viewContentLeft")
+    LOG_VIEW_RECT(_textView, @"textView")
+    LOG_VIEW_RECT(_viewAttachPicture, @"_viewAttachPicture")
+    LOG_VIEW_RECT(_actionsContainerView, @"_actionsContainerView")
+    
+    [self layoutSubviewActions];
+    [self layoutSubviewAttachPicture];
+    
+    //重新布置_imageView,_actionsContainerView subviews.
+    //    _imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, _viewAttachPicture.frame.size.width - _viewAttachPicture.frame.size.height, _viewAttachPicture.frame.size.height)];
+    
+    NSLog(@"view superView : %@", [self.view superview]);
+}
+#endif
+
+
+
+
+#if 0
+- (instancetype)initWithFrame:(CGRect)frame
+{
+    self = [super initWithFrame:frame];
+    
+    if (self) {
+        
+        self.row = -1;
+        self.backgroundColor = [AppConfig backgroundColorFor:@"PostDataCellView"];
+        
+        if(!self.titleLabel) {
+            self.titleLabel = [[RTLabel alloc] init];
+            self.titleLabel.text = @"yyyy-mm-dd xyu-ACV-";
+            self.titleLabel.font = [AppConfig fontFor:@"PostContent"];
+            self.titleLabel.textColor = [AppConfig textColorFor:@"CellTitle"];
+            self.titleLabel.lineBreakMode = RTTextLineBreakModeWordWrapping;
+            [self addSubview:self.titleLabel];
+        }
+        
+        if(!self.infoLabel) {
+            self.infoLabel = [[RTLabel alloc] init];
+            self.infoLabel.text = [NSString stringWithFormat:@"回应: %ld", -1L];
+            
+            self.infoLabel.font = [AppConfig fontFor:@"PostContent"];
+            self.infoLabel.textColor = [AppConfig textColorFor:@"CellInfo"];
+            [self.infoLabel setTextAlignment:RTTextAlignmentRight];
+            
+            [self addSubview:self.infoLabel];
+        }
+        
+        if(!self.contentLabel) {
+            self.contentLabel = [[RTLabel alloc] init];
+            [self addSubview:self.contentLabel];
+            
+            self.contentLabel.text = @"content\n内容\n示范";
+            
+            self.contentLabel.lineBreakMode = NSLineBreakByWordWrapping;
+            self.contentLabel.font = [AppConfig fontFor:@"PostContent"];
+            self.contentLabel.textColor = [AppConfig textColorFor:@"Black"];
+        }
+        
+        if(!self.imageView) {
+            self.imageView = [[PostImageView alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
+            [self addSubview:self.imageView];
+        }
+    }
+    
+    [self layoutSubviews];
+    
+    [self addObserver:self forKeyPath:@"frame" options:NSKeyValueObservingOptionNew context:nil];
+    
+    
+    return self;
+}
+#endif
+
+
+#if PostDataCellView
+- (void)layoutSubviews {
+    [self doesNotRecognizeSelector:@selector(layoutSubviews)];
+    
+    CGRect frame = self.frame;
+    
+    CGFloat xBorder = 6;
+    CGFloat yBorder = 6;
+    CGFloat xPadding = 6;
+    //RTLable text显示贴着上边框.导致跟infoLabel不对齐. 因此将titleLabel移下一点.
+    [self.titleLabel setFrame:CGRectMake(xBorder, yBorder, frame.size.width * 0.66, 20)];
+    
+    CGFloat x = self.titleLabel.frame.origin.x + self.titleLabel.frame.size.width + xPadding;
+    CGFloat width = frame.size.width - x - xPadding; width = width>0.0?width:0;
+    [self.infoLabel setFrame:CGRectMake(x, yBorder, width, 20)];
+    
+    X_CENTER(self.contentLabel, xBorder)
+    
+    FRAME_BELOW_TO(self.contentLabel, self.titleLabel, yBorder)
+    
+    LOG_VIEW_REC0(self.contentLabel, @"cell-content")
+    LOG_VIEW_REC0(self, @"cell")
+}
+
+
+- (void)setPostData:(NSDictionary*)data inRow:(NSInteger)row {
+    
+    NS0Log(@"******setPostData");
+    CGFloat borderTopAndBottom = 10;
+    
+    NSString *title = (NSString*)[data objectForKey:@"title"];
+    title = title?title:@"null";
+    [self.titleLabel setText:title];
+    
+    NSString *info = (NSString*)[data objectForKey:@"info"];
+    info = info?info:@"null";
+    [self.infoLabel setText:info];
+    
+    NSString *content = (NSString*)[data objectForKey:@"content"];
+    content = content?content:@"null\n111";
+    [self.contentLabel setText:content];
+    
+    //RTLabel相关.
+    CGSize size = [self.contentLabel optimumSize];
+    FRAME_SET_HEIGHT(self.contentLabel, size.height)
+    NS0Log(@"xxxxxx optimumSize.height : %lf", size.height);
+    
+#define Y_BLOW(view, border) (view.frame.origin.y + view.frame.size.height + border)
+    CGFloat viewHeight = Y_BLOW(self.contentLabel, borderTopAndBottom);
+    
+    //UIViewImage
+    NSString *thumb = (NSString*)[data objectForKey:@"thumb"];
+    
+    //判断是否设置无图模式.
+    NSString *value = [[AppConfig sharedConfigDB] configDBSettingKVGet:@"disableimageshow"] ;
+    BOOL b = [value boolValue];
+    if(nil == thumb || [thumb isEqualToString:@""] || b) {
+        
+    }
+    else {
+        [self.imageView setFrame:CGRectMake(10, Y_BLOW(self.contentLabel, 3), 100, 68)];
+        NSString *imageHost = [[AppConfig sharedConfigDB] configDBGet:@"imageHost"];
+        [self.imageView setDownloadUrlString:[NSString stringWithFormat:@"%@/%@", imageHost, thumb]];
+        
+        viewHeight = Y_BLOW(self.imageView, borderTopAndBottom);
+        
+        NS0Log(@"//////set image");
+    }
+    
+    self.row = row;
+    FRAME_SET_HEIGHT(self, viewHeight)
+}
+
+- (void)setPostDataInitThreadId:(NSInteger)threadId {
+    
+    NSString *title = [NSString stringWithFormat:@"No.%zi", threadId];
+    [self.titleLabel setText:title];
+    
+    CGFloat viewHeight = Y_BLOW(self.titleLabel, 3);
+    
+    FRAME_SET_HEIGHT(self, viewHeight)
+}
+#endif
+
+
+#if CreateViewController
+//当 _actionsContainerView调整时, 调整各按钮.
+- (void)layoutSubviewActions
+{
+    float leftBorder = 10.0;
+    float leftPadding = 10.0;
+    float topBorder = 6.0;
+    float height = _actionsContainerView.frame.size.height - 2 * topBorder;
+    float width = height;
+    CGRect frameButton = CGRectMake(leftBorder, topBorder, width, height);
+    NSInteger numberOfInputTypes = 3;
+    for(NSInteger index=0; index<numberOfInputTypes; index++) {
+        frameButton.origin.x = leftBorder + index * (leftPadding + width);
+        [[_actionsContainerView viewWithTag:(10+index)] setFrame:frameButton];
+        NSString *s = [NSString stringWithFormat:@"button%zd", index];
+        LOG_RECT(frameButton, s)
+    }
+    
+    CGRect frameButtonSend = CGRectMake(_actionsContainerView.frame.size.width - 60, topBorder, 60, height);
+    [_btnSend setFrame:frameButtonSend];
+}
+
+
+- (void)layoutSubviewAttachPicture
+{
+    float height = _viewAttachPicture.frame.size.height;
+    float width = height;
+    
+    CGRect frameImageView = CGRectMake(0, 0, width, height);
+    [_imageView setFrame:frameImageView];
+    
+    CGRect frameButton = CGRectMake(_viewAttachPicture.frame.size.width - width, 0, width, height);
+    UIButton *button = (UIButton*)[_viewAttachPicture viewWithTag:10];
+    [button setFrame:frameButton];
+}
+
+
+- (void)setActionButtons
+{
+    NSMutableArray *buttonDataArray = [[NSMutableArray alloc] init];
+    ButtonData *data ;
+    
+    data = [[ButtonData alloc] init];
+    data.keyword = @"emoticon";
+    data.id = 'r';
+    data.superId = 0;
+    data.image = @"emoticon";
+    data.title = @"";
+    data.method = 1;
+    data.target = self;
+    data.sel = @selector(emoticon);
+    [buttonDataArray addObject:data];
+    
+    data = [[ButtonData alloc] init];
+    data.keyword = @"capture";
+    data.id = 'n';
+    data.superId = 0;
+    data.image = @"capture";
+    data.title = @"";
+    data.method = 1;
+    data.target = self;
+    data.sel = @selector(capture);
+    [buttonDataArray addObject:data];
+    
+    data = [[ButtonData alloc] init];
+    data.keyword = @"photolibrary";
+    data.id = 'm';
+    data.superId = 0;
+    data.image = @"photolibrary";
+    data.title = @"";
+    data.method = 1;
+    data.target = self;
+    data.sel = @selector(photoLibrary);
+    [buttonDataArray addObject:data];
+    
+    
+    //subview从基数10开始.
+    NSInteger index = 10;
+    for(ButtonData *data in buttonDataArray) {
+        UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
+        button.tag = index ++;
+        button.adjustsImageWhenHighlighted = YES;
+        [button setContentMode:UIViewContentModeScaleAspectFit];
+        
+        if(data.method == 1) {
+            [button setImage:[UIImage imageNamed:data.image] forState:UIControlStateNormal];
+        }
+        else {
+            [button setTitle:data.title forState:UIControlStateNormal];
+        }
+        
+        [button.titleLabel setFont:[AppConfig fontFor:@"BannerButtonMenu"]];
+        [button setTitleColor:[AppConfig textColorFor:@"BannerButtonMenu"] forState:UIControlStateNormal];
+        [button addTarget:data.target action:data.sel forControlEvents:UIControlEventTouchDown];
+        [_actionsContainerView addSubview:button];
+    }
+    
+    _btnSend = [UIButton buttonWithType:UIButtonTypeCustom];
+    [_btnSend setTitle:@"发送" forState:UIControlStateNormal];
+    [_btnSend setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
+    [_btnSend addTarget:self action:@selector(clickSend) forControlEvents:UIControlEventTouchDown];
+    [_actionsContainerView addSubview:_btnSend];
+    //[self.view addSubview:_btnSend];
+}
+#endif

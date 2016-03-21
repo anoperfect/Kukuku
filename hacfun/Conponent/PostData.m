@@ -326,14 +326,14 @@
     //HTM转换. 及将sage加到content.
     NSString *content = nil;
     if(self.sage) {
-        content = [NSString stringWithFormat:@"<font color='red'>SAGE</font>\n%@", [PostData postDataContentRetreat:self.content]];
-    }
-    else {
-        content = [PostData postDataContentRetreat:self.content];
+//        content = [NSString stringWithFormat:@"<font color='red'>SAGE</font>\n%@", [PostData postDataContentRetreat:self.content]];
+        NSString *infoAdditionalOriginal = [dict objectForKey:@"infoAdditional"];
+        [dict setObject:[NSString stringWithFormat:@" SAGE%@", infoAdditionalOriginal?infoAdditionalOriginal:@""]
+                 forKey:@"infoAdditional"];
     }
     
+    content = [PostData postDataContentRetreat:self.content];
     [dict setObject:content forKey:@"content"];
-    
     [dict setObject:self.thumb forKey:@"thumb"];
     [dict setObject:[NSNumber numberWithInteger:self.id] forKey:@"id"];
     [dict setObject:[NSNumber numberWithInteger:self.replyCount] forKey:@"replyCount"];
@@ -505,6 +505,10 @@
         NSLog(@"data null");
         return nil;
     }
+    
+    //NSData转 NSString.
+    NSString *jsonString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    NSLog(@"json data string : \n%@", jsonString);
     
     NSObject *obj;
     NSDictionary *dict;

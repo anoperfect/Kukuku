@@ -50,7 +50,7 @@
     {
         CGRect openedFrame = mainVC.currentActiveNVC.view.frame;
         [mainVC.currentActiveNVC.view removeFromSuperview];
-        //mainVC.currentActiveNVC.viewControllers = nil;
+        mainVC.currentActiveNVC.viewControllers = nil;
         mainVC.currentActiveNVC = nil;
         
         mainVC.currentActiveNVC = destinationNVC;

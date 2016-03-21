@@ -21,7 +21,7 @@
 
 @end
 
-
+static NSInteger kcountObjBannerView = 0;
 @implementation BannerView
 
 /*
@@ -36,6 +36,8 @@
     self = [super init];
     
     if(self) {
+        kcountObjBannerView ++;
+        NSLog(@"BannerView1[%zd] init %@", kcountObjBannerView, self);
         [self setTopicButton];
     }
     
@@ -310,6 +312,10 @@
 }
 
 
+- (void)dealloc {
+    kcountObjBannerView --;
+    NSLog(@"BannerView1[%zd] dealloc %@", kcountObjBannerView, self);
+}
 
 @end
 

@@ -156,16 +156,24 @@
             
             //Po的主题及回复 title 加粗.
             if([pd.uid isEqualToString:topic.uid]) {
-                [dict setObject:[NSString stringWithFormat:@"<b>%@</b>", [dict objectForKey:@"title"]] forKey:@"title"];
+//                [dict setObject:[NSString stringWithFormat:@"<b>%@</b>", [dict objectForKey:@"title"]] forKey:@"title"];
+                [dict setObject:[UIColor blueColor] forKey:@"colorUid"];
             }
             
+            //统一显示No.
+            [dict setObject:[NSString stringWithFormat:@"No.%@", [dict objectForKey:@"id"]] forKey:@"info"];
             //信息部分显示NO. 主题显示回复数+NO.
             if(index == 0) {
-                [dict setObject:[NSString stringWithFormat:@"[%@]No.%@", [dict objectForKey:@"replyCount"], [dict objectForKey:@"id"]] forKey:@"info"];
-                NSLog(@"%@", [dict objectForKey:@"info"]);
+                //主题增加附加显示信息.
+//                [dict setObject:[NSString stringWithFormat:@"[%@]No.%@", [dict objectForKey:@"replyCount"], [dict objectForKey:@"id"]] forKey:@"info"];
+                NSString *infoAdditionalOriginal = [dict objectForKey:@"infoAdditional"];
+                [dict setObject:[NSString stringWithFormat:@"%@ 回应:%@", infoAdditionalOriginal?infoAdditionalOriginal:@"", [dict objectForKey:@"replyCount"]]
+                         forKey:@"infoAdditional"];
+                NSLog(@"%@", [dict objectForKey:@"infoAdditional"]);
             }
             else {
-                [dict setObject:[NSString stringWithFormat:@"No.%@", [dict objectForKey:@"id"]] forKey:@"info"];
+//                [dict setObject:[NSString stringWithFormat:@"No.%@", [dict objectForKey:@"id"]] forKey:@"info"];
+//                NSLog(@"%@", [dict objectForKey:@"info"]);
             }
             
             index ++;
@@ -372,7 +380,7 @@
 //    [cell.layer removeAllAnimations];
     
     NSLog(@"row at : %zi", row);
-    PostDataCellView *cellView = (PostDataCellView*)[cell viewWithTag:100];
+    PostDataCellView *cellView = (PostDataCellView*)[cell viewWithTag:TAG_PostDataCellView];
 //    cell.backgroundColor = cellView.backgroundColor;
     [cellView setBackgroundColor:[UIColor whiteColor]];
     

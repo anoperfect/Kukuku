@@ -102,7 +102,7 @@
 
 
 - (void)parseAndFresh:(NSData*)data {
-    
+#if 0
     PostData *postData = [self parseFromJsonData:data];
     if(nil == postData) {
         [self.labelText setText:@"加载失败."];
@@ -119,6 +119,7 @@
         [v setPostData:[postData toCellUsingDataWithId] inRow:0];
         [v setCenter:self.center];
     }
+#endif
 }
 
 

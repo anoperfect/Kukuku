@@ -11,7 +11,7 @@
 #import "FiveVC.h"
 #import "CategoryViewController.h"
 #import "AppConfig.h"
-
+#import "AMSlideMenuMainViewController.h"
 
 @interface RightMenuTVC ()
 @property (strong,nonatomic) NSArray *categories;

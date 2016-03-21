@@ -19,9 +19,12 @@
 
 
 
+#if 0
 - (void)setPostData: (NSDictionary*)data inRow:(NSInteger)row;
 - (void)setPostDataInitThreadId:(NSInteger)threadId;
 - (void)setFrameObserver:(id)frameObserver;
+#endif
+
 - (UIView*)getThumbImage;
 - (UIView*)getContentLabel;
 
@@ -39,6 +42,6 @@ typedef void (^blockLayoutPostDataCellView)(PostDataCellView *cell, NSInteger ro
 
 
 
-
++ (NSInteger)countObject;
 
 @end

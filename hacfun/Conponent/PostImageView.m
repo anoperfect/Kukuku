@@ -15,7 +15,9 @@
 
 
 @property (strong,nonatomic) NSString *downloadString ;
-//@property (strong,nonatomic) UIViewController* vc;
+
+@property (nonatomic, strong) UIImageView *embedImageView;
+
 @property (assign,nonatomic) id target;
 @property (assign,nonatomic) SEL selector;
 
@@ -26,6 +28,40 @@
 
 
 @implementation PostImageView
+
+
+
+
+
+- (id)embedImageView
+{
+    if(!_embedImageView) {
+        _embedImageView = [[UIImageView alloc] init];
+        [self addSubview:_embedImageView];
+    }
+    
+    return _embedImageView;
+}
+
+
+- (void)setDownloadUrlString : (NSString*)downloadString {
+    NSLog(@"downloadString %@", downloadString);
+    
+    self.downloadString = downloadString;
+    
+    NSData *dataRead = [ImageViewCache getImageViewCache:self.downloadString];
+    NS0Log(@"%zi", [dataRead length]);
+    if([dataRead length] > 0) {
+        NSLog(@"------ use cached image.%@ - %@", self, self.superview);
+        [self updateImageByCachedData:dataRead];
+    }
+    else {
+        NSLog(@"------ start download.");
+        [self performSelectorInBackground:@selector(setBackgroundDownload) withObject:nil];
+        [self updateImage:[UIImage imageNamed:@"zheshiluwei.jpg"]];
+    }
+}
+
 
 - (void)setBackgroundDownload {
     
@@ -45,16 +81,19 @@
 
 - (void)layoutSubviews
 {
-    UIImageView *embedImageView = (UIImageView*)[self viewWithTag:100];
-    if(embedImageView) {
-        CGRect frameEmbedImageView = CGRectZero;
-        UIImage *image = embedImageView.image;
-        if(image.size.height > 0) {
-            CGFloat width = self.frame.size.height * image.size.width / image.size.height;
-            frameEmbedImageView = CGRectMake(0, 0, width, self.frame.size.height);
+    CGRect frameEmbedImageView = CGRectZero;
+    UIImage *image = self.embedImageView.image;
+    if(image.size.height > 0) {
+        CGFloat width = self.frame.size.height * image.size.width / image.size.height;
+        frameEmbedImageView = CGRectMake(0, 0, width, self.frame.size.height);
+        
+        if(width > self.frame.size.width) {
+            CGFloat height = self.frame.size.width* image.size.height / image.size.width;
+            frameEmbedImageView = CGRectMake(0, 0, self.frame.size.width, height);
         }
-        embedImageView.frame = frameEmbedImageView;
     }
+    
+    self.embedImageView.frame = frameEmbedImageView;
 }
 
 
@@ -70,6 +109,7 @@
 - (void)updateImageByCachedData:(NSData*)data
 {
     UIImage *image = [UIImage imageWithData:data];
+    NSLog(@"data length : %zd, image : %@", data.length, image);
     [self updateImage:image];
 }
 
@@ -77,31 +117,13 @@
 - (void)updateImage:(UIImage*)image
 {
     if(image) {
-        [[self viewWithTag:100] removeFromSuperview];
-        UIImageView *embedImageView = [[UIImageView alloc] initWithImage:image];
-        embedImageView.tag = 100;
-        [self addSubview:embedImageView];
+        self.embedImageView.image = image;
+        [self layoutSubviews];
     }
 }
 
 
-- (void)setDownloadUrlString : (NSString*)downloadString {
-    NS0Log(@"downloadString %@", downloadString);
 
-    self.downloadString = downloadString;
-    
-    NSData *dataRead = [ImageViewCache getImageViewCache:self.downloadString];
-    NS0Log(@"%zi", [dataRead length]);
-    if([dataRead length] > 0) {
-        NS0Log(@"------ use downloaded image.");
-        [self updateImageByCachedData:dataRead];
-    }
-    else {
-        NS0Log(@"------ start download.");
-        [self performSelectorInBackground:@selector(setBackgroundDownload) withObject:nil];
-        [self updateImage:[UIImage imageNamed:@"zheshiluwei.jpg"]];
-    }
-}
 
 
 //- (void)setDidSelectedResponseTarget : (id) target
@@ -118,17 +140,17 @@
 //}
 
 
-- (instancetype)initWithFrame:(CGRect)frame
-{
-    self = [super initWithFrame:frame];
-    if (self) {
-        self.userInteractionEnabled = YES;
-//        UITapGestureRecognizer *labelTapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(clickPostViewImage)];
-//        [self addGestureRecognizer:labelTapGestureRecognizer];
-        
-    }
-    return self;
-}
+//- (instancetype)initWithFrame:(CGRect)frame
+//{
+//    self = [super initWithFrame:frame];
+//    if (self) {
+//        self.userInteractionEnabled = YES;
+////        UITapGestureRecognizer *labelTapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(clickPostViewImage)];
+////        [self addGestureRecognizer:labelTapGestureRecognizer];
+//        
+//    }
+//    return self;
+//}
 
 
 - (void)clickPostViewImage {

@@ -72,11 +72,15 @@
     
     [self.navigationController.navigationBar setBackgroundImage:[UIImage imageNamed:@"bg"] forBarMetrics:UIBarMetricsDefault];
     
+    [self.bannerView removeFromSuperview];
+    self.bannerView = nil;
     self.bannerView = [[BannerView alloc] init];
     [self.bannerView setTag:(NSInteger)@"BannerView"];
     [self.navigationController.navigationBar addSubview:self.bannerView];
     [self.bannerView.buttonTopic addTarget:self action:@selector(clickButtonTopic) forControlEvents:UIControlEventTouchDown];
     [self.bannerView setTextTopic:self.textTopic];
+    
+    NSLog(@"x %@- %@", self.navigationController.navigationBar, [self.navigationController.navigationBar subviews]);
 
     [self layoutBannerView];
 
@@ -86,8 +90,8 @@
 
 
 - (void)viewWillDisappear:(BOOL)animated {
-    LOG_RECT(self.bannerView.frame, @"111")
     [self.bannerView removeFromSuperview];
+    self.bannerView = nil;
 }
 
 
@@ -185,12 +189,6 @@
     NSInteger index = button.tag - self.tagButtons;
     ButtonData *data = self.actionDatas[index];
     [self actionViaString:data.keyword];
-}
-
-
-- (BannerView*)getBannerView {
-    BannerView *bannerView = (BannerView*)[self.view viewWithTag:(NSInteger)@"BannerView"];
-    return bannerView;
 }
 
 
