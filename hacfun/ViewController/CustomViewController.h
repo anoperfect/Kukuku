@@ -14,14 +14,17 @@
 
 
 
-@property (strong,nonatomic) NSString *textTopic;
-@property (nonatomic, strong) NSString *titleString;
-@property (nonatomic, strong) NSString *infoString;
+@property (nonatomic, copy)   NSString *textTopic;
+@property (nonatomic, copy)   NSString *titleString;
+@property (nonatomic, copy)   NSString *infoString;
 
 @property (nonatomic, assign) CGFloat   yBolowView;
 @property (nonatomic, assign) CGFloat   heightWastageByNavigationBar;
 @property (nonatomic, assign) CGRect    frameSoftKeyboard;
 @property (nonatomic, assign) BOOL      isShowingSoftKeyboard;
+
+
+
 
 
 - (void)setTopic:(NSString*)str ;
@@ -31,12 +34,13 @@
 - (void)clickButtonTopic ;
 
 
-
 - (void)actionAddData:(ButtonData*)actionData;
+- (void)actionRemoveDataByKeyString:(NSString*)string;
 
 
 //重载以定义按钮时间.
 - (void)actionViaString:(NSString*)string;
+
 
 
 @end

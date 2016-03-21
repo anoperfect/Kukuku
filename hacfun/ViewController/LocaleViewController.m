@@ -15,7 +15,7 @@
 
 @interface LocaleViewController ()
 
-@property (strong,nonatomic) NSArray *arrayAllLocale;
+@property (strong,nonatomic) NSArray *arrayAllLocaleMoveToPublic;
 
 @end
 

@@ -63,6 +63,7 @@ typedef enum {
 
 + (NSMutableArray*)parseFromCategoryJsonData:(NSData*)data ;
 + (NSMutableArray*)parseFromDetailedJsonData:(NSData*)data ;
++ (NSMutableArray*)sendSynchronousRequestByThreadId:(long long)tid andPage:(NSInteger)page;
 + (PostData*)parseFromThreadJsonData:(NSData*)data ;
 
 

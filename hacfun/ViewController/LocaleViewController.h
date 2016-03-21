@@ -9,8 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "ThreadsViewController.h"
 @interface LocaleViewController : ThreadsViewController
-
-
+@property (strong,nonatomic) NSArray *arrayAllLocale;
 
 
 

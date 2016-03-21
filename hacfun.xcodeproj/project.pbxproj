@@ -879,6 +879,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_BITCODE = NO;
 				GCC_PREFIX_HEADER = "/Applications/workspace/hacfun/OpenSource/AMSlideMenu/AMSlideMenuWithoutStoryboard-Prefix.pch";
 				INFOPLIST_FILE = hacfun/Info.plist;
@@ -899,6 +900,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_BITCODE = NO;
 				GCC_PREFIX_HEADER = "/Applications/workspace/hacfun/OpenSource/AMSlideMenu/AMSlideMenuWithoutStoryboard-Prefix.pch";
 				INFOPLIST_FILE = hacfun/Info.plist;

@@ -418,7 +418,9 @@
     
     [info setObject:jsonstring forKey:@"jsonstring"];
     
-    [[AppConfig sharedConfigDB] configDBRecordInsertOrReplace:info];
+    dispatch_async(dispatch_get_main_queue(), ^(void) {
+        [[AppConfig sharedConfigDB] configDBRecordInsertOrReplace:info];
+    });
 }
 
 
@@ -586,6 +588,35 @@
     
     NS0Log(@"<%p> count : %zd", postDatasArray, [postDatasArray count]);
     return postDatasArray;
+}
+
+
+//page=-1时取最后一页.
++ (NSMutableArray*)sendSynchronousRequestByThreadId:(long long)tid andPage:(NSInteger)page
+{
+    NSString *urlString = nil;
+    urlString = [NSString stringWithFormat:@"%@/t/%lld?page=%@",
+                 [[AppConfig sharedConfigDB] configDBGet:@"host"],
+                 tid,
+                 page!=-1?[NSNumber numberWithLongLong:tid]:@"last"];
+    
+    NSURL *url = [[NSURL alloc]initWithString:urlString];
+    NSMutableURLRequest *request = [[NSMutableURLRequest alloc]initWithURL:url];
+    [request setHTTPMethod:@"GET"];
+    [request setTimeoutInterval:10];
+    
+    // send request
+    NSError *error = nil;
+    NSHTTPURLResponse *urlResponse = nil;
+    NSData *responseData = [NSURLConnection sendSynchronousRequest:request returningResponse:&urlResponse error:&error];
+    
+    if (responseData && ([urlResponse statusCode] >= 200 && [urlResponse statusCode] < 300)) {
+        //        NSString *responseText = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
+        return [PostData parseFromDetailedJsonData:responseData];
+    }
+    else {
+        return nil;
+    }
 }
 
 

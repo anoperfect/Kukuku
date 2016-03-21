@@ -194,7 +194,7 @@
 
 - (void)setTopic:(NSString*)str {
     LOG_POSTION
-    self.textTopic = [str copy];
+    self.textTopic = str;
 }
 
 //重载按钮行为(默认openLeftMenu).
@@ -212,6 +212,17 @@
 - (void)actionAddData:(ButtonData *)actionData
 {
     [self.actionDatas addObject:actionData];
+}
+
+
+- (void)actionRemoveDataByKeyString:(NSString*)string
+{
+    for(ButtonData* data in self.actionDatas) {
+        if([string isEqualToString:data.keyword]) {
+            [self.actionDatas removeObject:data];
+            break;
+        }
+    }
 }
 
 

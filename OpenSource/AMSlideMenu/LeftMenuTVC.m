@@ -135,8 +135,6 @@
         [vc setPostThreadId:6670627];
         [vc setPostThreadId:6477099];
         rootVC = vc;
- 
-        
     }
     
     if([strItem isEqualToString:@"测试"]) {
@@ -151,7 +149,6 @@
     
     if([strItem isEqualToString:@"发帖"]) {
         PostViewController *vc = [[PostViewController alloc] init];
-        [vc setTopic:strItem];
         rootVC = vc;
     }
     
