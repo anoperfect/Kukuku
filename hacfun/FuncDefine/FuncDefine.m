@@ -49,6 +49,21 @@
 }
 
 
++ (NSString*)stringFromMSecondInterval:(long long) msecs andTimeZoneAdjustSecondInterval:(NSInteger)adjustSeconds
+{
+    long long seconds = msecs / 1000 ;
+    NSDate *dateWithNoZone = [NSDate dateWithTimeIntervalSince1970:seconds];
+    //从实际测试情况看是没有添加时区影响的.
+    //NSTimeZone *zone = [NSTimeZone systemTimeZone];
+    //NSInteger interval = [zone secondsFromGMTForDate:dateWithNoZone];
+    NSDate *date = [dateWithNoZone dateByAddingTimeInterval:adjustSeconds];
+    
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
+    NSString *string = [dateFormatter stringFromDate:date];
+    
+    return string;
+}
 
 
 

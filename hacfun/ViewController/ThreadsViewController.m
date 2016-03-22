@@ -385,6 +385,7 @@
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
     NSLog(@"------tableView[%zd] willDisplayCell", indexPath.row);
     [self layoutCell:cell withRow:indexPath.row withPostData:[self.postViewCellDatas objectAtIndex:indexPath.row]];
+    [self threadDisplayActionInCell:cell withRow:indexPath.row];
 }
 
 
@@ -398,6 +399,12 @@
 //        v.layer.shadowOpacity = 0.7;
 //        v.layer.shadowRadius = 10.0;
     }
+}
+
+
+- (void)threadDisplayActionInCell:(UITableViewCell*)cell withRow:(NSInteger)row
+{
+    NSLog(@"tid [%zd] display.", ((PostData*)self.postDatas[row]).id);
 }
 
 

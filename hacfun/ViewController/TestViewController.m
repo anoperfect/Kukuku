@@ -153,7 +153,7 @@
     
     if(0 == button.tag) {
         NSLog(@"rebuild database.");
-        [[AppConfig sharedConfigDB] configDBRebuild];
+        [[AppConfig sharedConfigDB] configDBBuildWithForceRebuild:YES];
     }
     
 }

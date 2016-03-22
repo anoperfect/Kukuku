@@ -13,35 +13,28 @@
 
 
 
-
-
 @interface PostDataCellView : UIView
 
 
 
-#if 0
-- (void)setPostData: (NSDictionary*)data inRow:(NSInteger)row;
-- (void)setPostDataInitThreadId:(NSInteger)threadId;
-- (void)setFrameObserver:(id)frameObserver;
-#endif
 
 - (UIView*)getThumbImage;
 - (UIView*)getContentLabel;
+//图片的点击直接设置图片的button target.
+//RTLabel中的链接点击直接设置RTLabel的delegate.
+//此方式有些许别扭. 同时需暴露出以上两个接口. 统一设置为block或者delegate比较合适.
 
 
+//PostData需先按照规则转换为PostDataView显示所需要的title, info, content等string数据后才显示.
+//这是考虑到不同页面需显示的PostData元素可能不同. 因此在ViewController中先进行这种转化.
 + (PostDataCellView*)threadCellViewWithData:(NSDictionary*)dict andInitFrame:(CGRect)frame;
-
-
-#if 0
-typedef void (^blockLayoutPostDataCellView)(PostDataCellView *cell, NSInteger row);
-@property (assign,nonatomic)blockLayoutPostDataCellView layout;
-#endif
-
 
 
 
 
 
 + (NSInteger)countObject;
+
+
 
 @end

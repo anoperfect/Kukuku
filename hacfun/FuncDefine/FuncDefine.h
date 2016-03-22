@@ -12,6 +12,7 @@
 + (NSTimeInterval)timeIntervalCountWithRecount:(BOOL)recount;
 + (NSString*)stringFromCGRect:(CGRect)rect;
 + (NSString*)stringFromViewFrame:(UIView*)view;
++ (NSString*)stringFromMSecondInterval:(long long) msecs andTimeZoneAdjustSecondInterval:(NSInteger)adjustSeconds;
 @end
 
 #define WIDTH_FIT(v, mx) { CGRect frameOriginal = v.frame; CGFloat x = frameOriginal.origin.x; CGFloat width = v.superview.frame.size.width - x - mx ; width = width > 0 ? width : 0; [v setFrame: CGRectMake(x, frameOriginal.origin.y, width, frameOriginal.size.height)]; }

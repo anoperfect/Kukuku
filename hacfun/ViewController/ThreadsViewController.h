@@ -74,16 +74,34 @@ typedef enum : NSUInteger {
 
 @property (nonatomic, assign) ThreadsStatus status;
 
+//UITableView的foot view用于显示状态数据. 使用此接口具体设置.
 - (void)showfootViewWithTitle:(NSString*)title andActivityIndicator:(BOOL)isActive andDate:(BOOL)isShowDate;
-- (NSInteger)appendParsedPostDatas:(NSMutableArray*)parsedPostDatasArray ;
 
-//override.
+
 - (void)refreshPostData;
 - (void)reloadPostData;
 
+
+//override.
+//将刷新页得到的数据append到UITable的数据源时的行为. 可重写用于去重, 加页栏, 屏蔽等行为.
+- (NSInteger)appendParsedPostDatas:(NSMutableArray*)parsedPostDatasArray ;
+
+
+//可重写以修改PostData显示到PostDataView时的数据行为.
 - (void)postDatasToCellDataSource ;
 
+
+//可重写以修改cell显示样式.
 - (void)layoutCell: (UITableViewCell *)cell withRow:(NSInteger)row withPostData:(PostData*)postData ;
+
+
+//可重写以修改refresh时的数据清楚行为.
 - (void)clearDataAdditional ;
+
+
+//可重写以修改cell显示时的行为.
+//目前使用:
+//DetailViewController用以记录用户浏览的最新回复. 可用于收藏页判断是否有新回复.
+- (void)threadDisplayActionInCell:(UITableViewCell*)cell withRow:(NSInteger)row;
 
 @end

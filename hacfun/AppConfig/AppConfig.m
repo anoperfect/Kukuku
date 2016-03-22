@@ -218,7 +218,7 @@
 
 
 //===========================================================================================================
-//id, threadId, collectedAt, jsonstring, createdAt, updatedAt
+//id, collectedAt
 - (NSInteger)configDBCollectionInsert:(NSDictionary*)infoInsert {
     
     LOG_POSTION
@@ -235,15 +235,6 @@
         return CONFIGDB_EXECUTE_ERROR_DATA;
     }
     id = [(NSNumber*)obj integerValue];
-    
-#if 0
-    obj = [infoInsert objectForKey:@"threadId"];
-    if(!(obj && [obj isKindOfClass:[NSNumber class]])) {
-        NSLog(@"error- insert table %@ FAILED (need info %@).", tableName, @"threadId");
-        return CONFIGDB_EXECUTE_ERROR_DATA;
-    }
-    threadId = [(NSNumber*)obj integerValue];
-#endif
     
     obj = [infoInsert objectForKey:@"collectedAt"];
     if(!(obj && [obj isKindOfClass:[NSNumber class]])) {
@@ -360,6 +351,120 @@
 
 
 
+
+
+
+
+
+
+//===========================================================================================================
+//id, collectedAt
+- (NSInteger)configDBDetailHistoryInsert:(NSDictionary*)infoInsert countBeReplaced:(BOOL)couldBeReplaced{
+    
+    LOG_POSTION
+    NSString *tableName = [NSString stringWithFormat:@"detailhistory"];
+    NSInteger id;
+    //NSInteger threadId;
+    long long createdAtForDisplay = 0;
+    long long createdAtForLoaded = 0;
+    
+    NSObject* obj;
+    
+    obj = [infoInsert objectForKey:@"id"];
+    if(!(obj && [obj isKindOfClass:[NSNumber class]])) {
+        NSLog(@"error- insert table %@ FAILED (need info %@).", tableName, @"id");
+        return CONFIGDB_EXECUTE_ERROR_DATA;
+    }
+    id = [(NSNumber*)obj integerValue];
+    
+    obj = [infoInsert objectForKey:@"createdAtForDisplay"];
+    if(!(obj && [obj isKindOfClass:[NSNumber class]])) {
+        NSLog(@"error- insert table %@ FAILED (need info %@).", tableName, @"createdAtForDisplay");
+//        return CONFIGDB_EXECUTE_ERROR_DATA;
+    }
+    createdAtForDisplay = [(NSNumber*)obj longLongValue];
+    
+    
+    obj = [infoInsert objectForKey:@"createdAtForLoaded"];
+    if(!(obj && [obj isKindOfClass:[NSNumber class]])) {
+        NSLog(@"error- insert table %@ FAILED (need info %@).", tableName, @"createdAtForLoaded");
+//        return CONFIGDB_EXECUTE_ERROR_DATA;
+    }
+    createdAtForLoaded = [(NSNumber*)obj longLongValue];
+    
+    if(couldBeReplaced) {
+        NSString *insert = [NSString stringWithFormat:@"INSERT OR REPLACE INTO %@(id,createdAtForDisplay,createdAtForLoaded) VALUES(%zi,%llu,%llu)", tableName, id, createdAtForDisplay,createdAtForLoaded];
+        BOOL executeResult = [self.hostDataBase executeUpdate:insert];
+        if(executeResult) {
+            NSLog(@"insert table %@ OK.", tableName);
+        }
+        else {
+            NSLog(@"error- insert table %@ FAILED (executeUpdate [%@] error).", tableName, insert);
+            return CONFIGDB_EXECUTE_ERROR_SQL;
+        }
+    }
+    else {
+        NSString *insert = [NSString stringWithFormat:@"INSERT INTO %@(id,createdAtForDisplay,createdAtForLoaded) VALUES(%zi,%llu,%llu)", tableName, id, createdAtForDisplay,createdAtForLoaded];
+        BOOL executeResult = [self.hostDataBase executeUpdate:insert];
+        if(executeResult) {
+            NSLog(@"insert table %@ OK.", tableName);
+        }
+        else {
+            NSLog(@"error- insert table %@ FAILED (executeUpdate [%@] error).", tableName, insert);
+            return CONFIGDB_EXECUTE_ERROR_SQL;
+        }
+    }
+    
+    return CONFIGDB_EXECUTE_OK;
+}
+
+
+- (BOOL)configDBDetailHistoryDelete:(NSDictionary*)infoDelete {
+    
+    LOG_POSTION
+    NSString *tableName = [NSString stringWithFormat:@"detailhistory"];
+    
+    NSString *delete = [NSString stringWithFormat:@"DELETE FROM %@ WHERE id = %@", tableName, [infoDelete objectForKey:@"id"]];
+    if(![infoDelete objectForKey:@"id"]) {
+        delete = [NSString stringWithFormat:@"DELETE FROM %@", tableName];
+        NSLog(@"error- delete table %@ FAILED (need info %@).", tableName, @"id");
+        return NO;
+    }
+    
+    BOOL executeResult = [self.hostDataBase executeUpdate:delete];
+    if(executeResult) {
+        NSLog(@"delete table %@ OK.", tableName);
+    }
+    else {
+        NSLog(@"error --- delete table %@ FAILED (executeUpdate [%@] error).", tableName, delete);
+        return NO;
+    }
+    
+    return YES;
+}
+
+
+- (NSDictionary*)configDBDetailHistoryQuery:(NSDictionary*)infoQuery {
+    NSDictionary *dict = @{};
+    LOG_POSTION
+    NSString *tableName = [NSString stringWithFormat:@"detailhistory"];
+    NSString *query = [NSString stringWithFormat:@"SELECT * from %@ where id = %@", tableName, [infoQuery objectForKey:@"id"]];
+    
+    FMResultSet *rs = [self.hostDataBase executeQuery:query];
+    while ([rs next]) {
+        dict = @{
+                 @"id":[NSNumber numberWithInteger:[rs intForColumn:@"id"]],
+                 @"createdAtForDisplay":[rs stringForColumn:@"createdAtForDisplay"],
+                 @"createdAtForLoaded":[rs stringForColumn:@"createdAtForLoaded"]
+                 };
+        break;
+    }
+    LOG_POSTION
+    NSLog(@"detailhistory [%@] : %@", [infoQuery objectForKey:@"id"], dict);
+    LOG_POSTION
+    
+    return dict;
+}
 
 
 
@@ -665,30 +770,33 @@
 
 
 -(id) init {
-    
-    NSFileManager *fileManager = [NSFileManager defaultManager];
     if (self = [super init]) {
+#if 0
         //创建各文件夹.
         //创建总 config.db.
         NSString *documentPath =
             [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
         NSString *dbName = @"config.db";
-        NSString *pathConfigDB = [NSString stringWithFormat:@"%@/%@", documentPath, dbName];
+        //NSString *pathConfigDB = [NSString stringWithFormat:@"%@/%@", documentPath, dbName];
         
         if(![fileManager fileExistsAtPath:pathConfigDB]) {
             NSLog(@"create %@ ", dbName);
             [self configDBRebuild];
         }
         else {
-            [self configDBOpen];
         }
+#endif
+        
+        [self configDBBuildWithForceRebuild:NO];
+        
+        [self configDBOpen];
     }
     
     return self;
 }
 
 
-- (void)configDBRebuild {
+- (void)configDBBuildWithForceRebuild:(BOOL)forceRebuild{
     
     LOG_POSTION
     
@@ -700,7 +808,9 @@
     [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
     NSString *dbName = @"config.db";
     NSString *pathConfigDB = [NSString stringWithFormat:@"%@/%@", documentPath, dbName];
-    [fileManager removeItemAtPath:pathConfigDB error:nil];
+    if(forceRebuild) {
+        [fileManager removeItemAtPath:pathConfigDB error:nil];
+    }
     
     NSLog(@"create %@ ", pathConfigDB);
     FMDatabase *configDataBase = [FMDatabase databaseWithPath:pathConfigDB];
@@ -729,18 +839,21 @@
         }
         
         NSString *pathHostConfigDB = [NSString stringWithFormat:@"%@/%@.db", folderHost, hostName];
-        [fileManager removeItemAtPath:pathHostConfigDB error:nil];
+        if(forceRebuild) {
+            [fileManager removeItemAtPath:pathHostConfigDB error:nil];
+        }
 
         NSLog(@"create %@ ", pathHostConfigDB);
         
         hostDataBase = [FMDatabase databaseWithPath:pathHostConfigDB];
         [hostDataBase open];
-        [AppConfig configDBInitHostCreateTableSettingKV  :hostDataBase onHostName:hostName];
-        [AppConfig configDBInitHostCreateTableCategory   :hostDataBase onHostName:hostName];
-        [AppConfig configDBInitHostCreateTableCollection :hostDataBase onHostName:hostName];
-        [AppConfig configDBInitHostCreateTablePost       :hostDataBase onHostName:hostName];
-        [AppConfig configDBInitHostCreateTableReply      :hostDataBase onHostName:hostName];
-        [AppConfig configDBInitHostCreateTableRecord     :hostDataBase onHostName:hostName];
+        [AppConfig configDBInitHostCreateTableSettingKV     :hostDataBase onHostName:hostName];
+        [AppConfig configDBInitHostCreateTableCategory      :hostDataBase onHostName:hostName];
+        [AppConfig configDBInitHostCreateTableCollection    :hostDataBase onHostName:hostName];
+        [AppConfig configDBInitHostCreateTableDetailHistory :hostDataBase onHostName:hostName];
+        [AppConfig configDBInitHostCreateTablePost          :hostDataBase onHostName:hostName];
+        [AppConfig configDBInitHostCreateTableReply         :hostDataBase onHostName:hostName];
+        [AppConfig configDBInitHostCreateTableRecord        :hostDataBase onHostName:hostName];
         
         [hostDataBase close];
         hostDataBase = nil;
@@ -748,8 +861,6 @@
     
     [configDataBase close];
     configDataBase = nil;
-    
-    [self configDBOpen];
 }
 
 
@@ -963,10 +1074,31 @@
 
 
 
++ (BOOL)configDBInitDetectTableExist:(FMDatabase *)dataBase withTableName:(NSString*)tableName
+{
+    BOOL isExist = NO;
+    FMResultSet *rs = [dataBase executeQuery:@"select count(*) as 'count' from sqlite_master where type ='table' and name = ?", tableName];
+    while ([rs next])
+    {
+        // just print out what we've got in a number of formats.
+        NSInteger count = [rs intForColumn:@"count"];
+        if(count > 0) {
+            isExist = YES;
+            break;
+        }
+    }
 
+    return isExist;
+}
 
 
 + (BOOL)configDBInitCreateTableHost:(FMDatabase *)dataBase {
+    NSString *tableName = @"hosts";
+    if([self configDBInitDetectTableExist:dataBase withTableName:tableName]) {
+        NSLog(@"table exist : %@", tableName);
+        return YES;
+    }
+    
     NSString *createHostsTable = @"create table if not exists hosts(id integer primary key autoincrement, hostname varchar, host varchar, imageHost varchar)";
     BOOL executeResult = [dataBase executeUpdate:createHostsTable];
     if(executeResult) {
@@ -1013,6 +1145,11 @@
 
 + (BOOL)configDBInitCreateTableHostIndex:(FMDatabase *)dataBase {
     NSString *tableName = @"hostIndex";
+    if([self configDBInitDetectTableExist:dataBase withTableName:tableName]) {
+        NSLog(@"table exist : %@", tableName);
+        return YES;
+    }
+    
     NSString *createHostIndexTable = @"create table if not exists hostIndex(selectedIndex integer)";
     BOOL executeResult = [dataBase executeUpdate:createHostIndexTable];
     if(executeResult) {
@@ -1042,6 +1179,11 @@
 
 + (BOOL)configDBInitCreateTableEmoticon:(FMDatabase *)dataBase {
     NSString *tableName = @"emoticon";
+    if([self configDBInitDetectTableExist:dataBase withTableName:tableName]) {
+        NSLog(@"table exist : %@", tableName);
+        return YES;
+    }
+    
     NSString *createTableEmoticon = @"create table if not exists emoticon(emoticon var, selectedtimes integer)";
     BOOL executeResult = [dataBase executeUpdate:createTableEmoticon];
     if(executeResult) {
@@ -1182,6 +1324,11 @@
 
 
 + (BOOL)configDBInitHostCreateTableSettingKV:(FMDatabase*)dataBase onHostName:(NSString*)hostName{
+    NSString *tableName = @"settingkv";
+    if([self configDBInitDetectTableExist:dataBase withTableName:tableName]) {
+        NSLog(@"table exist : %@", tableName);
+        return YES;
+    }
     
     NSDictionary *dictKVKeys = @{
                                  /*@"hostIndex":@"1",*/
@@ -1193,7 +1340,7 @@
     NSString *createHostsTable = @"create table if not exists settingkv(key varchar, value varchar)";
     BOOL executeResult = [dataBase executeUpdate:createHostsTable];
     if(executeResult) {
-        NSLog(@"create table %@ OK.", @"hosts");
+        NSLog(@"create table %@ OK.", tableName);
     }
     else {
         NSLog(@"error- create table FAILED.");
@@ -1208,10 +1355,10 @@
                          (NSString*)[dictKVKeys objectForKey:key]
                          ];
         if(executeResult) {
-            NSLog(@"insert table %@ OK.", @"settingkv");
+            NSLog(@"insert table %@ OK.", hostName);
         }
         else {
-            NSLog(@"error- insert table %@ FAILED.", @"settingkv");
+            NSLog(@"error- insert table %@ FAILED.", hostName);
             return NO;
         }
     }
@@ -1221,8 +1368,11 @@
 
 
 + (BOOL)configDBInitHostCreateTableCategory:(FMDatabase*)dataBase onHostName:(NSString*)hostName {
-    
     NSString *tableName = @"category";
+    if([self configDBInitDetectTableExist:dataBase withTableName:tableName]) {
+        NSLog(@"table exist : %@", tableName);
+        return YES;
+    }
     
     NSString *createHostsTable = [NSString stringWithFormat:@"create table if not exists %@(id integer primary key autoincrement, name varchar, link varchar, click integer)", tableName];
     BOOL executeResult = [dataBase executeUpdate:createHostsTable];
@@ -1603,10 +1753,42 @@
 
 
 + (BOOL)configDBInitHostCreateTableCollection:(FMDatabase*)dataBase onHostName:(NSString*)hostName {
-    
+    //用stringWithFormat是因为之前表名有host后缀.
     NSString *tableName = [NSString stringWithFormat:@"collection"];
+    if([self configDBInitDetectTableExist:dataBase withTableName:tableName]) {
+        NSLog(@"table exist : %@", tableName);
+        return YES;
+    }
     
     NSString *createHostsTable = [NSString stringWithFormat:@"create table if not exists %@(id integer primary key, collectedAt integer)", tableName];
+    BOOL executeResult = [dataBase executeUpdate:createHostsTable];
+    if(executeResult) {
+        NSLog(@"create table %@ OK.", tableName);
+    }
+    else {
+        NSLog(@"error- create table %@ FAILED.", tableName);
+        return NO;
+    }
+    
+    return YES;
+}
+
+
+#define SQLITE_STRING_TYPE_INTEGER  @"integer"
+
++ (BOOL)configDBInitHostCreateTableDetailHistory:(FMDatabase*)dataBase onHostName:(NSString*)hostName {
+    
+    NSString *tableName = [NSString stringWithFormat:@"detailhistory"];
+    if([self configDBInitDetectTableExist:dataBase withTableName:tableName]) {
+        NSLog(@"table exist : %@", tableName);
+        return YES;
+    }
+    
+    NSMutableString *createHostsTable = [NSMutableString stringWithFormat:@"create table if not exists %@(id integer primary key", tableName];
+    [createHostsTable appendFormat:@", %@, %@", @"createdAtForDisplay", SQLITE_STRING_TYPE_INTEGER];
+    [createHostsTable appendFormat:@", %@, %@", @"createdAtForLoaded", SQLITE_STRING_TYPE_INTEGER];
+    [createHostsTable appendString:@")"];
+    
     BOOL executeResult = [dataBase executeUpdate:createHostsTable];
     if(executeResult) {
         NSLog(@"create table %@ OK.", tableName);
@@ -1623,6 +1805,10 @@
 + (BOOL)configDBInitHostCreateTablePost:(FMDatabase*)dataBase onHostName:(NSString*)hostName {
     
     NSString *tableName = [NSString stringWithFormat:@"post"];
+    if([self configDBInitDetectTableExist:dataBase withTableName:tableName]) {
+        NSLog(@"table exist : %@", tableName);
+        return YES;
+    }
     
     NSString *createHostsTable = [NSString stringWithFormat:@"create table if not exists %@(id integer primary key)", tableName];
     BOOL executeResult = [dataBase executeUpdate:createHostsTable];
@@ -1641,6 +1827,10 @@
 + (BOOL)configDBInitHostCreateTableReply:(FMDatabase*)dataBase onHostName:(NSString*)hostName {
     
     NSString *tableName = [NSString stringWithFormat:@"reply"];
+    if([self configDBInitDetectTableExist:dataBase withTableName:tableName]) {
+        NSLog(@"table exist : %@", tableName);
+        return YES;
+    }
     
     NSString *createHostsTable = [NSString stringWithFormat:@"create table if not exists %@(id integer primary key, threadId integer)", tableName];
     BOOL executeResult = [dataBase executeUpdate:createHostsTable];
@@ -1659,6 +1849,10 @@
 + (BOOL)configDBInitHostCreateTableRecord:(FMDatabase*)dataBase onHostName:(NSString*)hostName {
     
     NSString *tableName = [NSString stringWithFormat:@"record"];
+    if([self configDBInitDetectTableExist:dataBase withTableName:tableName]) {
+        NSLog(@"table exist : %@", tableName);
+        return YES;
+    }
     
     NSString *createHostsTable = [NSString stringWithFormat:@"create table if not exists %@(id integer primary key, threadId integer, createdAt integer, updatedAt integer, jsonstring varchar, belongto integer)", tableName];
     BOOL executeResult = [dataBase executeUpdate:createHostsTable];

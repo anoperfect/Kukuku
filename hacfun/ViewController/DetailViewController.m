@@ -27,6 +27,15 @@
 //@property (assign,nonatomic) NSInteger idReply;
 
 
+//记录加载的最新回复.
+@property (nonatomic, assign) long long createdAtForLoaded;
+
+//记录浏览的最新回复.
+@property (nonatomic, assign) long long createdAtForDisplay;
+
+//记录加载或者浏览的最新回复是否有更新. 以执行是否更新存储.
+@property (nonatomic, assign) BOOL isDatailHistoryUpdated;
+
 
 @end
 
@@ -67,6 +76,7 @@
         [self actionAddData:actionData];
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reloadFromCreateReplyFinish:) name:@"CreateReplyFinish" object:nil];
+        self.isDatailHistoryUpdated = NO;
     }
     
     return self;
@@ -77,17 +87,67 @@
 {
     [super viewDidLoad];
     LOG_POSTION
+}
+
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    //获取加载记录和浏览记录. (只记录加载记录和浏览记录的最大值.)
+    NSDictionary *dictDatailHistory = [[AppConfig sharedConfigDB] configDBDetailHistoryQuery:@{@"id":[NSNumber numberWithInteger:self.threadId]}];
+    NSLog(@"%@", dictDatailHistory);
+    if(dictDatailHistory) {
+        id obj;
+        
+        obj = [dictDatailHistory objectForKey:@"createdAtForLoaded"];
+        //#...obj的class类型怎么对不上.
+//        if(obj && [obj isKindOfClass:[NSNumber class]]) {
+        if(obj) {
+            self.createdAtForLoaded = [(NSNumber*)obj longLongValue];
+        }
+        
+        obj = [dictDatailHistory objectForKey:@"createdAtForDisplay"];
+//        if(obj && [obj isKindOfClass:[NSNumber class]]) {
+        if(obj) {
+            self.createdAtForDisplay = [(NSNumber*)obj longLongValue];
+        }
+    }
     
-#if 0
-    [self.navigationController.navigationItem setLeftItemsSupplementBackButton:NO];
-    [self.navigationController.navigationItem setHidesBackButton:YES];
-    [self.navigationController setNavigationBarHidden:NO];
+    NSLog(@"Detail history [%zd] get : %lld[%@], %lld[%@]",
+          self.threadId,
+          self.createdAtForLoaded,
+          self.createdAtForLoaded  ==0?@"0":[FuncDefine stringFromMSecondInterval:self.createdAtForLoaded  andTimeZoneAdjustSecondInterval:0],
+          self.createdAtForDisplay,
+          self.createdAtForDisplay ==0?@"0":[FuncDefine stringFromMSecondInterval:self.createdAtForDisplay andTimeZoneAdjustSecondInterval:0]
+          );
+}
+
+
+- (void)viewWillDisappear:(BOOL)animated
+{
+    NSLog(@"Detail history [%zd] set : %lld[%@], %lld[%@]",
+          self.threadId,
+          self.createdAtForLoaded,
+          self.createdAtForLoaded  ==0?@"0":[FuncDefine stringFromMSecondInterval:self.createdAtForLoaded  andTimeZoneAdjustSecondInterval:0],
+          self.createdAtForDisplay,
+          self.createdAtForDisplay ==0?@"0":[FuncDefine stringFromMSecondInterval:self.createdAtForDisplay andTimeZoneAdjustSecondInterval:0]
+          );
     
-    [self.navigationItem setHidesBackButton:YES];
-    [self.navigationItem setRightBarButtonItem:nil];
+    if(self.isDatailHistoryUpdated) {
+        NSDictionary *infoInsert = @{
+                                     @"id":[NSNumber numberWithInteger:self.threadId],
+                                     @"createdAtForLoaded":[NSNumber numberWithLongLong:self.createdAtForLoaded],
+                                     @"createdAtForDisplay":[NSNumber numberWithLongLong:self.createdAtForDisplay],
+                                     };
+        
+        NSInteger result = [[AppConfig sharedConfigDB] configDBDetailHistoryInsert:infoInsert countBeReplaced:YES];
+        NSLog(@"%@ result : %zd", @"configDBDetailHistoryInsert", result);
+    }
+    else {
+        NSLog(@"Detail history [%zd] do not need to update to store.", self.threadId);
+    }
     
-    self.navigationController.navigationBar.shadowImage = [UIImage imageNamed:@"bg"];
-#endif
+    [super viewWillDisappear:animated];
 }
 
 
@@ -219,23 +279,6 @@
         return;
     }
     
-#if 0
-    //执行收藏.
-    /* 保存json文件. */
-    NSError *error = nil;
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:self.topicDictObj
-                                                       options:NSJSONWritingPrettyPrinted
-                                                         error:&error];
-    
-//    if(!([jsonData length] > 0 && error == nil)){
-//        NSLog(@"error : ------");
-//        return NO;
-//    }
-    
-    NSString *jsonstring = [[NSString alloc] initWithData:jsonData
-                                                 encoding:NSUTF8StringEncoding];
-#endif
-    
     NSDate *collectionDate = [NSDate date];
     NSInteger interval = [collectionDate timeIntervalSince1970];
     
@@ -266,24 +309,8 @@
         [popupView popupInSuperView:self.view];
     }
     
-#if 0
     //添加record记录.
-    NSDictionary *infoInsertRecord = @{
-                                           @"id":[NSNumber numberWithInteger:self.threadId],
-                                           @"threadId":[NSNumber numberWithInteger:self.threadId],
-                                           @"createdAt":[NSNumber numberWithLongLong:self.topic.createdAt],
-                                           @"updatedAt":[NSNumber numberWithLongLong:self.topic.updatedAt],
-                                           @"jsonstring":jsonstring
-                                           };
-    
-    result = [[AppConfig sharedConfigDB] configDBRecordInsertOrReplace:infoInsertRecord];
-    if(CONFIGDB_EXECUTE_OK == result) {
-        
-    }
-    else {
-        NSLog(@"error- ");
-    }
-#endif
+    //thread的记录设定在解析的时候保存.
 }
 
 
@@ -405,6 +432,23 @@
     }
     
     [cellView.layer addSublayer:border];
+}
+
+
+- (void)threadDisplayActionInCell:(UITableViewCell*)cell withRow:(NSInteger)row
+{
+    PostData *pdDisplay = self.postDatas[row];
+    if(pdDisplay && pdDisplay.createdAt > self.createdAtForDisplay) {
+        self.createdAtForDisplay = pdDisplay.createdAt;
+        NSLog(@"detail history : display update to %lld[%@]",
+                self.createdAtForDisplay,
+                self.createdAtForDisplay ==0?@"0":[FuncDefine stringFromMSecondInterval:self.createdAtForDisplay andTimeZoneAdjustSecondInterval:0]
+              );
+        self.isDatailHistoryUpdated = YES;
+    }
+    else {
+        NSLog(@"detail history : display not update.");
+    }
 }
 
 

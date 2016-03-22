@@ -27,6 +27,7 @@
     
     // Initilizing data souce
     self.tableData = [@[@"搜索",@"收藏", @"发帖", @"回复", @"设置"] mutableCopy];
+    [self.tableData addObject:@"测试"];
     
 //    [self.view setBackgroundColor:[UIColor blueColor]];
 //    [self.view setBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:@"bg"]]];

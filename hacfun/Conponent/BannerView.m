@@ -32,6 +32,15 @@ static NSInteger kcountObjBannerView = 0;
 }
 */
 
+
++ (instancetype)alloc
+{
+    id obj = [super alloc];
+    NSLog(@"%@ alloc-", [obj class]);
+    return obj;
+}
+
+
 - (instancetype)init {
     self = [super init];
     
@@ -48,7 +57,7 @@ static NSInteger kcountObjBannerView = 0;
 #define TAG_IMAGEICON   1002
 
 - (void)layoutSubviews {
-    
+
     LOG_POSTION
     CGFloat width = 160;
     CGFloat yBorder = 3;

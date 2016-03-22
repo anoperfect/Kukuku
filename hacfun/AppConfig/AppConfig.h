@@ -14,7 +14,10 @@
 
 
 + (AppConfig*)sharedConfigDB;
-- (void)configDBRebuild ;
+
+
+//接口给测试用.
+- (void)configDBBuildWithForceRebuild:(BOOL)forceRebuild;
 
 
 + (UIColor*)backgroundColorFor:(NSString*)name;
@@ -45,6 +48,11 @@
 - (NSInteger)configDBCollectionInsert:(NSDictionary*)infoInsert;
 - (BOOL)configDBCollectionDelete:(NSDictionary*)infoDelete ;
 - (NSArray*)configDBCollectionQuery:(NSDictionary*)infoQuery ;
+
+
+- (NSInteger)configDBDetailHistoryInsert:(NSDictionary*)infoInsert countBeReplaced:(BOOL)couldBeReplaced;
+- (BOOL)configDBDetailHistoryDelete:(NSDictionary*)infoDelete;
+- (NSDictionary*)configDBDetailHistoryQuery:(NSDictionary*)infoQuery;
 
 
 
