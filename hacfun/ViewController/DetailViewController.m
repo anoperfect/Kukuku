@@ -440,14 +440,33 @@
     PostData *pdDisplay = self.postDatas[row];
     if(pdDisplay && pdDisplay.createdAt > self.createdAtForDisplay) {
         self.createdAtForDisplay = pdDisplay.createdAt;
-        NSLog(@"detail history : display update to %lld[%@]",
+        NSLog(@"detail history : Display update to %lld[%@]",
                 self.createdAtForDisplay,
                 self.createdAtForDisplay ==0?@"0":[FuncDefine stringFromMSecondInterval:self.createdAtForDisplay andTimeZoneAdjustSecondInterval:0]
               );
         self.isDatailHistoryUpdated = YES;
     }
     else {
-        NSLog(@"detail history : display not update.");
+        NSLog(@"detail history : Display not update.");
+    }
+}
+
+
+- (void)storeLoadedData:(NSData*)data
+{
+    if([self.postDatas count] > 0) {
+        PostData *pdLoaded = [self.postDatas lastObject];
+        if(pdLoaded && pdLoaded.createdAt > self.createdAtForLoaded) {
+            self.createdAtForLoaded = pdLoaded.createdAt;
+            NSLog(@"detail history : Loaded update to %lld[%@]",
+                  self.createdAtForLoaded,
+                  self.createdAtForLoaded ==0?@"0":[FuncDefine stringFromMSecondInterval:self.createdAtForLoaded andTimeZoneAdjustSecondInterval:0]
+                  );
+            self.isDatailHistoryUpdated = YES;
+        }
+        else {
+            NSLog(@"detail history : Loaded not update.");
+        }
     }
 }
 

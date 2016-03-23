@@ -38,16 +38,11 @@
     
     //    NSURL *url=[[NSURL alloc] initWithString:[str stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
     NSURL *url=[[NSURL alloc] initWithString:str];
-    
     NSMutableURLRequest *mutableRequest = [[NSMutableURLRequest alloc] initWithURL:url cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:10];
     
     mutableRequest.HTTPMethod = @"GET";
-    NS0Log(@"str:%@", str);
     NSLog(@"url:%@", url);
     NS0Log(@"Request : \n\n%@\n\n", mutableRequest);
-    
-    //    NSDictionary *dict = [mutableRequest allHTTPHeaderFields];
-    //    NSLog(@"Request dict: \n\n%@\n\n", dict);
     
     [NSURLConnection connectionWithRequest:mutableRequest delegate:self];
 }
@@ -56,7 +51,6 @@
 - (void)connection:(NSURLConnection*)connection didReceiveResponse:(NSURLResponse *)response {
     NSLog(@"%@已经接收到响应%@", [NSThread currentThread], response);
     NSLog(@"------\n%@------\n", connection.description);
-    
     self.jsonData = [[NSMutableData alloc] init];
 }
 
@@ -113,6 +107,7 @@
         else {
             NSLog(@"------ reload to count : %zi", self.postDatas.count);
             [self postDatasToCellDataSource];
+            [self storeLoadedData:data];
             [self.postView reloadData];
             [self.postView setHidden:NO];
             [self showfootViewWithTitle:NSSTRING_LOAD_SUCCESSFUL andActivityIndicator:NO andDate:YES];
@@ -123,6 +118,12 @@
     //根据刷新的原因分类. 1.栏目刷新. 2.加载. 3.下拉刷新.
     self.refresh.attributedTitle = [[NSAttributedString alloc]initWithString:@"刷新完成"];
     [self.refresh endRefreshing];
+}
+
+
+- (void)storeLoadedData:(NSData*)data
+{
+    
 }
 
 @end

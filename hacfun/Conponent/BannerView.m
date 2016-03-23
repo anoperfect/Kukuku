@@ -151,7 +151,7 @@ static NSInteger kcountObjBannerView = 0;
     [self.buttonTopic addSubview:imageBack];
     [imageBack setTag:TAG_IMAGEBACK];
     
-    UIImageView *image = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"appicon"]];
+    UIImageView *image = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"AppIconBanner"]];
     [self.buttonTopic addSubview:image];
     [image setTag:TAG_IMAGEICON];
 //    [image setFrame:CGRectMake(imageBack.frame.origin.x+imageBack.frame.size.width, 0, height, height)];

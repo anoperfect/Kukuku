@@ -174,6 +174,8 @@ static NSInteger kcountObject = 0;
 
 - (void)setContent
 {
+    NSLog(@"PostDataView data : %@", self.data);
+    
     NSString *title = [self.data objectForKey:@"title"];
     title = title?title:@"null";
     

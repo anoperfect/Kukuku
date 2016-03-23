@@ -1785,8 +1785,8 @@
     }
     
     NSMutableString *createHostsTable = [NSMutableString stringWithFormat:@"create table if not exists %@(id integer primary key", tableName];
-    [createHostsTable appendFormat:@", %@, %@", @"createdAtForDisplay", SQLITE_STRING_TYPE_INTEGER];
-    [createHostsTable appendFormat:@", %@, %@", @"createdAtForLoaded", SQLITE_STRING_TYPE_INTEGER];
+    [createHostsTable appendFormat:@", %@ %@", @"createdAtForDisplay", SQLITE_STRING_TYPE_INTEGER];
+    [createHostsTable appendFormat:@", %@ %@", @"createdAtForLoaded", SQLITE_STRING_TYPE_INTEGER];
     [createHostsTable appendString:@")"];
     
     BOOL executeResult = [dataBase executeUpdate:createHostsTable];

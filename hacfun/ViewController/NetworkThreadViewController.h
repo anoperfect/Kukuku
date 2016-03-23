@@ -10,4 +10,13 @@
 
 @interface NetworkThreadViewController : ThreadsViewController
 
+
+
+
+//重写以保存网络下载后解析的数据.
+//应用:
+//DetailViewController记录加载到的最新回复的createdAt.
+- (void)storeLoadedData:(NSData*)data;
+
+
 @end

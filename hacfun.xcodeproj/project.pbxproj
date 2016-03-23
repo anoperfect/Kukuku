@@ -43,7 +43,7 @@
 		B523C9FB1B78FD6F00944004 /* BannerView.m in Sources */ = {isa = PBXBuildFile; fileRef = B523C9F81B78FD6F00944004 /* BannerView.m */; };
 		B523C9FC1B78FD6F00944004 /* PostImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = B523C9FA1B78FD6F00944004 /* PostImageView.m */; };
 		B523CA111B78FDB100944004 /* 1.gif in Resources */ = {isa = PBXBuildFile; fileRef = B523C9FF1B78FDB100944004 /* 1.gif */; };
-		B523CA121B78FDB100944004 /* appicon.png in Resources */ = {isa = PBXBuildFile; fileRef = B523CA001B78FDB100944004 /* appicon.png */; };
+		B523CA121B78FDB100944004 /* appicon1.png in Resources */ = {isa = PBXBuildFile; fileRef = B523CA001B78FDB100944004 /* appicon1.png */; };
 		B523CA131B78FDB100944004 /* appicon0.png in Resources */ = {isa = PBXBuildFile; fileRef = B523CA011B78FDB100944004 /* appicon0.png */; };
 		B523CA141B78FDB100944004 /* appicont.png in Resources */ = {isa = PBXBuildFile; fileRef = B523CA021B78FDB100944004 /* appicont.png */; };
 		B523CA151B78FDB100944004 /* back.png in Resources */ = {isa = PBXBuildFile; fileRef = B523CA031B78FDB100944004 /* back.png */; };
@@ -174,7 +174,7 @@
 		B523C9F91B78FD6F00944004 /* PostImageView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PostImageView.h; sourceTree = "<group>"; };
 		B523C9FA1B78FD6F00944004 /* PostImageView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PostImageView.m; sourceTree = "<group>"; };
 		B523C9FF1B78FDB100944004 /* 1.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = 1.gif; sourceTree = "<group>"; };
-		B523CA001B78FDB100944004 /* appicon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = appicon.png; sourceTree = "<group>"; };
+		B523CA001B78FDB100944004 /* appicon1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = appicon1.png; sourceTree = "<group>"; };
 		B523CA011B78FDB100944004 /* appicon0.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = appicon0.png; sourceTree = "<group>"; };
 		B523CA021B78FDB100944004 /* appicont.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = appicont.png; sourceTree = "<group>"; };
 		B523CA031B78FDB100944004 /* back.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = back.png; sourceTree = "<group>"; };
@@ -428,7 +428,7 @@
 				B564D0F61C9189C400E903B6 /* bg.png */,
 				B5BC10531B8988EE0006EDD4 /* emoticon.png */,
 				B523C9FF1B78FDB100944004 /* 1.gif */,
-				B523CA001B78FDB100944004 /* appicon.png */,
+				B523CA001B78FDB100944004 /* appicon1.png */,
 				B523CA011B78FDB100944004 /* appicon0.png */,
 				B5AFCA0C1C9FFE5A00D9DDB5 /* bgleft.png */,
 				B5AFCA0D1C9FFE5A00D9DDB5 /* bgright.png */,
@@ -633,7 +633,7 @@
 				B523CA151B78FDB100944004 /* back.png in Resources */,
 				B523CA111B78FDB100944004 /* 1.gif in Resources */,
 				B55E9D7F1C9CFD7D00F581F5 /* photolibrary.png in Resources */,
-				B523CA121B78FDB100944004 /* appicon.png in Resources */,
+				B523CA121B78FDB100944004 /* appicon1.png in Resources */,
 				B523CA1E1B78FDB100944004 /* refresh.png in Resources */,
 				B523CA1C1B78FDB100944004 /* new.png in Resources */,
 				B5D8D4841B52060C0091DA20 /* LaunchScreen.xib in Resources */,

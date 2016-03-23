@@ -16,7 +16,7 @@
 
 @interface CollectionViewController()
 
-
+@property (nonatomic, strong) NSMutableDictionary *updateResult;
 
 @end
 
@@ -93,6 +93,9 @@
 
 - (void)updateThreadsInfo
 {
+    //将所有需更新的tid记录.
+    self.updateResult = [[NSMutableDictionary alloc] init];
+    
     for(id obj in self.arrayAllLocale) {
         if(![obj isKindOfClass:[NSDictionary class]]) {
             NSLog(@"#error not expected class %@", obj);
@@ -101,6 +104,7 @@
         
         NSDictionary *dict = obj;
         NSNumber *number = dict[@"id"];
+        [self.updateResult setObject:[NSNumber numberWithBool:NO] forKey:number];
         [self updateThreadById:[number integerValue]];
     }
 }
@@ -113,16 +117,143 @@
     dispatch_async(concurrentQueue, ^(void){
         //获取last page的信息.
         NSMutableArray *postDataArray = [PostData sendSynchronousRequestByThreadId:tid andPage:-1];
-        if(nil == postDataArray) {
-            NSLog(@"tid [%lld] get page last error.", tid);
-        }
-        else {
-            //跟浏览记录对比.
-            PostData *tPostData = postDataArray[0];
-            NSLog(@"%lld updateAt %lld", tid, tPostData.updatedAt);
-        }
+        
+        dispatch_async(dispatch_get_main_queue(), ^(void) {
+            [self checkUpdateTidResult:tid withPostDataArray:[NSArray arrayWithArray:postDataArray]];
+        });
     });
 }
+
+
+//将数据更新到用于cell显示的data.
+- (void)updateToCellData:(NSInteger)tid withInfo:(NSDictionary*)info
+{
+    BOOL found = NO;
+    NSString *message = [info objectForKey:@"message"];
+    for(NSMutableDictionary* dict in self.postViewCellDatas) {
+        if([[NSNumber numberWithInteger:tid] isEqual:[dict objectForKey:@"id"]]) {
+            NSLog(@"find in ");
+            
+            NSString *infoAdditionalOriginal = [dict objectForKey:@"infoAdditional"];
+            NSString *infoAdditional = nil;
+            if(!infoAdditionalOriginal || infoAdditionalOriginal.length == 0) {
+                infoAdditional = [message copy];
+            }
+            else {
+                infoAdditional = [NSString stringWithFormat:@"%@ %@", infoAdditionalOriginal, message];
+            }
+            
+            [dict setObject:infoAdditional forKey:@"infoAdditional"];
+            
+            found = YES;
+            break;
+        }
+    }
+    
+    if(!found) {
+        //实际页面未全部显示的时候, 可能导致未在self.postViewCellDatas中找到.
+        NSLog(@"#error not found.");
+        
+    }
+}
+
+
+//需在主线程执行.
+- (void)checkUpdateTidResult:(NSInteger)tid withPostDataArray:(NSArray*)postDataArray
+{
+    NSNumber *number = [NSNumber numberWithInteger:tid];
+
+    
+    if(nil == postDataArray) {
+        NSLog(@"tid [%zd] get page last error:%@", tid, @"no PostData parsed.");
+        [self updateToCellData:tid withInfo:@{@"message":@"更新出错"}];
+    }
+    else if([postDataArray count] == 1){
+        NSLog(@"tid [%zd] no reply", tid);
+        //没有更新则不修改显示.
+    }
+    else {
+        //跟浏览记录对比.
+        PostData *tPostData = postDataArray[0];
+        NSLog(@"tid [%zd[]updateAt %lld", tid, tPostData.updatedAt);
+        
+        //最后一条reply信息跟之前的Loaded记录, Display记录对比.
+        PostData *pdLastReply = [postDataArray lastObject];
+        NSLog(@"tid [%zd] last reply createdAt : %lld.", tid, pdLastReply.createdAt);
+        
+        //读取之前的加载与显示记录.
+        //获取加载记录和浏览记录. (只记录加载记录和浏览记录的最大值.)
+        long long createdAtForLoaded = 0;
+        long long createdAtForDisplay = 0;
+        BOOL isComparedOK = false;
+        
+        NSDictionary *dictDatailHistory = [[AppConfig sharedConfigDB] configDBDetailHistoryQuery:@{@"id":[NSNumber numberWithInteger:tid]}];
+        NSLog(@"%@", dictDatailHistory);
+        
+        if(dictDatailHistory) {
+            id obj;
+            
+            obj = [dictDatailHistory objectForKey:@"createdAtForLoaded"];
+            if(obj) {
+                createdAtForLoaded = [(NSNumber*)obj longLongValue];
+            }
+            
+            obj = [dictDatailHistory objectForKey:@"createdAtForDisplay"];
+            if(obj) {
+                createdAtForDisplay = [(NSNumber*)obj longLongValue];
+            }
+        }
+        
+        if(!(createdAtForLoaded > 0 && createdAtForDisplay > 0)) {
+            NSLog(@"#error - tid [%zd] read detail history failed.", tid);
+            [self updateToCellData:tid withInfo:@{@"message":@"比较数据出错"}];
+        }
+        else {
+            isComparedOK = YES;
+            
+            if(pdLastReply.createdAt > createdAtForLoaded) {
+                NSString *messge = [NSString stringWithFormat:@"更新于%@",
+                                     [FuncDefine stringFromMSecondInterval:pdLastReply.createdAt andTimeZoneAdjustSecondInterval:0]];
+                [self updateToCellData:tid withInfo:@{@"message":messge}];
+            }
+            else if(pdLastReply.createdAt > createdAtForDisplay) {
+                NSString *messge = [NSString stringWithFormat:@"更新于%@",
+                                     [FuncDefine stringFromMSecondInterval:pdLastReply.createdAt andTimeZoneAdjustSecondInterval:0]];
+                [self updateToCellData:tid withInfo:@{@"message":messge}];
+            }
+            else {
+                //没有更新则不修改显示.
+                NSString *messge = [NSString stringWithFormat:@"无更新."];
+                [self updateToCellData:tid withInfo:@{@"message":messge}];
+            }
+        }
+    }
+    
+    //判断是否已经执行过全部更新.
+    BOOL isUpdateFinished = YES;
+    [self.updateResult setObject:[NSNumber numberWithBool:YES] forKey:number];
+    
+    //得到词典中所有KEY值
+    NSEnumerator * enumerator = [self.updateResult objectEnumerator];
+    
+    //快速枚举遍历所有KEY的值
+    for (NSNumber *boolNumber in enumerator) {
+        if(![ boolNumber boolValue]) {
+            isUpdateFinished = NO;
+            break;
+        }
+    }
+    
+    if(isUpdateFinished) {
+        [self.postView reloadData];
+    }
+    else {
+        NSLog(@"update not finished. %@", self.updateResult);
+    }
+}
+
+
+//暂时info中只有message. 未兼容之后可能添加的info信息, 将参数类型设置为NSDictionary.
 
 
 - (void)longPressOnRow:(NSInteger)row {
