@@ -145,6 +145,12 @@
         
         [aryName addObject:@"BannerButtonMenu"];
         [aryColor addObject:[UIColor blackColor]];
+        
+        [aryName addObject:@"manageInfo"];
+        [aryColor addObject:[UIColor redColor]];
+        
+        [aryName addObject:@"otherInfo"];
+        [aryColor addObject:HexRGBAlpha(0x0, 0.66)];
     }
     
     NSInteger index = [aryName indexOfObject:name];
@@ -152,7 +158,7 @@
         return [aryColor objectAtIndex:index];
     }
     else {
-        NSLog(@"error- %s not found <%@>.", __FUNCTION__, name);
+        NSLog(@"#error- %s not found <%@>.", __FUNCTION__, name);
     }
     
     return [UIColor blueColor];

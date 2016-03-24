@@ -66,6 +66,11 @@
 }
 
 
++ (NSString*)stringFromMSecondInterval:(long long)msecs
+{
+    return [self stringFromMSecondInterval:msecs andTimeZoneAdjustSecondInterval:0];
+}
+
 
 
 

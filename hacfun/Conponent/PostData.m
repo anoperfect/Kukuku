@@ -301,63 +301,88 @@
             ];
 }
 
-- (NSMutableDictionary*)toCellUsingDataCustom {
+
+/*
+PostDataView 接收的字段字段
+ @"title"           - 第一行左边的. 显示日期 uid.
+ @"info"            - 第一行右边的. 显示tid, 或者replycount. 可重写.
+ @"manageInfo"      - 第二行左边的. 显示sage.
+ @"otherInfo"     - 第二行右边的. 显示一些其他信息. 暂时是显示更新回复信息. 用在CollectionViewController显示新回复状态.
+ @"content"         - 正文.  根据需要已作内容调整.
+ @"colorUid"        － 标记uid颜色. 暂时使用uid颜色标记特定thread. 比如Po, //self post , self reply, follow, other cookie.
+ @"postdata"        - copy的PostData.
+                      id, thumb replycount直接从raw postdata中读取.
+*/
+
+
+- (NSMutableDictionary*)toVIewDisplayDataUseCustom {
     
     NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
     
-    long long secondsCreateAt = self.createdAt / 1000 ;
-    NSDate *dateWithNoZone = [NSDate dateWithTimeIntervalSince1970:secondsCreateAt];
+    NSInteger intervalTimeZoneAdjust = 0;
+    //计算时区差值.
     //从实际测试情况看是没有添加时区影响的.
-    //NSTimeZone *zone = [NSTimeZone systemTimeZone];
-    //NSInteger interval = [zone secondsFromGMTForDate:dateWithNoZone];
-    NSDate *date = [dateWithNoZone dateByAddingTimeInterval:0];
-    
-    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-    [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
-    NSString *stringCreatedAt = [dateFormatter stringFromDate:date];
-    
-    NS0Log(@"createdAt: %lld %@", postData.createdAt, stringCreatedAt);
+//    NSTimeZone *zone = [NSTimeZone systemTimeZone];
+    intervalTimeZoneAdjust = 0;
+    NSString *stringCreatedAt = [FuncDefine stringFromMSecondInterval:self.createdAt andTimeZoneAdjustSecondInterval:0];
     
     NSMutableString *titleText = [NSMutableString stringWithFormat:@"%@  %@ ", stringCreatedAt, self.uid];
     [dict setObject:titleText forKey:@"title"];
+    [dict setObject:@"" forKey:@"info"];
     
-    [dict setObject:[NSString stringWithFormat:@"回应: %zi", self.replyCount] forKey:@"info"];
-    
-    //HTM转换. 及将sage加到content.
     NSString *content = nil;
     if(self.sage) {
-//        content = [NSString stringWithFormat:@"<font color='red'>SAGE</font>\n%@", [PostData postDataContentRetreat:self.content]];
-        NSString *infoAdditionalOriginal = [dict objectForKey:@"infoAdditional"];
-        [dict setObject:[NSString stringWithFormat:@" SAGE%@", infoAdditionalOriginal?infoAdditionalOriginal:@""]
-                 forKey:@"infoAdditional"];
+        [dict setObject:@"SAGE" forKey:@"manageInfo"];
     }
+    else {
+        [dict setObject:@"" forKey:@"manageInfo"];
+    }
+    
+    [dict setObject:@"" forKey:@"otherInfo"];
     
     content = [PostData postDataContentRetreat:self.content];
     [dict setObject:content forKey:@"content"];
-    [dict setObject:self.thumb forKey:@"thumb"];
-    [dict setObject:[NSNumber numberWithInteger:self.id] forKey:@"id"];
-    [dict setObject:[NSNumber numberWithInteger:self.replyCount] forKey:@"replyCount"];
+    
+    [dict setObject:[self copy] forKey:@"postdata"];
     
     return dict;
 }
 
 
-- (NSDictionary*)toCellUsingDataWithReplyCount{
+- (NSMutableDictionary*)toViewDisplayData:(ThreadDataToViewType)type
+{
+    NSMutableDictionary *dictm = [[NSMutableDictionary alloc] init];
     
-    NSMutableDictionary *dict = [self toCellUsingDataCustom];
-    [dict setObject:[NSString stringWithFormat:@"回应: %zi", self.replyCount] forKey:@"info"];
+    switch (type) {
+        case ThreadDataToViewTypeInfoUseNumber:
+            dictm = [self toVIewDisplayDataUseCustom];
+            [dictm setObject:[NSString stringWithFormat:@"No.%zi", self.id] forKey:@"info"];
+            break;
+            
+        case ThreadDataToViewTypeInfoUseReplyCount:
+            dictm = [self toVIewDisplayDataUseCustom];
+            [dictm setObject:[NSString stringWithFormat:@"回应: %zi", self.replyCount] forKey:@"info"];
+            break;
+            
+        case ThreadDataToViewTypeAdditionalInfoUseReplyCount:
+            dictm = [self toVIewDisplayDataUseCustom];
+            [dictm setObject:[NSString stringWithFormat:@"No.%zi", self.id] forKey:@"info"];
+            [dictm setObject:[NSString stringWithFormat:@"回应: %zi", self.replyCount] forKey:@"infoAdditional"];
+            break;
+            
+        default:
+            break;
+    }
     
-    return dict;
+    return dictm;
+    
 }
 
 
-- (NSDictionary*)toCellUsingDataWithId{
-    
-    NSMutableDictionary *dict = [self toCellUsingDataCustom];
-    [dict setObject:[NSString stringWithFormat:@"No.%zi", self.id] forKey:@"info"];
-    
-    return dict;
-}
+
+
+
+
 
 
 + (void)gotParsedThread:(NSDictionary*)dict belongTo:(NSInteger)threadId {

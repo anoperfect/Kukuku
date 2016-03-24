@@ -30,6 +30,7 @@
 + (PostDataCellView*)threadCellViewWithData:(NSDictionary*)dict andInitFrame:(CGRect)frame;
 
 
+//+ (PostDataCellView*)PostDatalViewWithTid:(NSInteger)tid andInitFrame:(CGRect)frame;
 
 
 

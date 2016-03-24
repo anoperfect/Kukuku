@@ -70,16 +70,10 @@
 //信息部分显示更改为回复数.
 - (void)postDatasToCellDataSource {
     LOG_POSTION
-    
     //在ThreadsViewController的解析基础上修改.
     [super postDatasToCellDataSource];
     
-#if 0
-    for(NSMutableDictionary *dict in self.postViewCellDatas) {
-        //信息部分显示NO.
-        [dict setObject:[NSString stringWithFormat:@"No.%@", [dict objectForKey:@"id"]] forKey:@"info"];
-    }
-#endif
+    //无其他修改.
 }
 
 
@@ -131,19 +125,11 @@
     BOOL found = NO;
     NSString *message = [info objectForKey:@"message"];
     for(NSMutableDictionary* dict in self.postViewCellDatas) {
-        if([[NSNumber numberWithInteger:tid] isEqual:[dict objectForKey:@"id"]]) {
+        PostData *postData = [dict objectForKey:@"postdata"];
+        if(tid == postData.id) {
             NSLog(@"find in ");
             
-            NSString *infoAdditionalOriginal = [dict objectForKey:@"infoAdditional"];
-            NSString *infoAdditional = nil;
-            if(!infoAdditionalOriginal || infoAdditionalOriginal.length == 0) {
-                infoAdditional = [message copy];
-            }
-            else {
-                infoAdditional = [NSString stringWithFormat:@"%@ %@", infoAdditionalOriginal, message];
-            }
-            
-            [dict setObject:infoAdditional forKey:@"infoAdditional"];
+            [dict setObject:message forKey:@"otherInfo"];
             
             found = YES;
             break;

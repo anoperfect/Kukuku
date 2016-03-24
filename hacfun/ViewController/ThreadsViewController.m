@@ -130,6 +130,7 @@
     [self.viewIndication.layer setCornerRadius:heightViewIndication / 2];
     [self.viewIndication.layer setMasksToBounds:YES];
     [self.view addSubview:self.viewIndication];
+    [self.viewIndication setHighlighted:YES];
 }
 
 
@@ -261,7 +262,7 @@
 - (void)postDatasToCellDataSource {
     self.postViewCellDatas = [[NSMutableArray alloc] init];
     for(PostData* postData in self.postDatas) {
-        NSDictionary *dict = [postData toCellUsingDataWithReplyCount];
+        NSMutableDictionary *dict = [postData toViewDisplayData:ThreadDataToViewTypeInfoUseReplyCount];
         [self.postViewCellDatas addObject:dict];
     }
 }

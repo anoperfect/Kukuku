@@ -58,13 +58,29 @@ typedef enum {
 + (NSString*) postDataContentRetreat:(NSString*)content ;
 
 
-- (NSDictionary*)toCellUsingDataWithReplyCount ;
-- (NSDictionary*)toCellUsingDataWithId ;
+typedef NS_ENUM(NSInteger, ThreadDataToViewType) {
+    ThreadDataToViewTypeInfoUseNumber,      //info栏显示No. 用于DetailViewControler.
+    ThreadDataToViewTypeInfoUseReplyCount,  //info栏显示
+    ThreadDataToViewTypeAdditionalInfoUseReplyCount,
+};
+
+
+//PostData显示在View上的时候, 先转为一个ui元素显示内容的dictionary. 使用mutable时因为方便具体ui显示时的微调.
+- (NSMutableDictionary*)toViewDisplayData:(ThreadDataToViewType)type;
+
 
 + (NSMutableArray*)parseFromCategoryJsonData:(NSData*)data ;
 + (NSMutableArray*)parseFromDetailedJsonData:(NSData*)data ;
 + (NSMutableArray*)sendSynchronousRequestByThreadId:(long long)tid andPage:(NSInteger)page;
 + (PostData*)parseFromThreadJsonData:(NSData*)data ;
+
+
+#if 0
++ (void)postDataAsyncRequestByTid:(NSInteger)tid
+                          andPage:(NSInteger)page
+                completionHandler:(void (^)(PostData*))handle;
+
+#endif
 
 
 @end

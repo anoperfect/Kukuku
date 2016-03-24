@@ -18,11 +18,24 @@
     
 };
 
+
+/*
+ PostDataView 接收的字段字段
+ @"title"           - 第一行左边的. 显示日期 uid.
+ @"info"            - 第一行右边的. 显示tid, 或者replycount. 可重写.
+ @"manageInfo"      - 第二行左边的. 显示sage.
+ @"otherInfo"     - 第二行右边的. 显示一些其他信息. 暂时是显示更新回复信息. 用在CollectionViewController显示新回复状态.
+ @"content"         - 正文.  根据需要已作内容调整.
+ @"colorUid"        － 标记uid颜色. 暂时使用uid颜色标记特定thread. 比如Po, //self post , self reply, follow, other cookie.
+ @"postdata"        - copy的PostData.
+ id, thumb replycount直接从raw postdata中读取.
+ */
+
 @property (strong,nonatomic) UILabel *titleLabel;
 @property (strong,nonatomic) UILabel *infoLabel;
-@property (nonatomic, strong) UILabel *infoAdditionalLabel;
-@property (strong,nonatomic) RTLabel *contentLabel;
-
+@property (nonatomic, strong) UILabel *manageInfoLabel;
+@property (nonatomic, strong) UILabel *otherInfoLabel;
+@property () RTLabel *contentLabel;
 @property (strong,nonatomic) PostImageView *imageView;
 
 @property (assign,nonatomic) NSInteger row;
@@ -109,6 +122,21 @@ static NSInteger kcountObject = 0;
 }
 
 
+/*
+ PostDataView 接收的字段字段
+ @"title"           - 第一行左边的. 显示日期 uid.
+ @"info"            - 第一行右边的. 显示tid, 或者replycount. 可重写.
+ @"manageInfo"      - 第二行左边的. 显示sage.
+ @"otherInfo"     - 第二行右边的. 显示一些其他信息. 暂时是显示更新回复信息. 用在CollectionViewController显示新回复状态.
+ @"content"         - 正文.  根据需要已作内容调整.
+ @"colorUid"        － 标记uid颜色. 暂时使用uid颜色标记特定thread. 比如Po, //self post , self reply, follow, other cookie.
+ @"postdata"        - copy的PostData.
+ id, thumb replycount直接从raw postdata中读取.
+ */
+
+
+
+
 - (instancetype)initWithFrame1:(CGRect)frame
 {
     self = [super initWithFrame:frame];
@@ -139,14 +167,24 @@ static NSInteger kcountObject = 0;
             [self addSubview:self.infoLabel];
         }
         
-        if(!self.infoAdditionalLabel) {
-            self.infoAdditionalLabel = [[UILabel alloc] init];
-            self.infoAdditionalLabel.text = @"";
-            self.infoAdditionalLabel.font = [AppConfig fontFor:@"PostTitle"];
-            self.infoAdditionalLabel.textColor = [AppConfig textColorFor:@"CellInfoAdditional"];
-            self.infoAdditionalLabel.textAlignment = NSTextAlignmentRight;
+        if(!self.manageInfoLabel) {
+            self.manageInfoLabel = [[UILabel alloc] init];
+            self.manageInfoLabel.text = @"";
+            self.manageInfoLabel.font = [AppConfig fontFor:@"PostTitle"];
+            self.manageInfoLabel.textColor = [AppConfig textColorFor:@"manageInfo"];
+            self.manageInfoLabel.textAlignment = NSTextAlignmentLeft;
             
-            [self addSubview:self.infoAdditionalLabel];
+            [self addSubview:self.manageInfoLabel];
+        }
+        
+        if(!self.otherInfoLabel) {
+            self.otherInfoLabel = [[UILabel alloc] init];
+            self.otherInfoLabel.text = @"";
+            self.otherInfoLabel.font = [AppConfig fontFor:@"PostTitle"];
+            self.otherInfoLabel.textColor = [AppConfig textColorFor:@"otherInfo"];
+            self.otherInfoLabel.textAlignment = NSTextAlignmentRight;
+            
+            [self addSubview:self.otherInfoLabel];
         }
         
         if(!self.contentLabel) {
@@ -194,6 +232,7 @@ static NSInteger kcountObject = 0;
     info = info?info:@"null";
     [self.infoLabel setText:info];
     
+#if 0
     NSString *infoAdditionalString = [self.data objectForKey:@"infoAdditional"];
     infoAdditionalString = infoAdditionalString?infoAdditionalString:@"";
     [self.infoAdditionalLabel setText:infoAdditionalString];
@@ -204,13 +243,22 @@ static NSInteger kcountObject = 0;
         [attributedInfoAdditionalString addAttribute:NSForegroundColorAttributeName value:[UIColor redColor] range:rangeSage];
     }
     self.infoAdditionalLabel.attributedText = attributedInfoAdditionalString;
+#endif
+    
+    NSString *manageInfoString = [self.data objectForKey:@"manageInfo"];
+    [self.manageInfoLabel setText:manageInfoString];
+    
+    NSString *otherInfoString = [self.data objectForKey:@"otherInfo"];
+    [self.otherInfoLabel setText:otherInfoString];
     
     NSString *content = [self.data objectForKey:@"content"];
     content = content?content:@"null\n111";
     [self.contentLabel setText:content];
     
+    PostData *postData = [self.data objectForKey:@"postdata"];
+    
     //UIViewImage
-    NSString *thumb = [self.data objectForKey:@"thumb"];
+    NSString *thumb = postData.thumb;
     
     //判断是否设置无图模式.
     NSString *value = [[AppConfig sharedConfigDB] configDBSettingKVGet:@"disableimageshow"] ;
@@ -231,6 +279,8 @@ static NSInteger kcountObject = 0;
     CGRect frameTitleLabel          = CGRectZero;
     CGRect frameInfoLabel           = CGRectZero;
     CGRect frameInfoAdditionalLabel = CGRectZero;
+    CGRect frameManageInfo           = CGRectZero;
+    CGRect frameOtherInfo           = CGRectZero;
     CGRect frameContentLabel        = CGRectZero;
     CGRect frameImageViewContent    = CGRectZero;
     UIEdgeInsets edge = UIEdgeInsetsMake(10, 10, 10, 10);
@@ -259,14 +309,17 @@ static NSInteger kcountObject = 0;
     frameInfoLabel      = [layout getCGRect:@"Info"];
     
     CGFloat heightPaddingTitleContent = 10.0;
-    if([self.infoAdditionalLabel.text length] > 0) {
+    if([self.manageInfoLabel.text length] > 0 || [self.otherInfoLabel.text length] > 0) {
         [layout setUseBesideMode:@"InfoAdditional" besideTo:@"TitleLine" withDirection:FrameLayoutDirectionBelow andSizeValue:20.0];
+        [layout divideInVertical:@"InfoAdditional" to:@"manageInfo" and:@"otherInfo" withWidthValue:60.0];
+        frameManageInfo = [layout getCGRect:@"manageInfo"];
+        frameOtherInfo  = [layout getCGRect:@"otherInfo"];
+        
         heightPaddingTitleContent = 0.0;
     }
     else {
         [layout setUseBesideMode:@"InfoAdditional" besideTo:@"TitleLine" withDirection:FrameLayoutDirectionBelow andSizeValue:0.0];
     }
-    frameInfoAdditionalLabel = [layout getCGRect:@"InfoAdditional"];
     
     //Title和正文间设置间距.
     [layout setUseBesideMode:@"PaddingTitleContent" besideTo:@"InfoAdditional" withDirection:FrameLayoutDirectionBelow andSizeValue:heightPaddingTitleContent];
@@ -316,15 +369,10 @@ static NSInteger kcountObject = 0;
     
     self.titleLabel.frame           = frameTitleLabel;
     self.infoLabel.frame            = frameInfoLabel;
-    self.infoAdditionalLabel.frame  = frameInfoAdditionalLabel;
+    self.manageInfoLabel.frame      = frameManageInfo;
+    self.otherInfoLabel.frame       = frameOtherInfo;
     self.contentLabel.frame         = frameContentLabel;
     self.imageView.frame            = frameImageViewContent;
-    
-    LOG_RECT(frameTitleLabel,           @"frameTitleLabel")
-    LOG_RECT(frameInfoLabel,            @"frameInfoLabel")
-    LOG_RECT(frameInfoAdditionalLabel,  @"frameInfoAdditionalLabel")
-    LOG_RECT(frameContentLabel,         @"frameContentLabel")
-    LOG_RECT(frameImageViewContent,     @"frameImageViewContent")
     
     FRAMELAYOUT_SET_HEIGHT(self, heightAdjust);
     NSLog(@"adjust height to %f.", heightAdjust);

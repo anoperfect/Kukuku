@@ -209,31 +209,25 @@
     NSInteger count = [self.postDatas count];
     if(count >= 1) {
         
-        PostData *topic = [self.postDatas objectAtIndex:0];
+        PostData *topic = [(NSMutableDictionary*)[self.postViewCellDatas objectAtIndex:0] objectForKey:@"postdata"];
+        
         NSInteger index = 0;
-        for(PostData *pd in self.postDatas) {
-            NSMutableDictionary *dict = (NSMutableDictionary*)[self.postViewCellDatas objectAtIndex:index];
-            
+        for(NSMutableDictionary *dict in self.postViewCellDatas) {
+            PostData *pd = [dict objectForKey:@"postdata"];
             //Po的主题及回复 title 加粗.
             if([pd.uid isEqualToString:topic.uid]) {
-//                [dict setObject:[NSString stringWithFormat:@"<b>%@</b>", [dict objectForKey:@"title"]] forKey:@"title"];
                 [dict setObject:[UIColor blueColor] forKey:@"colorUid"];
             }
             
             //统一显示No.
-            [dict setObject:[NSString stringWithFormat:@"No.%@", [dict objectForKey:@"id"]] forKey:@"info"];
+            [dict setObject:[NSString stringWithFormat:@"No.%zd", pd.id] forKey:@"info"];
             //信息部分显示NO. 主题显示回复数+NO.
             if(index == 0) {
                 //主题增加附加显示信息.
-//                [dict setObject:[NSString stringWithFormat:@"[%@]No.%@", [dict objectForKey:@"replyCount"], [dict objectForKey:@"id"]] forKey:@"info"];
-                NSString *infoAdditionalOriginal = [dict objectForKey:@"infoAdditional"];
-                [dict setObject:[NSString stringWithFormat:@"%@ 回应:%@", infoAdditionalOriginal?infoAdditionalOriginal:@"", [dict objectForKey:@"replyCount"]]
-                         forKey:@"infoAdditional"];
-                NSLog(@"%@", [dict objectForKey:@"infoAdditional"]);
+                [dict setObject:[NSString stringWithFormat:@"回应 : %zd", pd.replyCount] forKey:@"otherInfo"];
             }
             else {
-//                [dict setObject:[NSString stringWithFormat:@"No.%@", [dict objectForKey:@"id"]] forKey:@"info"];
-//                NSLog(@"%@", [dict objectForKey:@"info"]);
+                
             }
             
             index ++;
