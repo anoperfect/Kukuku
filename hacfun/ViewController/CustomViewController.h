@@ -42,5 +42,5 @@
 - (void)actionViaString:(NSString*)string;
 
 
-
+- (void)dismiss;
 @end

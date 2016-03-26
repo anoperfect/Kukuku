@@ -19,7 +19,6 @@
 @property (assign,nonatomic) NSInteger threadId;
 
 @property (strong,nonatomic) PostData *topic;
-@property (strong,nonatomic) NSDictionary *topicDictObj;
 
 //@property (assign,nonatomic) NSInteger idCollection;
 //@property (assign,nonatomic) NSInteger idPo;
@@ -72,7 +71,12 @@
         
         actionData = [[ButtonData alloc] init];
         actionData.keyword  = @"收藏";
-//        actionData.image    = @"edit";
+        actionData.image    = @"collection";
+        [self actionAddData:actionData];
+        
+        actionData = [[ButtonData alloc] init];
+        actionData.keyword  = @"加载全部";
+        actionData.image    = @"loadall";
         [self actionAddData:actionData];
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reloadFromCreateReplyFinish:) name:@"CreateReplyFinish" object:nil];
@@ -153,23 +157,6 @@
 
 - (void)reloadFromCreateReplyFinish:(NSNotification*)notification {
     LOG_POSTION
-    
-    /* 保存json文件. */
-    NSArray *array = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    NSString *documentPath = [array firstObject];
-    
-    NSString *jsonCacheFolder =
-    [NSString stringWithFormat:@"%@/%@/JsonCache", documentPath, [[AppConfig sharedConfigDB] configDBGet:@"hostname"]];
-    [[NSFileManager defaultManager] createDirectoryAtPath:jsonCacheFolder withIntermediateDirectories:YES attributes:nil error:nil];
-    NSString *pathJsonCache = [NSString stringWithFormat:@"%@/collection_%08zi.json", jsonCacheFolder, self.topic.id];
-    
-    [self.jsonData writeToFile:pathJsonCache atomically:YES];
-    
-    //纪录发帖记录.
-    NSDictionary *dict = [notification userInfo];
-    NSLog(@"create reply no : %@", [dict objectForKey:@"no"]);
-    
-    [self reloadPostData];
 }
 
 
@@ -195,6 +182,16 @@
     
     if([string isEqualToString:@"收藏"]) {
         [self collection];
+        return;
+    }
+    
+    if([string isEqualToString:@"加载"]) {
+        
+        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"将加载全部回复信息" message:@"将加载全部信息" delegate:self
+    cancelButtonTitle:@"取消" otherButtonTitles:nil];
+        [alertView show];
+        
+        [self downloadAllDetail];
         return;
     }
 }
@@ -308,6 +305,13 @@
 }
 
 
+- (void)downloadAllDetail
+{
+    self.autoRepeatDownload = YES;
+    [self reloadPostData];
+}
+
+
 - (void)presentCreateViewControllerWithReferenceId:(NSInteger)referenceId {
     CreateViewController *vc = [[CreateViewController alloc] init];
     if(referenceId == 0) {
@@ -348,8 +352,10 @@
 
 
 //---override. pretreat before append to self.postDatas.
+//it would cause after load the second page, cell location changed. ???
+//need to keep the optimumSizeHeight of index 0, or it would be set the default height.
 - (NSInteger)parsePostDatasPretreat:(NSMutableArray*)parsedPostDatasArray {
-   
+
     PostData *topic = [[parsedPostDatasArray objectAtIndex:0] copy];
     NSInteger numOfReply = 0;
     NSInteger numDuplicate = 0;
@@ -366,6 +372,7 @@
             NSLog(@"threads not updated.");
         }
         else {
+            topic.optimumSizeHeight = self.topic.optimumSizeHeight;
             self.topic = topic;
             NSLog(@"threads updated");
             [self.postDatas replaceObjectAtIndex:0 withObject:topic];
@@ -393,7 +400,7 @@
     
     [parsedPostDatasArray removeObjectsAtIndexes:removeIndexSet];
 
-    return numOfReply;
+    return [parsedPostDatasArray count];
 }
 
 
@@ -467,7 +474,6 @@
 
 - (void)clearDataAdditional {
     self.topic = nil;
-    self.topicDictObj = nil;
 }
 
 
@@ -495,6 +501,9 @@
 
 
 @end
+
+
+
 
 
 

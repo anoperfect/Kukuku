@@ -278,7 +278,7 @@ static NSInteger kcountObject = 0;
 {
     CGRect frameTitleLabel          = CGRectZero;
     CGRect frameInfoLabel           = CGRectZero;
-    CGRect frameInfoAdditionalLabel = CGRectZero;
+//    CGRect frameInfoAdditionalLabel = CGRectZero;
     CGRect frameManageInfo           = CGRectZero;
     CGRect frameOtherInfo           = CGRectZero;
     CGRect frameContentLabel        = CGRectZero;
@@ -392,6 +392,37 @@ static NSInteger kcountObject = 0;
     
     return cellView;
 }
+
+
++ (PostDataCellView*)PostDatalViewWithTid:(NSInteger)tid andInitFrame:(CGRect)frame
+{
+    NSMutableDictionary *dictm = [[NSMutableDictionary alloc] init];
+    [dictm setObject:[NSString stringWithFormat:@"NO.%zd", tid] forKey:@"title"];
+    
+    PostDataCellView *postDataView = [self threadCellViewWithData:dictm andInitFrame:frame];
+    
+    NSLog(@"update %zd", tid);
+    dispatch_queue_t concurrentQueue = dispatch_queue_create("my.concurrent.queue", DISPATCH_QUEUE_CONCURRENT);
+    dispatch_async(concurrentQueue, ^(void){
+        //获取last page的信息.
+        NSMutableArray *postDataArray = [PostData sendSynchronousRequestByThreadId:tid andPage:0];
+        if([postDataArray count] > 0) {
+            PostData *postData = postDataArray[0];
+            postDataView.data = [NSDictionary dictionaryWithDictionary:[postData toViewDisplayData:ThreadDataToViewTypeInfoUseNumber]];
+            dispatch_async(dispatch_get_main_queue(), ^(void) {
+                [postDataView setContent];
+                [postDataView layoutContent];
+            });
+        }
+    });
+    
+    return postDataView;
+}
+
+
+
+
+
 
 
 + (NSInteger)countObject

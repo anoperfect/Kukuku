@@ -92,17 +92,29 @@
         [self showfootViewWithTitle:NSSTRING_LOAD_FAILED andActivityIndicator:NO andDate:NO];
         
         self.status = ThreadsStatusLoadFailed;
+        if(self.autoRepeatDownload) {
+            self.autoRepeatDownload = NO;
+            [self showIndicationText:@"获取数据失败. 自动加载停止."];
+        }
     }
     else if(0 == [parsedPostDatas count]) {
         NSLog(@"xxxxxx no more new data");
         [self showfootViewWithTitle:NSSTRING_NO_MORE_DATA andActivityIndicator:NO andDate:NO];
         self.status = ThreadsStatusLoadFailed;
+        if(self.autoRepeatDownload) {
+            self.autoRepeatDownload = NO;
+            [self showIndicationText:@"未获取到更多数据. 自动加载停止."];
+        }
     }
     else {
         NSInteger numAdd = [self appendParsedPostDatas:parsedPostDatas];
         if(numAdd <= 0) {
             NSLog(@"xxxxxx no more new data");
             [self showfootViewWithTitle:NSSTRING_NO_MORE_DATA andActivityIndicator:NO andDate:NO];
+            if(self.autoRepeatDownload) {
+                self.autoRepeatDownload = NO;
+                [self showIndicationText:@"未获取到更多数据. 自动加载停止."];
+            }
         }
         else {
             NSLog(@"------ reload to count : %zi", self.postDatas.count);
@@ -111,6 +123,23 @@
             [self.postView reloadData];
             [self.postView setHidden:NO];
             [self showfootViewWithTitle:NSSTRING_LOAD_SUCCESSFUL andActivityIndicator:NO andDate:YES];
+            
+            if([self isLastPage]) {
+                NSLog(@"last page.");
+                if(self.autoRepeatDownload) {
+                    self.autoRepeatDownload = NO;
+                    [self showIndicationText:@"加载完成. 自动加载停止."];
+                }
+            }
+            else {
+                NSLog(@"not last page.");
+                if(self.autoRepeatDownload) {
+                    [self showIndicationText:[NSString stringWithFormat:@"自动加载完成加载:%zd.", self.pageNum]];
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [self reloadPostData];
+                    });
+                }
+            }
         }
         self.status = ThreadsStatusLoadFinish;
     }

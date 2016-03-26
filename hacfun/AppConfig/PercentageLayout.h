@@ -24,7 +24,7 @@
 #endif
 
 
-#define CGRectMakeByPercentageLayoutVertical(superView, topPercentage, heightPercentage) \
+#define CGRectMakeByPercentageLayoutVertical_desprate(superView, topPercentage, heightPercentage) \
 CGRectMake(\
            superView.frame.size.width * PERCENTAGELAYOUT_LEFT_BORDER, \
            superView.frame.size.height * (PERCENTAGELAYOUT_TOP + topPercentage),\
@@ -33,7 +33,7 @@ CGRectMake(\
 
 
 
-#define CGRectMakeByPercentageFrameVertical(frame, topPercentage, heightPercentage) \
+#define CGRectMakeByPercentageFrameVertical_desprate(frame, topPercentage, heightPercentage) \
 CGRectMake(\
            frame.size.width * PERCENTAGELAYOUT_LEFT_BORDER, \
            frame.size.height * (PERCENTAGELAYOUT_TOP + topPercentage),\

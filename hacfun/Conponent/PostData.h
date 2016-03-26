@@ -28,14 +28,15 @@
 @property (nonatomic) NSString *uid ;//= TYXC4L2E;
 @property (nonatomic) long long updatedAt ;//= 1436668641000;
 
-@property (nonatomic) BOOL bTopic; //是否是主题. 否则为回复.
 @property (strong,nonatomic) NSMutableArray *replys;
 @property (strong, nonatomic) NSArray *recentReply ;//=     ( 6299638, 6299598, 6299451, 6299426, 6299069);
 @property (nonatomic) NSInteger replyCount ;//= 24;
 
+@property (nonatomic) BOOL bTopic; //是否是主题. 否则为回复.
 @property (nonatomic) NSInteger mode; //数据是属于 1. 栏目模式; 2. Post模式.
+@property (nonatomic) CGFloat optimumSizeHeight;
 
-@property (nonatomic) NSInteger height;
+@property (nonatomic, strong) NSString *jsonString;
 
 
 

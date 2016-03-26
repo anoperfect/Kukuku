@@ -71,6 +71,9 @@
 		B58D88201B85621500B9A1BA /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B58D881F1B85621500B9A1BA /* libsqlite3.dylib */; };
 		B5A058571B9DE86200370557 /* PostViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B5A058561B9DE86200370557 /* PostViewController.m */; };
 		B5A0585A1B9DE87A00370557 /* ReplyViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B5A058591B9DE87A00370557 /* ReplyViewController.m */; };
+		B5A803401CA6A7C500F88EC7 /* collection.png in Resources */ = {isa = PBXBuildFile; fileRef = B5A8033D1CA6A7C500F88EC7 /* collection.png */; };
+		B5A803411CA6A7C500F88EC7 /* loadall.png in Resources */ = {isa = PBXBuildFile; fileRef = B5A8033E1CA6A7C500F88EC7 /* loadall.png */; };
+		B5A803421CA6A7C500F88EC7 /* tip-off.png in Resources */ = {isa = PBXBuildFile; fileRef = B5A8033F1CA6A7C500F88EC7 /* tip-off.png */; };
 		B5AFCA0E1C9FFE5A00D9DDB5 /* bgleft.png in Resources */ = {isa = PBXBuildFile; fileRef = B5AFCA0C1C9FFE5A00D9DDB5 /* bgleft.png */; };
 		B5AFCA0F1C9FFE5A00D9DDB5 /* bgright.png in Resources */ = {isa = PBXBuildFile; fileRef = B5AFCA0D1C9FFE5A00D9DDB5 /* bgright.png */; };
 		B5BC10541B8988EE0006EDD4 /* emoticon.png in Resources */ = {isa = PBXBuildFile; fileRef = B5BC10531B8988EE0006EDD4 /* emoticon.png */; };
@@ -206,6 +209,9 @@
 		B5A058561B9DE86200370557 /* PostViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PostViewController.m; sourceTree = "<group>"; };
 		B5A058581B9DE87A00370557 /* ReplyViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReplyViewController.h; sourceTree = "<group>"; };
 		B5A058591B9DE87A00370557 /* ReplyViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReplyViewController.m; sourceTree = "<group>"; };
+		B5A8033D1CA6A7C500F88EC7 /* collection.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = collection.png; sourceTree = "<group>"; };
+		B5A8033E1CA6A7C500F88EC7 /* loadall.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = loadall.png; sourceTree = "<group>"; };
+		B5A8033F1CA6A7C500F88EC7 /* tip-off.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "tip-off.png"; sourceTree = "<group>"; };
 		B5AFCA0C1C9FFE5A00D9DDB5 /* bgleft.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bgleft.png; sourceTree = "<group>"; };
 		B5AFCA0D1C9FFE5A00D9DDB5 /* bgright.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bgright.png; sourceTree = "<group>"; };
 		B5BC10531B8988EE0006EDD4 /* emoticon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = emoticon.png; sourceTree = "<group>"; };
@@ -421,6 +427,9 @@
 		B523C9FE1B78FDB100944004 /* images */ = {
 			isa = PBXGroup;
 			children = (
+				B5A8033D1CA6A7C500F88EC7 /* collection.png */,
+				B5A8033E1CA6A7C500F88EC7 /* loadall.png */,
+				B5A8033F1CA6A7C500F88EC7 /* tip-off.png */,
 				B55E9D7B1C9CFD7D00F581F5 /* capture.png */,
 				B55E9D7C1C9CFD7D00F581F5 /* photolibrary.png */,
 				B55E9D7D1C9CFD7D00F581F5 /* yantext1.png */,
@@ -629,6 +638,7 @@
 				B523CA1A1B78FDB100944004 /* jumppage.png in Resources */,
 				B523CA221B78FDB100944004 /* zheshiluwei.jpg in Resources */,
 				B523CA191B78FDB100944004 /* edit1.png in Resources */,
+				B5A803401CA6A7C500F88EC7 /* collection.png in Resources */,
 				B523C9A51B78FA7500944004 /* icon-menu.png in Resources */,
 				B523CA151B78FDB100944004 /* back.png in Resources */,
 				B523CA111B78FDB100944004 /* 1.gif in Resources */,
@@ -643,8 +653,10 @@
 				B523C9A61B78FA7500944004 /* icon-menu@2x.png in Resources */,
 				B564D0F71C9189C400E903B6 /* bg.png in Resources */,
 				B5AFCA0E1C9FFE5A00D9DDB5 /* bgleft.png in Resources */,
+				B5A803411CA6A7C500F88EC7 /* loadall.png in Resources */,
 				B523CA211B78FDB100944004 /* reply2.png in Resources */,
 				B523CA141B78FDB100944004 /* appicont.png in Resources */,
+				B5A803421CA6A7C500F88EC7 /* tip-off.png in Resources */,
 				B5BC10541B8988EE0006EDD4 /* emoticon.png in Resources */,
 				B55E9D801C9CFD7D00F581F5 /* yantext1.png in Resources */,
 				B5D8D4811B52060C0091DA20 /* Images.xcassets in Resources */,

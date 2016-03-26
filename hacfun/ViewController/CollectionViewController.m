@@ -90,6 +90,13 @@
     //将所有需更新的tid记录.
     self.updateResult = [[NSMutableDictionary alloc] init];
     
+    //所有显示更新中提示.
+    for(NSMutableDictionary *dictm in self.postViewCellDatas) {
+        [dictm setObject:@"更新中" forKey:@"otherInfo"];
+    }
+    
+    [self.postView reloadData];
+    
     for(id obj in self.arrayAllLocale) {
         if(![obj isKindOfClass:[NSDictionary class]]) {
             NSLog(@"#error not expected class %@", obj);
@@ -139,7 +146,6 @@
     if(!found) {
         //实际页面未全部显示的时候, 可能导致未在self.postViewCellDatas中找到.
         NSLog(@"#error not found.");
-        
     }
 }
 

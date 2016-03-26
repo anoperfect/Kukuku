@@ -130,7 +130,7 @@
     [self.viewIndication.layer setCornerRadius:heightViewIndication / 2];
     [self.viewIndication.layer setMasksToBounds:YES];
     [self.view addSubview:self.viewIndication];
-    [self.viewIndication setHighlighted:YES];
+    [self.viewIndication setHidden:YES];
 }
 
 
@@ -181,6 +181,12 @@
     else {
         [activityIndicatorView stopAnimating];
     }
+}
+
+
+- (void)showIndicationText:(NSString*)text
+{
+    NSLog(@">>>>>>IndicationText : %@", text);
 }
 
 
@@ -320,8 +326,8 @@
     
     CGFloat height = tableView.bounds.size.height;
     PostData* pd = (PostData*)([self.postDatas objectAtIndex:indexPath.row]);
-    if(pd.height > 1.0) {
-        height = pd.height;
+    if(pd.optimumSizeHeight > 1.0) {
+        height = pd.optimumSizeHeight;
     }
     
     NSLog(@"------tableView[%zd] heightForRowAtIndexPath return %.1f", indexPath.row, height);
@@ -364,7 +370,7 @@
     contentLabel.delegate = self;
     
     PostData* pd = ((PostData*)[self.postDatas objectAtIndex:indexPath.row]);
-    pd.height = v.frame.size.height;
+    pd.optimumSizeHeight = v.frame.size.height;
     
     FRAMELAYOUT_SET_HEIGHT(cell, v.frame.size.height);
 
@@ -428,6 +434,12 @@
 }
 
 
+- (BOOL)isLastPage
+{
+    return NO;
+}
+
+
 - (void)didSelectRow:(NSInteger)row {
     NS0Log(@"didSelectRow : %zi", row);
 }
@@ -438,6 +450,7 @@
     
     NSString *str = [NSString stringWithFormat:@"%@", url];
     if([str hasPrefix:@"No."]) {
+#if 0
         ReferencePopupView *popupView = [[ReferencePopupView alloc] init];
         popupView.numofTapToClose = 1;
         [popupView popupInSuperView:self.view];
@@ -447,6 +460,21 @@
         [popupView setReferenceId1:no];
         
         LOG_VIEW_REC0(popupView, @"popupView")
+#endif
+        NSInteger no = [str substringWithRange:NSMakeRange(3, str.length-3)].integerValue;
+        NSLog(@"no=%zi", no);
+        CustomViewController *vc = [[CustomViewController alloc] init];
+        vc.view.backgroundColor = HexRGBAlpha(0xff0000, 0.1);
+        PostDataCellView *postDataView = [PostDataCellView PostDatalViewWithTid:no andInitFrame:self.view.bounds];
+        [vc.view addSubview:postDataView];
+        postDataView.center = vc.view.center;
+        UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:vc action:@selector(dismiss)];
+        tapGestureRecognizer.numberOfTapsRequired = 1;
+        [postDataView addGestureRecognizer:tapGestureRecognizer];
+        
+        [self presentViewController:vc animated:NO completion:^(void) {
+            
+        }];
     }
     else if([str hasPrefix:@"http://"] || [str hasPrefix:@"https://"]) {
         [[ UIApplication sharedApplication] openURL:url];

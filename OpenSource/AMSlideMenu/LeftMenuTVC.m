@@ -135,6 +135,7 @@
         DetailViewController *vc = [[DetailViewController alloc]init];
         [vc setPostThreadId:6670627];
         [vc setPostThreadId:6477099];
+        [vc setPostThreadId:6468268];
         rootVC = vc;
     }
     

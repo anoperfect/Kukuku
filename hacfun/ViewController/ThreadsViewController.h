@@ -64,6 +64,10 @@
 @property (strong,nonatomic) NSString *host;
 @property (strong,nonatomic) NSMutableData *jsonData;
 
+//持续加载下一页.
+@property (nonatomic, assign) BOOL autoRepeatDownload;
+
+
 typedef enum : NSUInteger {
     ThreadsStatusInit,
     ThreadsStatusLoading,
@@ -76,6 +80,10 @@ typedef enum : NSUInteger {
 
 //UITableView的foot view用于显示状态数据. 使用此接口具体设置.
 - (void)showfootViewWithTitle:(NSString*)title andActivityIndicator:(BOOL)isActive andDate:(BOOL)isShowDate;
+
+
+//显示一个提示信息.
+- (void)showIndicationText:(NSString*)text;
 
 
 - (void)refreshPostData;
@@ -103,5 +111,10 @@ typedef enum : NSUInteger {
 //目前使用:
 //DetailViewController用以记录用户浏览的最新回复. 可用于收藏页判断是否有新回复.
 - (void)threadDisplayActionInCell:(UITableViewCell*)cell withRow:(NSInteger)row;
+
+
+//可重写以判断是否到last page.
+- (BOOL)isLastPage;
+
 
 @end

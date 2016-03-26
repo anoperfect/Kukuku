@@ -46,9 +46,24 @@
     pdCopy.recentReply = [self.recentReply copy];
     pdCopy.replyCount = self.replyCount ;
     
-    pdCopy.height = self.height;
+    pdCopy.optimumSizeHeight = self.optimumSizeHeight;
     
     return pdCopy;
+}
+
+
+- (BOOL)isEqual:(id)other
+{
+    if (other == self) {
+        return YES;
+    }
+    
+    if(![other isKindOfClass:[PostData class]]) {
+        return NO;
+    }
+    else {
+        return [[self description] isEqualToString:[other description]];
+    }
 }
 
 
@@ -67,6 +82,7 @@
 + (PostData*)fromDictData:(NSDictionary *)dict {
     
     PostData *pd = [[PostData alloc] init];
+    pd.jsonString = [NSString stringWithFormat:@"%@", dict];
     BOOL finished = NO;
     id obj;
     NS0Log(@"%@", dict);
@@ -290,15 +306,7 @@
 
 
 - (NSString*)description {
-    
-    return [NSString stringWithFormat:
-            @"{\n\
-            id = %zi\n\
-            content = %@\n\
-            }",
-            self.id,
-            self.content
-            ];
+    return [NSString stringWithFormat:@"%@", self.jsonString];
 }
 
 
@@ -646,6 +654,7 @@ PostDataView 接收的字段字段
 
 
 + (PostData*)parseFromThreadJsonData:(NSData*)data {
+    LOG_POSTION
     
     PostData *postData = nil;
     if(data) {
@@ -685,6 +694,7 @@ PostDataView 接收的字段字段
             return nil;
         }
         
+        postData.jsonString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
         postData.bTopic = YES;
         postData.mode = 1;
     }
