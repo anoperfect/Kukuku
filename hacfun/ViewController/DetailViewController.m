@@ -185,12 +185,15 @@
         return;
     }
     
-    if([string isEqualToString:@"加载"]) {
+    if([string isEqualToString:@"加载全部"]) {
         
+#if 0
         UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"将加载全部回复信息" message:@"将加载全部信息" delegate:self
     cancelButtonTitle:@"取消" otherButtonTitles:nil];
         [alertView show];
+#endif
         
+        [self showIndicationText:[NSString stringWithFormat:@"开始加载全部回复"]];
         [self downloadAllDetail];
         return;
     }
@@ -333,8 +336,8 @@
 
 - (NSString*)getDownloadUrlString {
     NSInteger count = [self.postDatas count];
-    NSInteger pageNum = count==0?1:((count-1)/[self numInOnePage] + 1);
-    return [NSString stringWithFormat:@"%@/t/%zi?page=%zi", self.host, self.threadId, pageNum];
+    self.pageNum = count==0?1:((count-1)/[self numInOnePage] + 1);
+    return [NSString stringWithFormat:@"%@/t/%zi?page=%zi", self.host, self.threadId, self.pageNum];
 }
 
 

@@ -104,8 +104,8 @@
 
 - (NSString*)getDownloadUrlString {
     NSInteger count = [self.postDatas count];
-    NSInteger pageNum = count/[self numInOnePage] + 1;
-    return [NSString stringWithFormat:@"%@/%@?page=%zi", self.host, self.linkCategory, pageNum];
+    self.pageNum = count/[self numInOnePage] + 1;
+    return [NSString stringWithFormat:@"%@/%@?page=%zi", self.host, self.linkCategory, self.pageNum];
 }
 
 
