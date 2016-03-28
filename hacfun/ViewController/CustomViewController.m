@@ -235,8 +235,61 @@
 
 - (void)dismiss
 {
+    [self.navigationController popViewControllerAnimated:NO];
     [self dismissViewControllerAnimated:NO completion:nil];
 }
+
+
+#define TAG_popupView_container     1000000002
+
+- (void)showPopupView:(UIView*)view
+{
+    UIView *containerView = [[UIView alloc] initWithFrame:self.view.bounds];
+    containerView.backgroundColor = [UIColor grayColor];
+    containerView.alpha = 0.9;
+    containerView.tag = TAG_popupView_container;
+    [self.view addSubview:containerView];
+    
+    UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dismissPopupView)];
+    tapGestureRecognizer.numberOfTapsRequired = 1;
+    [containerView addGestureRecognizer:tapGestureRecognizer];
+    
+    [containerView addSubview:view];
+    view.center = view.superview.center;
+    
+    [view addObserver:self forKeyPath:@"frame" options:NSKeyValueObservingOptionNew context:nil];
+}
+
+
+- (void)dismissPopupView
+{
+    UIView *containerView = [self.view viewWithTag:TAG_popupView_container];
+    for(id obj in containerView.subviews) {
+        NSLog(@"%@", obj);
+        [obj removeObserver:self forKeyPath:@"frame"];
+        [obj removeFromSuperview];
+    }
+//    [containerView.subviews makeObjectsPerformSelector:@selector(removeObserver:) withObject:self];
+//    [containerView.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
+    
+    [containerView removeFromSuperview];
+    containerView = nil;
+}
+
+
+-(void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context{
+    LOG_POSTION
+    if([keyPath isEqualToString:@"frame"]){//这里只处理balance属性
+        LOG_POSTION
+//        NSLog(@"keyPath=%@,object=%@,newValue=%.2f,context=%@",keyPath,object,[[change objectForKey:@"new"] floatValue],context);
+        NSLog(@"%@", object);
+        NSLog(@"%@", change);
+        UIView *view = object;
+        view.center = view.superview.center;
+    }
+}
+
+
 
 
 

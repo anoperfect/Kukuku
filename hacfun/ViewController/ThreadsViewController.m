@@ -503,36 +503,51 @@
     
     NSString *str = [NSString stringWithFormat:@"%@", url];
     if([str hasPrefix:@"No."]) {
-#if 0
-        ReferencePopupView *popupView = [[ReferencePopupView alloc] init];
-        popupView.numofTapToClose = 1;
-        [popupView popupInSuperView:self.view];
-        
-        NSInteger no = [str substringWithRange:NSMakeRange(3, str.length-3)].integerValue;
-        NSLog(@"no=%zi", no);
-        [popupView setReferenceId1:no];
-        
-        LOG_VIEW_REC0(popupView, @"popupView")
-#endif
-        NSInteger no = [str substringWithRange:NSMakeRange(3, str.length-3)].integerValue;
-        NSLog(@"no=%zi", no);
-        CustomViewController *vc = [[CustomViewController alloc] init];
-        vc.view.backgroundColor = HexRGBAlpha(0xff0000, 0.1);
-        PostDataCellView *postDataView = [PostDataCellView PostDatalViewWithTid:no andInitFrame:self.view.bounds];
-        [vc.view addSubview:postDataView];
-        postDataView.center = vc.view.center;
-        UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:vc action:@selector(dismiss)];
-        tapGestureRecognizer.numberOfTapsRequired = 1;
-        [postDataView addGestureRecognizer:tapGestureRecognizer];
-        
-        [self presentViewController:vc animated:NO completion:^(void) {
-            
-        }];
+        NSInteger tid = [str substringWithRange:NSMakeRange(3, str.length-3)].integerValue;
+        [self showReferencePostDataView:tid];
     }
     else if([str hasPrefix:@"http://"] || [str hasPrefix:@"https://"]) {
         [[ UIApplication sharedApplication] openURL:url];
     }
 }
+
+
+- (void)showReferencePostDataView:(NSInteger)tid
+{
+#if 0
+    ReferencePopupView *popupView = [[ReferencePopupView alloc] init];
+    popupView.numofTapToClose = 1;
+    [popupView popupInSuperView:self.view];
+    
+    NSInteger no = [str substringWithRange:NSMakeRange(3, str.length-3)].integerValue;
+    NSLog(@"no=%zi", no);
+    [popupView setReferenceId1:no];
+    
+    LOG_VIEW_REC0(popupView, @"popupView")
+#endif
+    
+    PostDataCellView *postDataView = [PostDataCellView PostDatalViewWithTid:tid andInitFrame:self.view.bounds];
+    [self showPopupView:postDataView];
+    
+    
+#if 0
+    CustomViewController *vc = [[CustomViewController alloc] init];
+    //        vc.view.backgroundColor = HexRGBAlpha(0xff0000, 0.1);
+    vc.view.backgroundColor = [UIColor clearColor];
+    //        vc.view.alpha = 0.1;
+    [vc.view addSubview:postDataView];
+    postDataView.center = vc.view.center;
+    
+    //        [self presentViewController:vc animated:NO completion:^(void) { }];
+    [self.navigationController pushViewController:vc animated:NO];
+#endif
+    
+    
+    
+}
+
+
+
 
 
 - (void)longPressToDo:(UILongPressGestureRecognizer *)gesture {

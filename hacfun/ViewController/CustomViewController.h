@@ -43,4 +43,8 @@
 
 
 - (void)dismiss;
+
+
+- (void)showPopupView:(UIView*)view;
+- (void)dismissPopupView;
 @end
