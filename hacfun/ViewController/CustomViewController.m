@@ -146,6 +146,7 @@
             [button setTitle:data.keyword forState:UIControlStateNormal];
             [button setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
         }
+        button.showsTouchWhenHighlighted = YES;
         
         index ++;
     }

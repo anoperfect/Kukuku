@@ -51,6 +51,12 @@
 - (NSArray*)getAllLocaleData {
     NSArray *localDatas = [[AppConfig sharedConfigDB] configDBCollectionQuery:nil];
     NSLog(@"localDatas count : %zd .", [localDatas count]);
+    
+    for(NSDictionary *dict in localDatas) {
+        long long collectedAt = [(NSNumber*)(dict[@"collectedAt"]) longLongValue];
+        NSLog(@"111 - No.%@ at %@", dict[@"id"], [FuncDefine stringFromMSecondInterval:collectedAt andTimeZoneAdjustSecondInterval:0]);
+    }
+    
     return localDatas;
 }
 

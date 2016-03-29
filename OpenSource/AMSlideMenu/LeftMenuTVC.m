@@ -14,6 +14,8 @@
 #import "SettingViewController.h"
 #import "AppConfig.h"
 #import "PopupView.h"
+#import "AMSlideMenuMainViewController.h"
+
 @interface LeftMenuTVC ()
 @property (strong, nonatomic) NSMutableArray *tableData;
 @end
@@ -164,13 +166,22 @@
         rootVC = vc;
     }
     
-    nvc = [[UINavigationController alloc] initWithRootViewController:rootVC];
+#if 0
+    if(self.mainVC.currentActiveNVC) {
+        self.mainVC.currentActiveNVC.viewControllers = @[rootVC];
+        nvc = self.mainVC.currentActiveNVC;
+        NSLog(@"### use previous UINavigationController : %@", nvc);
+        [self.mainVC closeLeftMenuAnimated:YES];
+    }
+    else
+#endif
+    {
+        nvc = [[UINavigationController alloc] initWithRootViewController:rootVC];
+        NSLog(@"### create UINavigationController : %@", nvc);
+        [self openContentNavigationController:nvc];
+    }
     
-    [self openContentNavigationController:nvc];
 }
-
-
-
 
 
 @end

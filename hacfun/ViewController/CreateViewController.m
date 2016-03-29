@@ -603,37 +603,12 @@
             
             //保存到post纪录.
             popupView.titleLabel = @"发送成功";
-            NSMutableArray *array = [[NSMutableArray alloc] initWithArray:self.navigationController.viewControllers];
-            [array removeLastObject];
-            UIViewController *vc = [array lastObject];
-            if([vc isKindOfClass:[DetailViewController class]]) {
-                NSLog(@"from DetailViewController");
-                
-                popupView.finish = ^(void) {
-                    /* 刷新最后一页,通常可以看到刚发送的回复. */
-                    [(DetailViewController*)vc toLastPage];
-        
-                    [self.navigationController setViewControllers:array animated:YES];
-//                    [self actionDismissWithReloadNotification:YES];
-                };
-            }
-            else
-            if([vc isKindOfClass:[CategoryViewController class]]) {
-                NSLog(@"from CategoryViewController");
-                
-                popupView.finish = ^(void) {
-                    //将当前界面退出加入刚提交成功的页面加入到UINavigationController中.
-                    DetailViewController *vc = [[DetailViewController alloc]init];
-                    [vc setPostThreadId:self.threadsId];
-                    
-                    [array addObject:vc];
-                    [self.navigationController setViewControllers:array animated:YES];
-                };
-            }
-            else {
-                LOG_POSTION
-                
-            }
+            
+
+            
+            popupView.finish = ^(void) {
+                [self createFinishedWithTid:threadsId];
+            };
         }
         else {
             NSString *msg = (NSString*)[dict objectForKey:@"msg"];
@@ -648,6 +623,17 @@
     
     [[CookieManage sharedCookieManage] showCookie:@"cookie after POST."];
 }
+
+
+- (void)createFinishedWithTid:(NSInteger)tid
+{
+    [self.navigationController popViewControllerAnimated:YES];
+    DetailViewController *newDetailViewController = [[DetailViewController alloc] init];
+    [newDetailViewController setPostThreadId:tid];
+    [self.navigationController pushViewController:newDetailViewController animated:YES];
+}
+
+
 
 
 - (void)connection:(NSURLConnection *)connection

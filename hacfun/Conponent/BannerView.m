@@ -139,6 +139,7 @@ static NSInteger kcountObjBannerView = 0;
     self.backgroundColor = [AppConfig backgroundColorFor:@"BannerView"];
     
     self.buttonTopic = [[UIButton alloc] init];
+    self.buttonTopic.showsTouchWhenHighlighted = YES;
     [self addSubview:self.buttonTopic];
     [self.buttonTopic setTitleColor:[AppConfig textColorFor:@"Black"] forState:UIControlStateNormal];
     [self.buttonTopic setTitleColor:[UIColor blueColor] forState:UIControlStateHighlighted];

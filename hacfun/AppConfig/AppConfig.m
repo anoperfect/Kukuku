@@ -307,8 +307,8 @@
 
 
 - (NSArray*)configDBCollectionQuery:(NSDictionary*)infoQuery {
-    
-    NSString *query = [NSString stringWithFormat:@"SELECT collection.id, record.jsonstring FROM collection,record WHERE collection.id = record.id"];
+    //默认按照最新收藏的放最前面.
+    NSString *query = [NSString stringWithFormat:@"SELECT collection.id, collection.collectedAt, record.jsonstring FROM collection,record WHERE collection.id = record.id ORDER BY collection.collectedAt DESC"]; //ASC
     
     NSObject *obj = [infoQuery objectForKey:@"id"];
     if(obj && [obj isKindOfClass:[NSNumber class]]) {
@@ -319,9 +319,10 @@
     FMResultSet *rs = [self.hostDataBase executeQuery:query];
     while ([rs next]) {
         NSInteger id = [rs intForColumn:@"id"];
-//        NSLog(@"%@", [rs stringForColumn:@"jsonstring"]);
+        long long collectedAt = [rs longLongIntForColumn:@"collectedAt"];
         NSDictionary *dict = @{
                                @"id":[NSNumber numberWithInteger:id],
+                               @"collectedAt":[NSNumber numberWithLongLong:collectedAt],
                                @"jsonstring":[rs stringForColumn:@"jsonstring"]
                                };
         [array addObject:dict];

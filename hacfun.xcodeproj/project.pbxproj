@@ -74,6 +74,8 @@
 		B5A803401CA6A7C500F88EC7 /* collection.png in Resources */ = {isa = PBXBuildFile; fileRef = B5A8033D1CA6A7C500F88EC7 /* collection.png */; };
 		B5A803411CA6A7C500F88EC7 /* loadall.png in Resources */ = {isa = PBXBuildFile; fileRef = B5A8033E1CA6A7C500F88EC7 /* loadall.png */; };
 		B5A803421CA6A7C500F88EC7 /* tip-off.png in Resources */ = {isa = PBXBuildFile; fileRef = B5A8033F1CA6A7C500F88EC7 /* tip-off.png */; };
+		B5A8036A1CAA808F00F88EC7 /* NSLogn.m in Sources */ = {isa = PBXBuildFile; fileRef = B5A803691CAA808F00F88EC7 /* NSLogn.m */; };
+		B5A8036D1CAA816400F88EC7 /* UIpConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = B5A8036C1CAA816400F88EC7 /* UIpConfig.m */; };
 		B5AFCA0E1C9FFE5A00D9DDB5 /* bgleft.png in Resources */ = {isa = PBXBuildFile; fileRef = B5AFCA0C1C9FFE5A00D9DDB5 /* bgleft.png */; };
 		B5AFCA0F1C9FFE5A00D9DDB5 /* bgright.png in Resources */ = {isa = PBXBuildFile; fileRef = B5AFCA0D1C9FFE5A00D9DDB5 /* bgright.png */; };
 		B5BC10541B8988EE0006EDD4 /* emoticon.png in Resources */ = {isa = PBXBuildFile; fileRef = B5BC10531B8988EE0006EDD4 /* emoticon.png */; };
@@ -212,6 +214,10 @@
 		B5A8033D1CA6A7C500F88EC7 /* collection.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = collection.png; sourceTree = "<group>"; };
 		B5A8033E1CA6A7C500F88EC7 /* loadall.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = loadall.png; sourceTree = "<group>"; };
 		B5A8033F1CA6A7C500F88EC7 /* tip-off.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "tip-off.png"; sourceTree = "<group>"; };
+		B5A803681CAA808F00F88EC7 /* NSLogn.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSLogn.h; sourceTree = "<group>"; };
+		B5A803691CAA808F00F88EC7 /* NSLogn.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSLogn.m; sourceTree = "<group>"; };
+		B5A8036B1CAA816400F88EC7 /* UIpConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UIpConfig.h; path = Extension/UIpConfig.h; sourceTree = SOURCE_ROOT; };
+		B5A8036C1CAA816400F88EC7 /* UIpConfig.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = UIpConfig.m; path = Extension/UIpConfig.m; sourceTree = SOURCE_ROOT; };
 		B5AFCA0C1C9FFE5A00D9DDB5 /* bgleft.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bgleft.png; sourceTree = "<group>"; };
 		B5AFCA0D1C9FFE5A00D9DDB5 /* bgright.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bgright.png; sourceTree = "<group>"; };
 		B5BC10531B8988EE0006EDD4 /* emoticon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = emoticon.png; sourceTree = "<group>"; };
@@ -465,6 +471,10 @@
 			children = (
 				B55E9D751C9B091400F581F5 /* FrameLayout.h */,
 				B55E9D761C9B091400F581F5 /* FrameLayout.m */,
+				B5A803681CAA808F00F88EC7 /* NSLogn.h */,
+				B5A803691CAA808F00F88EC7 /* NSLogn.m */,
+				B5A8036B1CAA816400F88EC7 /* UIpConfig.h */,
+				B5A8036C1CAA816400F88EC7 /* UIpConfig.m */,
 			);
 			path = Extension;
 			sourceTree = SOURCE_ROOT;
@@ -738,6 +748,7 @@
 				B5E137941B7D92E1002B5979 /* ImageViewCache.m in Sources */,
 				B523C9DB1B78FAB500944004 /* ThreadsViewController.m in Sources */,
 				B523C9B41B78FA8B00944004 /* VIPhotoView.m in Sources */,
+				B5A8036D1CAA816400F88EC7 /* UIpConfig.m in Sources */,
 				B523C99B1B78FA7500944004 /* AMSlideMenuLeftTableViewController.m in Sources */,
 				B523C9EA1B78FADC00944004 /* CookieManage.m in Sources */,
 				B500F8431B98083C004702F0 /* PostDataCellViewLoad.m in Sources */,
@@ -759,6 +770,7 @@
 				B55E9D771C9B091400F581F5 /* FrameLayout.m in Sources */,
 				B523C9A91B78FA7500944004 /* MainVC.m in Sources */,
 				B50F99831C12815700240C9D /* GridView.m in Sources */,
+				B5A8036A1CAA808F00F88EC7 /* NSLogn.m in Sources */,
 				B5A0585A1B9DE87A00370557 /* ReplyViewController.m in Sources */,
 				B523C9ED1B78FADC00944004 /* PostDataCellView.m in Sources */,
 				B523C9F51B78FAFD00944004 /* AppConfig.m in Sources */,
@@ -893,7 +905,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_BITCODE = NO;
-				GCC_PREFIX_HEADER = "/Applications/workspace/hacfun/OpenSource/AMSlideMenu/AMSlideMenuWithoutStoryboard-Prefix.pch";
+				GCC_PREFIX_HEADER = "OpenSource/AMSlideMenu/AMSlideMenuWithoutStoryboard-Prefix.pch";
 				INFOPLIST_FILE = hacfun/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -914,7 +926,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_BITCODE = NO;
-				GCC_PREFIX_HEADER = "/Applications/workspace/hacfun/OpenSource/AMSlideMenu/AMSlideMenuWithoutStoryboard-Prefix.pch";
+				GCC_PREFIX_HEADER = "OpenSource/AMSlideMenu/AMSlideMenuWithoutStoryboard-Prefix.pch";
 				INFOPLIST_FILE = hacfun/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";

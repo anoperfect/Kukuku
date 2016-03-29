@@ -108,8 +108,18 @@
     [[AppConfig sharedConfigDB] configDBSetAddCategoryClick:[dict objectForKey:@"name"]];
     [self updateCategories];
     
-    nvc = [[UINavigationController alloc] initWithRootViewController:rootVC];
-    [self openContentNavigationController:nvc];
+    if(self.mainVC.currentActiveNVC) {
+        self.mainVC.currentActiveNVC.viewControllers = @[rootVC];
+        nvc = self.mainVC.currentActiveNVC;
+        NSLog(@"### use previous UINavigationController : %@", nvc);
+        [self.mainVC closeRightMenuAnimated:YES];
+    }
+    else {
+        nvc = [[UINavigationController alloc] initWithRootViewController:rootVC];
+        NSLog(@"### create UINavigationController : %@", nvc);
+        [self openContentNavigationController:nvc];
+    }
+    
 }
 
 

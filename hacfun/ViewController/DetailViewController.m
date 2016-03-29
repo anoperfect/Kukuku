@@ -243,6 +243,15 @@
 
 
 - (void)collection {
+
+    
+    
+    
+    
+    
+    
+    
+    
     
     if(!self.topic) {
         PopupView *popupView = [[PopupView alloc] init];
@@ -273,13 +282,15 @@
         return;
     }
     
-    NSDate *collectionDate = [NSDate date];
-    NSInteger interval = [collectionDate timeIntervalSince1970];
+    NSTimeInterval t = [[NSDate date] timeIntervalSince1970];
+    //使用msec.
+    long long collectedAt = t * 1000.0;
+    NSLog(@"111 %lld, %@", collectedAt, [FuncDefine stringFromMSecondInterval:collectedAt andTimeZoneAdjustSecondInterval:0]);
     
     NSInteger result ;
     NSDictionary *infoInsertCollection = @{
                                  @"id":[NSNumber numberWithInteger:self.threadId],
-                                 @"collectedAt":[NSNumber numberWithLongLong:(long long)interval]
+                                 @"collectedAt":[NSNumber numberWithLongLong:collectedAt]
                                  };
     
     result = [[AppConfig sharedConfigDB] configDBCollectionInsert:infoInsertCollection];
