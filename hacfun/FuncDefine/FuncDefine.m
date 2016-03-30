@@ -72,11 +72,27 @@
 }
 
 
++ (NSString *)URLEncodedString:(NSString*)urlString
+{
+    NSString *result = (NSString *)
+    CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
+                                            (CFStringRef)urlString,
+                                            NULL,
+                                            CFSTR("!*'();:@&=+$,/?%#[] "),
+                                            kCFStringEncodingUTF8));
+    return result;
+}
 
 
-
-
-
++ (NSString*)URLDecodedString:(NSString*)urlStringEncoded
+{
+    NSString *result = (NSString *)
+    CFBridgingRelease(CFURLCreateStringByReplacingPercentEscapesUsingEncoding(kCFAllocatorDefault,
+                                                            (CFStringRef)urlStringEncoded,
+                                                            CFSTR(""),
+                                                            kCFStringEncodingUTF8));
+    return result;
+}
 
 
 @end
@@ -2168,4 +2184,171 @@ else {
     LOG_POSTION
     
 }
+#endif
+
+
+
+#if CreateViewController
+- (void)finishTest {
+    
+    PopupView *popupView = [[PopupView alloc] init];
+    popupView.numofTapToClose = 1;
+    popupView.secondsOfstringIncrease = 0;
+    popupView.titleLabel = @"测试";
+    
+    popupView.finish = ^(void) {
+        [self actionDismissWithReloadNotification:YES];
+        
+        DetailViewController *vc = [[DetailViewController alloc]init];
+        [vc setPostThreadId:6670627];
+        
+        //[self presentViewController:vc animated:NO completion:^(void){ }];
+        [self.navigationController pushViewController:vc animated:YES];
+    };
+    [popupView popupInSuperView:self.view];
+    
+    return ;
+}
+#endif
+
+
+#if PostDataCellView //监测self.frame
+- (instancetype)initWithFrame1:(CGRect)frame
+{
+    self = [super initWithFrame:frame];
+    [self addObserver:self forKeyPath:@"frame" options:NSKeyValueObservingOptionNew context:nil];
+    
+    return self;
+}
+
+
+- (void)setFrameObserver:(id)frameObserver
+{
+    assert(!_frameObserver);
+    _frameObserver = frameObserver;
+    [self addObserver:_frameObserver forKeyPath:@"frame" options:NSKeyValueObservingOptionNew context:nil];
+    NSLog(@"-=-=-=%@ %zi set observer %@ setdata", self, self.row, _frameObserver);
+}
+
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
+    
+    [[NSNotificationCenter defaultCenter]
+     postNotificationName:@"CellViewFrameChanged" object:self];
+    
+    NSString *s1 = [[NSString alloc] initWithFormat:@"%@", self];
+    s1 = [s1 stringByAppendingString:@"xxx"];
+    
+    
+    
+    
+    
+    //
+    //
+    //        if(self.layout) {
+    //            NSLog(@"------ PostDataCellView layout");
+    //            self.layout(self, 0);
+    //        }
+    //        else {
+    //            NSLog(@"------ no PostDataCellView layout");
+    //        }
+    //
+    //
+    //    return;
+    //
+    //    CGRect frame = [((NSValue*)[change objectForKey:@"new"]) CGRectValue];
+    //    LOG_RECT(frame, @"cell")
+    //
+    //    PostDataCellView *cell = object;
+    //
+    //    [cell.layer removeAllAnimations];
+    //
+    //    CALayer *border = [CALayer layer];
+    //    border.frame = CGRectMake(0.0f, frame.size.height, cell.frame.size.width, 2.0f);
+    //    border.backgroundColor = [[UIColor blueColor] CGColor];
+    //    
+    //    [self.layer addSublayer:border];
+}
+
+
+- (void)dealloc {
+    
+    kcountObject --;
+    [self removeObserver:self forKeyPath:@"frame"];
+    if(_frameObserver) {
+        NSLog(@"-=-=-=%@ %zi revome observer %@ dealloc", self, self.row, _frameObserver);
+        [self removeObserver:_frameObserver forKeyPath:@"frame"];
+    }
+    
+    NSLog(@"dealloc %@", self);
+}
+
+
+#endif
+
+
+
+#if ViewController //gif显示.
+- (void)showGif1 {
+    
+    //得到图片的路径
+    NSString *path = [[NSBundle mainBundle] pathForResource:@"1" ofType:@"gif"];
+    path = nil;
+    //将图片转为NSData
+    //NSData *gifData = [NSData dataWithContentsOfFile:path];
+    //创建一个webView，添加到界面
+    UIWebView *webView = [[UIWebView alloc] initWithFrame:CGRectMake(0, 150, 200, 200)];
+    [self.view addSubview:webView];
+    //自动调整尺寸
+    webView.scalesPageToFit = YES;
+    //禁止滚动
+    webView.scrollView.scrollEnabled = NO;
+    //设置透明效果
+    webView.backgroundColor = [AppConfig backgroundColorFor:@"clearColor"];
+    webView.opaque = 0;
+    //加载数据
+    //[webView loadData:gifData MIMEType:@"image/gif" textEncodingName:nil baseURL:nil];
+}
+
+
+- (void) showGif2 {
+    //创建UIImageView，添加到界面
+    UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(20, 20, 100, 100)];
+    [self.view addSubview:imageView];
+    //创建一个数组，数组中按顺序添加要播放的图片（图片为静态的图片）
+    NSMutableArray *imgArray = [NSMutableArray array];
+    for (int i=1; i<7; i++) {
+        UIImage *image = [UIImage imageNamed:[NSString stringWithFormat:@"clock%02d.png",i]];
+        [imgArray addObject:image];
+    }
+    //把存有UIImage的数组赋给动画图片数组
+    imageView.animationImages = imgArray;
+    //设置执行一次完整动画的时长
+    imageView.animationDuration = 6*0.15;
+    //动画重复次数 （0为重复播放）
+    imageView.animationRepeatCount = 0;
+    //开始播放动画
+    [imageView startAnimating];
+}
+#endif
+
+
+#if ThreadViewController //对URLEncodedString的测试.
+//do url encoding test.
+dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5 * NSEC_PER_SEC)), dispatch_get_global_queue(1000, 0), ^{
+    static NSInteger ktimes = 0;
+    while(1) {
+        NSString *s1 = @"http://%fsk+a+ a中文_.jpg";
+        NSString *s2 = [FuncDefine URLEncodedString:s1];
+        NSString *s3 = [FuncDefine URLDecodedString:s2];
+        int compareResult = [s1 isEqualToString:s3];
+        ktimes ++;
+        
+        if(ktimes % 100000 == 0) {
+            dispatch_async(dispatch_get_main_queue(), ^(void) {
+                [self showIndicationText:[NSString stringWithFormat:@"%zd - %d", ktimes, compareResult]];
+            });
+        }
+    }
+});
 #endif

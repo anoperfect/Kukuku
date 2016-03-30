@@ -50,6 +50,9 @@
     {
         CGRect openedFrame = mainVC.currentActiveNVC.view.frame;
         [mainVC.currentActiveNVC.view removeFromSuperview];
+        //这句有警告. 去掉警告则有内存泄漏. 导致nac中的vc不能释放.
+
+        
         mainVC.currentActiveNVC.viewControllers = nil;
         mainVC.currentActiveNVC = nil;
         

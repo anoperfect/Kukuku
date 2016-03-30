@@ -32,7 +32,6 @@
     [self.btn setTitle:@"跳转" forState:UIControlStateNormal];
     [self.btn addTarget:self action:@selector(btnDidPush) forControlEvents:UIControlEventTouchDown];
     [self.view addSubview:self.btn];
-    WIDTH_FIT(self.btn, 2)
     
     PostData *d = nil;
     PostDataCellView *v = nil;
@@ -45,7 +44,6 @@
     
     v = [[PostDataCellView alloc] initWithFrame:CGRectMake(1, 29, 100, 100)];
     [self.view addSubview:v];
-    WIDTH_FIT(v, 1)
 //    [v setPostData:d inRow:0];
 //
 //    d = [[PostData alloc] init];
@@ -59,49 +57,7 @@
 }
 
 
-#if 0
-- (void)showGif1 {
-    
-    //得到图片的路径
-    NSString *path = [[NSBundle mainBundle] pathForResource:@"1" ofType:@"gif"];
-    path = nil;
-    //将图片转为NSData
-    //NSData *gifData = [NSData dataWithContentsOfFile:path];
-    //创建一个webView，添加到界面
-    UIWebView *webView = [[UIWebView alloc] initWithFrame:CGRectMake(0, 150, 200, 200)];
-    [self.view addSubview:webView];
-    //自动调整尺寸
-    webView.scalesPageToFit = YES;
-    //禁止滚动
-    webView.scrollView.scrollEnabled = NO;
-    //设置透明效果
-    webView.backgroundColor = [AppConfig backgroundColorFor:@"clearColor"];
-    webView.opaque = 0;
-    //加载数据
-    //[webView loadData:gifData MIMEType:@"image/gif" textEncodingName:nil baseURL:nil];
-}
 
-
-- (void) showGif2 {
-    //创建UIImageView，添加到界面
-    UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(20, 20, 100, 100)];
-    [self.view addSubview:imageView];
-    //创建一个数组，数组中按顺序添加要播放的图片（图片为静态的图片）
-    NSMutableArray *imgArray = [NSMutableArray array];
-    for (int i=1; i<7; i++) {
-        UIImage *image = [UIImage imageNamed:[NSString stringWithFormat:@"clock%02d.png",i]];
-        [imgArray addObject:image];
-    }
-    //把存有UIImage的数组赋给动画图片数组
-    imageView.animationImages = imgArray;
-    //设置执行一次完整动画的时长
-    imageView.animationDuration = 6*0.15;
-    //动画重复次数 （0为重复播放）
-    imageView.animationRepeatCount = 0;
-    //开始播放动画
-    [imageView startAnimating];
-}
-#endif
 
 
 - (void)didReceiveMemoryWarning {

@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		B500F8401B95F92B004702F0 /* RecordViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B500F83F1B95F92B004702F0 /* RecordViewController.m */; };
 		B500F8431B98083C004702F0 /* PostDataCellViewLoad.m in Sources */ = {isa = PBXBuildFile; fileRef = B500F8421B98083C004702F0 /* PostDataCellViewLoad.m */; };
 		B50D38B91B7F4BE10024E464 /* SettingViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B50D38B81B7F4BE10024E464 /* SettingViewController.m */; };
 		B50F99801C109E5900240C9D /* EmoticonCharacterView.m in Sources */ = {isa = PBXBuildFile; fileRef = B50F997F1C109E5900240C9D /* EmoticonCharacterView.m */; };
@@ -107,8 +106,6 @@
 		1B2B07837930733F6B985C6A /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
 		338BA2420EBCE9402F13ED98 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		AADBBF3ED2F206120C64FEE5 /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
-		B500F83E1B95F92B004702F0 /* RecordViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RecordViewController.h; sourceTree = "<group>"; };
-		B500F83F1B95F92B004702F0 /* RecordViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RecordViewController.m; sourceTree = "<group>"; };
 		B500F8411B98083C004702F0 /* PostDataCellViewLoad.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PostDataCellViewLoad.h; sourceTree = "<group>"; };
 		B500F8421B98083C004702F0 /* PostDataCellViewLoad.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PostDataCellViewLoad.m; sourceTree = "<group>"; };
 		B50D38B71B7F4BE10024E464 /* SettingViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SettingViewController.h; sourceTree = "<group>"; };
@@ -353,8 +350,6 @@
 				B5F24BB11C49EBF70027DAB2 /* LocaleViewController.m */,
 				B5E137891B7CDB76002B5979 /* CollectionViewController.h */,
 				B5E1378A1B7CDB76002B5979 /* CollectionViewController.m */,
-				B500F83E1B95F92B004702F0 /* RecordViewController.h */,
-				B500F83F1B95F92B004702F0 /* RecordViewController.m */,
 				B5A058551B9DE86200370557 /* PostViewController.h */,
 				B5A058561B9DE86200370557 /* PostViewController.m */,
 				B5A058581B9DE87A00370557 /* ReplyViewController.h */,
@@ -743,7 +738,6 @@
 				B50D38B91B7F4BE10024E464 /* SettingViewController.m in Sources */,
 				B5F24BB51C49F0C40027DAB2 /* DBData.m in Sources */,
 				B50F99801C109E5900240C9D /* EmoticonCharacterView.m in Sources */,
-				B500F8401B95F92B004702F0 /* RecordViewController.m in Sources */,
 				B523C99D1B78FA7500944004 /* AMSlideMenuRightMenuSegue.m in Sources */,
 				B5E137941B7D92E1002B5979 /* ImageViewCache.m in Sources */,
 				B523C9DB1B78FAB500944004 /* ThreadsViewController.m in Sources */,

@@ -778,24 +778,10 @@
 
 -(id) init {
     if (self = [super init]) {
-#if 0
-        //创建各文件夹.
-        //创建总 config.db.
-        NSString *documentPath =
-            [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
-        NSString *dbName = @"config.db";
-        //NSString *pathConfigDB = [NSString stringWithFormat:@"%@/%@", documentPath, dbName];
-        
-        if(![fileManager fileExistsAtPath:pathConfigDB]) {
-            NSLog(@"create %@ ", dbName);
-            [self configDBRebuild];
-        }
-        else {
-        }
-#endif
-        
+        //建立或者升级数据库.
         [self configDBBuildWithForceRebuild:NO];
         
+        //打开对应的配置数据库和host数据库.
         [self configDBOpen];
     }
     
@@ -1121,7 +1107,7 @@
                      [NSNumber numberWithInteger:0],
                      @"hacfun",
                      @"http://hacfun.tv/api",
-                     @"http://cdn.ovear.info:8999"
+                     @"http://img1.nimingban.com"
                      ];
     if(executeResult) {
         NSLog(@"insert table %@ OK.", @"hosts");

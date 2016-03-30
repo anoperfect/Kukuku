@@ -267,6 +267,7 @@
         for(NSString *name in fileList) {
             NSString *fullName = [NSString stringWithFormat:@"%@/%@", imageCacheFolder, name];
             [fileManager removeItemAtPath:fullName error:&error];
+            NSLog(@"remove %@", fullName);
         }
         
         NSLog(@"路径==%@,fileList%@", imageCacheFolder, fileList);

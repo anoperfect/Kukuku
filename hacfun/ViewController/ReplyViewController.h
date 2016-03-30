@@ -6,8 +6,8 @@
 //  Copyright (c) 2015年 Ben. All rights reserved.
 //
 
-#import "RecordViewController.h"
+#import "LocaleViewController.h"
 
-@interface ReplyViewController : RecordViewController
+@interface ReplyViewController : LocaleViewController
 
 @end

@@ -23,8 +23,6 @@
 
 
 + (void)setImageViewCache:(NSString*)stringUrl withData:(NSData*)data {
-    
-    //    UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil);
     [data writeToFile:[self stringUrlToStoredPngName:stringUrl] atomically:YES];
 }
 
@@ -34,20 +32,21 @@
     NSString *imageCacheFolder = [self getImageCacheFolder];
     [[NSFileManager defaultManager] createDirectoryAtPath:imageCacheFolder withIntermediateDirectories:YES attributes:nil error:nil];
     
+#if 0
     NSString *imageName = [stringUrl stringByReplacingOccurrencesOfString:@":" withString:@"--"];
     imageName = [imageName stringByReplacingOccurrencesOfString:@"/" withString:@"#"];
+#endif
+    //修改为URL的encode方式.
+    NSString *imageName = [FuncDefine URLEncodedString:stringUrl];
+    
     NSString *pngPath = [NSString stringWithFormat:@"%@/%@", imageCacheFolder, imageName];
-//    NSLog(@"pngPath : %@", pngPath);
     
     return pngPath;
 }
 
 
 + (NSString*)getImageCacheFolder {
-    
-    NSArray *array = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    NSString *documentPath = [array firstObject];
-//    NSLog(@"document path : %@", documentPath);
+    NSString *documentPath = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) firstObject];
     
     NSString *imageCacheFolder =
         [NSString stringWithFormat:@"%@/%@/ImageCache", documentPath, [[AppConfig sharedConfigDB] configDBGet:@"hostname"]];

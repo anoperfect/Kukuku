@@ -13,32 +13,22 @@
 + (NSString*)stringFromCGRect:(CGRect)rect;
 + (NSString*)stringFromViewFrame:(UIView*)view;
 + (NSString*)stringFromMSecondInterval:(long long) msecs andTimeZoneAdjustSecondInterval:(NSInteger)adjustSeconds;
++ (NSString *)URLEncodedString:(NSString*)urlString;
++ (NSString*)URLDecodedString:(NSString*)urlStringEncoded;
 @end
 
-#define WIDTH_FIT(v, mx) { CGRect frameOriginal = v.frame; CGFloat x = frameOriginal.origin.x; CGFloat width = v.superview.frame.size.width - x - mx ; width = width > 0 ? width : 0; [v setFrame: CGRectMake(x, frameOriginal.origin.y, width, frameOriginal.size.height)]; }
 
 
 
-#define X_CENTER(v, mx) { CGRect frameOriginal = v.frame; CGFloat width = v.superview.frame.size.width - 2.0 * mx ; width = width > 0 ? width : 0; [v setFrame: CGRectMake(mx, frameOriginal.origin.y, width, frameOriginal.size.height)]; }
 
 
-#define HEIGHT_FIT(v, my) { CGRect frameOriginal = v.frame; CGFloat y = frameOriginal.origin.y; CGFloat height = v.superview.frame.size.height - y - my ; height = height > 0 ? height : 0; [v setFrame: CGRectMake(frameOriginal.origin.x, y, frameOriginal.size.width, height)]; }
 
 
-#define Y_CENTER(v, my) { CGRect frameOriginal = v.frame; CGFloat height = v.superview.frame.size.height - 2.0 * my ; height = height > 0 ? height : 0; [v setFrame: CGRectMake(frameOriginal.origin.x, my, frameOriginal.size.width, height)]; }
+
 
 
 //    CGRect frame = [[UIScreen mainScreen] bounds];
 
-
-
-
-
-//#define CGRECT_X_RIGHT_OF(frame) (frame.origin.x + frame.size.width)
-
-
-
-//#define CGRECT_ROW_RIGHT(frame, border, w)      CGRectMake(frame.origin.x + frame.size.width + border, frame.origin.y, w, frame.size.height)
 
 #define CGRECT_BLOW(frame, borderv, heightv) CGRectMake(frame.origin.x, frame.origin.y + frame.size.height + borderv, frame.size.width, heightv)
 
@@ -90,6 +80,7 @@
 #define HexRGB(rgbValue) [UIColor colorWithRed:((float)((rgbValue & 0xFF0000) >> 16))/255.0 green:((float)((rgbValue & 0xFF00) >> 8))/255.0 blue:((float)(rgbValue & 0xFF))/255.0 alpha:1.0]
 #define HexRGBAlpha(rgbValue,a) [UIColor colorWithRed:((float)((rgbValue & 0xFF0000) >> 16))/255.0 green:((float)((rgbValue & 0xFF00) >> 8))/255.0 blue:((float)(rgbValue & 0xFF))/255.0 alpha:(a)]
 
+#define RetainCount(objectxxx) (CFGetRetainCount((__bridge CFTypeRef)objectxxx));
 
 
 #define NSLog(FORMAT, ...) {\

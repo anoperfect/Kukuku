@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-
+#import "FuncDefine.h"
 @interface AppConfig : NSObject
 
 

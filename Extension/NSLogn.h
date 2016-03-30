@@ -10,4 +10,13 @@
 
 @interface NSLogn : NSObject
 
+
+
+
++ (NSInteger)retainCount0:(id __weak)myObject;
++ (NSInteger)retainCount:(unsigned long long)objAddr;
++ (NSInteger)retainCount1:(__weak id)anObject;
+
 @end
+
+

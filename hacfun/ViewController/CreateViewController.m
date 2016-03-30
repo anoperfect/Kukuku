@@ -369,26 +369,7 @@
 
 
 
-- (void)finishTest {
-    
-    PopupView *popupView = [[PopupView alloc] init];
-    popupView.numofTapToClose = 1;
-    popupView.secondsOfstringIncrease = 0;
-    popupView.titleLabel = @"测试";
-            
-    popupView.finish = ^(void) {
-                    [self actionDismissWithReloadNotification:YES];
-                    
-                    DetailViewController *vc = [[DetailViewController alloc]init];
-                    [vc setPostThreadId:6670627];
-                    
-                    //[self presentViewController:vc animated:NO completion:^(void){ }];
-                    [self.navigationController pushViewController:vc animated:YES];
-                };
-    [popupView popupInSuperView:self.view];
-    
-    return ;
-}
+
 
 
 - (void)keyboardChangeFrame:(NSNotification*)notification {
@@ -478,9 +459,6 @@
         if([(NSString*)key isEqualToString:@"image"]) {
             if(_imageDataPost) {
                 [body appendData:[[NSString stringWithFormat:@"Content-Disposition: form-data; name=\"%@\"; filename=\"1.jpg\"\r\nContent-Type: image/jpeg\r\n\r\n",key] dataUsingEncoding:NSUTF8StringEncoding]];
-                
-                //NSString *path = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES)[0];
-                //path = [path stringByAppendingString:@"/1.png"];
                 
                 NSData *imageData = _imageDataPost;
                 

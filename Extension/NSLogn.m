@@ -14,24 +14,37 @@
 
 @implementation NSLogn
 
-- (void)viewDidLoad {
-    [super viewDidLoad];
-    // Do any additional setup after loading the view.
+
++ (NSInteger)retainCount:(unsigned long long)objAddr
+{
+    return CFGetRetainCount((CFTypeRef)objAddr);
+#if 0
+    NSLog(@"Retain count is %ld <%@>", CFGetRetainCount((__bridge CFTypeRef)(mainVC.currentActiveNVC)), mainVC.currentActiveNVC);
+
+
+//        NSObject *obj1 = mainVC.currentActiveNVC;
+//        NSObject *obj2 = mainVC.currentActiveNVC.viewControllers[0];
+
+NSLog(@"Retain count is %ld <%@>", CFGetRetainCount((__bridge CFTypeRef)(mainVC.currentActiveNVC)), mainVC.currentActiveNVC);
+NSLog(@"Retain count is %ld <%@>", CFGetRetainCount((__bridge CFTypeRef)(mainVC.currentActiveNVC.viewControllers[0])), mainVC.currentActiveNVC.viewControllers[0]);
+//        NSLog(@"Retain count is %ld <%@>", CFGetRetainCount((__bridge CFTypeRef)obj2), obj2);
+#endif
 }
 
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+
++ (NSInteger)retainCount1:(__weak id)anObject
+{
+    __weak id wid = anObject;
+    return CFGetRetainCount((CFTypeRef)wid);
 }
 
-/*
-#pragma mark - Navigation
 
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
++ (NSInteger)retainCount0:(id)myObject
+{
+//    NSLog(@"Retain count is %ld",
+    return CFGetRetainCount((__bridge CFTypeRef)myObject);
 }
-*/
+
+
 
 @end

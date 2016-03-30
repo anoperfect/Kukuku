@@ -14,7 +14,6 @@
 
 
 @interface PostDataCellView () {
-    NSObject* _frameObserver;
     
 };
 
@@ -30,7 +29,6 @@
  @"postdata"        - copy的PostData.
  id, thumb replycount直接从raw postdata中读取.
  */
-
 @property (strong,nonatomic) UILabel *titleLabel;
 @property (strong,nonatomic) UILabel *infoLabel;
 @property (nonatomic, strong) UILabel *manageInfoLabel;
@@ -69,72 +67,6 @@ static NSInteger kcountObject = 0;
 - (UIView*)getContentLabel {
     return self.contentLabel;
 }
-
-
-- (void)setFrameObserver:(id)frameObserver
-{
-    assert(!_frameObserver);
-    _frameObserver = frameObserver;
-    [self addObserver:_frameObserver forKeyPath:@"frame" options:NSKeyValueObservingOptionNew context:nil];
-    NSLog(@"-=-=-=%@ %zi set observer %@ setdata", self, self.row, _frameObserver);
-}
-
-
-- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
-    
-    [[NSNotificationCenter defaultCenter]
-     postNotificationName:@"CellViewFrameChanged" object:self];
-    
-    
-    
-    NSString *s1 = [[NSString alloc] initWithFormat:@"%@", self];
-    s1 = [s1 stringByAppendingString:@"xxx"];
-    
-    
-    
-
-    
-//    
-//    
-//        if(self.layout) {
-//            NSLog(@"------ PostDataCellView layout");
-//            self.layout(self, 0);
-//        }
-//        else {
-//            NSLog(@"------ no PostDataCellView layout");
-//        }
-//        
-//    
-//    return;
-//    
-//    CGRect frame = [((NSValue*)[change objectForKey:@"new"]) CGRectValue];
-//    LOG_RECT(frame, @"cell")
-//    
-//    PostDataCellView *cell = object;
-//    
-//    [cell.layer removeAllAnimations];
-//    
-//    CALayer *border = [CALayer layer];
-//    border.frame = CGRectMake(0.0f, frame.size.height, cell.frame.size.width, 2.0f);
-//    border.backgroundColor = [[UIColor blueColor] CGColor];
-//    
-//    [self.layer addSublayer:border];
-}
-
-
-/*
- PostDataView 接收的字段字段
- @"title"           - 第一行左边的. 显示日期 uid.
- @"info"            - 第一行右边的. 显示tid, 或者replycount. 可重写.
- @"manageInfo"      - 第二行左边的. 显示sage.
- @"otherInfo"     - 第二行右边的. 显示一些其他信息. 暂时是显示更新回复信息. 用在CollectionViewController显示新回复状态.
- @"content"         - 正文.  根据需要已作内容调整.
- @"colorUid"        － 标记uid颜色. 暂时使用uid颜色标记特定thread. 比如Po, //self post , self reply, follow, other cookie.
- @"postdata"        - copy的PostData.
- id, thumb replycount直接从raw postdata中读取.
- */
-
-
 
 
 - (instancetype)initWithFrame1:(CGRect)frame
@@ -204,8 +136,6 @@ static NSInteger kcountObject = 0;
         }
     }
     
-    [self addObserver:self forKeyPath:@"frame" options:NSKeyValueObservingOptionNew context:nil];
-    
     return self;
 }
 
@@ -232,18 +162,7 @@ static NSInteger kcountObject = 0;
     info = info?info:@"null";
     [self.infoLabel setText:info];
     
-#if 0
-    NSString *infoAdditionalString = [self.data objectForKey:@"infoAdditional"];
-    infoAdditionalString = infoAdditionalString?infoAdditionalString:@"";
-    [self.infoAdditionalLabel setText:infoAdditionalString];
-    NSMutableAttributedString *attributedInfoAdditionalString = [[NSMutableAttributedString alloc] initWithString:infoAdditionalString];
-    
-    NSRange rangeSage = [infoAdditionalString rangeOfString:@"SAGE"];
-    if(rangeSage.location != NSNotFound) {
-        [attributedInfoAdditionalString addAttribute:NSForegroundColorAttributeName value:[UIColor redColor] range:rangeSage];
-    }
-    self.infoAdditionalLabel.attributedText = attributedInfoAdditionalString;
-#endif
+
     
     NSString *manageInfoString = [self.data objectForKey:@"manageInfo"];
     [self.manageInfoLabel setText:manageInfoString];
@@ -278,7 +197,6 @@ static NSInteger kcountObject = 0;
 {
     CGRect frameTitleLabel          = CGRectZero;
     CGRect frameInfoLabel           = CGRectZero;
-//    CGRect frameInfoAdditionalLabel = CGRectZero;
     CGRect frameManageInfo           = CGRectZero;
     CGRect frameOtherInfo           = CGRectZero;
     CGRect frameContentLabel        = CGRectZero;
@@ -350,23 +268,6 @@ static NSInteger kcountObject = 0;
         heightAdjust = FRAMELAYOUT_Y_BLOW_FRAME(frameImageViewContent) + edge.bottom;
     }
     
-#if 0
-    self.titleView.frame    = [layout getCGRect:@"TitleLine"];
-    NSMutableString *textTitle = [[NSMutableString alloc] initWithString:self.titleLabel.text];
-    [textTitle appendString:@" "];
-    [textTitle appendString:self.infoLabel.text];
-    self.titleView.text     = textTitle;
-    
-    NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:textTitle];
-    [attributedString addAttribute:NSForegroundColorAttributeName value:[UIColor blueColor] range:NSMakeRange(20,8)];
-//    [attributedString addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:10.0] range:NSMakeRange(0, [textTitle length])];
-    //[str addAttribute:NSForegroundColorAttributeName value:[UIColor greenColor] range:NSMakeRange(19,6)];
-//    self.titleView.font = [UIFont systemFontOfSize:10.0];
-//    self.titleView.attributedText = attributedString;
-    
-//    self.contentLabel.font = [UIFont systemFontOfSize:16.0];
-#endif
-    
     self.titleLabel.frame           = frameTitleLabel;
     self.infoLabel.frame            = frameInfoLabel;
     self.manageInfoLabel.frame      = frameManageInfo;
@@ -394,10 +295,16 @@ static NSInteger kcountObject = 0;
 }
 
 
-+ (PostDataCellView*)PostDatalViewWithTid:(NSInteger)tid andInitFrame:(CGRect)frame
++ (PostDataCellView*)PostDatalViewWithTid:(NSInteger)tid
+                             andInitFrame:(CGRect)frame
+                         completionHandle:(void (^)(PostDataCellView* postDataView, NSError* connectionError))handle
 {
     NSMutableDictionary *dictm = [[NSMutableDictionary alloc] init];
     [dictm setObject:[NSString stringWithFormat:@"NO.%zd", tid] forKey:@"title"];
+    [dictm setObject:@""                                        forKey:@"info"];
+    [dictm setObject:@""                                        forKey:@"manageInfo"];
+    [dictm setObject:@""                                        forKey:@"otherInfo"];
+    [dictm setObject:@"加载中..."                                forKey:@"content"];
     
     PostDataCellView *postDataView = [self threadCellViewWithData:dictm andInitFrame:frame];
     
@@ -409,20 +316,26 @@ static NSInteger kcountObject = 0;
         if([postDataArray count] > 0) {
             PostData *postData = postDataArray[0];
             postDataView.data = [NSDictionary dictionaryWithDictionary:[postData toViewDisplayData:ThreadDataToViewTypeInfoUseNumber]];
-            dispatch_async(dispatch_get_main_queue(), ^(void) {
-                [postDataView setContent];
-                [postDataView layoutContent];
-            });
         }
+        else {
+            NSMutableDictionary *dictm = [[NSMutableDictionary alloc] init];
+            [dictm setObject:[NSString stringWithFormat:@"NO.%zd", tid] forKey:@"title"];
+            [dictm setObject:@""                                        forKey:@"info"];
+            [dictm setObject:@""                                        forKey:@"manageInfo"];
+            [dictm setObject:@""                                        forKey:@"otherInfo"];
+            [dictm setObject:@"获取数据失败."                             forKey:@"content"];
+            postDataView.data = [NSDictionary dictionaryWithDictionary:dictm];
+        }
+        
+        dispatch_async(dispatch_get_main_queue(), ^(void) {
+            [postDataView setContent];
+            [postDataView layoutContent];
+            handle(postDataView, nil);
+        });
     });
     
     return postDataView;
 }
-
-
-
-
-
 
 
 + (NSInteger)countObject
@@ -431,17 +344,10 @@ static NSInteger kcountObject = 0;
 }
 
 
-
 - (void)dealloc {
+    NSLog(@"dealloc %@", self);
     
     kcountObject --;
-    [self removeObserver:self forKeyPath:@"frame"];
-    if(_frameObserver) {
-        NSLog(@"-=-=-=%@ %zi revome observer %@ dealloc", self, self.row, _frameObserver);
-        [self removeObserver:_frameObserver forKeyPath:@"frame"];
-    }
-    
-    NSLog(@"dealloc %@", self);
 }
 
 

@@ -17,6 +17,13 @@
 @implementation NetworkThreadViewController
 
 
+- (void)viewWillDisappear:(BOOL)animated
+{
+    [super viewWillDisappear:animated];
+    self.autoRepeatDownload = NO;
+}
+
+
 - (void)reloadPostData{
     LOG_POSTION
     

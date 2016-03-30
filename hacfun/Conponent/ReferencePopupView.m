@@ -12,7 +12,7 @@
 #import "PostData.h"
 #import "PostDataCellView.h"
 
-
+#define X_CENTER(v, mx) { CGRect frameOriginal = v.frame; CGFloat width = v.superview.frame.size.width - 2.0 * mx ; width = width > 0 ? width : 0; [v setFrame: CGRectMake(mx, frameOriginal.origin.y, width, frameOriginal.size.height)]; }
 
 
 @interface ReferencePopupView ()

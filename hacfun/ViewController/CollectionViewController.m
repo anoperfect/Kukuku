@@ -254,12 +254,7 @@
 //暂时info中只有message. 未兼容之后可能添加的info信息, 将参数类型设置为NSDictionary.
 
 
-- (void)longPressOnRow:(NSInteger)row {
-    LOG_POSTION
 
-
-    
-}
 
 
 

@@ -13,9 +13,11 @@
 
 
 
-
+//alloc init后调用设置tid.
 - (void)setPostThreadId:(NSInteger)threadId ;
 
+
+//前往最后一页.
 - (void)toLastPage ;
 
 

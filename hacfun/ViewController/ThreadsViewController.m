@@ -38,6 +38,7 @@
     
     if(self = [super init]) {
         self.status = ThreadsStatusInit;
+    
     }
     
     return self;
@@ -512,42 +513,59 @@
 }
 
 
-- (void)showReferencePostDataView:(NSInteger)tid
+- (PostData*)findInSelfPostDatas:(NSInteger)tid
 {
-#if 0
-    ReferencePopupView *popupView = [[ReferencePopupView alloc] init];
-    popupView.numofTapToClose = 1;
-    [popupView popupInSuperView:self.view];
+    for(PostData *postData in self.postDatas) {
+        if(postData.id == tid) {
+            return [postData copy];
+        }
+    }
     
-    NSInteger no = [str substringWithRange:NSMakeRange(3, str.length-3)].integerValue;
-    NSLog(@"no=%zi", no);
-    [popupView setReferenceId1:no];
-    
-    LOG_VIEW_REC0(popupView, @"popupView")
-#endif
-    
-    PostDataCellView *postDataView = [PostDataCellView PostDatalViewWithTid:tid andInitFrame:self.view.bounds];
-    [self showPopupView:postDataView];
-    
-    
-#if 0
-    CustomViewController *vc = [[CustomViewController alloc] init];
-    //        vc.view.backgroundColor = HexRGBAlpha(0xff0000, 0.1);
-    vc.view.backgroundColor = [UIColor clearColor];
-    //        vc.view.alpha = 0.1;
-    [vc.view addSubview:postDataView];
-    postDataView.center = vc.view.center;
-    
-    //        [self presentViewController:vc animated:NO completion:^(void) { }];
-    [self.navigationController pushViewController:vc animated:NO];
-#endif
-    
-    
-    
+    return nil;
 }
 
 
+- (void)showReferencePostDataView:(NSInteger)tid
+{
+    PostDataCellView *postDataView = nil;
+    
+    //检查是否在当前列表中.
+    PostData *postDataInList = [self findInSelfPostDatas:tid];
+    if(postDataInList) {
+        NSLog(@"use data in list.")
+        postDataView = [PostDataCellView threadCellViewWithData:[postDataInList toViewDisplayData:ThreadDataToViewTypeInfoUseNumber]
+                                                   andInitFrame:self.view.bounds
+                        ];
+    }
+    else {
+        //不是在列表中的则实时获取.
+        NSLog(@"use data from read download.")
+        postDataView = [PostDataCellView PostDatalViewWithTid:tid
+                                                 andInitFrame:self.view.bounds
+                                             completionHandle:^(PostDataCellView *postDataView, NSError *error) {
+                                                 postDataView.center = postDataView.superview.center;
+                                             }
+                        ];
+    }
+    
+    [self showPopupView:postDataView];
+}
 
+
+- (CGPoint)postViewPointToViewPoint:(CGPoint)pointInPostView
+{
+    CGPoint point = pointInPostView;
+    point.x -= self.postView.contentOffset.x;
+    point.y -= self.postView.contentOffset.y;
+    
+    
+    point.x += self.postView.frame.origin.x;
+    point.y += self.postView.frame.origin.y;
+    
+    NSLog(@"point in view : %@", NSStringFromCGPoint(point));
+    
+    return point;
+}
 
 
 - (void)longPressToDo:(UILongPressGestureRecognizer *)gesture {
@@ -556,11 +574,19 @@
     if(gesture.state == UIGestureRecognizerStateBegan) {
         
         CGPoint point = [gesture locationInView:self.postView];
+        NSLog(@"%@ %@", @"long press point", NSStringFromCGPoint(point));
+        NSLog(@"%@ %@", @"contentOffset", NSStringFromCGPoint(self.postView.contentOffset));
+        NSLog(@"%@ %@", @"contentSize", NSStringFromCGSize(self.postView.contentSize));
+        NSLog(@"%@ %@", @"contentInset", NSStringFromUIEdgeInsets(self.postView.contentInset));
+        
+        CGPoint pointInView = [self postViewPointToViewPoint:point];
+        NSLog(@"%@ %@", @"long press point", NSStringFromCGPoint(pointInView));
+        
         NSIndexPath *indexPath = [self.postView indexPathForRowAtPoint:point];
         if(indexPath){
             NSLog(@"long press at row : %zi", indexPath.row);
             
-            [self longPressOnRow:indexPath.row];
+            [self longPressOnRow:indexPath.row at:pointInView];
         }
         else {
             NSLog(@"long press not at tableview");
@@ -569,8 +595,26 @@
 }
 
 
-- (void)longPressOnRow:(NSInteger)row {
-    NSLog(@"no action. could override.");
+- (void)longPressOnRow:(NSInteger)row at:(CGPoint)pointInView {
+    LOG_POSTION
+    
+    UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 36, 36)];
+    view.center = pointInView;
+    [self.view addSubview:view];
+    view.backgroundColor = [UIColor blueColor];
+    
+    [UIView animateWithDuration:2.0
+                     animations:^{
+//                         view.hidden = YES;
+                         view.frame = CGRectMake(0, 0, 100, 100);
+                         view.center = pointInView;
+                     }
+                     completion:^(BOOL finished) {
+                         [view removeFromSuperview];
+    
+    
+                     }];
+    
 }
 
 

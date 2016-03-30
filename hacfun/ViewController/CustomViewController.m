@@ -30,6 +30,9 @@
 @implementation CustomViewController
 
 
+static NSMutableArray *kstatisticsCustomViewController = nil;
+
+
 - (instancetype)init
 {
     self = [super init];
@@ -44,6 +47,15 @@
         self.frameSoftKeyboard = CGRectZero;
         self.isShowingSoftKeyboard = NO;
     }
+    
+    if(!kstatisticsCustomViewController) {
+        kstatisticsCustomViewController = [[NSMutableArray alloc] init];
+    }
+    
+    NSUInteger addr = (NSUInteger)self;
+    [kstatisticsCustomViewController addObject:@{[NSNumber numberWithUnsignedInteger:addr]:[self class]}];
+    NSLog(@"///init    %@", self);
+    NSLog(@"///kstatisticsCustomViewController count : %zd", [kstatisticsCustomViewController count]);
     
     return self;
 }
@@ -257,8 +269,6 @@
     
     [containerView addSubview:view];
     view.center = view.superview.center;
-    
-    [view addObserver:self forKeyPath:@"frame" options:NSKeyValueObservingOptionNew context:nil];
 }
 
 
@@ -267,7 +277,7 @@
     UIView *containerView = [self.view viewWithTag:TAG_popupView_container];
     for(id obj in containerView.subviews) {
         NSLog(@"%@", obj);
-        [obj removeObserver:self forKeyPath:@"frame"];
+//        [obj removeObserver:self forKeyPath:@"frame"];
         [obj removeFromSuperview];
     }
 //    [containerView.subviews makeObjectsPerformSelector:@selector(removeObserver:) withObject:self];
@@ -278,6 +288,7 @@
 }
 
 
+#if 0
 -(void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context{
     LOG_POSTION
     if([keyPath isEqualToString:@"frame"]){//这里只处理balance属性
@@ -289,9 +300,33 @@
         view.center = view.superview.center;
     }
 }
+#endif
 
 
-
+- (void)dealloc
+{
+    BOOL found = NO;
+    NSUInteger addr = (NSUInteger)self;
+    NSInteger count = [kstatisticsCustomViewController count];
+    NSInteger index = 0;
+    for(index = 0; index < count; index ++) {
+        NSDictionary *dict = kstatisticsCustomViewController[index];
+        id obj = [dict objectForKey:[NSNumber numberWithUnsignedInteger:addr]];
+        if(obj) {
+            found = YES;
+            NSLog(@"///dealloc %@", self);
+            break;
+        }
+    }
+    
+    if(found) {
+        [kstatisticsCustomViewController removeObjectAtIndex:index];
+    }
+    else {
+        NSLog(@"///#error : not found obj <%@>", self);
+    }
+    NSLog(@"///kstatisticsCustomViewController count : %zd", [kstatisticsCustomViewController count]);
+}
 
 
 - (void)didReceiveMemoryWarning {

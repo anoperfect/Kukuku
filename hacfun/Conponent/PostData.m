@@ -47,6 +47,7 @@
     pdCopy.replyCount = self.replyCount ;
     
     pdCopy.optimumSizeHeight = self.optimumSizeHeight;
+    pdCopy.type = self.type;
     
     return pdCopy;
 }

@@ -14,12 +14,14 @@
 
 
 #import "PostDataCellViewLoad.h"
-
+#import "NSLogn.h"
 @interface TestViewController () <RTLabelDelegate>
 
 @end
 
 @implementation TestViewController
+
+static UIView *kv = nil;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -27,6 +29,30 @@
     
     //NSString *str = @"123";
     //NSLog(@"---%zi", [str integerValue]);
+    
+    
+    NSInteger count;
+    UIView *v = [[UIView alloc] init];
+    
+//    count = RetainCount(v); NSLog(@"retainCount : %zd", count);
+    
+    kv = v;
+//    count = RetainCount(kv); NSLog(@"retainCount : %zd", count);
+    
+//    __weak UIView *vvvp = v;
+//    count = RetainCount(kv); NSLog(@"retainCount : %zd", count);
+    
+//    UIView *v1 = v;
+//    count = RetainCount(kv); NSLog(@"retainCount : %zd", count);
+    
+    [self.view addSubview:v];
+//    count = RetainCount(kv); NSLog(@"retainCount : %zd", count);
+    
+    [v removeFromSuperview];
+//    count = RetainCount(kv); NSLog(@"retainCount : %zd", count);
+    
+    v = nil;
+//    count = RetainCount(kv); NSLog(@"retainCount : %zd", count);
     
     LOG_POSTION
     
@@ -117,6 +143,8 @@
     NSArray *array = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString *documentPath = [array firstObject];
     NSLog(@"document path : %@", documentPath);
+    
+    count = RetainCount(kv); NSLog(@"retainCount : %zd", count);
 }
 
 
@@ -130,6 +158,16 @@
     
     CGRect rectView = self.view.frame;
     LOG_RECT(rectView, @"self.view")
+    
+    
+    NSInteger count = RetainCount(kv); NSLog(@"retainCount : %zd", count);
+}
+
+
+- (void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+    NSInteger count = RetainCount(kv); NSLog(@"retainCount : %zd", count);
 }
 
 
@@ -259,6 +297,25 @@
     }
     
     return searchText;
+}
+
+
+- (void)viewWillDisappear:(BOOL)animated
+{
+    NSInteger count = RetainCount(kv); NSLog(@"retainCount : %zd", count);
+}
+
+
+- (void)viewDidDisappear:(BOOL)animated
+{
+    NSInteger count = RetainCount(kv); NSLog(@"retainCount : %zd", count);
+}
+
+
+
+- (void)dealloc
+{
+    NSInteger count = RetainCount(kv); NSLog(@"retainCount : %zd", count);
 }
 
 

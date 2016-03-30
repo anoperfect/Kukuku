@@ -66,6 +66,7 @@ static NSInteger kcountObjBannerView = 0;
     
     UIImageView *imageBack = (UIImageView*)[self viewWithTag:TAG_IMAGEBACK];
     [imageBack setFrame:CGRectMake(0, 0, 10, 0)];
+    #define Y_CENTER(v, my) { CGRect frameOriginal = v.frame; CGFloat height = v.superview.frame.size.height - 2.0 * my ; height = height > 0 ? height : 0; [v setFrame: CGRectMake(frameOriginal.origin.x, my, frameOriginal.size.width, height)]; }
     Y_CENTER(imageBack, 6);
     
     UIImageView *image =(UIImageView*)[self viewWithTag:TAG_IMAGEICON];
