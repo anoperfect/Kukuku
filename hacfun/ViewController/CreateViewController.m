@@ -23,16 +23,16 @@
 #define TAG_ACTION_VIEW     100002
 
 
-@interface CreateViewController () <UITextViewDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate> {
-    
+@interface CreateViewController ()
+<UITextViewDelegate, UIImagePickerControllerDelegate,UINavigationControllerDelegate, UITableViewDataSource, UITableViewDelegate> {
     UITextView              * _textView;
     UIView                  * _viewAttachPicture;
     UIImageView             * _imageView;
-    UIButton                * _postImageRemoveButton;
-    UIButton                * _emoticonButton;
-    UIButton                * _captureButton;
-    UIButton                * _photoLibraryButton;
-    UIButton                * _sendButton;
+    PushButton              * _postImageRemoveButton;
+    PushButton              * _emoticonButton;
+    PushButton              * _captureButton;
+    PushButton              * _photoLibraryButton;
+    PushButton              * _sendButton;
     EmoticonCharacterView   * _emoticonView;
     
     NSData                  * _imageDataPost;
@@ -46,6 +46,7 @@
 
 
 @property (strong,nonatomic) NSString *nameCategory;
+@property (strong,nonatomic) NSString *originalContent;
 @property (assign,nonatomic) NSInteger id;
 @property (assign,nonatomic) NSInteger idReference;
 
@@ -53,10 +54,30 @@
 
 @property (nonatomic, strong) UIView *viewInputContainer;
 
+@property (nonatomic, strong) NSArray *draftStrings;
+@property (nonatomic, strong) UITableView *draftView;
+@property (nonatomic, assign) BOOL isDraftViewShowing;
+
+
 @end
 
 @implementation CreateViewController
 
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        ButtonData *actionData = nil;
+        
+        actionData = [[ButtonData alloc] init];
+        actionData.keyword  = @"草稿";
+//        actionData.image    = @"refresh";
+        [self actionAddData:actionData];
+        
+        self.draftStrings = @[@"111", @"222"];
+    }
+    return self;
+}
 
 
 - (void)viewDidLoad
@@ -83,28 +104,28 @@
     [self.view addSubview:_imageView];
     _imageView.tag = (NSInteger)@"ImageView";
     
-    _postImageRemoveButton = [[UIButton alloc] init];
+    _postImageRemoveButton = [[PushButton alloc] init];
     [self.view addSubview:_postImageRemoveButton];
     _postImageRemoveButton.tag = 10;
     [_postImageRemoveButton addTarget:self action:@selector(removeImage) forControlEvents:UIControlEventTouchDown];
     [_postImageRemoveButton setTitle:@"X" forState:UIControlStateNormal];
     
-    _emoticonButton = [[UIButton alloc] init];
+    _emoticonButton = [[PushButton alloc] init];
     [self.view addSubview:_emoticonButton];
     [_emoticonButton addTarget:self action:@selector(emoticon) forControlEvents:UIControlEventTouchDown];
     [_emoticonButton setImage:[UIImage imageNamed:@"emoticon"] forState:UIControlStateNormal];
     
-    _captureButton = [[UIButton alloc] init];
+    _captureButton = [[PushButton alloc] init];
     [self.view addSubview:_captureButton];
     [_captureButton addTarget:self action:@selector(capture) forControlEvents:UIControlEventTouchDown];
     [_captureButton setImage:[UIImage imageNamed:@"capture"] forState:UIControlStateNormal];
     
-    _photoLibraryButton = [[UIButton alloc] init];
+    _photoLibraryButton = [[PushButton alloc] init];
     [self.view addSubview:_photoLibraryButton];
     [_photoLibraryButton addTarget:self action:@selector(photoLibrary) forControlEvents:UIControlEventTouchDown];
     [_photoLibraryButton setImage:[UIImage imageNamed:@"photolibrary"] forState:UIControlStateNormal];
     
-    _sendButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    _sendButton = [[PushButton alloc] init];
     [_sendButton setTitle:@"发送" forState:UIControlStateNormal];
     [_sendButton setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
     [_sendButton addTarget:self action:@selector(clickSend) forControlEvents:UIControlEventTouchDown];
@@ -204,8 +225,16 @@
     //[self layoutSubviewAttachPicture];
     
     NSLog(@"%@", layout);
+    
+    if(self.draftView) {
+        CGFloat widthContain = self.view.frame.size.width;
+        CGFloat heightContain = self.view.frame.size.height;
+        CGRect frameCovered = CGRectMake(widthContain, 0, widthContain*0.7, heightContain);
+        CGRect frameShow = CGRectOffset(frameCovered, widthContain*-0.7, 0);
+        
+        self.draftView.frame = frameShow;
+    }
 }
-
 
 
 - (void)viewDidAppear:(BOOL)animated
@@ -221,6 +250,10 @@
         
         if(self.idReference > 0) {
             _textView.text = [NSString stringWithFormat:@">>No.%zi\n", self.idReference];
+        }
+        
+        if(self.originalContent) {
+            _textView.text = self.originalContent;
         }
     }
     
@@ -240,7 +273,7 @@
 }
 
 
-- (void)inputEmoticon:(NSString*)emoticonString
+- (void)inputString:(NSString*)string
 {
     // 需在光标处插入键入内容, 不能直接append.
     // 获得光标所在的位置
@@ -248,14 +281,20 @@
     NSUInteger location = range.location;
     // 将UITextView中的内容进行调整（主要是在光标所在的位置进行字符串截取，再拼接你需要插入的文字即可）
     NSString *content = _textView.text;
-    NSString *result = [NSString stringWithFormat:@"%@%@%@",[content substringToIndex:location], emoticonString, [content substringFromIndex:location]];
+    NSString *result = [NSString stringWithFormat:@"%@%@%@",[content substringToIndex:location], string, [content substringFromIndex:location]];
     // 将调整后的字符串添加到UITextView上面
     _textView.text = result;
     
-    range.location += emoticonString.length;
+    range.location += string.length;
     range.length = 0;
     _textView.selectedRange = range;
-    
+}
+
+
+- (void)inputEmoticon:(NSString*)emoticonString
+{
+    [self inputString:emoticonString];
+
     //选择后即回到编辑状态.
     [_emoticonView emoticonsHidden];
     [self focusToInput];
@@ -304,6 +343,74 @@
 }
 
 
+#define TAG_draftView 0x1000000
+
+
+- (void)showDraftView
+{
+    CGFloat widthContain = self.view.frame.size.width;
+    CGFloat heightContain = self.view.frame.size.height;
+    CGRect frameCovered = CGRectMake(widthContain, 0, widthContain*0.7, heightContain);
+    CGRect frameShow = CGRectOffset(frameCovered, widthContain*-0.7, 0);
+    
+    self.draftView = [self.view viewWithTag:TAG_draftView];
+    if(!self.draftView) {
+        self.draftView = [[UITableView alloc] initWithFrame:frameCovered];
+        [self.view addSubview:self.draftView];
+        self.draftView.tag = TAG_draftView;
+        self.draftView.dataSource = self;
+        self.draftView.delegate = self;
+    }
+    
+    self.draftView.frame = frameCovered;
+
+    [UIView animateWithDuration:0.3
+                     animations:^{
+                         self.draftView.frame = frameShow;
+                     }
+                     completion:^(BOOL finished) {
+                         
+                     }
+     ];
+}
+
+
+- (void)hiddenDraftView
+{
+    CGFloat widthContain = self.view.frame.size.width;
+    CGFloat heightContain = self.view.frame.size.height;
+    CGRect frameCovered = CGRectMake(widthContain, 0, widthContain*0.7, heightContain);
+//    CGRect frameShow = CGRectOffset(frameCovered, widthContain*-0.7, 0);
+    
+    if(self.draftView) {
+        [UIView animateWithDuration:0.3
+                         animations:^{
+                             self.draftView.frame = frameCovered;
+                             self.draftView = nil;
+                         }
+                         completion:^(BOOL finished) {
+                             [[self.view viewWithTag:TAG_draftView] removeFromSuperview];
+                         }
+         ];
+    }
+}
+
+
+- (void)actionViaString:(NSString *)string
+{
+    if([string isEqualToString:@"草稿"]) {
+        if(self.draftView) {
+            [self hiddenDraftView];
+            [self focusToInput];
+        }
+        else {
+            [self notFocusToInput];
+            [self showDraftView];
+        }
+    }
+}
+
+
 - (void)updatePostImage:(UIImage*)image
 {
     [_imageView setContentMode:(UIViewContentModeScaleAspectFit)];
@@ -326,12 +433,13 @@
 }
 
 
-- (void)setCategory:(NSString*)nameCategory
+- (void)setCreateCategory:(NSString*)nameCategory withOriginalContent:(NSString*)originalContent
 {
     LOG_POSTION
     self.nameCategory = nameCategory;
     self.id = 0;
     self.idReference = 0;
+    self.originalContent = originalContent;
 }
 
 
@@ -638,7 +746,74 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
 }
 
 
+- (NSInteger) numberOfSectionsInTableView:(UITableView *)tableView {
+    NSLog(@"------tableView------");
+    return 1;
+}
 
+
+-(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
+    NSLog(@"------tableView------");
+    return 1.0;
+}
+
+
+-(CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section {
+    NSLog(@"------tableView------");
+    return 1.0;
+}
+
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    CGFloat height = 36;
+    NSLog(@"------tableView[%zd] heightForRowAtIndexPath return %.1f", indexPath.row, height);
+    return height;
+}
+
+
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    NSInteger rows = [self.draftStrings count];
+    return rows;
+}
+
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    NSLog(@"------tableView[%zd] cellForRowAtIndexPath", indexPath.row);
+    
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"cell"];
+    if (cell == nil) {
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"cell"];
+        CGRect frame = cell.frame;
+        frame.size.width = tableView.frame.size.width;
+        [cell setFrame:frame];
+    }
+    else {
+        
+    }
+    
+    cell.textLabel.text = [self.draftStrings objectAtIndex:indexPath.row];
+    
+    return cell;
+}
+
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    NS0Log(@"点击的行数是:%zi", indexPath.row);
+    
+    //UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    
+    [self inputString:[self.draftStrings objectAtIndex:indexPath.row]];
+    [self hiddenDraftView];
+    [self focusToInput];
+}
+
+
+- (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
+    NSLog(@"------tableView[%zd] willDisplayCell", indexPath.row);
+}
 
 
 - (void)didReceiveMemoryWarning {

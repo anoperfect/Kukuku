@@ -18,17 +18,6 @@
 + (NSInteger)retainCount:(unsigned long long)objAddr
 {
     return CFGetRetainCount((CFTypeRef)objAddr);
-#if 0
-    NSLog(@"Retain count is %ld <%@>", CFGetRetainCount((__bridge CFTypeRef)(mainVC.currentActiveNVC)), mainVC.currentActiveNVC);
-
-
-//        NSObject *obj1 = mainVC.currentActiveNVC;
-//        NSObject *obj2 = mainVC.currentActiveNVC.viewControllers[0];
-
-NSLog(@"Retain count is %ld <%@>", CFGetRetainCount((__bridge CFTypeRef)(mainVC.currentActiveNVC)), mainVC.currentActiveNVC);
-NSLog(@"Retain count is %ld <%@>", CFGetRetainCount((__bridge CFTypeRef)(mainVC.currentActiveNVC.viewControllers[0])), mainVC.currentActiveNVC.viewControllers[0]);
-//        NSLog(@"Retain count is %ld <%@>", CFGetRetainCount((__bridge CFTypeRef)obj2), obj2);
-#endif
 }
 
 
@@ -41,9 +30,10 @@ NSLog(@"Retain count is %ld <%@>", CFGetRetainCount((__bridge CFTypeRef)(mainVC.
 
 + (NSInteger)retainCount0:(id)myObject
 {
-//    NSLog(@"Retain count is %ld",
     return CFGetRetainCount((__bridge CFTypeRef)myObject);
 }
+
+
 
 
 

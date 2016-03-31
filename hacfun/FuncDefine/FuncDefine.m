@@ -2352,3 +2352,49 @@ dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5 * NSEC_PER_SEC)), di
     }
 });
 #endif
+
+
+
+#if BannerView //BannerView按钮布局.
+NSInteger numFirstLevelButton = [self.buttons count];
+
+yBorder = 10;
+height = self.frame.size.height - 2*yBorder;
+CGRect rect;
+NSInteger indexBtn = 0;
+CGFloat widthBtn = height * 1.0;
+CGFloat x,mx;
+CGFloat borderRight = 3;
+CGFloat padding = 10;
+ButtonData *data ;
+UIButton *button ;
+mx = borderRight;
+
+//    for(NSInteger i = 0; i<numFirstLevelButton ; i++) {
+for(NSInteger i = numFirstLevelButton-1; i>=0 ; i--) {
+    button = (UIButton*)[self.buttons objectAtIndex:i];
+    data = (ButtonData*)[self.buttonDataAry objectAtIndex:i];
+    
+    if(data.method == 1) {
+        widthBtn = height * 1.0;
+    }
+    else {
+        widthBtn = 45;
+    }
+    
+    if(i == numFirstLevelButton -1) {
+        x = self.frame.size.width - borderRight - widthBtn;
+    }
+    else {
+        UIButton *buttonRight = (UIButton*)[self.buttons objectAtIndex:i+1];
+        x = buttonRight.frame.origin.x - widthBtn - padding;
+    }
+    rect = CGRectMake(x, yBorder, widthBtn, height);
+    [button setFrame:rect];
+    if(data.method == 1) {
+        [button setImage:[UIImage imageNamed:data.image] forState:UIControlStateNormal];
+    }
+    
+    indexBtn ++;
+}
+#endif

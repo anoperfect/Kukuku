@@ -40,6 +40,9 @@
 
 
 
+@property (nonatomic, strong) NSArray *actionStrings;
+
+
 
 typedef enum {
     PostDataTypeNone = 0,       //基础

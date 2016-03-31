@@ -73,7 +73,7 @@
     [self setBeginRefreshing];
     
     //footview.
-    self.footView = [[UIButton alloc] init];
+    self.footView = [[PushButton alloc] init];
     self.footView.backgroundColor = self.postView.backgroundColor;
     [self.footView setTitleColor:[AppConfig textColorFor:@"Black"] forState:UIControlStateNormal];
     [self showfootViewWithTitle:NSSTRING_CLICK_TO_LOADING andActivityIndicator:NO andDate:NO];
@@ -122,6 +122,7 @@
     [self.postView reloadData];
     
     //footview.
+    self.footView.titleLabel.lineBreakMode = NSLineBreakByWordWrapping;
     [self.footView setFrame:CGRectMake(0, 0, self.view.frame.size.width, 36)];
     self.postView.tableFooterView = self.footView;
     
@@ -187,7 +188,7 @@
         NSDateFormatter *dateformatter=[[NSDateFormatter alloc] init];
         [dateformatter setDateFormat:@"YYYY/MM/dd HH:mm"];
         NSString * dateString=[dateformatter stringFromDate:freshDate];
-        titleShow = [NSString stringWithFormat:@"%@ %@", title, dateString];
+        titleShow = [NSString stringWithFormat:@"%@\n%@", title, dateString];
     }
     
     [self.footView setTitle:titleShow forState:UIControlStateNormal];
@@ -224,6 +225,12 @@
                                                                           selector:@selector(hideIndicationText)
                                                                           userInfo:nil
                                                                            repeats:NO];
+}
+
+
+- (void)showStatusText:(NSString *)text
+{
+    [self showIndicationText:text];
 }
 
 
@@ -321,14 +328,17 @@
 
 - (void)postDatasToCellDataSource {
     self.postViewCellDatas = [[NSMutableArray alloc] init];
+    NSInteger index = 0;
     for(PostData* postData in self.postDatas) {
         NSMutableDictionary *dict = [postData toViewDisplayData:ThreadDataToViewTypeInfoUseReplyCount];
+        [dict setObject:[NSNumber numberWithInteger:index] forKey:@"row"];
+        index ++;
         [self.postViewCellDatas addObject:dict];
     }
 }
 
 
-- (void)clickViewThumb: (UIButton*)button {
+- (void)clickViewThumb: (PushButton*)button {
     NSLog(@"%s at tag : %zi .", __func__, button.tag);
     if(!(button.tag < [self.postDatas count])) {
         NSLog(@"error : tag invalid.");
@@ -415,10 +425,15 @@
                                                       andInitFrame:CGRectMake(0, 0, cell.frame.size.width, 100)];
     [cell addSubview:v];
     [v setTag:TAG_PostDataCellView];
+    
+    v.rowAction = ^(NSInteger row, NSString *actionString) {
+        NSLog(@"--- row %zd, actionString %@", row, actionString);
+        [self actionOnRow:row viaString:actionString];
+    };
 
     UIView *viewThumb = [v getThumbImage];
     [viewThumb setTag:indexPath.row];
-    [(UIButton*)viewThumb addTarget:self action:@selector(clickViewThumb:) forControlEvents:UIControlEventTouchDown];
+    [(PushButton*)viewThumb addTarget:self action:@selector(clickViewThumb:) forControlEvents:UIControlEventTouchDown];
     
     RTLabel *contentLabel = (RTLabel*)[v getContentLabel];
     contentLabel.delegate = self;
@@ -549,6 +564,40 @@
     }
     
     [self showPopupView:postDataView];
+    postDataView.center = postDataView.superview.center;
+}
+
+
+//重载以定义row行为.
+- (BOOL)actionOnRow:(NSInteger)row viaString:(NSString*)string
+{
+    BOOL finishAction = YES;
+    PostData *postDataRow = [self.postDatas objectAtIndex:row];
+    
+    NSMutableDictionary * dictm = self.postViewCellDatas[row];
+    [dictm setObject:@NO forKey:@"showAction"];
+    NSIndexPath *indexPath_1=[NSIndexPath indexPathForRow:row inSection:0];
+    NSArray *indexArray=[NSArray arrayWithObject:indexPath_1];
+    [self.postView reloadRowsAtIndexPaths:indexArray withRowAnimation:UITableViewRowAnimationAutomatic];
+    
+    if([string isEqualToString:@"复制"]){
+        UIPasteboard *pab = [UIPasteboard generalPasteboard];
+        [pab setString:[postDataRow.content copy]];
+        [self showStatusText:@"已复制到粘贴板"];
+    }
+    else if([string isEqualToString:@"举报"]){
+        dispatch_async(dispatch_get_main_queue(), ^{
+            CreateViewController *createViewController = [[CreateViewController alloc]init];
+            NSString *content = [NSString stringWithFormat:@">>NO.%zd\n", postDataRow.id];
+            [createViewController setCreateCategory:@"值班室" withOriginalContent:content];
+            [self.navigationController pushViewController:createViewController animated:YES];
+        });
+    }
+    else {
+        finishAction = NO;
+    }
+    
+    return finishAction;
 }
 
 
@@ -598,6 +647,7 @@
 - (void)longPressOnRow:(NSInteger)row at:(CGPoint)pointInView {
     LOG_POSTION
     
+#if 0
     UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 36, 36)];
     view.center = pointInView;
     [self.view addSubview:view];
@@ -614,7 +664,14 @@
     
     
                      }];
+#endif
     
+    NSMutableDictionary * dictm = self.postViewCellDatas[row];
+    [dictm setObject:@YES forKey:@"showAction"];
+    
+    NSIndexPath *indexPath_1=[NSIndexPath indexPathForRow:row inSection:0];
+    NSArray *indexArray=[NSArray arrayWithObject:indexPath_1];
+    [self.postView reloadRowsAtIndexPaths:indexArray withRowAnimation:UITableViewRowAnimationAutomatic];
 }
 
 

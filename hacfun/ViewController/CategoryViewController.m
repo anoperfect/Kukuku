@@ -89,10 +89,10 @@
 
 
 - (void)createNewPost {
-    CreateViewController *vc = [[CreateViewController alloc]init];
-    [vc setCategory:self.nameCategory];
+    CreateViewController *createViewController = [[CreateViewController alloc]init];
+    [createViewController setCreateCategory:self.nameCategory withOriginalContent:nil];
     
-    [self.navigationController pushViewController:vc animated:YES];
+    [self.navigationController pushViewController:createViewController animated:YES];
 }
 
 

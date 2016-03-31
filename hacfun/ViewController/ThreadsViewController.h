@@ -31,7 +31,7 @@
 
 
 //左边的页面信息按钮.
-@property (strong,nonatomic) UIButton *buttonCategory;
+@property (strong,nonatomic) PushButton *buttonCategory;
 
 //显示threads的UITableView.
 @property (strong,nonatomic) UITableView *postView;
@@ -41,7 +41,7 @@
 @property (strong,nonatomic) NSMutableArray *postViewCellDatas;
 
 //UITableView的footview.
-@property (strong,nonatomic) UIButton *footView;
+@property (strong,nonatomic) PushButton *footView;
 //@property (assign,nonatomic) NSInteger footViewStatus;
 //@property (strong,nonatomic) NSArray* footViewStrings;
 
@@ -85,6 +85,9 @@ typedef enum : NSUInteger {
 //显示一个提示信息.
 - (void)showIndicationText:(NSString*)text;
 
+//显示状态信息.
+- (void)showStatusText:(NSString*)text;
+
 
 - (void)refreshPostData;
 - (void)reloadPostData;
@@ -116,5 +119,8 @@ typedef enum : NSUInteger {
 //可重写以判断是否到last page.
 - (BOOL)isLastPage;
 
+
+//重载以定义row行为. 定义为BOOL以实现让super尝试先处置.
+- (BOOL)actionOnRow:(NSInteger)row viaString:(NSString*)string;
 
 @end

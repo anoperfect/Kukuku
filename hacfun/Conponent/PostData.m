@@ -48,6 +48,7 @@
     
     pdCopy.optimumSizeHeight = self.optimumSizeHeight;
     pdCopy.type = self.type;
+    pdCopy.actionStrings = self.actionStrings;
     
     return pdCopy;
 }
@@ -528,6 +529,7 @@ PostDataView 接收的字段字段
         //PostData各数据获取完成.
         pd.bTopic = YES;
         pd.mode = 1;
+        pd.actionStrings = @[@"复制", @"举报"];
         [postDatasArray addObject:pd];
     }
     
@@ -579,6 +581,7 @@ PostDataView 接收的字段字段
         }
         
         [self gotParsedThread:(NSDictionary*)obj belongTo:0];
+        topic.actionStrings = @[@"复制", @"举报", @"只看Po"];
         [postDatasArray addObject:topic];
     }
     else {
@@ -616,7 +619,7 @@ PostDataView 接收的字段字段
         
         pd.bTopic = NO;
         pd.mode = 2;
-        
+        pd.actionStrings = @[@"复制", @"举报", @"关注"];
         [postDatasArray addObject:pd];
     }
     

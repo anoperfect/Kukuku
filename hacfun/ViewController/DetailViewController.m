@@ -491,6 +491,18 @@
 }
 
 
+- (void)longPressOnRow:(NSInteger)row at:(CGPoint)pointInView {
+    LOG_POSTION
+    
+    NSMutableDictionary * dictm = self.postViewCellDatas[row];
+    [dictm setObject:@YES forKey:@"showAction"];
+    
+    NSIndexPath *indexPath_1=[NSIndexPath indexPathForRow:row inSection:0];
+    NSArray *indexArray=[NSArray arrayWithObject:indexPath_1];
+    [self.postView reloadRowsAtIndexPaths:indexArray withRowAnimation:UITableViewRowAnimationAutomatic];
+}
+
+
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }

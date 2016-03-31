@@ -77,49 +77,7 @@ static NSInteger kcountObjBannerView = 0;
     LOG_REC0(imageBack.frame, @"imageBack");
     LOG_REC0(self.buttonTopic.frame, @"buttonTopic");
     
-#if 0
-    NSInteger numFirstLevelButton = [self.buttons count];
-    
-    yBorder = 10;
-    height = self.frame.size.height - 2*yBorder;
-    CGRect rect;
-    NSInteger indexBtn = 0;
-    CGFloat widthBtn = height * 1.0;
-    CGFloat x,mx;
-    CGFloat borderRight = 3;
-    CGFloat padding = 10;
-    ButtonData *data ;
-    UIButton *button ;
-    mx = borderRight;
-    
-    //    for(NSInteger i = 0; i<numFirstLevelButton ; i++) {
-    for(NSInteger i = numFirstLevelButton-1; i>=0 ; i--) {
-        button = (UIButton*)[self.buttons objectAtIndex:i];
-        data = (ButtonData*)[self.buttonDataAry objectAtIndex:i];
-        
-        if(data.method == 1) {
-            widthBtn = height * 1.0;
-        }
-        else {
-            widthBtn = 45;
-        }
-        
-        if(i == numFirstLevelButton -1) {
-            x = self.frame.size.width - borderRight - widthBtn;
-        }
-        else {
-            UIButton *buttonRight = (UIButton*)[self.buttons objectAtIndex:i+1];
-            x = buttonRight.frame.origin.x - widthBtn - padding;
-        }
-        rect = CGRectMake(x, yBorder, widthBtn, height);
-        [button setFrame:rect];
-        if(data.method == 1) {
-            [button setImage:[UIImage imageNamed:data.image] forState:UIControlStateNormal];
-        }
-        
-        indexBtn ++;
-    }
-#endif
+
 }
 
 
@@ -139,7 +97,7 @@ static NSInteger kcountObjBannerView = 0;
     LOG_POSTION
     self.backgroundColor = [AppConfig backgroundColorFor:@"BannerView"];
     
-    self.buttonTopic = [[UIButton alloc] init];
+    self.buttonTopic = [[PushButton alloc] init];
     self.buttonTopic.showsTouchWhenHighlighted = YES;
     [self addSubview:self.buttonTopic];
     [self.buttonTopic setTitleColor:[AppConfig textColorFor:@"Black"] forState:UIControlStateNormal];
@@ -178,7 +136,7 @@ static NSInteger kcountObjBannerView = 0;
     
     for(id obj in buttonDataAry) {
         ButtonData *data = (ButtonData*)obj;
-        UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
+        PushButton *button = [[PushButton alloc] init];
         [button.titleLabel setFont:[AppConfig fontFor:@"BannerButtonMenu"]];
         [button setTitleColor:[AppConfig textColorFor:@"BannerButtonMenu"] forState:UIControlStateNormal];
         [button addTarget:data.target action:data.sel forControlEvents:UIControlEventTouchDown];
@@ -200,14 +158,14 @@ static NSInteger kcountObjBannerView = 0;
     CGFloat borderRight = 3;
     CGFloat padding = 10;
     ButtonData *data ;
-    UIButton *button ;
+    PushButton *button ;
     mx = borderRight;
     
 //    for(NSInteger i = 0; i<numFirstLevelButton ; i++) {
     for(NSInteger i = numFirstLevelButton-1; i>=0 ; i--) {
         
         data = (ButtonData*)[firstLevelButtonsData objectAtIndex:i];
-        button = (UIButton*)[firstLevelButtons objectAtIndex:i];
+        button = (PushButton*)[firstLevelButtons objectAtIndex:i];
         
         if(data.method == 1) {
             widthBtn = height * 1.0;
@@ -222,7 +180,7 @@ static NSInteger kcountObjBannerView = 0;
             x = self.frame.size.width - borderRight - widthBtn;
         }
         else {
-            UIButton *buttonRight = (UIButton*)[firstLevelButtons objectAtIndex:i+1];
+            PushButton *buttonRight = (PushButton*)[firstLevelButtons objectAtIndex:i+1];
             x = buttonRight.frame.origin.x - widthBtn - padding;
         }
         
@@ -238,7 +196,7 @@ static NSInteger kcountObjBannerView = 0;
 }
 
 
-- (void)clickButton:(UIButton*)button {
+- (void)clickButton:(PushButton*)button {
     
     NSInteger index = [self.buttons indexOfObject:button];
     NS0Log(@"index : %zi", index);
@@ -254,7 +212,7 @@ static NSInteger kcountObjBannerView = 0;
     
     NSInteger num = [listAry count];
     NSInteger indexButton;
-    UIButton *subButton;
+    PushButton *subButton;
     UIView *view = [self viewWithTag:100];
     LOG_VIEW_RECT(view, @"original")
     FRAME_SET_HEIGHT(view, 0)
@@ -290,7 +248,7 @@ static NSInteger kcountObjBannerView = 0;
 }
 
 
-- (UIButton*) getButtonByKeyword: (NSString*)keyword {
+- (PushButton*) getButtonByKeyword: (NSString*)keyword {
     
     BOOL isFound = NO;
     NSInteger index = 0;

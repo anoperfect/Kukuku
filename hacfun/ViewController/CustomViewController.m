@@ -137,7 +137,7 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
 {
     NSInteger index = 0;
     for(ButtonData *data in self.actionDatas) {
-        UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
+        PushButton *button = [[PushButton alloc] init];
         button.tag = self.tagButtons + index;
         [self.viewButtons addObject:button];
         [button addTarget:self action:@selector(action:) forControlEvents:UIControlEventTouchDown];
@@ -151,8 +151,6 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
             [imageView setFrame:CGRectMake(0, 0, 22, 22)];
             imageView.center = button.center;
             [button addSubview:imageView];
-            
-            
         }
         else {
             [button setTitle:data.keyword forState:UIControlStateNormal];
@@ -196,7 +194,7 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
 }
 
 
-- (void)action:(UIButton*)button
+- (void)action:(PushButton*)button
 {
     NSLog(@"action %@", button);
     NSInteger index = button.tag - self.tagButtons;
@@ -268,7 +266,6 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
     [containerView addGestureRecognizer:tapGestureRecognizer];
     
     [containerView addSubview:view];
-    view.center = view.superview.center;
 }
 
 

@@ -9,17 +9,23 @@
 #import <UIKit/UIKit.h>
 #import "PostData.h"
 #import "RTLabel.h"
-
-
+#import "ThreadsViewController.h"
+@class ThreadsViewController;
 
 
 @interface PostDataCellView : UIView
 
+typedef void (^blockRowActionHandle)(NSInteger row, NSString *actionString);
 
-
+@property (nonatomic, strong) blockRowActionHandle rowAction;
 
 - (UIView*)getThumbImage;
 - (UIView*)getContentLabel;
+
+
+
+
+
 //图片的点击直接设置图片的button target.
 //RTLabel中的链接点击直接设置RTLabel的delegate.
 //此方式有些许别扭. 同时需暴露出以上两个接口. 统一设置为block或者delegate比较合适.

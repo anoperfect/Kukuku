@@ -7,8 +7,8 @@
 //
 
 #import <UIKit/UIKit.h>
-
-@interface PostImageView : UIButton
+#import "PushButton.h"
+@interface PostImageView : PushButton
 
 
 

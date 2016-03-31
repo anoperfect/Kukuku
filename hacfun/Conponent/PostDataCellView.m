@@ -23,18 +23,20 @@
  @"title"           - 第一行左边的. 显示日期 uid.
  @"info"            - 第一行右边的. 显示tid, 或者replycount. 可重写.
  @"manageInfo"      - 第二行左边的. 显示sage.
- @"otherInfo"     - 第二行右边的. 显示一些其他信息. 暂时是显示更新回复信息. 用在CollectionViewController显示新回复状态.
+ @"otherInfo"       - 第二行右边的. 显示一些其他信息. 暂时是显示更新回复信息. 用在CollectionViewController显示新回复状态.
  @"content"         - 正文.  根据需要已作内容调整.
- @"colorUid"        － 标记uid颜色. 暂时使用uid颜色标记特定thread. 比如Po, //self post , self reply, follow, other cookie.
- @"postdata"        - copy的PostData.
- id, thumb replycount直接从raw postdata中读取.
+ @"colorUid"        - 标记uid颜色. 暂时使用uid颜色标记特定thread. 比如Po, //self post , self reply, follow, other cookie.
+ @"postdata"        -   copy的PostData.
+                        id, thumb replycount直接从raw postdata中读取.
+ @"showAction"      - 是否显示postdata中的操作菜单.
  */
 @property (strong,nonatomic) UILabel *titleLabel;
 @property (strong,nonatomic) UILabel *infoLabel;
 @property (nonatomic, strong) UILabel *manageInfoLabel;
 @property (nonatomic, strong) UILabel *otherInfoLabel;
-@property () RTLabel *contentLabel;
+@property (nonatomic, strong) RTLabel *contentLabel;
 @property (strong,nonatomic) PostImageView *imageView;
+@property (nonatomic, strong) UISegmentedControl *actionButtons;
 
 @property (assign,nonatomic) NSInteger row;
 
@@ -134,9 +136,29 @@ static NSInteger kcountObject = 0;
             self.imageView = [[PostImageView alloc] initWithFrame:CGRectMake(0, 0, 0, 0)];
             [self addSubview:self.imageView];
         }
+        
+        if(!self.actionButtons) {
+            self.actionButtons = [[UISegmentedControl alloc] init];
+            [self.actionButtons addTarget:self action:@selector(actionPressed:) forControlEvents:UIControlEventValueChanged];
+            [self addSubview:self.actionButtons];
+        }
     }
     
     return self;
+}
+
+
+- (void)actionPressed:(UISegmentedControl*)sender {
+    LOG_POSTION
+    NSInteger index = sender.selectedSegmentIndex;
+    PostData *postData = [self.data objectForKey:@"postdata"];
+    NSLog(@"action on row %@ with action %@", self.data[@"row"], postData.actionStrings[index]);
+    
+    if(self.rowAction) {
+        self.rowAction([(NSNumber*)(self.data[@"row"]) integerValue], postData.actionStrings[index]);
+    }
+    
+    sender.selectedSegmentIndex = -1;
 }
 
 
@@ -161,8 +183,6 @@ static NSInteger kcountObject = 0;
     NSString *info = [self.data objectForKey:@"info"];
     info = info?info:@"null";
     [self.infoLabel setText:info];
-    
-
     
     NSString *manageInfoString = [self.data objectForKey:@"manageInfo"];
     [self.manageInfoLabel setText:manageInfoString];
@@ -190,6 +210,20 @@ static NSInteger kcountObject = 0;
         NSString *imageHost = [[AppConfig sharedConfigDB] configDBGet:@"imageHost"];
         [self.imageView setDownloadUrlString:[NSString stringWithFormat:@"%@/%@", imageHost, thumb]];
     }
+    
+    self.actionButtons.hidden = YES;
+    NSNumber *showActions = [self.data objectForKey:@"showAction"];
+    if([showActions boolValue]) {
+        NSInteger count = postData.actionStrings.count;
+        if([postData.actionStrings count] > 0) {
+            self.actionButtons.hidden = NO;
+            
+            [self.actionButtons removeAllSegments];
+            for(NSInteger index = 0; index < count; index ++) {
+                [self.actionButtons insertSegmentWithTitle:postData.actionStrings[index] atIndex:index animated:YES];
+            }
+        }
+    }
 }
 
 
@@ -197,10 +231,11 @@ static NSInteger kcountObject = 0;
 {
     CGRect frameTitleLabel          = CGRectZero;
     CGRect frameInfoLabel           = CGRectZero;
-    CGRect frameManageInfo           = CGRectZero;
+    CGRect frameManageInfo          = CGRectZero;
     CGRect frameOtherInfo           = CGRectZero;
     CGRect frameContentLabel        = CGRectZero;
     CGRect frameImageViewContent    = CGRectZero;
+    CGRect frameActionButtons       = CGRectZero;
     UIEdgeInsets edge = UIEdgeInsetsMake(10, 10, 10, 10);
     
     FrameLayout *layout = [[FrameLayout alloc] initWithSize:CGSizeMake(self.frame.size.width, 10000)];
@@ -258,6 +293,7 @@ static NSInteger kcountObject = 0;
     CGFloat heightAdjust = 0.0;
     if(self.imageView.hidden) {
         heightAdjust = FRAMELAYOUT_Y_BLOW_FRAME(frameContentLabel) + edge.bottom;
+        [layout setUseBesideMode:@"ImageLine" besideTo:@"PaddingContentImage" withDirection:FrameLayoutDirectionBelow andSizeValue:1.0];
     }
     else {
         CGFloat heightImage = 68.0;
@@ -268,12 +304,23 @@ static NSInteger kcountObject = 0;
         heightAdjust = FRAMELAYOUT_Y_BLOW_FRAME(frameImageViewContent) + edge.bottom;
     }
     
+    [layout setUseBesideMode:@"PaddingImageActionButtons" besideTo:@"ImageLine" withDirection:FrameLayoutDirectionBelow andSizeValue:6.0];
+    
+    if(!self.actionButtons.hidden) {
+        CGFloat heightActionButtons = 36.0;
+        [layout setUseBesideMode:@"ActionButtons" besideTo:@"PaddingImageActionButtons" withDirection:FrameLayoutDirectionBelow andSizeValue:heightActionButtons];
+        frameActionButtons = [layout getCGRect:@"ActionButtons"];
+        
+        heightAdjust = FRAMELAYOUT_Y_BLOW_FRAME(frameActionButtons) + edge.bottom;
+    }
+    
     self.titleLabel.frame           = frameTitleLabel;
     self.infoLabel.frame            = frameInfoLabel;
     self.manageInfoLabel.frame      = frameManageInfo;
     self.otherInfoLabel.frame       = frameOtherInfo;
     self.contentLabel.frame         = frameContentLabel;
     self.imageView.frame            = frameImageViewContent;
+    self.actionButtons.frame        = frameActionButtons;
     
     FRAMELAYOUT_SET_HEIGHT(self, heightAdjust);
     NSLog(@"adjust height to %f.", heightAdjust);

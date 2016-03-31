@@ -13,7 +13,7 @@
 
 
 
-- (void)setCategory:(NSString*)nameCategory;
+- (void)setCreateCategory:(NSString*)nameCategory withOriginalContent:(NSString*)originalContent;
 - (void)setReplyId:(NSInteger)id;
 - (void)setReplyId:(NSInteger)id withReference:(NSInteger)idReference;
     

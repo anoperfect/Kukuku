@@ -5,7 +5,7 @@
 //  Created by artur on 2/14/14.
 //  Copyright (c) 2014 artur. All rights reserved.
 //
-
+#import "ImageViewCache.h"
 #import "LeftMenuTVC.h"
 #import "DetailViewController.h"
 #import "TestViewController.h"
@@ -30,6 +30,7 @@
     // Initilizing data souce
     self.tableData = [@[@"搜索",@"收藏", @"发帖", @"回复", @"设置"] mutableCopy];
     [self.tableData addObject:@"测试"];
+    [self.tableData addObject:@"图片"];
     
 //    [self.view setBackgroundColor:[UIColor blueColor]];
 //    [self.view setBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:@"bg"]]];
@@ -165,6 +166,38 @@
         SettingViewController *vc = [[SettingViewController alloc] init];
         rootVC = vc;
     }
+    
+    if([strItem isEqualToString:@"图片"]) {
+        NSMutableArray *imageArray = [[NSMutableArray alloc] init];
+        NSFileManager *fileManager = [NSFileManager defaultManager];
+        NSError *error = nil;
+        NSArray *fileList = nil; //[[NSArray alloc] init];
+        //fileList便是包含有该文件夹下所有文件的文件名及文件夹名的数组
+        
+        NSString* imageCacheFolder = [ImageViewCache getImageCacheFolder];
+        fileList = [fileManager contentsOfDirectoryAtPath:imageCacheFolder error:&error];
+        for(NSString *name in fileList) {
+            NSString *fullName = [NSString stringWithFormat:@"%@/%@", imageCacheFolder, name];
+            NSLog(@"image file name : %@", fullName);
+            
+            UIImage *image = [UIImage imageWithContentsOfFile:fullName];
+            [imageArray addObject:image];
+        }
+        
+        
+        
+        
+        
+        
+        
+#if 0
+        NVGalleryViewController *vc = [[NVGalleryViewController alloc] init];
+        vc.images = imageArray;
+        rootVC = vc;
+#endif
+        
+    }
+    
     
 #if 0
     if(self.mainVC.currentActiveNVC) {

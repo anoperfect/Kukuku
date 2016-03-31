@@ -8,18 +8,19 @@
 
 #import <UIKit/UIKit.h>
 #import "ButtonData.h"
+#import "PushButton.h"
 @interface BannerView : UIView
 
 
 
 
-@property (strong,nonatomic)UIButton *buttonTopic;
+@property (strong,nonatomic)PushButton *buttonTopic;
 
 - (void)setTextTopic:(NSString*)text;
 
 - (void)setButtonData:(NSArray*)buttonDataAry;
 
-- (UIButton*) getButtonByKeyword: (NSString*)keyword;
+- (PushButton*)getButtonByKeyword:(NSString*)keyword;
 
 @end
 

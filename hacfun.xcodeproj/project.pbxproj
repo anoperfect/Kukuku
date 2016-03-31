@@ -77,6 +77,7 @@
 		B5A8036D1CAA816400F88EC7 /* UIpConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = B5A8036C1CAA816400F88EC7 /* UIpConfig.m */; };
 		B5AFCA0E1C9FFE5A00D9DDB5 /* bgleft.png in Resources */ = {isa = PBXBuildFile; fileRef = B5AFCA0C1C9FFE5A00D9DDB5 /* bgleft.png */; };
 		B5AFCA0F1C9FFE5A00D9DDB5 /* bgright.png in Resources */ = {isa = PBXBuildFile; fileRef = B5AFCA0D1C9FFE5A00D9DDB5 /* bgright.png */; };
+		B5B666311CACCEA10038A3EF /* PushButton.m in Sources */ = {isa = PBXBuildFile; fileRef = B5B666301CACCEA10038A3EF /* PushButton.m */; };
 		B5BC10541B8988EE0006EDD4 /* emoticon.png in Resources */ = {isa = PBXBuildFile; fileRef = B5BC10531B8988EE0006EDD4 /* emoticon.png */; };
 		B5D8D4761B52060C0091DA20 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = B5D8D4751B52060C0091DA20 /* main.m */; };
 		B5D8D4791B52060C0091DA20 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = B5D8D4781B52060C0091DA20 /* AppDelegate.m */; };
@@ -217,6 +218,8 @@
 		B5A8036C1CAA816400F88EC7 /* UIpConfig.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = UIpConfig.m; path = Extension/UIpConfig.m; sourceTree = SOURCE_ROOT; };
 		B5AFCA0C1C9FFE5A00D9DDB5 /* bgleft.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bgleft.png; sourceTree = "<group>"; };
 		B5AFCA0D1C9FFE5A00D9DDB5 /* bgright.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bgright.png; sourceTree = "<group>"; };
+		B5B6662F1CACCEA10038A3EF /* PushButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PushButton.h; sourceTree = "<group>"; };
+		B5B666301CACCEA10038A3EF /* PushButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PushButton.m; sourceTree = "<group>"; };
 		B5BC10531B8988EE0006EDD4 /* emoticon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = emoticon.png; sourceTree = "<group>"; };
 		B5D8D4701B52060C0091DA20 /* hacfun.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = hacfun.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B5D8D4741B52060C0091DA20 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -393,6 +396,8 @@
 				B50F99821C12815700240C9D /* GridView.m */,
 				B5F24BB31C49F0C40027DAB2 /* DBData.h */,
 				B5F24BB41C49F0C40027DAB2 /* DBData.m */,
+				B5B6662F1CACCEA10038A3EF /* PushButton.h */,
+				B5B666301CACCEA10038A3EF /* PushButton.m */,
 			);
 			path = Conponent;
 			sourceTree = "<group>";
@@ -736,6 +741,7 @@
 				B523C9D31B78FAB500944004 /* CreateViewController.m in Sources */,
 				B52C72011B7C4F8100C50D1E /* LeftMenuTVC.m in Sources */,
 				B50D38B91B7F4BE10024E464 /* SettingViewController.m in Sources */,
+				B5B666311CACCEA10038A3EF /* PushButton.m in Sources */,
 				B5F24BB51C49F0C40027DAB2 /* DBData.m in Sources */,
 				B50F99801C109E5900240C9D /* EmoticonCharacterView.m in Sources */,
 				B523C99D1B78FA7500944004 /* AMSlideMenuRightMenuSegue.m in Sources */,

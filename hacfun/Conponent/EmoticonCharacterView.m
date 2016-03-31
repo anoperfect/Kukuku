@@ -10,7 +10,7 @@
 #import "AppConfig.h"
 #import "GridView.h"
 #import "FuncDefine.h"
-
+#import "PushButton.h"
 @interface EmoticonCharacterView () {
     
     NSArray *_EmoticonStrings;
@@ -64,7 +64,7 @@
     [self addSubview:self.buttonsGridView];
     
     for(NSInteger i = 0; i<num; i++) {
-        UIButton *button = [[UIButton alloc] init];
+        PushButton *button = [[PushButton alloc] init];
         [button setTitle:[_EmoticonStrings objectAtIndex:i] forState:UIControlStateNormal];
         [button setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
         [button setTitleColor:[UIColor blueColor] forState:UIControlStateSelected];
@@ -92,7 +92,7 @@
 }
 
 
-- (void)buttonClick:(UIButton*)button {
+- (void)buttonClick:(PushButton*)button {
     NSString *title = [button titleForState:UIControlStateNormal];
     if(self.action) {
         self.action(title);
