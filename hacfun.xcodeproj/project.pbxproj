@@ -66,6 +66,8 @@
 		B55E9D801C9CFD7D00F581F5 /* yantext1.png in Resources */ = {isa = PBXBuildFile; fileRef = B55E9D7D1C9CFD7D00F581F5 /* yantext1.png */; };
 		B564D0F71C9189C400E903B6 /* bg.png in Resources */ = {isa = PBXBuildFile; fileRef = B564D0F61C9189C400E903B6 /* bg.png */; };
 		B564D1AC1C94238300E903B6 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = B564D1AB1C94238300E903B6 /* Default-568h@2x.png */; };
+		B56E53531CB4014700998F74 /* GalleryViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B56E53521CB4014700998F74 /* GalleryViewController.m */; };
+		B56E53561CB4017D00998F74 /* ImagesDisplay.m in Sources */ = {isa = PBXBuildFile; fileRef = B56E53551CB4017D00998F74 /* ImagesDisplay.m */; };
 		B58D87341B81F2AC00B9A1BA /* CustomViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B58D87331B81F2AC00B9A1BA /* CustomViewController.m */; };
 		B58D88201B85621500B9A1BA /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B58D881F1B85621500B9A1BA /* libsqlite3.dylib */; };
 		B5A058571B9DE86200370557 /* PostViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B5A058561B9DE86200370557 /* PostViewController.m */; };
@@ -202,6 +204,10 @@
 		B55E9D7D1C9CFD7D00F581F5 /* yantext1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = yantext1.png; sourceTree = "<group>"; };
 		B564D0F61C9189C400E903B6 /* bg.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bg.png; sourceTree = "<group>"; };
 		B564D1AB1C94238300E903B6 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default-568h@2x.png"; path = "../../../Default-568h@2x.png"; sourceTree = "<group>"; };
+		B56E53511CB4014700998F74 /* GalleryViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GalleryViewController.h; sourceTree = "<group>"; };
+		B56E53521CB4014700998F74 /* GalleryViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GalleryViewController.m; sourceTree = "<group>"; };
+		B56E53541CB4017D00998F74 /* ImagesDisplay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImagesDisplay.h; sourceTree = "<group>"; };
+		B56E53551CB4017D00998F74 /* ImagesDisplay.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImagesDisplay.m; sourceTree = "<group>"; };
 		B58D87321B81F2AC00B9A1BA /* CustomViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomViewController.h; sourceTree = "<group>"; };
 		B58D87331B81F2AC00B9A1BA /* CustomViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CustomViewController.m; sourceTree = "<group>"; };
 		B58D881F1B85621500B9A1BA /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
@@ -363,6 +369,8 @@
 				B523C9C11B78FAB500944004 /* ImageViewController.m */,
 				B523C9CD1B78FAB500944004 /* TestViewController.h */,
 				B523C9CE1B78FAB500944004 /* TestViewController.m */,
+				B56E53511CB4014700998F74 /* GalleryViewController.h */,
+				B56E53521CB4014700998F74 /* GalleryViewController.m */,
 			);
 			path = ViewController;
 			sourceTree = "<group>";
@@ -475,6 +483,8 @@
 				B5A803691CAA808F00F88EC7 /* NSLogn.m */,
 				B5A8036B1CAA816400F88EC7 /* UIpConfig.h */,
 				B5A8036C1CAA816400F88EC7 /* UIpConfig.m */,
+				B56E53541CB4017D00998F74 /* ImagesDisplay.h */,
+				B56E53551CB4017D00998F74 /* ImagesDisplay.m */,
 			);
 			path = Extension;
 			sourceTree = SOURCE_ROOT;
@@ -750,6 +760,7 @@
 				B523C9B41B78FA8B00944004 /* VIPhotoView.m in Sources */,
 				B5A8036D1CAA816400F88EC7 /* UIpConfig.m in Sources */,
 				B523C99B1B78FA7500944004 /* AMSlideMenuLeftTableViewController.m in Sources */,
+				B56E53531CB4014700998F74 /* GalleryViewController.m in Sources */,
 				B523C9EA1B78FADC00944004 /* CookieManage.m in Sources */,
 				B500F8431B98083C004702F0 /* PostDataCellViewLoad.m in Sources */,
 				B523C9F61B78FAFD00944004 /* FuncDefine.m in Sources */,
@@ -775,6 +786,7 @@
 				B523C9ED1B78FADC00944004 /* PostDataCellView.m in Sources */,
 				B523C9F51B78FAFD00944004 /* AppConfig.m in Sources */,
 				B5D8D4761B52060C0091DA20 /* main.m in Sources */,
+				B56E53561CB4017D00998F74 /* ImagesDisplay.m in Sources */,
 				B5F24BB81C49F27E0027DAB2 /* NetworkThreadViewController.m in Sources */,
 				B5F24BB21C49EBF70027DAB2 /* LocaleViewController.m in Sources */,
 				B523C99C1B78FA7500944004 /* AMSlideMenuMainViewController.m in Sources */,
