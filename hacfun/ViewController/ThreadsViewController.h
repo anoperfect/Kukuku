@@ -82,8 +82,7 @@ typedef enum : NSUInteger {
 - (void)showfootViewWithTitle:(NSString*)title andActivityIndicator:(BOOL)isActive andDate:(BOOL)isShowDate;
 
 
-//显示一个提示信息.
-- (void)showIndicationText:(NSString*)text;
+
 
 //显示状态信息.
 - (void)showStatusText:(NSString*)text;

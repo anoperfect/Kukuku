@@ -10,4 +10,11 @@
 
 @interface GalleryViewController : CustomViewController
 
+
+
+
+- (void)setDisplayedImages:(NSArray*)imageDatas;
+
+
+
 @end

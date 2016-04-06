@@ -16,12 +16,17 @@
 
 @interface CustomViewController ()
 
-@property (nonatomic, strong) NSMutableArray *actionDatas;
-@property (nonatomic, strong) NSMutableArray *viewButtons;
-@property (nonatomic, assign) NSInteger tagButtons;
+@property (nonatomic, strong) NSMutableArray    *actionDatas;
+@property (nonatomic, strong) NSMutableArray    *viewButtons;
+@property (nonatomic, assign) NSInteger     tagButtons;
 
-@property (nonatomic, strong) BannerView *bannerView;
+@property (nonatomic, strong) BannerView    *bannerView;
+//@property (nonatomic, strong) UILabel       *viewIndication;
 
+//显示提示信息.
+@property (nonatomic, strong) UILabel       *messageIndication;
+//用于定时关闭提示信息.
+@property (nonatomic, strong) NSTimer       *messageIndicationAutoCloseTimer;
 
 @property (nonatomic, assign) CGFloat heightBanner ;
 
@@ -65,6 +70,13 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     
+    self.messageIndication = [[UILabel alloc] init];
+    self.messageIndication.backgroundColor = HexRGBAlpha(0xaaaaaa, 0.6);
+    self.messageIndication.textColor = HexRGBAlpha(0x000000, 0.6);
+    self.messageIndication.textAlignment = NSTextAlignmentCenter;
+    [self.view addSubview:self.messageIndication];
+    
+    
     self.view.backgroundColor = [AppConfig backgroundColorFor:@"ViewController"];
     self.view.backgroundColor = [UIColor colorWithPatternImage:[UIImage imageNamed:@"bg"]];
 }
@@ -73,6 +85,14 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
 - (void)viewWillLayoutSubviews {
     [super viewWillLayoutSubviews];
     
+    CGFloat heightViewIndication = 36;
+    
+    FrameLayout *layout = [[FrameLayout alloc] initWithSize:self.view.frame.size];
+    [layout setUseIncludedMode:@"messageIndication" includedTo:NAME_MAIN_FRAME withPostion:FrameLayoutPositionTop andSizeValue:36];
+    //    self.messageIndication.frame = [layout getCGRect:@"messageIndication"];
+    self.messageIndication.text = @"111111";
+    self.messageIndication.frame = CGRectMake(0, -heightViewIndication, self.view.frame.size.width, heightViewIndication);
+     
     [self layoutBannerView];
     [self layoutActionButtons:self.bannerView];
 }
@@ -323,6 +343,51 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
         NSLog(@"///#error : not found obj <%@>", self);
     }
     NSLog(@"///kstatisticsCustomViewController count : %zd", [kstatisticsCustomViewController count]);
+}
+
+
+- (void)showIndicationText:(NSString*)text
+{
+    NSLog(@"---xxx0 : >>>>>>IndicationText : %@", text);
+    
+    [self.view bringSubviewToFront:self.messageIndication];
+    
+    NSLog(@"%@", self.messageIndication);
+    
+    self.messageIndication.text = text;
+    [UIView animateWithDuration:0.3f
+                          delay:0.0f
+                        options:UIViewAnimationOptionCurveEaseIn
+                     animations:^{
+                         self.messageIndication.frame = CGRectMake(0, 0, self.view.frame.size.width, 36);
+                     }
+                     completion:^(BOOL finished) {
+                         
+                     }];
+    
+    NSLog(@"%@", self.messageIndication);
+    
+    [self.messageIndicationAutoCloseTimer invalidate];
+    self.messageIndicationAutoCloseTimer = nil;
+    self.messageIndicationAutoCloseTimer = [NSTimer scheduledTimerWithTimeInterval:3.0
+                                                                            target:self
+                                                                          selector:@selector(hideIndicationText)
+                                                                          userInfo:nil
+                                                                           repeats:NO];
+}
+
+
+- (void)hideIndicationText
+{
+    [UIView animateWithDuration:0.3f
+                          delay:0.0f
+                        options:UIViewAnimationOptionCurveEaseIn
+                     animations:^{
+                         self.messageIndication.frame = CGRectMake(0, -36, self.view.frame.size.width, 36);
+                     }
+                     completion:^(BOOL finished) {
+                         
+                     }];
 }
 
 

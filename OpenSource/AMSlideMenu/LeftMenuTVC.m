@@ -15,7 +15,7 @@
 #import "AppConfig.h"
 #import "PopupView.h"
 #import "AMSlideMenuMainViewController.h"
-
+#import "GalleryViewController.h"
 @interface LeftMenuTVC ()
 @property (strong, nonatomic) NSMutableArray *tableData;
 @end
@@ -184,11 +184,9 @@
             [imageArray addObject:image];
         }
         
-        
-        
-        
-        
-        
+        GalleryViewController *galleryViewController = [[GalleryViewController alloc] init];
+        [galleryViewController setDisplayedImages:[NSArray arrayWithArray:imageArray]];
+        rootVC = galleryViewController;
         
 #if 0
         NVGalleryViewController *vc = [[NVGalleryViewController alloc] init];

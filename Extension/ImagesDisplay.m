@@ -5,7 +5,7 @@
 //  Created by Ben on 16/4/5.
 //  Copyright © 2016年 Ben. All rights reserved.
 //
-
+#import "FuncDefine.h"
 #import "ImagesDisplay.h"
 
 
@@ -42,12 +42,22 @@
 }
 
 
-- (void)setDisplayedImages:(NSArray*)imageDatas
+- (void)layoutSubviews
 {
-    self.imageDatas = imageDatas;
+    self.imagesView.frame = self.bounds;
+//    self.imagesView.backgroundColor = [UIColor orangeColor];
 }
 
 
+- (void)setDisplayedImages:(NSArray*)imageDatas
+{
+    self.imageDatas = imageDatas;
+    NSLog(@"image count : %zd", [imageDatas count]);
+    [self.imagesView reloadData];
+}
+
+
+//<UICollectionViewDataSource>
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView
 {
     return 1;
@@ -60,49 +70,50 @@
 }
 
 
-
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
     UICollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"myCell" forIndexPath:indexPath];
-    if(indexPath.section==0) {
-        cell.backgroundColor = [UIColor redColor];
+    
+    NSString *name = [NSString stringWithFormat:@"cell%zd", indexPath.row];
+    LOG_RECT(cell.frame, name);
+    
+    UIImageView *imageView = [cell viewWithTag:10000000];
+    if(!imageView) {
+        imageView = [[UIImageView alloc] initWithFrame:cell.bounds];
+        imageView.tag = 10000000;
+        [cell addSubview:imageView];
     }
-    else if(indexPath.section==1) {
-        cell.backgroundColor = [UIColor greenColor];
-    }
+    
+    imageView.frame = cell.bounds;
+    imageView.image = [self.imageDatas objectAtIndex:indexPath.row];
+    
     return cell;
 }
 
 
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    if(indexPath.section==0 && indexPath.row==1)
-    {
-        return CGSizeMake(50, 50);
-    }
-    else
-    {
-        return CGSizeMake(75, 30);
-    }
-}
-
-
-- (UIEdgeInsets)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout insetForSectionAtIndex:(NSInteger)section
-{
-    if(section==0)
-    {
-        return UIEdgeInsetsMake(35, 25, 15, 25);
-    }
-    else
-    {
-        return UIEdgeInsetsMake(15, 15, 15, 15);
-    }
+    CGFloat width = (collectionView.frame.size.width - 20 ) / 3;
+    CGFloat height = width;
+    
+    UIImage *image = [self.imageDatas objectAtIndex:indexPath.row];
+    CGSize sizeImage = image.size;
+    
+    height = sizeImage.height / sizeImage.width * width;
+    
+    return CGSizeMake(width, height);
 }
 
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    [collectionView deleteItemsAtIndexPaths:[NSArray arrayWithObject:indexPath]];
+    //导致错误.
+    //[collectionView deleteItemsAtIndexPaths:[NSArray arrayWithObject:indexPath]];
+    LOG_POSTION
+    
+    NSLog(@"select %@, row %zd", indexPath, indexPath.row);
+    
+    
 }
 
 

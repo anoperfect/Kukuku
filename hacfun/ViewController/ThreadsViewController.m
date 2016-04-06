@@ -21,9 +21,8 @@
 
 @interface ThreadsViewController () <UITableViewDataSource, UITableViewDelegate, RTLabelDelegate>
 
-@property (nonatomic, strong) UILabel *viewIndication;
-@property (nonatomic, strong) UILabel *messageIndication;
-@property (nonatomic, strong) NSTimer *messageIndicationAutoCloseTimer;
+
+
 
 @end
 
@@ -94,13 +93,8 @@
         [self startAction];
     });
     
-    self.viewIndication = [[UILabel alloc] init];
-    
-    self.messageIndication = [[UILabel alloc] init];
-    self.messageIndication.backgroundColor = HexRGBAlpha(0xaaaaaa, 0.6);
-    self.messageIndication.textColor = HexRGBAlpha(0x000000, 0.6);
-    self.messageIndication.textAlignment = NSTextAlignmentCenter;
-    [self.view addSubview:self.messageIndication];
+
+
     
     return;
 }
@@ -126,27 +120,7 @@
     [self.footView setFrame:CGRectMake(0, 0, self.view.frame.size.width, 36)];
     self.postView.tableFooterView = self.footView;
     
-    CGFloat heightViewIndication = 36;
-    CGRect frameViewIndication = framePostView;
-    frameViewIndication.origin.x = framePostView.size.width - heightViewIndication;
-    frameViewIndication.origin.y = heightViewIndication;
-    frameViewIndication.size.width = heightViewIndication;
-    frameViewIndication.size.height = heightViewIndication;
-    [self.viewIndication setFrame:frameViewIndication];
-    [self.viewIndication setBackgroundColor:HexRGBAlpha(0xeeeeee, 0.6)];
-    [self.viewIndication setText:@"1"];
-    [self.viewIndication setTextAlignment:NSTextAlignmentCenter];
-    [self.viewIndication setTextColor:HexRGBAlpha(0x000000, 0.2)];
-    [self.viewIndication.layer setCornerRadius:heightViewIndication / 2];
-    [self.viewIndication.layer setMasksToBounds:YES];
-    [self.view addSubview:self.viewIndication];
-    [self.viewIndication setHidden:YES];
-    
-    FrameLayout *layout = [[FrameLayout alloc] initWithSize:self.view.frame.size];
-    [layout setUseIncludedMode:@"messageIndication" includedTo:NAME_MAIN_FRAME withPostion:FrameLayoutPositionTop andSizeValue:36];
-//    self.messageIndication.frame = [layout getCGRect:@"messageIndication"];
-    self.messageIndication.text = @"111111";
-    self.messageIndication.frame = CGRectMake(0, -36, self.view.frame.size.width, 36);
+
     
     
     
@@ -203,52 +177,13 @@
 }
 
 
-- (void)showIndicationText:(NSString*)text
-{
-    NSLog(@"---xxx0 : >>>>>>IndicationText : %@", text);
-    
-    self.messageIndication.text = text;
-    [UIView animateWithDuration:0.3f
-                          delay:0.0f
-                        options:UIViewAnimationOptionCurveEaseIn
-                     animations:^{
-                         self.messageIndication.frame = CGRectMake(0, 0, self.view.frame.size.width, 36);
-                     }
-                     completion:^(BOOL finished) {
 
-                     }];
-    
-    [self.messageIndicationAutoCloseTimer invalidate];
-    self.messageIndicationAutoCloseTimer = nil;
-    self.messageIndicationAutoCloseTimer = [NSTimer scheduledTimerWithTimeInterval:3.0
-                                                                            target:self
-                                                                          selector:@selector(hideIndicationText)
-                                                                          userInfo:nil
-                                                                           repeats:NO];
-}
 
 
 - (void)showStatusText:(NSString *)text
 {
     [self showIndicationText:text];
 }
-
-
-- (void)hideIndicationText
-{
-    [UIView animateWithDuration:0.3f
-                          delay:0.0f
-                        options:UIViewAnimationOptionCurveEaseIn
-                     animations:^{
-                         self.messageIndication.frame = CGRectMake(0, -36, self.view.frame.size.width, 36);
-                     }
-                     completion:^(BOOL finished) {
-
-                     }];
-}
-
-
-
 
 
 - (void)setBeginRefreshing {

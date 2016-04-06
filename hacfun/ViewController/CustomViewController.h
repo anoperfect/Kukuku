@@ -30,6 +30,10 @@
 - (void)setTopic:(NSString*)str ;
 
 
+//显示一个提示信息.
+- (void)showIndicationText:(NSString*)text;
+
+
 //重载按钮行为(默认openLeftMenu).
 - (void)clickButtonTopic ;
 
