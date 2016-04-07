@@ -223,11 +223,6 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
 }
 
 
-- (void)setTopic:(NSString*)str {
-    LOG_POSTION
-    self.textTopic = str;
-}
-
 //重载按钮行为(默认openLeftMenu).
 - (void)clickButtonTopic {
     UINavigationController *navi = self.navigationController;

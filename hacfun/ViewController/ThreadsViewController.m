@@ -291,7 +291,12 @@
     
     NSURL *url=[[NSURL alloc] initWithString:[downloadString stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
     
-    [vc sd_setImageWithURL:url placeholderImage:nil];
+    UIImage *placeholdImage = nil;
+    if([button isKindOfClass:[PostImageView class]]) {
+        placeholdImage = [(PostImageView*)button getDisplayingImage];
+    }
+    
+    [vc sd_setImageWithURL:url placeholderImage:placeholdImage];
 //    [self presentViewController:vc animated:NO completion:^(void){ }];
     [self.navigationController pushViewController:vc animated:YES];
 }

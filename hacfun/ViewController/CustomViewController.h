@@ -25,11 +25,6 @@
 
 
 
-
-
-- (void)setTopic:(NSString*)str ;
-
-
 //显示一个提示信息.
 - (void)showIndicationText:(NSString*)text;
 

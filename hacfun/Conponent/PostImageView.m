@@ -120,6 +120,13 @@
         self.embedImageView.image = image;
         [self layoutSubviews];
     }
+    
+}
+
+
+- (UIImage*)getDisplayingImage
+{
+    return [self.embedImageView.image copy];
 }
 
 

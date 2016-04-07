@@ -13,7 +13,9 @@
 
 
 
+- (UIImage*)getDisplayingImage;
 - (void)setDownloadUrlString : (NSString*)downloadString;
+
 
 //- (void)setDidSelectedResponseTarget : (id) target selector:(SEL)selector;
 

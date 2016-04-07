@@ -13,6 +13,10 @@
 
 
 
+//直接显示图片.
+- (void)setDisplayedImage:(UIImage*)image;
+
+//显示网络下载地址的图片. placeholderImage可设置为下载完成之前的暂时图片.
 - (void)sd_setImageWithURL:(NSURL*)url placeholderImage:(UIImage*)image ;
 
 

@@ -13,8 +13,7 @@
 
 
 
-- (void)setDisplayedImages:(NSArray*)imageDatas;
-
+- (void)setDisplayedImages:(NSArray*)images;
 
 
 @end

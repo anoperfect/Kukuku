@@ -18,6 +18,15 @@
 @property (nonatomic, strong) NSArray *imageDatas;
 @property (nonatomic, strong) UICollectionView *imagesView;
 
+@property (nonatomic, assign) BOOL inMuiltSelectMode;
+@property (nonatomic, strong) NSMutableArray *indexsInMuiltSelectMode;
+
+
+@property (nonatomic, copy)   void(^selectHandle)(NSInteger row);
+
+
+
+
 @end
 
 
@@ -35,8 +44,10 @@
         [self.imagesView registerClass:[UICollectionViewCell class] forCellWithReuseIdentifier:@"myCell"];
         self.imagesView.delegate = self;
         self.imagesView.dataSource = self;
-         
         [self addSubview:self.imagesView];
+        
+        self.inMuiltSelectMode = NO;
+        self.indexsInMuiltSelectMode = [[NSMutableArray alloc] init];
     }
     return self;
 }
@@ -45,7 +56,6 @@
 - (void)layoutSubviews
 {
     self.imagesView.frame = self.bounds;
-//    self.imagesView.backgroundColor = [UIColor orangeColor];
 }
 
 
@@ -113,11 +123,39 @@
     
     NSLog(@"select %@, row %zd", indexPath, indexPath.row);
     
-    
+    if(self.inMuiltSelectMode) {
+        [self.indexsInMuiltSelectMode addObject:[NSNumber numberWithInteger:indexPath.row]];
+    }
+    else {
+        if(self.selectHandle) {
+            self.selectHandle(indexPath.row);
+        }
+    }
 }
 
 
+//单选模式下点击后执行的动作.
+- (void)setDidSelectHandle:(void(^)(NSInteger row))handle
+{
+    NSLog(@"******handle : %@", handle);
+    self.selectHandle = handle;
+    NSLog(@"******handle : %@", self.selectHandle);
+}
 
+
+//设置为多选模式. 非多选模式下, 点击任意的cell将触发selectImageHandle.
+- (void)setMuiltSelectMode:(BOOL)isMuiltSelectMode
+{
+    self.inMuiltSelectMode = isMuiltSelectMode;
+    self.indexsInMuiltSelectMode = [[NSMutableArray alloc] init];
+}
+
+
+//返回多选模式下, 选择的cell序列.
+- (NSArray*)getSelectSnInMuiltSelectMode
+{
+    return [NSArray arrayWithArray:self.indexsInMuiltSelectMode];
+}
 
 
 

@@ -7,13 +7,27 @@
 //
 
 #import "GalleryViewController.h"
+#import "ImageViewController.h"
 #import "ImagesDisplay.h"
 @interface GalleryViewController ()
 @property (nonatomic, strong) ImagesDisplay *imageDisplay;
-@property (nonatomic, strong) NSArray *imageDatas;
+@property (nonatomic, strong) NSArray *images;
 @end
 
 @implementation GalleryViewController
+
+
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        if(!self.textTopic) {
+            self.textTopic = @"下载图片";
+        }
+    }
+    return self;
+}
+
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -21,18 +35,38 @@
     self.imageDisplay = [[ImagesDisplay alloc] init];
     [self.view addSubview:self.imageDisplay];
     self.imageDisplay.backgroundColor = [UIColor whiteColor];
-    [self.imageDisplay setDisplayedImages:self.imageDatas];
+    [self.imageDisplay setDisplayedImages:self.images];
     
+    __weak GalleryViewController *selfBlock = self;
+    [self.imageDisplay setDidSelectHandle:^(NSInteger row) {
+        [selfBlock displayImageInRow:row];
+    }];
     
     [self showImagesNumberAfterDelay:1];
+}
+
+
+- (void)displayImageInRow:(NSInteger)row
+{
+    if(row >= 0 && self.images.count > row) {
+        UIImage *image = [self.images objectAtIndex:row];
+        ImageViewController *imageViewController = [[ImageViewController alloc] init];
+        [imageViewController setDisplayedImage:image];
+        
+        [self.navigationController pushViewController:imageViewController animated:YES];
+    }
+    else {
+        NSLog(@"#error : row error.");
+    }
+    
 }
 
 
 - (void)showImagesNumberAfterDelay:(NSInteger)sec
 {
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(sec * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        NSString *indicationString = [NSString stringWithFormat:@"共有图片%zd张", [self.imageDatas count]];
-        if(0 == [self.imageDatas count]) {
+        NSString *indicationString = [NSString stringWithFormat:@"共有图片%zd张", [self.images count]];
+        if(0 == [self.images count]) {
             indicationString = [NSString stringWithFormat:@"暂无缓存图片"];
         }
         [self showIndicationText:indicationString];
@@ -51,10 +85,10 @@
 }
 
 
-- (void)setDisplayedImages:(NSArray*)imageDatas
+- (void)setDisplayedImages:(NSArray*)images
 {
-    self.imageDatas = imageDatas;
-    [self.imageDisplay setDisplayedImages:self.imageDatas];
+    self.images = images;
+    [self.imageDisplay setDisplayedImages:self.images];
 }
 
 

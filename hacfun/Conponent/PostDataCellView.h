@@ -5,10 +5,10 @@
 //  Created by Ben on 15/7/15.
 //  Copyright (c) 2015年 Ben. All rights reserved.
 //
-
 #import <UIKit/UIKit.h>
 #import "PostData.h"
 #import "RTLabel.h"
+#import "PostImageView.h"
 #import "ThreadsViewController.h"
 @class ThreadsViewController;
 
