@@ -488,6 +488,50 @@
 }
 
 
+- (void)setDivideEquallyInHerizon:(NSString *)inName
+                     withNumber:(NSInteger)number
+                             to:(NSArray*)names
+{
+    if(!(number > 0 && [names count] == number)) {
+        NSLog(@"#error. invalid number or names.");
+        return;
+    }
+    
+    CGRect inFrame = [self getCGRect:inName];
+    
+    CGRect framex = inFrame;
+    framex.size.height = inFrame.size.height / number;
+    
+    CGFloat dy = 0;
+    for(NSInteger index = 0; index < number; index ++) {
+        [self setCGRect:CGRectOffset(framex, 0, dy) toName:names[index]];
+        dy += framex.size.height;
+    }
+}
+
+
+- (void)setDivideEquallyInVertical:(NSString *)inName
+                       withNumber:(NSInteger)number
+                               to:(NSArray*)names
+{
+    if(!(number > 0 && [names count] == number)) {
+        NSLog(@"#error. invalid number or names.");
+        return;
+    }
+    
+    CGRect inFrame = [self getCGRect:inName];
+    
+    CGRect framex = inFrame;
+    framex.size.width = inFrame.size.width / number;
+    
+    CGFloat dx = 0;
+    for(NSInteger index = 0; index < number; index ++) {
+        [self setCGRect:CGRectOffset(framex, dx, 0) toName:names[index]];
+        dx += framex.size.width;
+    }
+}
+
+
 - (NSString*)description
 {
     return [NSString stringWithFormat:@"%@", self.frames];

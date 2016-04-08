@@ -5,13 +5,25 @@
 //  Created by Ben on 16/4/5.
 //  Copyright © 2016年 Ben. All rights reserved.
 //
-
 #import "GalleryViewController.h"
 #import "ImageViewController.h"
 #import "ImagesDisplay.h"
+#import "FrameLayout.h"
 @interface GalleryViewController ()
+
+
+
 @property (nonatomic, strong) ImagesDisplay *imageDisplay;
+@property (nonatomic, strong) UIView        *muiltActions;
+@property (nonatomic, strong) PushButton    *buttonShare;
+@property (nonatomic, strong) PushButton    *buttonSave;
+@property (nonatomic, strong) PushButton    *buttonDelete;
+
+
 @property (nonatomic, strong) NSArray *images;
+@property (nonatomic, strong) NSArray *filePaths;
+
+
 @end
 
 @implementation GalleryViewController
@@ -24,6 +36,12 @@
         if(!self.textTopic) {
             self.textTopic = @"下载图片";
         }
+        
+        ButtonData *actionData = nil;
+        
+        actionData = [[ButtonData alloc] init];
+        actionData.keyword  = @"选择";
+        [self actionAddData:actionData];
     }
     return self;
 }
@@ -42,7 +60,63 @@
         [selfBlock displayImageInRow:row];
     }];
     
+    self.muiltActions = [[UIView alloc] init];
+#if 0
+    self.muiltActions = [[UITabBar alloc] init];
+    [self.view addSubview:self.muiltActions];
+    self.muiltActions.backgroundColor = [UIColor yellowColor];
+    [self.muiltActions insertSubview:nil atIndex:0];
+    
+    UITabBarItem *item0 = [[UITabBarItem alloc] initWithTitle:@"保存" image:nil selectedImage:nil];
+#endif
+    
+    self.buttonShare = [[PushButton alloc] init];
+    [self.buttonShare setImage:[UIImage imageNamed:@"buttonshare"] forState:UIControlStateNormal];
+    [self.buttonShare addTarget:self action:@selector(imagesShare) forControlEvents:UIControlEventTouchDown];
+    [self.view addSubview:self.buttonShare];
+    
+    self.buttonSave = [[PushButton alloc] init];
+    [self.buttonSave setImage:[UIImage imageNamed:@"buttonsave"] forState:UIControlStateNormal];
+    [self.buttonSave addTarget:self action:@selector(imagesSave) forControlEvents:UIControlEventTouchDown];
+    [self.view addSubview:self.buttonSave];
+    
+    self.buttonDelete = [[PushButton alloc] init];
+    [self.buttonDelete setImage:[UIImage imageNamed:@"buttondelete"] forState:UIControlStateNormal];
+    [self.buttonDelete addTarget:self action:@selector(imagesDelete) forControlEvents:UIControlEventTouchDown];
+    [self.view addSubview:self.buttonDelete];
+    
     [self showImagesNumberAfterDelay:1];
+}
+
+
+- (void)viewWillLayoutSubviews
+{
+    [super viewWillLayoutSubviews];
+    
+    FrameLayout *layout = [[FrameLayout alloc] initWithSize:self.view.bounds.size];
+    
+    [layout setUseIncludedMode:@"imageDisplay" includedTo:NAME_MAIN_FRAME withPostion:FrameLayoutPositionTop andSizePercentage:1.0];
+    [layout setUseIncludedMode:@"muiltActions" includedTo:NAME_MAIN_FRAME withPostion:FrameLayoutPositionBottom andSizeValue:36];
+    [layout setDivideEquallyInVertical:@"muiltActions" withNumber:3 to:@[@"buttonShare", @"buttonSave", @"buttonDelete"]];
+    
+    self.imageDisplay.frame     = [layout getCGRect:@"imageDisplay"];
+    self.muiltActions.frame     = [layout getCGRect:@"muiltActions"];
+    self.buttonShare.frame      = [layout getCGRect:@"buttonShare"];
+    self.buttonSave.frame       = [layout getCGRect:@"buttonSave"];
+    self.buttonDelete.frame     = [layout getCGRect:@"buttonDelete"];
+    
+#define UIEdgeInsetsMakeSqureFromSize(size, border) (size.width >= size.height? \
+     UIEdgeInsetsMake(border, (size.width - size.height) / 2 - border, border, (size.width - size.height) / 2 - border) \
+    :UIEdgeInsetsMake((size.height - size.width) / 2 - border, border, (size.height - size.width) / 2 - border, border))
+    
+    CGFloat border = 3;
+    CGSize size ;
+    size = self.buttonShare.frame.size;
+    self.buttonShare.imageEdgeInsets =  UIEdgeInsetsMakeSqureFromSize(size, border);
+    size = self.buttonSave.frame.size;
+    self.buttonSave.imageEdgeInsets =  UIEdgeInsetsMakeSqureFromSize(size, border);
+    size = self.buttonDelete.frame.size;
+    self.buttonDelete.imageEdgeInsets =  UIEdgeInsetsMakeSqureFromSize(size, border);
 }
 
 
@@ -58,7 +132,6 @@
     else {
         NSLog(@"#error : row error.");
     }
-    
 }
 
 
@@ -77,18 +150,81 @@
 }
 
 
-- (void)viewWillLayoutSubviews
+
+- (void)setDisplayedImages:(NSArray*)images andNames:(NSArray*)filePaths
 {
-    [super viewWillLayoutSubviews];
-    
-    self.imageDisplay.frame = self.view.bounds;
+    self.images = images;
+    self.filePaths = filePaths;
+    [self.imageDisplay setDisplayedImages:self.images];
 }
 
 
-- (void)setDisplayedImages:(NSArray*)images
+- (void)actionViaString:(NSString *)string
 {
-    self.images = images;
-    [self.imageDisplay setDisplayedImages:self.images];
+    if([string isEqualToString:@"选择"]) {
+        [self.imageDisplay setMuiltSelectMode:YES];
+        self.muiltActions.hidden = NO;
+        
+        return ;
+    }
+    
+    if([string isEqualToString:@"取消"]) {
+        [self.imageDisplay setMuiltSelectMode:NO];
+        self.muiltActions.hidden = YES;
+        
+        return ;
+    }
+    
+    
+}
+
+
+- (void)imagesShare
+{
+    NSArray *indexs = [self.imageDisplay getSelectSnInMuiltSelectMode];
+    NSLog(@"%@", indexs);
+    
+    NSMutableArray *images = [[NSMutableArray alloc] init];
+    for(NSNumber *number in indexs) {
+        NSInteger index = [number integerValue];
+        if(index >= 0 && index < self.images.count) {
+            [images addObject:self.images[index]];
+        }
+    }
+    
+    UIActivityViewController *activiryViewController = [[UIActivityViewController alloc] initWithActivityItems:images applicationActivities:nil];
+    [self presentViewController:activiryViewController animated:YES completion:^(void){
+        
+    }];
+    
+}
+
+
+- (void)imagesSave
+{
+    NSArray *indexs = [self.imageDisplay getSelectSnInMuiltSelectMode];
+    NSLog(@"%@", indexs);
+    
+    for(NSNumber *number in indexs) {
+        NSInteger index = [number integerValue];
+        if(index >= 0 && index < self.images.count) {
+            UIImageWriteToSavedPhotosAlbum(self.images[index], nil, nil, nil);
+        }
+    }
+}
+
+
+- (void)imagesDelete
+{
+    NSArray *indexs = [self.imageDisplay getSelectSnInMuiltSelectMode];
+    NSLog(@"%@", indexs);
+    
+    for(NSNumber *number in indexs) {
+        NSInteger index = [number integerValue];
+        if(index >= 0 && index < self.images.count) {
+            [[NSFileManager defaultManager] removeItemAtPath:self.filePaths[[number integerValue]] error:nil];
+        }
+    }
 }
 
 

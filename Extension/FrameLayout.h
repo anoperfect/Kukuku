@@ -108,6 +108,15 @@ typedef NS_ENUM(NSInteger, FrameLayoutPosition) {
 
 
 
+//divide eqully.
+- (void)setDivideEquallyInHerizon:(NSString *)inName
+                       withNumber:(NSInteger)number
+                               to:(NSArray*)names;
+
+- (void)setDivideEquallyInVertical:(NSString *)inName
+                        withNumber:(NSInteger)number
+                                to:(NSArray*)names;
+
 @end
 
 

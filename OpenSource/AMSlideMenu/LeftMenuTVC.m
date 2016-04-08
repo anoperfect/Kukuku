@@ -169,6 +169,7 @@
     
     if([strItem isEqualToString:@"图片"]) {
         NSMutableArray *imageArray = [[NSMutableArray alloc] init];
+        NSMutableArray *filePathArray = [[NSMutableArray alloc] init];
         NSFileManager *fileManager = [NSFileManager defaultManager];
         NSError *error = nil;
         NSArray *fileList = nil; //[[NSArray alloc] init];
@@ -181,11 +182,15 @@
             NSLog(@"image file name : %@", fullName);
             
             UIImage *image = [UIImage imageWithContentsOfFile:fullName];
-            [imageArray addObject:image];
+            if(image) {
+                [imageArray addObject:image];
+                [filePathArray addObject:fullName];
+            }
         }
         
         GalleryViewController *galleryViewController = [[GalleryViewController alloc] init];
-        [galleryViewController setDisplayedImages:[NSArray arrayWithArray:imageArray]];
+        [galleryViewController setDisplayedImages:[NSArray arrayWithArray:imageArray]
+                                         andNames:[NSArray arrayWithArray:filePathArray]];
         rootVC = galleryViewController;
         
 #if 0

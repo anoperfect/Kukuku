@@ -126,7 +126,8 @@
         return;
     }
     
-    UIActivityViewController *activiryViewController = [[UIActivityViewController alloc] initWithActivityItems:@[self.imageData] applicationActivities:nil];
+    //数组中放 UIImage. 之前是方 NSData.
+    UIActivityViewController *activiryViewController = [[UIActivityViewController alloc] initWithActivityItems:@[[UIImage imageWithData:self.imageData]] applicationActivities:nil];
     [self presentViewController:activiryViewController animated:YES completion:^(void){
         
     }];
