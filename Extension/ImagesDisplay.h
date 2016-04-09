@@ -24,7 +24,7 @@
 //设置为多选模式. 非多选模式下, 点击任意的cell将触发selectImageHandle.
 - (void)setMuiltSelectMode:(BOOL)isMuiltSelectMode;
 
-//返回多选模式下, 选择的cell序列.
-- (NSArray*)getSelectSnInMuiltSelectMode;
+//返回多选模式下, 各图片的选择情况. 数组元素为NSNumber boolValue.
+- (NSArray*)getResultMuiltSelectModeBOOLValues;
 
 @end

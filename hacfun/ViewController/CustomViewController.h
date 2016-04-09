@@ -25,25 +25,29 @@
 
 
 
+//设置导航栏右上的内容.
+- (void)actionAddData:(ButtonData*)actionData;
+- (void)actionRemoveDataByKeyString:(NSString*)string;
+- (void)actionRefresh;
+
+
 //显示一个提示信息.
 - (void)showIndicationText:(NSString*)text;
+
+//用于某些响应selector.
+- (void)dismiss;
+
+//显示一个弹出view. 取消弹出view.
+- (void)showPopupView:(UIView*)view;
+- (void)dismissPopupView;
 
 
 //重载按钮行为(默认openLeftMenu).
 - (void)clickButtonTopic ;
 
 
-- (void)actionAddData:(ButtonData*)actionData;
-- (void)actionRemoveDataByKeyString:(NSString*)string;
-
-
-//重载以定义按钮时间.
+//重载以定义按钮事件.
 - (void)actionViaString:(NSString*)string;
 
 
-- (void)dismiss;
-
-
-- (void)showPopupView:(UIView*)view;
-- (void)dismissPopupView;
 @end

@@ -9,6 +9,10 @@
 #import "ImageViewController.h"
 #import "ImagesDisplay.h"
 #import "FrameLayout.h"
+#import "ImageViewCache.h"
+
+
+
 @interface GalleryViewController ()
 
 
@@ -61,10 +65,12 @@
     }];
     
     self.muiltActions = [[UIView alloc] init];
+    self.muiltActions.backgroundColor = [UIColor whiteColor];
+    self.muiltActions.hidden = YES;
+    [self.view addSubview:self.muiltActions];
 #if 0
     self.muiltActions = [[UITabBar alloc] init];
     [self.view addSubview:self.muiltActions];
-    self.muiltActions.backgroundColor = [UIColor yellowColor];
     [self.muiltActions insertSubview:nil atIndex:0];
     
     UITabBarItem *item0 = [[UITabBarItem alloc] initWithTitle:@"保存" image:nil selectedImage:nil];
@@ -73,17 +79,21 @@
     self.buttonShare = [[PushButton alloc] init];
     [self.buttonShare setImage:[UIImage imageNamed:@"buttonshare"] forState:UIControlStateNormal];
     [self.buttonShare addTarget:self action:@selector(imagesShare) forControlEvents:UIControlEventTouchDown];
-    [self.view addSubview:self.buttonShare];
+    [self.muiltActions addSubview:self.buttonShare];
     
     self.buttonSave = [[PushButton alloc] init];
     [self.buttonSave setImage:[UIImage imageNamed:@"buttonsave"] forState:UIControlStateNormal];
     [self.buttonSave addTarget:self action:@selector(imagesSave) forControlEvents:UIControlEventTouchDown];
-    [self.view addSubview:self.buttonSave];
+    [self.muiltActions addSubview:self.buttonSave];
     
     self.buttonDelete = [[PushButton alloc] init];
     [self.buttonDelete setImage:[UIImage imageNamed:@"buttondelete"] forState:UIControlStateNormal];
     [self.buttonDelete addTarget:self action:@selector(imagesDelete) forControlEvents:UIControlEventTouchDown];
-    [self.view addSubview:self.buttonDelete];
+    [self.muiltActions addSubview:self.buttonDelete];
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self reloadDownloadedImage];
+    });
     
     [self showImagesNumberAfterDelay:1];
 }
@@ -95,21 +105,29 @@
     
     FrameLayout *layout = [[FrameLayout alloc] initWithSize:self.view.bounds.size];
     
-    [layout setUseIncludedMode:@"imageDisplay" includedTo:NAME_MAIN_FRAME withPostion:FrameLayoutPositionTop andSizePercentage:1.0];
-    [layout setUseIncludedMode:@"muiltActions" includedTo:NAME_MAIN_FRAME withPostion:FrameLayoutPositionBottom andSizeValue:36];
-    [layout setDivideEquallyInVertical:@"muiltActions" withNumber:3 to:@[@"buttonShare", @"buttonSave", @"buttonDelete"]];
+    CGFloat heightMuiltActions = 44;
+    [layout setUseIncludedMode:@"muiltActions" includedTo:FRAMELAYOUT_NAME_MAIN withPostion:FrameLayoutPositionBottom andSizeValue:heightMuiltActions];
+    if(self.muiltActions.hidden) {
+        [layout setOffset:@"muiltActions" dx:0 dy:heightMuiltActions];
+    }
+    [layout setUseLeftMode:@"imageDisplay" standardTo:@"muiltActions" withDirection:FrameLayoutDirectionAbove];
     
     self.imageDisplay.frame     = [layout getCGRect:@"imageDisplay"];
     self.muiltActions.frame     = [layout getCGRect:@"muiltActions"];
-    self.buttonShare.frame      = [layout getCGRect:@"buttonShare"];
-    self.buttonSave.frame       = [layout getCGRect:@"buttonSave"];
-    self.buttonDelete.frame     = [layout getCGRect:@"buttonDelete"];
+    NSLog(@"%@", layout);
+    
+    FrameLayout *layoutTabBar = [[FrameLayout alloc] initWithSize:self.muiltActions.frame.size];
+    
+    [layoutTabBar setDivideEquallyInVertical:FRAMELAYOUT_NAME_MAIN withNumber:3 to:@[@"buttonShare", @"buttonSave", @"buttonDelete"]];
+    self.buttonShare.frame      = [layoutTabBar getCGRect:@"buttonShare"];
+    self.buttonSave.frame       = [layoutTabBar getCGRect:@"buttonSave"];
+    self.buttonDelete.frame     = [layoutTabBar getCGRect:@"buttonDelete"];
     
 #define UIEdgeInsetsMakeSqureFromSize(size, border) (size.width >= size.height? \
-     UIEdgeInsetsMake(border, (size.width - size.height) / 2 - border, border, (size.width - size.height) / 2 - border) \
-    :UIEdgeInsetsMake((size.height - size.width) / 2 - border, border, (size.height - size.width) / 2 - border, border))
+     UIEdgeInsetsMake(border, (size.width - size.height) / 2 + border, border, (size.width - size.height) / 2 + border) \
+    :UIEdgeInsetsMake((size.height - size.width) / 2 + border, border, (size.height - size.width) / 2 + border, border))
     
-    CGFloat border = 3;
+    CGFloat border = 6;
     CGSize size ;
     size = self.buttonShare.frame.size;
     self.buttonShare.imageEdgeInsets =  UIEdgeInsetsMakeSqureFromSize(size, border);
@@ -117,6 +135,39 @@
     self.buttonSave.imageEdgeInsets =  UIEdgeInsetsMakeSqureFromSize(size, border);
     size = self.buttonDelete.frame.size;
     self.buttonDelete.imageEdgeInsets =  UIEdgeInsetsMakeSqureFromSize(size, border);
+    
+    NSLog(@"%@", [NSValue valueWithCGRect:self.buttonDelete.frame]);
+    NSLog(@"%@", [NSValue valueWithUIEdgeInsets:self.buttonDelete.imageEdgeInsets]);
+}
+
+
+- (void)reloadDownloadedImage
+{
+    NSMutableArray *imageArray = [[NSMutableArray alloc] init];
+    NSMutableArray *filePathArray = [[NSMutableArray alloc] init];
+    
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSError *error = nil;
+    NSArray *fileList = nil; //[[NSArray alloc] init];
+    //fileList便是包含有该文件夹下所有文件的文件名及文件夹名的数组
+    
+    NSString* imageCacheFolder = [ImageViewCache getImageCacheFolder];
+    fileList = [fileManager contentsOfDirectoryAtPath:imageCacheFolder error:&error];
+    for(NSString *name in fileList) {
+        NSString *fullName = [NSString stringWithFormat:@"%@/%@", imageCacheFolder, name];
+        NSLog(@"image file name : %@", fullName);
+        
+        UIImage *image = [UIImage imageWithContentsOfFile:fullName];
+        if(image) {
+            [imageArray addObject:image];
+            [filePathArray addObject:fullName];
+        }
+    }
+    
+    self.images = [NSArray arrayWithArray:imageArray];
+    self.filePaths = [NSArray arrayWithArray:filePathArray];
+    
+    [self.imageDisplay setDisplayedImages:self.images];
 }
 
 
@@ -164,6 +215,19 @@
     if([string isEqualToString:@"选择"]) {
         [self.imageDisplay setMuiltSelectMode:YES];
         self.muiltActions.hidden = NO;
+        [self.view setNeedsLayout];
+        
+        //修改选择为取消.
+        [self actionRemoveDataByKeyString:@"选择"];
+        [self actionRefresh];
+        
+        ButtonData *actionData = nil;
+        
+        actionData = [[ButtonData alloc] init];
+        actionData.keyword  = @"取消";
+        //actionData.image    = @"refresh";
+        [self actionAddData:actionData];
+        [self actionRefresh];
         
         return ;
     }
@@ -171,24 +235,38 @@
     if([string isEqualToString:@"取消"]) {
         [self.imageDisplay setMuiltSelectMode:NO];
         self.muiltActions.hidden = YES;
+        [self.view setNeedsLayout];
+        
+        //修改取消为选择.
+        [self actionRemoveDataByKeyString:@"取消"];
+        
+        ButtonData *actionData = nil;
+        
+        actionData = [[ButtonData alloc] init];
+        actionData.keyword  = @"选择";
+        //actionData.image    = @"refresh";
+        [self actionAddData:actionData];
+        [self actionRefresh];
         
         return ;
     }
-    
-    
 }
 
 
 - (void)imagesShare
 {
-    NSArray *indexs = [self.imageDisplay getSelectSnInMuiltSelectMode];
-    NSLog(@"%@", indexs);
+    NSInteger numberEnable = 0;
+    NSArray *boolValues = [self.imageDisplay getResultMuiltSelectModeBOOLValues];
+    if(boolValues.count != self.images.count) {
+        NSLog(@"#error count not match.");
+        return;
+    }
     
     NSMutableArray *images = [[NSMutableArray alloc] init];
-    for(NSNumber *number in indexs) {
-        NSInteger index = [number integerValue];
-        if(index >= 0 && index < self.images.count) {
+    for(NSInteger index = 0; index < boolValues.count; index ++) {
+        if([boolValues[index] boolValue]) {
             [images addObject:self.images[index]];
+            numberEnable ++;
         }
     }
     
@@ -196,18 +274,23 @@
     [self presentViewController:activiryViewController animated:YES completion:^(void){
         
     }];
-    
 }
 
 
 - (void)imagesSave
 {
-    NSArray *indexs = [self.imageDisplay getSelectSnInMuiltSelectMode];
-    NSLog(@"%@", indexs);
+    NSInteger numberEnable = 0;
+    NSArray *boolValues = [self.imageDisplay getResultMuiltSelectModeBOOLValues];
+    if(boolValues.count != self.images.count) {
+        NSLog(@"#error count not match.");
+        return;
+    }
     
-    for(NSNumber *number in indexs) {
-        NSInteger index = [number integerValue];
-        if(index >= 0 && index < self.images.count) {
+    NSMutableArray *images = [[NSMutableArray alloc] init];
+    for(NSInteger index = 0; index < boolValues.count; index ++) {
+        if([boolValues[index] boolValue]) {
+            [images addObject:self.images[index]];
+            numberEnable ++;
             UIImageWriteToSavedPhotosAlbum(self.images[index], nil, nil, nil);
         }
     }
@@ -216,15 +299,27 @@
 
 - (void)imagesDelete
 {
-    NSArray *indexs = [self.imageDisplay getSelectSnInMuiltSelectMode];
-    NSLog(@"%@", indexs);
+    NSInteger numberEnable = 0;
+    NSArray *boolValues = [self.imageDisplay getResultMuiltSelectModeBOOLValues];
+    if(boolValues.count != self.images.count || boolValues.count != self.filePaths.count) {
+        NSLog(@"#error count not match.");
+        return;
+    }
     
-    for(NSNumber *number in indexs) {
-        NSInteger index = [number integerValue];
-        if(index >= 0 && index < self.images.count) {
-            [[NSFileManager defaultManager] removeItemAtPath:self.filePaths[[number integerValue]] error:nil];
+    NSMutableArray *images = [[NSMutableArray alloc] init];
+    for(NSInteger index = 0; index < boolValues.count; index ++) {
+        if([boolValues[index] boolValue]) {
+            [images addObject:self.images[index]];
+            numberEnable ++;
+            [[NSFileManager defaultManager] removeItemAtPath:self.filePaths[index] error:nil];
         }
     }
+    
+    //取消多选模式.
+    [self actionViaString:@"取消"];
+    
+    //重新从cache中读取图片信息.
+    [self reloadDownloadedImage];
 }
 
 

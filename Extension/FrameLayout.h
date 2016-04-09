@@ -13,7 +13,7 @@
 
 
 
-#define NAME_MAIN_FRAME @"MainFrame"
+#define FRAMELAYOUT_NAME_MAIN @"MainFrame"
 - (instancetype)initWithSize:(CGSize)sizeSuper;
 
 - (void)setCGRect:(CGRect)frame toName:(NSString*)name;
@@ -116,6 +116,14 @@ typedef NS_ENUM(NSInteger, FrameLayoutPosition) {
 - (void)setDivideEquallyInVertical:(NSString *)inName
                         withNumber:(NSInteger)number
                                 to:(NSArray*)names;
+
+
+//offset.
+- (void)setOffset:(NSString*)name dx:(CGFloat)dx dy:(CGFloat)dy;
+
+
+
++ (void)setViewToCenter:(UIView *)view;
 
 @end
 

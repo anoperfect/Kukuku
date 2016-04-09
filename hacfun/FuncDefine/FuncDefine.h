@@ -15,6 +15,9 @@
 + (NSString*)stringFromMSecondInterval:(long long) msecs andTimeZoneAdjustSecondInterval:(NSInteger)adjustSeconds;
 + (NSString *)URLEncodedString:(NSString*)urlString;
 + (NSString*)URLDecodedString:(NSString*)urlStringEncoded;
++ (NSString*)stringsCombine:(NSArray*)strings withConnector:(NSString*)stringConnector;
++ (NSString*)stringPaste:(NSString*)string onTimes:(NSInteger)times withConnector:(NSString*)stringConnector;
++ (NSString*)decodeWWWEscape:(NSString*)string;
 @end
 
 

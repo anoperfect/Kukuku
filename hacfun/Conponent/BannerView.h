@@ -20,6 +20,11 @@
 
 - (void)setButtonData:(NSArray*)buttonDataAry;
 
+
+
+
+
+//依照关键字获取按钮.
 - (PushButton*)getButtonByKeyword:(NSString*)keyword;
 
 @end

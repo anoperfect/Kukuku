@@ -17,7 +17,6 @@
 @interface CustomViewController ()
 
 @property (nonatomic, strong) NSMutableArray    *actionDatas;
-@property (nonatomic, strong) NSMutableArray    *viewButtons;
 @property (nonatomic, assign) NSInteger     tagButtons;
 
 @property (nonatomic, strong) BannerView    *bannerView;
@@ -43,7 +42,6 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
     self = [super init];
     
     if(nil != self) {
-        self.viewButtons = [[NSMutableArray alloc] init];
         self.actionDatas = [[NSMutableArray alloc] init];
         self.yBolowView = 0;
         self.heightBanner = 36;
@@ -88,7 +86,7 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
     CGFloat heightViewIndication = 36;
     
     FrameLayout *layout = [[FrameLayout alloc] initWithSize:self.view.frame.size];
-    [layout setUseIncludedMode:@"messageIndication" includedTo:NAME_MAIN_FRAME withPostion:FrameLayoutPositionTop andSizeValue:36];
+    [layout setUseIncludedMode:@"messageIndication" includedTo:FRAMELAYOUT_NAME_MAIN withPostion:FrameLayoutPositionTop andSizeValue:36];
     //    self.messageIndication.frame = [layout getCGRect:@"messageIndication"];
     self.messageIndication.text = @"111111";
     self.messageIndication.frame = CGRectMake(0, -heightViewIndication, self.view.frame.size.width, heightViewIndication);
@@ -155,11 +153,23 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
 
 - (void)loadActionButtons
 {
+    UIView *buttonSuperView = self.bannerView;
+    
+    NSLog(@"%@", buttonSuperView);
+    
+    //清除上次的所有按钮.
+    for (NSInteger index = 0; index < 100; index ++) {
+        [[self.bannerView viewWithTag:(self.tagButtons+index)] removeFromSuperview];
+    }
+    
+    NSLog(@"%@", buttonSuperView);
+    
+    //重新加载按钮.
     NSInteger index = 0;
     for(ButtonData *data in self.actionDatas) {
         PushButton *button = [[PushButton alloc] init];
         button.tag = self.tagButtons + index;
-        [self.viewButtons addObject:button];
+        [buttonSuperView addSubview:button];
         [button addTarget:self action:@selector(action:) forControlEvents:UIControlEventTouchDown];
         [button setFrame:CGRectMake(0, 0, self.heightBanner, self.heightBanner)];
         if(nil != data.image) {
@@ -181,7 +191,7 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
         index ++;
     }
     
-    [self layoutActionButtons:self.bannerView];
+    [self layoutActionButtons:buttonSuperView];
 }
 
 
@@ -197,7 +207,7 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
     
     for(NSInteger index = 0; index < count ; index ++) {
         ButtonData *data = self.actionDatas[index];
-        UIView *button = self.viewButtons[index];
+        UIView *button = [superView viewWithTag:(self.tagButtons + index)];
         if(nil != data.image) {
             center.x -= self.heightBanner/2;
             [button setCenter:center];
@@ -249,6 +259,12 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
             break;
         }
     }
+}
+
+
+- (void)actionRefresh
+{
+    [self loadActionButtons];
 }
 
 

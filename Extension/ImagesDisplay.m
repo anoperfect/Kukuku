@@ -19,7 +19,7 @@
 @property (nonatomic, strong) UICollectionView *imagesView;
 
 @property (nonatomic, assign) BOOL inMuiltSelectMode;
-@property (nonatomic, strong) NSMutableArray *indexsInMuiltSelectMode;
+@property (nonatomic, strong) NSMutableArray *inMuiltSelectModeBOOLValues;
 
 
 @property (nonatomic, copy)   void(^selectHandle)(NSInteger row);
@@ -47,7 +47,6 @@
         [self addSubview:self.imagesView];
         
         self.inMuiltSelectMode = NO;
-        self.indexsInMuiltSelectMode = [[NSMutableArray alloc] init];
     }
     return self;
 }
@@ -63,7 +62,20 @@
 {
     self.imageDatas = imageDatas;
     NSLog(@"image count : %zd", [imageDatas count]);
+    
+    [self inMuiltSelectModeBOOLValueReset];
+    
     [self.imagesView reloadData];
+}
+
+
+- (void)inMuiltSelectModeBOOLValueReset
+{
+    self.inMuiltSelectModeBOOLValues = [[NSMutableArray alloc] init];
+    NSInteger count = self.imageDatas.count;
+    for (NSInteger index = 0; index < count; index ++) {
+        [self.inMuiltSelectModeBOOLValues addObject:[NSNumber numberWithBool:NO]];
+    }
 }
 
 
@@ -97,6 +109,41 @@
     imageView.frame = cell.bounds;
     imageView.image = [self.imageDatas objectAtIndex:indexPath.row];
     
+    CGFloat heightSelectSign = 36;
+    UIImageView *muiltSelectSign = [cell viewWithTag:10000001];
+    if(!muiltSelectSign) {
+        LOG_RECT(cell.frame, @"111");
+        
+        
+        muiltSelectSign = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, heightSelectSign, heightSelectSign)];
+        muiltSelectSign.tag = 10000001;
+        [cell addSubview:muiltSelectSign];
+        
+        muiltSelectSign.layer.borderWidth = 2;
+        muiltSelectSign.layer.borderColor = [UIColor blueColor].CGColor;
+        muiltSelectSign.layer.cornerRadius = muiltSelectSign.frame.size.height / 2;
+    }
+    
+    if(self.inMuiltSelectMode) {
+        muiltSelectSign.hidden = NO;
+        
+        BOOL selected = [self.inMuiltSelectModeBOOLValues[indexPath.row] boolValue];
+        if(selected) {
+            muiltSelectSign.image = [UIImage imageNamed:@"selected"];
+        }
+        else {
+            muiltSelectSign.image = nil;//[UIImage imageNamed:@"unselected"];
+        }
+        
+        //存在复用问题, 因此重新设置居中.
+        [FrameLayout setViewToCenter:muiltSelectSign];
+    }
+    else {
+        muiltSelectSign.hidden = YES;
+    }
+    
+    NSLog(@"...%@", [cell subviews]);
+    
     return cell;
 }
 
@@ -124,7 +171,15 @@
     NSLog(@"select %@, row %zd", indexPath, indexPath.row);
     
     if(self.inMuiltSelectMode) {
-        [self.indexsInMuiltSelectMode addObject:[NSNumber numberWithInteger:indexPath.row]];
+        BOOL selected = [self.inMuiltSelectModeBOOLValues[indexPath.row] boolValue];
+        if(selected) {
+            self.inMuiltSelectModeBOOLValues[indexPath.row] = @NO;
+        }
+        else {
+            self.inMuiltSelectModeBOOLValues[indexPath.row] = @YES;
+        }
+        
+        [self.imagesView reloadItemsAtIndexPaths:@[indexPath]];
     }
     else {
         if(self.selectHandle) {
@@ -147,64 +202,18 @@
 - (void)setMuiltSelectMode:(BOOL)isMuiltSelectMode
 {
     self.inMuiltSelectMode = isMuiltSelectMode;
-    self.indexsInMuiltSelectMode = [[NSMutableArray alloc] init];
+    
+    [self inMuiltSelectModeBOOLValueReset];
+    
+    [self.imagesView reloadData];
 }
 
 
 //返回多选模式下, 选择的cell序列.
-- (NSArray*)getSelectSnInMuiltSelectMode
+- (NSArray*)getResultMuiltSelectModeBOOLValues
 {
-    return [NSArray arrayWithArray:self.indexsInMuiltSelectMode];
+    return [NSArray arrayWithArray:self.inMuiltSelectModeBOOLValues];
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 @end

@@ -95,6 +95,65 @@
 }
 
 
+
++ (NSString*)stringsCombine:(NSArray*)strings withConnector:(NSString*)stringConnector
+{
+    NSInteger count = strings.count;
+    if(count > 0) {
+        NSMutableString *retStringm = [NSMutableString stringWithFormat:@"%@", strings[0]];
+        
+        //第一个已经添加, 因此序号从1开始.
+        for(NSInteger index = 1; index < count; index ++) {
+            [retStringm appendFormat:@"%@%@", stringConnector?stringConnector:@" ", strings[index]];
+        }
+        
+        return [NSString stringWithString:retStringm];
+    }
+    else {
+        return nil;
+    }
+}
+
++ (NSString*)stringPaste:(NSString*)string onTimes:(NSInteger)times withConnector:(NSString*)stringConnector
+{
+    NSInteger count = times;
+    if(count > 0) {
+        NSMutableString *retStringm = [NSMutableString stringWithFormat:@"%@", string];
+        
+        //第一个已经添加, 因此序号从1开始.
+        for(NSInteger index = 1; index < count; index ++) {
+            [retStringm appendFormat:@"%@%@", stringConnector?stringConnector:@" ", string];
+        }
+        
+        return [NSString stringWithString:retStringm];
+    }
+    else {
+        return nil;
+    }
+}
+
+
++ (NSString*)decodeWWWEscape:(NSString*)string
+{
+    NSString *content = [string copy];
+    
+    //这个特殊字符,编辑或者是NSString的操作接口都有问题. 因此采用临时替换的方式.
+    NSString *specialChars = @";ﾟ";
+    NSString *specialChar = [specialChars substringWithRange:NSMakeRange(1, 1)];
+    NSString *tmpReplace = @"##special char##";
+    content = [content stringByReplacingOccurrencesOfString:specialChar withString:tmpReplace];
+    content = [content stringByReplacingOccurrencesOfString:@"&quot;" withString:@"\""];
+    content = [content stringByReplacingOccurrencesOfString:@"&amp;" withString:@"&"];
+    content = [content stringByReplacingOccurrencesOfString:@"&lt;" withString:@"<"];
+    content = [content stringByReplacingOccurrencesOfString:@"&gt;" withString:@">"];
+    content = [content stringByReplacingOccurrencesOfString:@"&nbsp;" withString:@" "];
+    content = [content stringByReplacingOccurrencesOfString:@"&#39;" withString:@"'"];
+    content = [content stringByReplacingOccurrencesOfString:@"<br>" withString:@"\n"];
+    content = [content stringByReplacingOccurrencesOfString:tmpReplace withString:specialChar];
+    
+    return content;
+}
+
 @end
 
 

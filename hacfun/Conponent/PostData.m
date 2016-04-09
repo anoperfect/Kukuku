@@ -223,15 +223,12 @@
 //字符转换.
 + (NSString*) postDataContentRetreat:(NSString*)content {
     
+#if 0
     //这个特殊字符,编辑或者是NSString的操作接口都有问题. 因此采用临时替换的方式.
     NSString *specialChars = @";ﾟ";
     NSString *specialChar = [specialChars substringWithRange:NSMakeRange(1, 1)];
     NSString *tmpReplace = @"##special char##";
-    
     content = [content stringByReplacingOccurrencesOfString:specialChar withString:tmpReplace];
-    
-    
-    content = [content stringByReplacingOccurrencesOfString:@"font size=\"5\"" withString:@"font size=\"16\""];
     content = [content stringByReplacingOccurrencesOfString:@"&quot;" withString:@"\""];
     content = [content stringByReplacingOccurrencesOfString:@"&amp;" withString:@"&"];
     content = [content stringByReplacingOccurrencesOfString:@"&lt;" withString:@"<"];
@@ -239,9 +236,16 @@
     content = [content stringByReplacingOccurrencesOfString:@"&nbsp;" withString:@" "];
     content = [content stringByReplacingOccurrencesOfString:@"&#39;" withString:@"'"];
     content = [content stringByReplacingOccurrencesOfString:@"<br>" withString:@"\n"];
-    
     content = [content stringByReplacingOccurrencesOfString:tmpReplace withString:specialChar];
+#endif
     
+    //一些www的关键字符信息需转义.
+    content = [FuncDefine decodeWWWEscape:content];
+    
+    //font属性由RTLabel显示大小不合适. 手动修改成这样.
+    content = [content stringByReplacingOccurrencesOfString:@"font size=\"5\"" withString:@"font size=\"16\""];
+    
+    //对No.xxx加载超链接.
     content = [self addLinkForReferenceNumber:content];
     
     
@@ -529,7 +533,7 @@ PostDataView 接收的字段字段
         //PostData各数据获取完成.
         pd.bTopic = YES;
         pd.mode = 1;
-        pd.actionStrings = @[@"复制", @"举报"];
+        pd.actionStrings = @[@"复制", @"举报", @"加入草稿"];
         [postDatasArray addObject:pd];
     }
     
@@ -581,7 +585,7 @@ PostDataView 接收的字段字段
         }
         
         [self gotParsedThread:(NSDictionary*)obj belongTo:0];
-        topic.actionStrings = @[@"复制", @"举报", @"只看Po"];
+        topic.actionStrings = @[@"复制", @"举报", @"只看Po", @"加入草稿"];
         [postDatasArray addObject:topic];
     }
     else {
@@ -619,7 +623,7 @@ PostDataView 接收的字段字段
         
         pd.bTopic = NO;
         pd.mode = 2;
-        pd.actionStrings = @[@"复制", @"举报", @"关注"];
+        pd.actionStrings = @[@"复制", @"举报", @"关注", @"加入草稿"];
         [postDatasArray addObject:pd];
     }
     

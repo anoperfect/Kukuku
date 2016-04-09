@@ -168,29 +168,13 @@
     }
     
     if([strItem isEqualToString:@"图片"]) {
-        NSMutableArray *imageArray = [[NSMutableArray alloc] init];
-        NSMutableArray *filePathArray = [[NSMutableArray alloc] init];
-        NSFileManager *fileManager = [NSFileManager defaultManager];
-        NSError *error = nil;
-        NSArray *fileList = nil; //[[NSArray alloc] init];
-        //fileList便是包含有该文件夹下所有文件的文件名及文件夹名的数组
+
         
-        NSString* imageCacheFolder = [ImageViewCache getImageCacheFolder];
-        fileList = [fileManager contentsOfDirectoryAtPath:imageCacheFolder error:&error];
-        for(NSString *name in fileList) {
-            NSString *fullName = [NSString stringWithFormat:@"%@/%@", imageCacheFolder, name];
-            NSLog(@"image file name : %@", fullName);
-            
-            UIImage *image = [UIImage imageWithContentsOfFile:fullName];
-            if(image) {
-                [imageArray addObject:image];
-                [filePathArray addObject:fullName];
-            }
-        }
+        
+        
         
         GalleryViewController *galleryViewController = [[GalleryViewController alloc] init];
-        [galleryViewController setDisplayedImages:[NSArray arrayWithArray:imageArray]
-                                         andNames:[NSArray arrayWithArray:filePathArray]];
+
         rootVC = galleryViewController;
         
 #if 0

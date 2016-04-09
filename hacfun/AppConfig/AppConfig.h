@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "FuncDefine.h"
+#import "DBData.h"
 @interface AppConfig : NSObject
 
 
@@ -85,6 +86,22 @@
 
 
 - (NSArray*)getEmoticonStrings;
+
+
+
+
+
+
+
+
+
+
+
+- (NSInteger)configDBInitCreateTableDraft:(FMDatabase *)dataBase;
+- (NSInteger)configDBDraftInsert:(NSDictionary *)infoInsert;
+- (NSArray*)configDBDraftQuery:(NSDictionary*)infoQuery;
+
+
 
 @end
 

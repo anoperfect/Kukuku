@@ -11,6 +11,8 @@
 		B5039B1F1CB7FF1E00C7865F /* buttondelete.png in Resources */ = {isa = PBXBuildFile; fileRef = B5039B1C1CB7FF1E00C7865F /* buttondelete.png */; };
 		B5039B201CB7FF1E00C7865F /* buttonsave.png in Resources */ = {isa = PBXBuildFile; fileRef = B5039B1D1CB7FF1E00C7865F /* buttonsave.png */; };
 		B5039B211CB7FF1E00C7865F /* buttonshare.png in Resources */ = {isa = PBXBuildFile; fileRef = B5039B1E1CB7FF1E00C7865F /* buttonshare.png */; };
+		B5039B241CB8BB8700C7865F /* selected.png in Resources */ = {isa = PBXBuildFile; fileRef = B5039B221CB8BB8700C7865F /* selected.png */; };
+		B5039B251CB8BB8700C7865F /* unselected.png in Resources */ = {isa = PBXBuildFile; fileRef = B5039B231CB8BB8700C7865F /* unselected.png */; };
 		B50D38B91B7F4BE10024E464 /* SettingViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B50D38B81B7F4BE10024E464 /* SettingViewController.m */; };
 		B50F99801C109E5900240C9D /* EmoticonCharacterView.m in Sources */ = {isa = PBXBuildFile; fileRef = B50F997F1C109E5900240C9D /* EmoticonCharacterView.m */; };
 		B50F99831C12815700240C9D /* GridView.m in Sources */ = {isa = PBXBuildFile; fileRef = B50F99821C12815700240C9D /* GridView.m */; };
@@ -117,6 +119,8 @@
 		B5039B1C1CB7FF1E00C7865F /* buttondelete.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = buttondelete.png; sourceTree = "<group>"; };
 		B5039B1D1CB7FF1E00C7865F /* buttonsave.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = buttonsave.png; sourceTree = "<group>"; };
 		B5039B1E1CB7FF1E00C7865F /* buttonshare.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = buttonshare.png; sourceTree = "<group>"; };
+		B5039B221CB8BB8700C7865F /* selected.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = selected.png; sourceTree = "<group>"; };
+		B5039B231CB8BB8700C7865F /* unselected.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = unselected.png; sourceTree = "<group>"; };
 		B50D38B71B7F4BE10024E464 /* SettingViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SettingViewController.h; sourceTree = "<group>"; };
 		B50D38B81B7F4BE10024E464 /* SettingViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SettingViewController.m; sourceTree = "<group>"; };
 		B50F997E1C109E5900240C9D /* EmoticonCharacterView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EmoticonCharacterView.h; sourceTree = "<group>"; };
@@ -251,8 +255,8 @@
 		B5E137931B7D92E1002B5979 /* ImageViewCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = ImageViewCache.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		B5F24BB01C49EBF70027DAB2 /* LocaleViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocaleViewController.h; sourceTree = "<group>"; };
 		B5F24BB11C49EBF70027DAB2 /* LocaleViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocaleViewController.m; sourceTree = "<group>"; };
-		B5F24BB31C49F0C40027DAB2 /* DBData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DBData.h; sourceTree = "<group>"; };
-		B5F24BB41C49F0C40027DAB2 /* DBData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DBData.m; sourceTree = "<group>"; };
+		B5F24BB31C49F0C40027DAB2 /* DBData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DBData.h; path = ../hacfun/Conponent/DBData.h; sourceTree = "<group>"; };
+		B5F24BB41C49F0C40027DAB2 /* DBData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DBData.m; path = ../hacfun/Conponent/DBData.m; sourceTree = "<group>"; };
 		B5F24BB61C49F27E0027DAB2 /* NetworkThreadViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NetworkThreadViewController.h; sourceTree = "<group>"; };
 		B5F24BB71C49F27E0027DAB2 /* NetworkThreadViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NetworkThreadViewController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -408,8 +412,6 @@
 				B50F997F1C109E5900240C9D /* EmoticonCharacterView.m */,
 				B50F99811C12815700240C9D /* GridView.h */,
 				B50F99821C12815700240C9D /* GridView.m */,
-				B5F24BB31C49F0C40027DAB2 /* DBData.h */,
-				B5F24BB41C49F0C40027DAB2 /* DBData.m */,
 				B5B6662F1CACCEA10038A3EF /* PushButton.h */,
 				B5B666301CACCEA10038A3EF /* PushButton.m */,
 			);
@@ -447,6 +449,8 @@
 		B523C9FE1B78FDB100944004 /* images */ = {
 			isa = PBXGroup;
 			children = (
+				B5039B221CB8BB8700C7865F /* selected.png */,
+				B5039B231CB8BB8700C7865F /* unselected.png */,
 				B5039B1C1CB7FF1E00C7865F /* buttondelete.png */,
 				B5039B1D1CB7FF1E00C7865F /* buttonsave.png */,
 				B5039B1E1CB7FF1E00C7865F /* buttonshare.png */,
@@ -494,6 +498,8 @@
 				B5A8036C1CAA816400F88EC7 /* UIpConfig.m */,
 				B56E53541CB4017D00998F74 /* ImagesDisplay.h */,
 				B56E53551CB4017D00998F74 /* ImagesDisplay.m */,
+				B5F24BB31C49F0C40027DAB2 /* DBData.h */,
+				B5F24BB41C49F0C40027DAB2 /* DBData.m */,
 			);
 			path = Extension;
 			sourceTree = SOURCE_ROOT;
@@ -664,6 +670,7 @@
 				B523CA1D1B78FDB100944004 /* new1.png in Resources */,
 				B55E9D7E1C9CFD7D00F581F5 /* capture.png in Resources */,
 				B523CA181B78FDB100944004 /* edit.png in Resources */,
+				B5039B241CB8BB8700C7865F /* selected.png in Resources */,
 				B523CA1A1B78FDB100944004 /* jumppage.png in Resources */,
 				B523CA221B78FDB100944004 /* zheshiluwei.jpg in Resources */,
 				B523CA191B78FDB100944004 /* edit1.png in Resources */,
@@ -687,6 +694,7 @@
 				B5A803411CA6A7C500F88EC7 /* loadall.png in Resources */,
 				B523CA211B78FDB100944004 /* reply2.png in Resources */,
 				B523CA141B78FDB100944004 /* appicont.png in Resources */,
+				B5039B251CB8BB8700C7865F /* unselected.png in Resources */,
 				B5A803421CA6A7C500F88EC7 /* tip-off.png in Resources */,
 				B5039B211CB7FF1E00C7865F /* buttonshare.png in Resources */,
 				B5BC10541B8988EE0006EDD4 /* emoticon.png in Resources */,

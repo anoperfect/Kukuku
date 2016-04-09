@@ -27,8 +27,10 @@
 //已有image模式.
 @property (strong,nonatomic) UIImage *directDisplayedImage;
 
+@property (nonatomic, strong) UIImage *imageDisplay;
+
 //用于数据下载过程中.
-@property (strong,nonatomic) NSMutableData *imageData;
+@property (strong,nonatomic) NSMutableData *imageDataDownload;
 @property (assign) long long expectedContentLength;
 
 @end
@@ -93,7 +95,7 @@
                 [self updateImageViewByImage:self.placeHoldImage];
             }
             
-            self.imageData = [[NSMutableData alloc] init];
+            self.imageDataDownload = [[NSMutableData alloc] init];
             self.labelPercentage.text = @"准备加载";
             NSLog(@"------ start download.");
             NSMutableURLRequest *mutableRequest = [[NSMutableURLRequest alloc] initWithURL:self.url cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:10];
@@ -122,12 +124,12 @@
 
 
 - (void)toAlbum {
-    if(nil == self.imageData) {
+    if(nil == self.imageDisplay) {
         return;
     }
     
     //数组中放 UIImage. 之前是方 NSData.
-    UIActivityViewController *activiryViewController = [[UIActivityViewController alloc] initWithActivityItems:@[[UIImage imageWithData:self.imageData]] applicationActivities:nil];
+    UIActivityViewController *activiryViewController = [[UIActivityViewController alloc] initWithActivityItems:@[self.imageDisplay] applicationActivities:nil];
     [self presentViewController:activiryViewController animated:YES completion:^(void){
         
     }];
@@ -166,16 +168,17 @@
     
     NSLog(@"%lld", response.expectedContentLength);
     self.expectedContentLength = response.expectedContentLength;
-    
-    self.imageData = [[NSMutableData alloc] init];
+    if(self.expectedContentLength <= 0) {
+        self.expectedContentLength = 1024 * 1024;
+    }
 }
 
 
 - (void)connection:(NSURLConnection*)connection didReceiveData:(NSData *)data {
     NS0Log(@"%@已经接收到数据%s", [NSThread currentThread], __FUNCTION__);
     
-    [self.imageData appendData:data];
-    [self.labelPercentage setText:[NSString stringWithFormat:@"加载中%lld%%", (long long)[self.imageData length] * 100 / self.expectedContentLength]];
+    [self.imageDataDownload appendData:data];
+    [self.labelPercentage setText:[NSString stringWithFormat:@"加载中%lld%%", (long long)[self.imageDataDownload length] * 100 / self.expectedContentLength]];
 }
 
 
@@ -186,13 +189,14 @@
     
     NSString *value = [[AppConfig sharedConfigDB] configDBSettingKVGet:@"autosaveimagetoalbum"] ;
     BOOL bAutoSaveImageToAlbum = [value boolValue];
+    NSData *imageDataDownload = [NSData dataWithData:self.imageDataDownload];
     if(bAutoSaveImageToAlbum) {
-        UIImage *image = [UIImage imageWithData:self.imageData];
+        UIImage *image = [UIImage imageWithData:imageDataDownload];
         UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil);
     }
     
-    [ImageViewCache setImageViewCache:self.stringUrl withData:self.imageData];
-    [self updateImageViewByData:[NSData dataWithData:self.imageData]];
+    [ImageViewCache setImageViewCache:self.stringUrl withData:imageDataDownload];
+    [self updateImageViewByData:[NSData dataWithData:self.imageDataDownload]];
 }
 
 
@@ -213,6 +217,8 @@
     self.imageView = [[VIPhotoView alloc] initWithFrame:CGRectMake(0, y, self.view.frame.size.width, self.view.frame.size.height - y) andImage:image];
     self.imageView.autoresizingMask = (1 << 6) - 1;
     [self.view addSubview:self.imageView];
+    
+    self.imageDisplay = image;
 }
 
 

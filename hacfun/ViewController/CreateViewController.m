@@ -54,8 +54,9 @@
 
 @property (nonatomic, strong) UIView *viewInputContainer;
 
-@property (nonatomic, strong) NSArray *draftStrings;
 @property (nonatomic, strong) UITableView *draftView;
+@property (nonatomic, strong) NSArray *draftInfo;
+
 @property (nonatomic, assign) BOOL isDraftViewShowing;
 
 
@@ -73,8 +74,6 @@
         actionData.keyword  = @"草稿";
 //        actionData.image    = @"refresh";
         [self actionAddData:actionData];
-        
-        self.draftStrings = @[@"111", @"222"];
     }
     return self;
 }
@@ -169,11 +168,11 @@
     FrameLayout *layout = [[FrameLayout alloc] initWithSize:self.view.frame.size];
     if(!CGRectIsEmpty(self.frameSoftKeyboard)) {
         NSLog(@"got softkeyboard frame.[showing : %d]", self.isShowingSoftKeyboard);
-        [layout setUseIncludedMode:@"Emoticon" includedTo:NAME_MAIN_FRAME withPostion:FrameLayoutPositionBottom andSizeValue:self.frameSoftKeyboard.size.height];
+        [layout setUseIncludedMode:@"Emoticon" includedTo:FRAMELAYOUT_NAME_MAIN withPostion:FrameLayoutPositionBottom andSizeValue:self.frameSoftKeyboard.size.height];
     }
     else {
         NSLog(@"not got softkeyboard frame.");
-        [layout setUseIncludedMode:@"Emoticon" includedTo:NAME_MAIN_FRAME withPostion:FrameLayoutPositionBottom andSizePercentage:0.4];
+        [layout setUseIncludedMode:@"Emoticon" includedTo:FRAMELAYOUT_NAME_MAIN withPostion:FrameLayoutPositionBottom andSizePercentage:0.4];
     }
     
     CGFloat heightActionButtons = 36;
@@ -352,7 +351,7 @@
     CGFloat heightContain = self.view.frame.size.height;
     CGRect frameCovered = CGRectMake(widthContain, 0, widthContain*0.7, heightContain);
     CGRect frameShow = CGRectOffset(frameCovered, widthContain*-0.7, 0);
-    
+
     self.draftView = [self.view viewWithTag:TAG_draftView];
     if(!self.draftView) {
         self.draftView = [[UITableView alloc] initWithFrame:frameCovered];
@@ -363,6 +362,10 @@
     }
     
     self.draftView.frame = frameCovered;
+    
+    self.draftInfo = [[AppConfig sharedConfigDB] configDBDraftQuery:nil];
+    NSLog(@"draft:::%@", self.draftInfo);
+    [self.draftView reloadData];
 
     [UIView animateWithDuration:0.3
                      animations:^{
@@ -495,6 +498,7 @@
         NSLog(@"soft keypad shown.");
         self.isShowingSoftKeyboard = YES;
         self.frameSoftKeyboard = softKeyboardFrame;
+        [self hiddenDraftView];
     }
     
     [self.view setNeedsLayout];
@@ -767,13 +771,24 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     
     CGFloat height = 36;
+    
+    NSDictionary *dict = [self.draftInfo objectAtIndex:indexPath.row];
+    NSString *text = dict[@"content"];
+    
+    NSMutableDictionary *attrs = [NSMutableDictionary dictionary];
+    attrs[NSFontAttributeName] = [AppConfig fontFor:@"draftCellText"];
+    
+    CGSize maxSize = CGSizeMake(self.draftView.frame.size.width, MAXFLOAT);
+    CGSize optimizeSize = [text boundingRectWithSize:maxSize options:NSStringDrawingUsesLineFragmentOrigin attributes:attrs context:nil].size;
+    height = optimizeSize.height + 36;
+
     NSLog(@"------tableView[%zd] heightForRowAtIndexPath return %.1f", indexPath.row, height);
     return height;
 }
 
 
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    NSInteger rows = [self.draftStrings count];
+    NSInteger rows = [self.draftInfo count];
     return rows;
 }
 
@@ -787,12 +802,15 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
         CGRect frame = cell.frame;
         frame.size.width = tableView.frame.size.width;
         [cell setFrame:frame];
+        cell.textLabel.numberOfLines = 0;
+        cell.textLabel.font = [AppConfig fontFor:@"draftCellText"];
     }
     else {
         
     }
     
-    cell.textLabel.text = [self.draftStrings objectAtIndex:indexPath.row];
+    NSDictionary *dict = [self.draftInfo objectAtIndex:indexPath.row];
+    cell.textLabel.text = dict[@"content"];
     
     return cell;
 }
@@ -805,7 +823,9 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
     //UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     
-    [self inputString:[self.draftStrings objectAtIndex:indexPath.row]];
+    NSDictionary *dict = [self.draftInfo objectAtIndex:indexPath.row];
+    [self inputString:dict[@"content"]];
+     
     [self hiddenDraftView];
     [self focusToInput];
 }
@@ -813,6 +833,12 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
 
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
     NSLog(@"------tableView[%zd] willDisplayCell", indexPath.row);
+}
+
+
+- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    
 }
 
 

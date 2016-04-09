@@ -533,6 +533,15 @@
             [self.navigationController pushViewController:createViewController animated:YES];
         });
     }
+    else if([string isEqualToString:@"加入草稿"]) {
+        NSInteger ret = [[AppConfig sharedConfigDB] configDBDraftInsert:@{@"content":[FuncDefine decodeWWWEscape:postDataRow.content]}];
+        if(DB_EXECUTE_OK == ret) {
+            [self showStatusText:@"已加入草稿"];
+        }
+        else {
+            [self showStatusText:@"加入草稿失败"];
+        }
+    }
     else {
         finishAction = NO;
     }

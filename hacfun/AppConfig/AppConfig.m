@@ -20,7 +20,13 @@
 
 @property (strong,nonatomic) FMDatabase *configDataBase ;
 @property (strong,nonatomic) FMDatabase *hostDataBase ;
+
+//具体的数据库操作尽量通过DBData.
+@property (nonatomic, strong) DBData *dbData;
+
 @property (assign,nonatomic) NSInteger hostIndex ;
+
+
 
 @property (strong,nonatomic) NSArray *hostnames;
 @property (strong,nonatomic) NSArray *hosts;
@@ -200,6 +206,9 @@
         
         [aryName addObject:@"PopupView"];
         [aryFont addObject:[UIFont systemFontOfSize:16.0]];
+        
+        [aryName addObject:@"draftCellText"];
+        [aryFont addObject:[UIFont systemFontOfSize:[UIFont smallSystemFontSize]]];
     }
     
     NSInteger index = [aryName indexOfObject:name];
@@ -783,6 +792,8 @@
         
         //打开对应的配置数据库和host数据库.
         [self configDBOpen];
+        
+        self.dbData = [[DBData alloc] init];
     }
     
     return self;
@@ -808,9 +819,10 @@
     NSLog(@"create %@ ", pathConfigDB);
     FMDatabase *configDataBase = [FMDatabase databaseWithPath:pathConfigDB];
     [configDataBase open];
-    [AppConfig configDBInitCreateTableHost:configDataBase];
-    [AppConfig configDBInitCreateTableHostIndex:configDataBase];
-    [AppConfig configDBInitCreateTableEmoticon:configDataBase];
+    [self configDBInitCreateTableHost       :configDataBase];
+    [self configDBInitCreateTableHostIndex  :configDataBase];
+    [self configDBInitCreateTableEmoticon   :configDataBase];
+    [self configDBInitCreateTableDraft      :configDataBase];
     
     NSString *query = nil;
     FMResultSet *rs = nil;
@@ -840,13 +852,13 @@
         
         hostDataBase = [FMDatabase databaseWithPath:pathHostConfigDB];
         [hostDataBase open];
-        [AppConfig configDBInitHostCreateTableSettingKV     :hostDataBase onHostName:hostName];
-        [AppConfig configDBInitHostCreateTableCategory      :hostDataBase onHostName:hostName];
-        [AppConfig configDBInitHostCreateTableCollection    :hostDataBase onHostName:hostName];
-        [AppConfig configDBInitHostCreateTableDetailHistory :hostDataBase onHostName:hostName];
-        [AppConfig configDBInitHostCreateTablePost          :hostDataBase onHostName:hostName];
-        [AppConfig configDBInitHostCreateTableReply         :hostDataBase onHostName:hostName];
-        [AppConfig configDBInitHostCreateTableRecord        :hostDataBase onHostName:hostName];
+        [self configDBInitHostCreateTableSettingKV      :hostDataBase onHostName:hostName];
+        [self configDBInitHostCreateTableCategory       :hostDataBase onHostName:hostName];
+        [self configDBInitHostCreateTableCollection     :hostDataBase onHostName:hostName];
+        [self configDBInitHostCreateTableDetailHistory  :hostDataBase onHostName:hostName];
+        [self configDBInitHostCreateTablePost           :hostDataBase onHostName:hostName];
+        [self configDBInitHostCreateTableReply          :hostDataBase onHostName:hostName];
+        [self configDBInitHostCreateTableRecord         :hostDataBase onHostName:hostName];
         
         [hostDataBase close];
         hostDataBase = nil;
@@ -1067,7 +1079,7 @@
 
 
 
-+ (BOOL)configDBInitDetectTableExist:(FMDatabase *)dataBase withTableName:(NSString*)tableName
+- (BOOL)configDBInitDetectTableExist:(FMDatabase *)dataBase withTableName:(NSString*)tableName
 {
     BOOL isExist = NO;
     FMResultSet *rs = [dataBase executeQuery:@"select count(*) as 'count' from sqlite_master where type ='table' and name = ?", tableName];
@@ -1085,7 +1097,7 @@
 }
 
 
-+ (BOOL)configDBInitCreateTableHost:(FMDatabase *)dataBase {
+- (BOOL)configDBInitCreateTableHost:(FMDatabase *)dataBase {
     NSString *tableName = @"hosts";
     if([self configDBInitDetectTableExist:dataBase withTableName:tableName]) {
         NSLog(@"table exist : %@", tableName);
@@ -1136,7 +1148,7 @@
 }
 
 
-+ (BOOL)configDBInitCreateTableHostIndex:(FMDatabase *)dataBase {
+- (BOOL)configDBInitCreateTableHostIndex:(FMDatabase *)dataBase {
     NSString *tableName = @"hostIndex";
     if([self configDBInitDetectTableExist:dataBase withTableName:tableName]) {
         NSLog(@"table exist : %@", tableName);
@@ -1170,7 +1182,7 @@
 }
 
 
-+ (BOOL)configDBInitCreateTableEmoticon:(FMDatabase *)dataBase {
+- (BOOL)configDBInitCreateTableEmoticon:(FMDatabase *)dataBase {
     NSString *tableName = @"emoticon";
     if([self configDBInitDetectTableExist:dataBase withTableName:tableName]) {
         NSLog(@"table exist : %@", tableName);
@@ -1316,7 +1328,7 @@
 }
 
 
-+ (BOOL)configDBInitHostCreateTableSettingKV:(FMDatabase*)dataBase onHostName:(NSString*)hostName{
+- (BOOL)configDBInitHostCreateTableSettingKV:(FMDatabase*)dataBase onHostName:(NSString*)hostName{
     NSString *tableName = @"settingkv";
     if([self configDBInitDetectTableExist:dataBase withTableName:tableName]) {
         NSLog(@"table exist : %@", tableName);
@@ -1360,7 +1372,7 @@
 }
 
 
-+ (BOOL)configDBInitHostCreateTableCategory:(FMDatabase*)dataBase onHostName:(NSString*)hostName {
+- (BOOL)configDBInitHostCreateTableCategory:(FMDatabase*)dataBase onHostName:(NSString*)hostName {
     NSString *tableName = @"category";
     if([self configDBInitDetectTableExist:dataBase withTableName:tableName]) {
         NSLog(@"table exist : %@", tableName);
@@ -1745,7 +1757,7 @@
 }
 
 
-+ (BOOL)configDBInitHostCreateTableCollection:(FMDatabase*)dataBase onHostName:(NSString*)hostName {
+- (BOOL)configDBInitHostCreateTableCollection:(FMDatabase*)dataBase onHostName:(NSString*)hostName {
     //用stringWithFormat是因为之前表名有host后缀.
     NSString *tableName = [NSString stringWithFormat:@"collection"];
     if([self configDBInitDetectTableExist:dataBase withTableName:tableName]) {
@@ -1769,7 +1781,7 @@
 
 #define SQLITE_STRING_TYPE_INTEGER  @"integer"
 
-+ (BOOL)configDBInitHostCreateTableDetailHistory:(FMDatabase*)dataBase onHostName:(NSString*)hostName {
+- (BOOL)configDBInitHostCreateTableDetailHistory:(FMDatabase*)dataBase onHostName:(NSString*)hostName {
     
     NSString *tableName = [NSString stringWithFormat:@"detailhistory"];
     if([self configDBInitDetectTableExist:dataBase withTableName:tableName]) {
@@ -1795,7 +1807,7 @@
 }
 
 
-+ (BOOL)configDBInitHostCreateTablePost:(FMDatabase*)dataBase onHostName:(NSString*)hostName {
+- (BOOL)configDBInitHostCreateTablePost:(FMDatabase*)dataBase onHostName:(NSString*)hostName {
     
     NSString *tableName = [NSString stringWithFormat:@"post"];
     if([self configDBInitDetectTableExist:dataBase withTableName:tableName]) {
@@ -1817,7 +1829,7 @@
 }
 
 
-+ (BOOL)configDBInitHostCreateTableReply:(FMDatabase*)dataBase onHostName:(NSString*)hostName {
+- (BOOL)configDBInitHostCreateTableReply:(FMDatabase*)dataBase onHostName:(NSString*)hostName {
     
     NSString *tableName = [NSString stringWithFormat:@"reply"];
     if([self configDBInitDetectTableExist:dataBase withTableName:tableName]) {
@@ -1839,7 +1851,7 @@
 }
 
 
-+ (BOOL)configDBInitHostCreateTableRecord:(FMDatabase*)dataBase onHostName:(NSString*)hostName {
+- (BOOL)configDBInitHostCreateTableRecord:(FMDatabase*)dataBase onHostName:(NSString*)hostName {
     
     NSString *tableName = [NSString stringWithFormat:@"record"];
     if([self configDBInitDetectTableExist:dataBase withTableName:tableName]) {
@@ -1923,6 +1935,48 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+- (NSInteger)configDBInitCreateTableDraft:(FMDatabase *)dataBase
+{
+    LOG_POSTION
+    NSString *tableName = @"draft";
+    return [self.dbData DBDataCreateTable:self.configDataBase tableName:tableName];
+}
+
+
+- (NSInteger)configDBDraftInsert:(NSDictionary *)infoInsert
+{
+    NSString *tableName = @"draft";
+    return [self.dbData DBDataInsert:self.configDataBase toTable:tableName withInfo:infoInsert countReplace:NO];
+}
+
+
+- (NSArray*)configDBDraftQuery:(NSDictionary*)infoQuery
+{
+    NSString *tableName = @"draft";
+    return [self.dbData DBDataQuery:self.configDataBase toTable:tableName withInfo:infoQuery];
+}
 
 
 

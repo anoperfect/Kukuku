@@ -240,7 +240,7 @@ static NSInteger kcountObject = 0;
     
     FrameLayout *layout = [[FrameLayout alloc] initWithSize:CGSizeMake(self.frame.size.width, 10000)];
     //设置外边框.
-    [layout setUseEdge:@"LayoutAll" in:NAME_MAIN_FRAME withEdgeValue:edge];
+    [layout setUseEdge:@"LayoutAll" in:FRAMELAYOUT_NAME_MAIN withEdgeValue:edge];
     
     //Title line布局在最上. title与info的宽度按照比例分配.
     [layout setUseIncludedMode:@"TitleLine" includedTo:@"LayoutAll" withPostion:FrameLayoutPositionTop andSizeValue:20.0];

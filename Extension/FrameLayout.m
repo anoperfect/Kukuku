@@ -34,7 +34,7 @@
     if(nil != self) {
         self.sizeSuper = sizeSuper;
         self.frames = [[NSMutableDictionary alloc] init];
-        [self.frames setValue:[NSValue valueWithCGRect:CGRectMake(0, 0, sizeSuper.width, sizeSuper.height)] forKey:NAME_MAIN_FRAME];
+        [self.frames setValue:[NSValue valueWithCGRect:CGRectMake(0, 0, sizeSuper.width, sizeSuper.height)] forKey:FRAMELAYOUT_NAME_MAIN];
     }
     
     return self;
@@ -532,12 +532,27 @@
 }
 
 
+- (void)setOffset:(NSString*)name dx:(CGFloat)dx dy:(CGFloat)dy
+{
+    CGRect frame = [self getCGRect:name];
+    frame = CGRectOffset(frame, dx, dy);
+    [self setCGRect:frame toName:name];
+}
+
+
 - (NSString*)description
 {
     return [NSString stringWithFormat:@"%@", self.frames];
 }
 
 
++ (void)setViewToCenter:(UIView *)view
+{
+    CGRect frame = view.frame;
+    frame.origin.x = (view.superview.frame.size.width - frame.size.width) / 2;
+    frame.origin.y = (view.superview.frame.size.height - frame.size.height) / 2;
+    view.frame = frame;
+}
 
 
 
