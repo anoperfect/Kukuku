@@ -238,6 +238,7 @@
 
 - (void)viewDidAppear:(BOOL)animated
 {
+    [super viewDidAppear:animated];
     if(nil == _textView) {
         _textView = [[UITextView alloc] init];
         [self.view addSubview:_textView];
@@ -274,6 +275,8 @@
 
 - (void)inputString:(NSString*)string
 {
+    LOG_POSTION
+    
     // 需在光标处插入键入内容, 不能直接append.
     // 获得光标所在的位置
     NSRange range = _textView.selectedRange;
@@ -342,7 +345,33 @@
 }
 
 
+- (void)addInputToDraft
+{
+    if(_textView.text.length > 0) {
+        NSInteger ret = [[AppConfig sharedConfigDB] configDBDraftInsert:@{@"content":_textView.text}];
+        if(DB_EXECUTE_OK == ret) {
+            NSLog(@"已加入草稿");
+            
+            [self reloadDraftDataSource];
+            [self.draftView reloadData];
+        }
+        else {
+            NSLog(@"加入草稿失败");
+        }
+    }
+    else {
+        NSLog(@"无内容");
+    }
+}
+
 #define TAG_draftView 0x1000000
+
+
+- (void)reloadDraftDataSource
+{
+    self.draftInfo = [[AppConfig sharedConfigDB] configDBDraftQuery:nil];
+    NSLog(@"draft:::%@", self.draftInfo);
+}
 
 
 - (void)showDraftView
@@ -359,12 +388,25 @@
         self.draftView.tag = TAG_draftView;
         self.draftView.dataSource = self;
         self.draftView.delegate = self;
+        
+        PushButton *footerButton = [[PushButton alloc] init];
+        [footerButton addTarget:self action:@selector(addInputToDraft) forControlEvents:UIControlEventTouchDown];
+        footerButton.frame = CGRectMake(0, 0, self.draftView.frame.size.width, 36);
+        [footerButton setTitle:@"加入草稿(长按进入编辑模式)" forState:UIControlStateNormal];
+        [footerButton setTitleColor:[AppConfig textColorFor:@"draftCellText"] forState:UIControlStateNormal];
+        footerButton.titleLabel.font = [AppConfig fontFor:@"draftCellText"];
+        self.draftView.tableFooterView = footerButton;
+        
+        self.draftView.backgroundColor = [AppConfig backgroundColorFor:@"draftTableView"];
+        
+        //增加draft长按进入编辑功能.
+        UILongPressGestureRecognizer *longPressGr = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(draftLongPressToEditMode:)];
+        [self.draftView addGestureRecognizer:longPressGr];
     }
     
     self.draftView.frame = frameCovered;
     
-    self.draftInfo = [[AppConfig sharedConfigDB] configDBDraftQuery:nil];
-    NSLog(@"draft:::%@", self.draftInfo);
+    [self reloadDraftDataSource];
     [self.draftView reloadData];
 
     [UIView animateWithDuration:0.3
@@ -375,6 +417,21 @@
                          
                      }
      ];
+}
+
+
+- (void)draftLongPressToEditMode:(UILongPressGestureRecognizer *)gesture {
+    NSLog(@"longPressToDo %@", gesture);
+    
+    if(gesture.state == UIGestureRecognizerStateBegan) {
+        if(self.draftView.editing) {
+            self.draftView.editing = NO;
+        }
+        else {
+            self.draftView.editing = YES;
+        }
+    }
+    NSLog(@"%@ editing %zd", self.draftView, self.draftView.editing);
 }
 
 
@@ -804,6 +861,7 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
         [cell setFrame:frame];
         cell.textLabel.numberOfLines = 0;
         cell.textLabel.font = [AppConfig fontFor:@"draftCellText"];
+        cell.backgroundColor = tableView.backgroundColor;
     }
     else {
         
@@ -821,13 +879,21 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
     NS0Log(@"点击的行数是:%zi", indexPath.row);
     
     //UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
-    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+//    [tableView deselectRowAtIndexPath:indexPath animated:YES];
     
-    NSDictionary *dict = [self.draftInfo objectAtIndex:indexPath.row];
-    [self inputString:dict[@"content"]];
+    NSLog(@"%@ editing %zd", tableView, tableView.editing);
+    NSLog(@"%@ editing %zd", self.draftView, self.draftView.editing);
+    
+    if(tableView.editing) {
+        
+    }
+    else {
+        NSDictionary *dict = [self.draftInfo objectAtIndex:indexPath.row];
+        [self inputString:dict[@"content"]];
      
-    [self hiddenDraftView];
-    [self focusToInput];
+        [self hiddenDraftView];
+        [self focusToInput];
+    }
 }
 
 
@@ -838,6 +904,21 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
 
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    LOG_POSTION
+    NSLog(@"%@ editing %zd", self.draftView, self.draftView.editing);
+    
+    NSDictionary *dict = [self.draftInfo objectAtIndex:indexPath.row];
+    
+    NSMutableArray *draftInfoNewm = [NSMutableArray arrayWithArray:self.draftInfo];
+    [draftInfoNewm removeObjectAtIndex:indexPath.row];
+    self.draftInfo = [NSArray arrayWithArray:draftInfoNewm];
+    draftInfoNewm = nil;
+    
+    [self.draftView reloadData];
+    
+    //数据库删除.
+    [[AppConfig sharedConfigDB] configDBDraftDelete:@{@"rowid":dict[@"rowid"]}];
+    
     
 }
 

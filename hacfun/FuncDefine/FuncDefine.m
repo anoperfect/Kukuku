@@ -2457,3 +2457,40 @@ for(NSInteger i = numFirstLevelButton-1; i>=0 ; i--) {
     indexBtn ++;
 }
 #endif
+
+
+
+#if 0
+-[CustomViewController showIndicationText:]    362 19.966559: ---xxx0 : >>>>>>IndicationText : 已加入草稿
+-[CustomViewController showIndicationText:]    362 24.084792: ---xxx0 : >>>>>>IndicationText : 已加入草稿
+
+
+-[CustomViewController showIndicationText:]    363 19.966617: ---xxx0 : <UILabel: 0x13d8114d0;
+-[CustomViewController showIndicationText:]    363 24.084850: ---xxx0 : <UILabel: 0x13d8114d0;
+
+
+frame = (0 -36; 320 36); text = '111111'; userInteractionEnabled = NO; layer = <_UILabelLayer: 0x13d811480>>.
+frame = (0 -36; 320 36); text = '111111'; userInteractionEnabled = NO; layer = <_UILabelLayer: 0x13d811480>>.
+
+
+
+
+
+
+
+-[CustomViewController showIndicationText:]    367 19.967543: <UILabel: 0x13d8114d0; frame = (0 -36; 320 36); text = '111111'; userInteractionEnabled = NO; layer = <_UILabelLayer: 0x13d811480>>
+-[CustomViewController showIndicationText:]    380 19.968027: <UILabel: 0x13d8114d0; frame = (0 0; 320 36); text = '已加入草稿'; userInteractionEnabled = NO; animations = { position=<CABasicAnimation: 0x13dc25390>; }; layer = <_UILabelLayer: 0x13d811480>>
+
+
+
+
+-[CustomViewController showIndicationText:]    367 24.085083: <UILabel: 0x13d8114d0; frame = (0 -36; 320 36); text = '111111'; userInteractionEnabled = NO; layer = <_UILabelLayer: 0x13d811480>>
+-[CustomViewController showIndicationText:]    380 24.085745: <UILabel: 0x13d8114d0; frame = (0 0; 320 36); text = '已加入草稿'; userInteractionEnabled = NO; animations = { position=<CABasicAnimation: 0x13d9732f0>; }; layer = <_UILabelLayer: 0x13d811480>>
+
+
+
+
+
+
+
+#endif

@@ -57,6 +57,7 @@
 
 - (void)viewDidAppear:(BOOL)animated
 {
+    [super viewDidAppear:animated];
     NSLog(@"main : %@", [AMSlideMenuMainViewController allInstances]);
     NSLog(@"main getInstanceForVC : %@", [AMSlideMenuMainViewController getInstanceForVC:self]);
     NSLog(@"main nvc : %@", [AMSlideMenuMainViewController getInstanceForVC:self].currentActiveNVC);

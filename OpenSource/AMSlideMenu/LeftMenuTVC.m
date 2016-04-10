@@ -41,6 +41,7 @@
 
 - (void)viewDidAppear:(BOOL)animated {
 //        [self.view setFrame:CGRectMake(0, 20, self.view.frame.size.width, self.view.frame.size.height - 20)];
+    [super viewDidAppear:animated];
     [[[UIApplication sharedApplication] keyWindow] setBackgroundColor:[UIColor purpleColor]];
 }
 

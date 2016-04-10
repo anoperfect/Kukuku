@@ -108,6 +108,9 @@
         
         [aryName addObject:@"clearColor"];
         [aryColor addObject:[UIColor clearColor]];
+        
+        [aryName addObject:@"draftTableView"];
+        [aryColor addObject:HexRGBAlpha(0xeeeeee, 0.8)];
     }
     
     NSInteger index = [aryName indexOfObject:name];
@@ -785,18 +788,51 @@
 }
 
 
--(id) init {
+- (id)init {
     if (self = [super init]) {
+        self.dbData = [[DBData alloc] init];
+        
         //建立或者升级数据库.
         [self configDBBuildWithForceRebuild:NO];
         
         //打开对应的配置数据库和host数据库.
         [self configDBOpen];
-        
-        self.dbData = [[DBData alloc] init];
     }
     
     return self;
+}
+
+
+- (void)configDBTestClearForRebuild
+{
+    LOG_POSTION
+    
+    [self.hostDataBase close];
+    self.hostDataBase = nil;
+    
+    NSString *documentPath =
+    [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSString *query = nil;
+    FMResultSet *rs = nil;
+    query = [NSString stringWithFormat:@"SELECT id, hostname FROM %@", @"hosts"];
+    rs = [self.configDataBase executeQuery:query];
+    while ([rs next]) {
+        NSString *hostName = [rs stringForColumn:@"hostname"];
+        NSInteger hostIndex = [rs intForColumn:@"id"];
+        NSLog(@"vvv : id %zi, hostName : %@", hostIndex, hostName);
+        
+        NSString *folderHost = [NSString stringWithFormat:@"%@/%@", documentPath, hostName];
+        NSString *pathHostConfigDB = [NSString stringWithFormat:@"%@/%@.db", folderHost, hostName];
+        [fileManager removeItemAtPath:pathHostConfigDB error:nil];
+    }
+    
+    [self.configDataBase close];
+    self.configDataBase = nil;
+    
+    NSString *dbName = @"config.db";
+    NSString *pathConfigDB = [NSString stringWithFormat:@"%@/%@", documentPath, dbName];
+    [fileManager removeItemAtPath:pathConfigDB error:nil];
 }
 
 
@@ -804,7 +840,6 @@
     
     LOG_POSTION
     
-
     NSFileManager *fileManager = [NSFileManager defaultManager];
     //创建各文件夹.
     //创建总 config.db.
@@ -1959,9 +1994,8 @@
 
 - (NSInteger)configDBInitCreateTableDraft:(FMDatabase *)dataBase
 {
-    LOG_POSTION
     NSString *tableName = @"draft";
-    return [self.dbData DBDataCreateTable:self.configDataBase tableName:tableName];
+    return [self.dbData DBDataCreateTable:dataBase tableName:tableName];
 }
 
 
@@ -1969,6 +2003,13 @@
 {
     NSString *tableName = @"draft";
     return [self.dbData DBDataInsert:self.configDataBase toTable:tableName withInfo:infoInsert countReplace:NO];
+}
+
+
+- (NSInteger)configDBDraftDelete:(NSDictionary *)infoDelete
+{
+    NSString *tableName = @"draft";
+    return [self.dbData DBDataDelete:self.configDataBase toTable:tableName withInfo:infoDelete];
 }
 
 
@@ -1983,6 +2024,20 @@
 
 
 
+
+
+- (void)configDBTestOnConfig:(NSString*)sqlString
+{
+    LOG_POSTION
+    BOOL executeResult = [self.configDataBase executeUpdate:sqlString];
+    if(executeResult) {
+        NSLog(@"excute OK.");
+    }
+    else {
+        NSLog(@"excute not OK.");
+    }
+    LOG_POSTION
+}
 
 
 

@@ -13,6 +13,12 @@
 		B5039B211CB7FF1E00C7865F /* buttonshare.png in Resources */ = {isa = PBXBuildFile; fileRef = B5039B1E1CB7FF1E00C7865F /* buttonshare.png */; };
 		B5039B241CB8BB8700C7865F /* selected.png in Resources */ = {isa = PBXBuildFile; fileRef = B5039B221CB8BB8700C7865F /* selected.png */; };
 		B5039B251CB8BB8700C7865F /* unselected.png in Resources */ = {isa = PBXBuildFile; fileRef = B5039B231CB8BB8700C7865F /* unselected.png */; };
+		B5039B381CBA5C1100C7865F /* airdrop1.png in Resources */ = {isa = PBXBuildFile; fileRef = B5039B261CBA5C1100C7865F /* airdrop1.png */; };
+		B5039B391CBA5C1100C7865F /* album.png in Resources */ = {isa = PBXBuildFile; fileRef = B5039B271CBA5C1100C7865F /* album.png */; };
+		B5039B431CBA5C1100C7865F /* check1.png in Resources */ = {isa = PBXBuildFile; fileRef = B5039B341CBA5C1100C7865F /* check1.png */; };
+		B5039B441CBA5C1100C7865F /* check2.png in Resources */ = {isa = PBXBuildFile; fileRef = B5039B351CBA5C1100C7865F /* check2.png */; };
+		B5039B451CBA5C1100C7865F /* delete.png in Resources */ = {isa = PBXBuildFile; fileRef = B5039B361CBA5C1100C7865F /* delete.png */; };
+		B5039B461CBA5C1100C7865F /* gallery.png in Resources */ = {isa = PBXBuildFile; fileRef = B5039B371CBA5C1100C7865F /* gallery.png */; };
 		B50D38B91B7F4BE10024E464 /* SettingViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B50D38B81B7F4BE10024E464 /* SettingViewController.m */; };
 		B50F99801C109E5900240C9D /* EmoticonCharacterView.m in Sources */ = {isa = PBXBuildFile; fileRef = B50F997F1C109E5900240C9D /* EmoticonCharacterView.m */; };
 		B50F99831C12815700240C9D /* GridView.m in Sources */ = {isa = PBXBuildFile; fileRef = B50F99821C12815700240C9D /* GridView.m */; };
@@ -121,6 +127,12 @@
 		B5039B1E1CB7FF1E00C7865F /* buttonshare.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = buttonshare.png; sourceTree = "<group>"; };
 		B5039B221CB8BB8700C7865F /* selected.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = selected.png; sourceTree = "<group>"; };
 		B5039B231CB8BB8700C7865F /* unselected.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = unselected.png; sourceTree = "<group>"; };
+		B5039B261CBA5C1100C7865F /* airdrop1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = airdrop1.png; sourceTree = "<group>"; };
+		B5039B271CBA5C1100C7865F /* album.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = album.png; sourceTree = "<group>"; };
+		B5039B341CBA5C1100C7865F /* check1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = check1.png; sourceTree = "<group>"; };
+		B5039B351CBA5C1100C7865F /* check2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = check2.png; sourceTree = "<group>"; };
+		B5039B361CBA5C1100C7865F /* delete.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = delete.png; sourceTree = "<group>"; };
+		B5039B371CBA5C1100C7865F /* gallery.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = gallery.png; sourceTree = "<group>"; };
 		B50D38B71B7F4BE10024E464 /* SettingViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SettingViewController.h; sourceTree = "<group>"; };
 		B50D38B81B7F4BE10024E464 /* SettingViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SettingViewController.m; sourceTree = "<group>"; };
 		B50F997E1C109E5900240C9D /* EmoticonCharacterView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EmoticonCharacterView.h; sourceTree = "<group>"; };
@@ -449,6 +461,12 @@
 		B523C9FE1B78FDB100944004 /* images */ = {
 			isa = PBXGroup;
 			children = (
+				B5039B261CBA5C1100C7865F /* airdrop1.png */,
+				B5039B271CBA5C1100C7865F /* album.png */,
+				B5039B341CBA5C1100C7865F /* check1.png */,
+				B5039B351CBA5C1100C7865F /* check2.png */,
+				B5039B361CBA5C1100C7865F /* delete.png */,
+				B5039B371CBA5C1100C7865F /* gallery.png */,
 				B5039B221CB8BB8700C7865F /* selected.png */,
 				B5039B231CB8BB8700C7865F /* unselected.png */,
 				B5039B1C1CB7FF1E00C7865F /* buttondelete.png */,
@@ -681,6 +699,7 @@
 				B5039B1F1CB7FF1E00C7865F /* buttondelete.png in Resources */,
 				B55E9D7F1C9CFD7D00F581F5 /* photolibrary.png in Resources */,
 				B523CA121B78FDB100944004 /* appicon1.png in Resources */,
+				B5039B381CBA5C1100C7865F /* airdrop1.png in Resources */,
 				B523CA1E1B78FDB100944004 /* refresh.png in Resources */,
 				B523CA1C1B78FDB100944004 /* new.png in Resources */,
 				B5D8D4841B52060C0091DA20 /* LaunchScreen.xib in Resources */,
@@ -690,16 +709,21 @@
 				B523C9A61B78FA7500944004 /* icon-menu@2x.png in Resources */,
 				B564D0F71C9189C400E903B6 /* bg.png in Resources */,
 				B5AFCA0E1C9FFE5A00D9DDB5 /* bgleft.png in Resources */,
+				B5039B461CBA5C1100C7865F /* gallery.png in Resources */,
+				B5039B451CBA5C1100C7865F /* delete.png in Resources */,
 				B5039B201CB7FF1E00C7865F /* buttonsave.png in Resources */,
 				B5A803411CA6A7C500F88EC7 /* loadall.png in Resources */,
 				B523CA211B78FDB100944004 /* reply2.png in Resources */,
+				B5039B391CBA5C1100C7865F /* album.png in Resources */,
 				B523CA141B78FDB100944004 /* appicont.png in Resources */,
 				B5039B251CB8BB8700C7865F /* unselected.png in Resources */,
+				B5039B431CBA5C1100C7865F /* check1.png in Resources */,
 				B5A803421CA6A7C500F88EC7 /* tip-off.png in Resources */,
 				B5039B211CB7FF1E00C7865F /* buttonshare.png in Resources */,
 				B5BC10541B8988EE0006EDD4 /* emoticon.png in Resources */,
 				B55E9D801C9CFD7D00F581F5 /* yantext1.png in Resources */,
 				B5D8D4811B52060C0091DA20 /* Images.xcassets in Resources */,
+				B5039B441CBA5C1100C7865F /* check2.png in Resources */,
 				B5AFCA0F1C9FFE5A00D9DDB5 /* bgright.png in Resources */,
 				B523CA201B78FDB100944004 /* reply1.png in Resources */,
 				B564D1AC1C94238300E903B6 /* Default-568h@2x.png in Resources */,

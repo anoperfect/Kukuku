@@ -51,6 +51,7 @@
 
 - (void)viewDidAppear:(BOOL)animated
 {
+    [super viewDidAppear:animated];
     NSLog(@"x-%@", NSStringFromUIEdgeInsets(self.tableView.contentInset));
 }
 

@@ -99,10 +99,13 @@
 
 - (NSInteger)configDBInitCreateTableDraft:(FMDatabase *)dataBase;
 - (NSInteger)configDBDraftInsert:(NSDictionary *)infoInsert;
+- (NSInteger)configDBDraftDelete:(NSDictionary *)infoDelete;
 - (NSArray*)configDBDraftQuery:(NSDictionary*)infoQuery;
 
 
 
+- (void)configDBTestClearForRebuild;
+- (void)configDBTestOnConfig:(NSString*)sqlString;
 @end
 
 

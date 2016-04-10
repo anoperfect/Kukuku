@@ -33,6 +33,12 @@
 @property (strong,nonatomic) NSMutableData *imageDataDownload;
 @property (assign) long long expectedContentLength;
 
+//显示提示信息.
+@property (nonatomic, strong) UILabel       *messageIndication;
+//用于定时关闭提示信息.
+@property (nonatomic, strong) NSTimer       *messageIndicationAutoCloseTimer;
+
+
 @end
 
 @implementation ImageViewController
@@ -45,8 +51,13 @@
         ButtonData *actionData = nil;
         
         actionData = [[ButtonData alloc] init];
+        actionData.keyword  = @"分享";
+        actionData.image    = @"buttonshare";
+        [self actionAddData:actionData];
+        
+        actionData = [[ButtonData alloc] init];
         actionData.keyword  = @"保存";
-        //        actionData.image    = @"edit";
+        actionData.image    = @"album";
         [self actionAddData:actionData];
         
         self.textTopic = @"图片";
@@ -64,14 +75,23 @@
     [self.view addSubview:self.labelPercentage];
     [self.labelPercentage setFont:[AppConfig fontFor:@"NavigationInfo"]];
     
-    [self startDisplayAction];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [self startDisplayAction];
+    });
 }
 
 
 - (void)viewWillLayoutSubviews {
     [super viewWillLayoutSubviews];
     
-    [self.labelPercentage setFrame:CGRectMake((self.view.frame.size.width - 100) / 2, self.yBolowView, 100, 36)];
+    CGFloat heightViewIndication = 36;
+    
+    self.messageIndication.text = @"indication message";
+    self.messageIndication.frame = CGRectMake(0, -heightViewIndication, self.view.frame.size.width, heightViewIndication);
+//    self.messageIndication.frame = CGRectMake(0, -heightViewIndication, self.view.frame.size.width, heightViewIndication);
+    
+    CGFloat heightLabelPercentage = 36;
+    [self.labelPercentage setFrame:CGRectMake((self.view.frame.size.width - 100) / 2, self.yBolowView, 100, heightLabelPercentage)];
     [self.labelPercentage setTextAlignment:NSTextAlignmentCenter];
 }
 
@@ -87,12 +107,12 @@
         NSLog(@"%zi", [dataRead length]);
         if([dataRead length] > 0) {
             NSLog(@"------ use downloaded image.");
-            [self updateImageViewByData:dataRead];
+            [self updateImageViewByImage:[UIImage imageWithData:dataRead]];
         }
         else {
             //显示下载完成之前的预制image.
             if(self.placeHoldImage) {
-                [self updateImageViewByImage:self.placeHoldImage];
+                [self updateImageViewByImage:self.placeHoldImage withWidthEdge:20];
             }
             
             self.imageDataDownload = [[NSMutableData alloc] init];
@@ -117,13 +137,18 @@
 {
     NSLog(@"action string : %@", string);
     if([string isEqualToString:@"保存"]) {
-        [self toAlbum];
+        [self storeToAlbum];
+        return;
+    }
+    
+    if([string isEqualToString:@"分享"]) {
+        [self airdropShare];
         return;
     }
 }
 
 
-- (void)toAlbum {
+- (void)airdropShare {
     if(nil == self.imageDisplay) {
         return;
     }
@@ -146,6 +171,68 @@
     popupView.line = 3;
     [popupView popupInSuperView:self.view];
 #endif
+}
+
+
+- (void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+    self.messageIndication.frame = CGRectMake(0, -36, self.view.frame.size.width, 36);
+    [self.messageIndication.superview bringSubviewToFront:self.messageIndication];
+}
+
+
+- (void)showIndicationText:(NSString*)text
+{
+    NSLog(@"---xxx0 : >>>>>>IndicationText : %@", text);
+    NSLog(@"---xxx0 : %@.", self.messageIndication);
+    
+    [self.messageIndication setText:text];
+    //self.messageIndication.frame = CGRectMake(0, 0, self.view.frame.size.width, 36);
+    
+    NSLog(@"%@", self.messageIndication);
+    
+#if 1
+    [UIView animateWithDuration:0.3f
+                          delay:0.0f
+                        options:UIViewAnimationOptionCurveEaseIn
+                     animations:^{
+                         self.messageIndication.frame = CGRectMake(0, 0, self.view.frame.size.width, 36);
+                     }
+                     completion:^(BOOL finished) {
+                         
+                     }];
+    
+    NSLog(@"%@", self.messageIndication);
+    
+    [self.messageIndicationAutoCloseTimer invalidate];
+    self.messageIndicationAutoCloseTimer = nil;
+    self.messageIndicationAutoCloseTimer = [NSTimer scheduledTimerWithTimeInterval:3.0
+                                                                            target:self
+                                                                          selector:@selector(hideIndicationText)
+                                                                          userInfo:nil
+                                                                           repeats:NO];
+#endif
+}
+
+
+- (void)hideIndicationText
+{
+    [UIView animateWithDuration:0.3f
+                          delay:0.0f
+                        options:UIViewAnimationOptionCurveEaseIn
+                     animations:^{
+                         self.messageIndication.frame = CGRectMake(0, -36, self.view.frame.size.width, 36);
+                     }
+                     completion:^(BOOL finished) {
+                         
+                     }];
+}
+
+
+- (void)storeToAlbum
+{
+    UIImageWriteToSavedPhotosAlbum(self.imageDisplay, nil, nil, nil);
 }
 
 
@@ -196,7 +283,7 @@
     }
     
     [ImageViewCache setImageViewCache:self.stringUrl withData:imageDataDownload];
-    [self updateImageViewByData:[NSData dataWithData:self.imageDataDownload]];
+    [self updateImageViewByImage:[UIImage imageWithData:[NSData dataWithData:self.imageDataDownload]]];
 }
 
 
@@ -222,6 +309,25 @@
 }
 
 
+- (void)updateImageViewByImage:(UIImage*)image withWidthEdge:(CGFloat)widthEdge
+{
+    CGFloat y = self.yBolowView ;
+    
+    [self.imageView removeFromSuperview];
+    self.imageView = nil;
+    
+    self.imageView = [[VIPhotoView alloc] initWithFrame:CGRectMake(0, y, self.view.frame.size.width - widthEdge, self.view.frame.size.height - y) andImage:image];
+    self.imageView.autoresizingMask = (1 << 6) - 1;
+    [self.view addSubview:self.imageView];
+    
+    self.imageDisplay = image;
+}
+
+
+
+
+
+#if 0
 - (void)updateImageViewByData:(NSData*)imageData
 {
     UIImage *image = [UIImage imageWithData:imageData];
@@ -229,6 +335,7 @@
         [self updateImageViewByImage:image];
     }
 }
+#endif
 
 /*
 #pragma mark - Navigation

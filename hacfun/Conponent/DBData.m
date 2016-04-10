@@ -9,7 +9,7 @@
 #import "DBData.h"
 #import "FMDB.h"
 #import "FuncDefine.h"
-
+#import "AppConfig.h"
 
 
 
@@ -220,7 +220,7 @@
         NSLog(@"create table %@ OK.", tableName);
     }
     else {
-        NSLog(@"error- create table %@ FAILED (SQL=[%@]).", tableName, createTableSQLString);
+        NSLog(@"error- create table %@ FAILED \n%@\n", tableName, createTableSQLString);
         return DB_EXECUTE_ERROR_SQL;
     }
     

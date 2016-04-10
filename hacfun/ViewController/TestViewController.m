@@ -145,6 +145,17 @@ static UIView *kv = nil;
     NSLog(@"document path : %@", documentPath);
     
     count = RetainCount(kv); NSLog(@"retainCount : %zd", count);
+    
+    
+    NSString *sqlString;
+    sqlString = @"create table if not exists draft(sn integer, content var, selectedtimes integer)";
+    NSLog(@"-/- test config : [%@]", sqlString);
+    [[AppConfig sharedConfigDB] configDBTestOnConfig:sqlString];
+    
+    
+    
+    
+    
 }
 
 
@@ -190,10 +201,12 @@ static UIView *kv = nil;
 - (void)click:(UIButton*)button {
     
     if(0 == button.tag) {
-        NSLog(@"rebuild database.");
-        [[AppConfig sharedConfigDB] configDBBuildWithForceRebuild:YES];
+        //NSLog(@"rebuild database.");
+        //[[AppConfig sharedConfigDB] configDBBuildWithForceRebuild:YES];
+        
+        NSLog(@"delete database.");
+        [[AppConfig sharedConfigDB] configDBTestClearForRebuild];
     }
-    
 }
 
 

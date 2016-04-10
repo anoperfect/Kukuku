@@ -125,6 +125,13 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
 }
 
 
+- (void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+    [self.messageIndication.superview bringSubviewToFront:self.messageIndication];
+}
+
+
 - (UIImage*) imageScale:(UIImage*)image toSize:(CGSize)size{
     
     UIGraphicsBeginImageContext(size);
@@ -361,7 +368,7 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
 {
     NSLog(@"---xxx0 : >>>>>>IndicationText : %@", text);
     
-    [self.view bringSubviewToFront:self.messageIndication];
+    //[self.view bringSubviewToFront:self.messageIndication];
     
     NSLog(@"%@", self.messageIndication);
     
