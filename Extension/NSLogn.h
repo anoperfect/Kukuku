@@ -17,6 +17,12 @@
 + (NSInteger)retainCount:(unsigned long long)objAddr;
 + (NSInteger)retainCount1:(__weak id)anObject;
 
+
+
+
++ (NSLogn *)sharedNSLogn;
+- (void)sendLogContent:(NSString*)logString;
+
 @end
 
 

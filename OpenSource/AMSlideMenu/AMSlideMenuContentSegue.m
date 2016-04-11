@@ -51,10 +51,15 @@
         CGRect openedFrame = mainVC.currentActiveNVC.view.frame;
         [mainVC.currentActiveNVC.view removeFromSuperview];
         //这句有警告. 去掉警告则有内存泄漏. 导致nac中的vc不能释放.
+        //to-do.未解决此问题.
+        //尝试不重复创建UINavigationController的方式, 但是左右menu使用同一UINavigationController的方式未完成合适方式. 另外内存泄漏的原因未找到, 不确定是使用原因或者是原库原因.
 
-        
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored"-Wnonnull"
+        //这里是会报警告的代码
         mainVC.currentActiveNVC.viewControllers = nil;
         mainVC.currentActiveNVC = nil;
+#pragma clang diagnostic pop
         
         mainVC.currentActiveNVC = destinationNVC;
         mainVC.currentActiveNVC.view.frame = openedFrame;

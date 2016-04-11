@@ -36,8 +36,8 @@
 -(instancetype) init {
     
     if(self = [super init]) {
-        self.status = ThreadsStatusInit;
-    
+        self.threadsStatus = ThreadsStatusInit;
+        self.pageNumLoaded = 0;
     }
     
     return self;
@@ -75,7 +75,7 @@
     self.footView = [[PushButton alloc] init];
     self.footView.backgroundColor = self.postView.backgroundColor;
     [self.footView setTitleColor:[AppConfig textColorFor:@"Black"] forState:UIControlStateNormal];
-    [self showfootViewWithTitle:NSSTRING_CLICK_TO_LOADING andActivityIndicator:NO andDate:NO];
+    [self showfootViewWithTitle:[self getFooterViewTitleOnStatus:self.threadsStatus] andActivityIndicator:NO andDate:NO];
     [self.footView.titleLabel setFont:[AppConfig fontFor:@"PostContent"]];
     [self.footView addTarget:self action:@selector(clickFootView) forControlEvents:UIControlEventTouchDown];
     self.postView.tableFooterView = self.footView;
@@ -143,8 +143,8 @@
 - (void)loadMore
 {
     //判断一下状态.如果是正在reload的状态则进行reload.
-    if(self.status != ThreadsStatusLoading) {
-        self.status = ThreadsStatusLoading;
+    if(self.threadsStatus != ThreadsStatusLoading) {
+        self.threadsStatus = ThreadsStatusLoading;
         [self reloadPostData];
     }
     else {
@@ -446,6 +446,38 @@
 - (BOOL)isLastPage
 {
     return NO;
+}
+
+
+- (NSString*)getFooterViewTitleOnStatus:(ThreadsStatus)status
+{
+    NSString *footViewString = @"";
+    
+    switch (status) {
+        case ThreadsStatusInit:
+        case ThreadsStatusLocalInit:
+        case ThreadsStatusNetworkInit:
+            footViewString = NSSTRING_CLICK_TO_LOADING;
+            break;
+            
+        case ThreadsStatusLoading:
+            footViewString = NSSTRING_LOADING;
+            break;
+            
+        case ThreadsStatusLoadFailed:
+            footViewString = NSSTRING_LOAD_FAILED;
+            break;
+            
+        case ThreadsStatusLoadSuccessful:
+            footViewString = NSSTRING_LOAD_SUCCESSFUL;
+            break;
+            
+        default:
+            footViewString = NSSTRING_HAA;
+            break;
+    }
+    
+    return footViewString;
 }
 
 

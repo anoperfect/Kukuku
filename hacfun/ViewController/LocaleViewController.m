@@ -58,8 +58,8 @@
         NSLog(@"No more data.");
     }
     else {
-        self.pageNum ++;
-        for(NSInteger idx = (self.pageNum-1)* 10 ; idx < [self.arrayAllLocale count] && idx < self.pageNum * 10; idx++ ) {
+        self.pageNumLoading ++;
+        for(NSInteger idx = (self.pageNumLoading-1)* 10 ; idx < [self.arrayAllLocale count] && idx < self.pageNumLoading * 10; idx++ ) {
             
             NSDictionary *dict = [self.arrayAllLocale objectAtIndex:idx];
             NSString *jsonstring = [dict objectForKey:@"jsonstring"];

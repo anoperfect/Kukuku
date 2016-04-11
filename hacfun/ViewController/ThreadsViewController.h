@@ -5,15 +5,10 @@
 //  Created by Ben on 15/7/12.
 //  Copyright (c) 2015年 Ben. All rights reserved.
 //
-
 #import <UIKit/UIKit.h>
 #import "PostData.h"
 #import "PostDataCellView.h"
 #import "CustomViewController.h"
-
-
-
-
 @interface ThreadsViewController : CustomViewController
 
 #define NSSTRING_CLICK_TO_LOADING   @"点击加载."
@@ -22,6 +17,17 @@
 #define NSSTRING_LOAD_FAILED        @"加载失败. － oops ! 点击重新加载."
 #define NSSTRING_NO_MORE_DATA       @"加载无更多数据. - 已经没有了."
 #define NSSTRING_HAA                @"芦苇 芦苇 ......"
+
+typedef NS_ENUM(NSInteger, ThreadsStatus) {
+    ThreadsStatusInit,
+    ThreadsStatusLocalInit,
+    ThreadsStatusNetworkInit,
+    ThreadsStatusLoading,
+    ThreadsStatusLoadSuccessful,
+    ThreadsStatusLoadFailed,
+    ThreadsStatusLoadNoMoreData,
+};
+
 
 #define TAG_PostDataCellView    (4500000 + 1)
 
@@ -42,15 +48,17 @@
 
 //UITableView的footview.
 @property (strong,nonatomic) PushButton *footView;
-//@property (assign,nonatomic) NSInteger footViewStatus;
-//@property (strong,nonatomic) NSArray* footViewStrings;
+//@property (assign,nonatomic) ThreadLoadStatus footViewStatus;
 
 //下拉刷新.
 @property (strong,nonatomic) UIRefreshControl *refresh;
 
+//多页加载模式下的页面序号. 已加载. 在加载成功后更新.
+@property (assign,nonatomic) NSInteger pageNumLoaded;
 
-//多页加载模式下的页面序号.
-@property (assign,nonatomic) NSInteger pageNum;
+//多页加载模式下的页面序号. 已加载.
+@property (assign,nonatomic) NSInteger pageNumLoading;
+
 
 //标记时属于加载或者是刷新.
 @property (assign,nonatomic) BOOL boolRefresh;
@@ -68,29 +76,16 @@
 @property (nonatomic, assign) BOOL autoRepeatDownload;
 
 
-typedef enum : NSUInteger {
-    ThreadsStatusInit,
-    ThreadsStatusLoading,
-    ThreadsStatusLoadFinish,
-    ThreadsStatusLoadFailed,
-} ThreadsStatus;
-
-
-@property (nonatomic, assign) ThreadsStatus status;
+@property (nonatomic, assign) ThreadsStatus threadsStatus;
 
 //UITableView的foot view用于显示状态数据. 使用此接口具体设置.
 - (void)showfootViewWithTitle:(NSString*)title andActivityIndicator:(BOOL)isActive andDate:(BOOL)isShowDate;
 
-
-
-
 //显示状态信息.
 - (void)showStatusText:(NSString*)text;
 
-
 - (void)refreshPostData;
 - (void)reloadPostData;
-
 
 //override.
 //将刷新页得到的数据append到UITable的数据源时的行为. 可重写用于去重, 加页栏, 屏蔽等行为.
@@ -104,10 +99,8 @@ typedef enum : NSUInteger {
 //可重写以修改cell显示样式.
 - (void)layoutCell: (UITableViewCell *)cell withRow:(NSInteger)row withPostData:(PostData*)postData ;
 
-
 //可重写以修改refresh时的数据清楚行为.
 - (void)clearDataAdditional ;
-
 
 //可重写以修改cell显示时的行为.
 //目前使用:
@@ -118,8 +111,12 @@ typedef enum : NSUInteger {
 //可重写以判断是否到last page.
 - (BOOL)isLastPage;
 
+//可重写以针对不同状态提示不同显示内容.
+- (NSString*)getFooterViewTitleOnStatus:(ThreadsStatus)status;
 
 //重载以定义row行为. 定义为BOOL以实现让super尝试先处置.
 - (BOOL)actionOnRow:(NSInteger)row viaString:(NSString*)string;
+
+
 
 @end

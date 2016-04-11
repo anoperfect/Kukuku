@@ -19,6 +19,7 @@
 @property (assign,nonatomic) NSInteger threadId;
 
 @property (strong,nonatomic) PostData *topic;
+@property (nonatomic,strong) NSMutableDictionary *threadsInfo;
 
 //@property (assign,nonatomic) NSInteger idCollection;
 //@property (assign,nonatomic) NSInteger idPo;
@@ -347,8 +348,8 @@
 
 - (NSString*)getDownloadUrlString {
     NSInteger count = [self.postDatas count];
-    self.pageNum = count==0?1:((count-1)/[self numInOnePage] + 1);
-    return [NSString stringWithFormat:@"%@/t/%zi?page=%zi", self.host, self.threadId, self.pageNum];
+    self.pageNumLoading = count==0?1:((count-1)/[self numInOnePage] + 1);
+    return [NSString stringWithFormat:@"%@/t/%zi?page=%zi", self.host, self.threadId, self.pageNumLoading];
 }
 
 
@@ -360,8 +361,19 @@
 
 
 - (NSMutableArray*)parseDownloadedData:(NSData*)data {
-    NSMutableArray *postDatasArray = [PostData parseFromDetailedJsonData:data];
-    return postDatasArray;
+    NSMutableDictionary *addtional = [[NSMutableDictionary alloc] init];
+    NSMutableArray *postDatas = [PostData parseFromDetailedJsonData:data storeAdditional:addtional];
+    
+    NSString *key = @"threads";
+    if([addtional[key] isEqual:self.threadsInfo]) {
+        NSLog(@"%@ info not change.", key)
+    }
+    else {
+        self.threadsInfo = addtional[key];
+        NSLog(@"%@ info updated.", key);
+    }
+    
+    return postDatas;
 }
 
 

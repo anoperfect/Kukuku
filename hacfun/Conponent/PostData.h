@@ -73,10 +73,17 @@ typedef NS_ENUM(NSInteger, ThreadDataToViewType) {
 - (NSMutableDictionary*)toViewDisplayData:(ThreadDataToViewType)type;
 
 
-+ (NSMutableArray*)parseFromCategoryJsonData:(NSData*)data ;
-+ (NSMutableArray*)parseFromDetailedJsonData:(NSData*)data ;
-+ (NSMutableArray*)sendSynchronousRequestByThreadId:(long long)tid andPage:(NSInteger)page;
+//从栏目请求响应api中获取的内容中解出PostData数组. forum的信息以key=forum, obj=dict的形式存入additional.
++ (NSMutableArray*)parseFromCategoryJsonData:(NSData*)data storeAdditional:(NSMutableDictionary*)additonal;
+
+//从thread响应api中获取的内容中解出PostData数组. forum的信息以key=threads, obj=dict的形式存入additional.
++ (NSMutableArray*)parseFromDetailedJsonData:(NSData*)data storeAdditional:(NSMutableDictionary*)additonal;
+
+
 + (PostData*)parseFromThreadJsonData:(NSData*)data ;
+
+
++ (NSMutableArray*)sendSynchronousRequestByThreadId:(long long)tid andPage:(NSInteger)page;
 
 
 #if 0

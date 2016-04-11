@@ -18,5 +18,5 @@
 //DetailViewController记录加载到的最新回复的createdAt.
 - (void)storeLoadedData:(NSData*)data;
 
-
 @end
+

@@ -179,6 +179,10 @@ static UIView *kv = nil;
 {
     [super viewDidAppear:animated];
     NSInteger count = RetainCount(kv); NSLog(@"retainCount : %zd", count);
+    
+    NSLogn *log = [[NSLogn alloc] init];
+    log = nil;
+//    [log sendTcpContent];
 }
 
 

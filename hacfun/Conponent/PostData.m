@@ -463,9 +463,9 @@ PostDataView 接收的字段字段
 }
 
 
-+ (NSMutableArray*)parseFromCategoryJsonData:(NSData*)data {
-    
-    NSObject *obj;
++ (NSMutableArray*)parseFromCategoryJsonData:(NSData*)data storeAdditional:(NSMutableDictionary*)additonal
+{
+    id obj;
     NSDictionary *dict;
     NSMutableArray *arr;
 
@@ -490,23 +490,34 @@ PostDataView 接收的字段字段
     
     dict = (NSDictionary*)obj;
     
-    obj = [dict objectForKey:@"data"];
+    NSString *key = @"forum";
+    obj = [dict objectForKey:key];
+    if(obj && [obj isKindOfClass:[NSDictionary class]]) {
+        [additonal setObject:obj forKey:key];
+    }
+    else {
+        NSLog(@"obj [%@] nil or not NSDictionary class", key);
+    }
+    
+    key = @"data";
+    obj = [dict objectForKey:key];
     if(obj && [obj isKindOfClass:[NSDictionary class]]) {
         
     }
     else {
-        NSLog(@"obj [%@] nil or not NSDictionary class", @"data");
+        NSLog(@"obj [%@] nil or not NSDictionary class", key);
         return nil;
     }
     
     dict = (NSDictionary*)obj;
     
-    obj = [dict objectForKey:@"threads"];
+    key = @"threads";
+    obj = [dict objectForKey:key];
     if(obj && [obj isKindOfClass:[NSMutableArray class]]) {
         
     }
     else {
-        NSLog(@"obj [%@] nil or not NSMutableArray class", @"thread");
+        NSLog(@"obj [%@] nil or not NSMutableArray class", key);
         return nil;
     }
     
@@ -541,8 +552,8 @@ PostDataView 接收的字段字段
 }
 
 
-+ (NSMutableArray*)parseFromDetailedJsonData:(NSData*)data {
-    
++ (NSMutableArray*)parseFromDetailedJsonData:(NSData*)data storeAdditional:(NSMutableDictionary*)additonal
+{
     if(nil == data) {
         NSLog(@"data null");
         return nil;
@@ -571,12 +582,15 @@ PostDataView 接收的字段字段
     dict = (NSDictionary*)obj;
     NS0Log(@"%@", dict);
     
-    obj = [dict objectForKey:@"threads"];
+    NSString *key = @"threads";
+    obj = [dict objectForKey:key];
     if(obj) {
         if(![obj isKindOfClass:[NSDictionary class]]) {
-            NSLog(@"error- %@ not dictionary", @"parsing threads obj");
+            NSLog(@"obj [%@] nil or not NSMutableArray class", key);
             return nil;
         }
+        
+        [additonal setObject:obj forKey:key];
         
         topic = [PostData fromDictData:(NSDictionary*)obj];
         if(nil == topic) {
@@ -653,7 +667,7 @@ PostDataView 接收的字段字段
     
     if (responseData && ([urlResponse statusCode] >= 200 && [urlResponse statusCode] < 300)) {
         //        NSString *responseText = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
-        return [PostData parseFromDetailedJsonData:responseData];
+        return [PostData parseFromDetailedJsonData:responseData storeAdditional:nil];
     }
     else {
         return nil;

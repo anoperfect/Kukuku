@@ -19,11 +19,11 @@
 @property (strong,nonatomic) NSString *nameCategory;
 @property (strong,nonatomic) NSString *linkCategory;
 
+@property (nonatomic, strong) NSMutableDictionary *forumInfo;
+
 @end
 
 @implementation CategoryViewController
-
-
 
 - (instancetype)init
 {
@@ -105,8 +105,27 @@
 
 - (NSString*)getDownloadUrlString {
     NSInteger count = [self.postDatas count];
-    self.pageNum = count/[self numInOnePage] + 1;
-    return [NSString stringWithFormat:@"%@/%@?page=%zi", self.host, self.linkCategory, self.pageNum];
+    self.pageNumLoading = count/[self numInOnePage] + 1;
+    return [NSString stringWithFormat:@"%@/%@?page=%zi", self.host, self.linkCategory, self.pageNumLoading];
+}
+
+
+//---override. different parse mothod.
+- (NSMutableArray*)parseDownloadedData:(NSData*)data {
+    NSMutableDictionary *addtional = [[NSMutableDictionary alloc] init];
+    NSMutableArray *postDatas = [PostData parseFromCategoryJsonData:data storeAdditional:addtional];
+    NSLog(@"addtional : %@", addtional);
+    
+    NSString *key = @"forum";
+    if([addtional[key] isEqual:self.forumInfo]) {
+        NSLog(@"%@ info not change.", key)
+    }
+    else {
+        NSLog(@"%@ info updated. \n%@\n%@", key, addtional[@"forum"], self.forumInfo);
+        self.forumInfo = addtional[@"forum"];
+    }
+    
+    return postDatas;
 }
 
 

@@ -133,6 +133,7 @@
 		B5039B351CBA5C1100C7865F /* check2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = check2.png; sourceTree = "<group>"; };
 		B5039B361CBA5C1100C7865F /* delete.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = delete.png; sourceTree = "<group>"; };
 		B5039B371CBA5C1100C7865F /* gallery.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = gallery.png; sourceTree = "<group>"; };
+		B5039B5A1CBBFA3B00C7865F /* Extension.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Extension.pch; sourceTree = "<group>"; };
 		B50D38B71B7F4BE10024E464 /* SettingViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SettingViewController.h; sourceTree = "<group>"; };
 		B50D38B81B7F4BE10024E464 /* SettingViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SettingViewController.m; sourceTree = "<group>"; };
 		B50F997E1C109E5900240C9D /* EmoticonCharacterView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EmoticonCharacterView.h; sourceTree = "<group>"; };
@@ -518,6 +519,7 @@
 				B56E53551CB4017D00998F74 /* ImagesDisplay.m */,
 				B5F24BB31C49F0C40027DAB2 /* DBData.h */,
 				B5F24BB41C49F0C40027DAB2 /* DBData.m */,
+				B5039B5A1CBBFA3B00C7865F /* Extension.pch */,
 			);
 			path = Extension;
 			sourceTree = SOURCE_ROOT;

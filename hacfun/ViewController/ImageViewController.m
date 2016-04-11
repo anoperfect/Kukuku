@@ -12,7 +12,7 @@
 #import "AppConfig.h"
 #import "ImageViewCache.h"
 #import "PopupView.h"
-
+#import "NSLogn.h"
 @interface ImageViewController ()
 
 //@property (strong,nonatomic) UIImageView *imageView;
@@ -112,7 +112,7 @@
         else {
             //显示下载完成之前的预制image.
             if(self.placeHoldImage) {
-                [self updateImageViewByImage:self.placeHoldImage withWidthEdge:20];
+                [self updateImageViewByImage:self.placeHoldImage withBorder:UIEdgeInsetsMake(20, 20, 20, 20)];
             }
             
             self.imageDataDownload = [[NSMutableData alloc] init];
@@ -174,65 +174,18 @@
 }
 
 
+- (void)storeToAlbum
+{
+    [[NSLogn sharedNSLogn] sendLogContent:@"123"];
+    UIImageWriteToSavedPhotosAlbum(self.imageDisplay, nil, nil, nil);
+}
+
+
 - (void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
     self.messageIndication.frame = CGRectMake(0, -36, self.view.frame.size.width, 36);
     [self.messageIndication.superview bringSubviewToFront:self.messageIndication];
-}
-
-
-- (void)showIndicationText:(NSString*)text
-{
-    NSLog(@"---xxx0 : >>>>>>IndicationText : %@", text);
-    NSLog(@"---xxx0 : %@.", self.messageIndication);
-    
-    [self.messageIndication setText:text];
-    //self.messageIndication.frame = CGRectMake(0, 0, self.view.frame.size.width, 36);
-    
-    NSLog(@"%@", self.messageIndication);
-    
-#if 1
-    [UIView animateWithDuration:0.3f
-                          delay:0.0f
-                        options:UIViewAnimationOptionCurveEaseIn
-                     animations:^{
-                         self.messageIndication.frame = CGRectMake(0, 0, self.view.frame.size.width, 36);
-                     }
-                     completion:^(BOOL finished) {
-                         
-                     }];
-    
-    NSLog(@"%@", self.messageIndication);
-    
-    [self.messageIndicationAutoCloseTimer invalidate];
-    self.messageIndicationAutoCloseTimer = nil;
-    self.messageIndicationAutoCloseTimer = [NSTimer scheduledTimerWithTimeInterval:3.0
-                                                                            target:self
-                                                                          selector:@selector(hideIndicationText)
-                                                                          userInfo:nil
-                                                                           repeats:NO];
-#endif
-}
-
-
-- (void)hideIndicationText
-{
-    [UIView animateWithDuration:0.3f
-                          delay:0.0f
-                        options:UIViewAnimationOptionCurveEaseIn
-                     animations:^{
-                         self.messageIndication.frame = CGRectMake(0, -36, self.view.frame.size.width, 36);
-                     }
-                     completion:^(BOOL finished) {
-                         
-                     }];
-}
-
-
-- (void)storeToAlbum
-{
-    UIImageWriteToSavedPhotosAlbum(self.imageDisplay, nil, nil, nil);
 }
 
 
@@ -309,14 +262,17 @@
 }
 
 
-- (void)updateImageViewByImage:(UIImage*)image withWidthEdge:(CGFloat)widthEdge
+- (void)updateImageViewByImage:(UIImage*)image withBorder:(UIEdgeInsets)border
 {
     CGFloat y = self.yBolowView ;
     
     [self.imageView removeFromSuperview];
     self.imageView = nil;
     
-    self.imageView = [[VIPhotoView alloc] initWithFrame:CGRectMake(0, y, self.view.frame.size.width - widthEdge, self.view.frame.size.height - y) andImage:image];
+    CGRect frame = CGRectMake(0, y, self.view.bounds.size.width, self.view.bounds.size.height - y);
+    frame = CGRectMake(border.left, y+border.top, self.view.bounds.size.width - border.left - border.right, self.view.bounds.size.height - y - border.top - border.bottom);
+    
+    self.imageView = [[VIPhotoView alloc] initWithFrame:frame andImage:image];
     self.imageView.autoresizingMask = (1 << 6) - 1;
     [self.view addSubview:self.imageView];
     

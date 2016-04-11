@@ -2494,3 +2494,55 @@ frame = (0 -36; 320 36); text = '111111'; userInteractionEnabled = NO; layer = <
 
 
 #endif
+
+
+
+
+#if 0//ImageViewController showIndicationText test.
+- (void)showIndicationText:(NSString*)text
+{
+    NSLog(@"---xxx0 : >>>>>>IndicationText : %@", text);
+    NSLog(@"---xxx0 : %@.", self.messageIndication);
+    
+    [self.messageIndication setText:text];
+    //self.messageIndication.frame = CGRectMake(0, 0, self.view.frame.size.width, 36);
+    
+    NSLog(@"%@", self.messageIndication);
+    
+#if 1
+    [UIView animateWithDuration:0.3f
+                          delay:0.0f
+                        options:UIViewAnimationOptionCurveEaseIn
+                     animations:^{
+                         self.messageIndication.frame = CGRectMake(0, 0, self.view.frame.size.width, 36);
+                     }
+                     completion:^(BOOL finished) {
+                         
+                     }];
+    
+    NSLog(@"%@", self.messageIndication);
+    
+    [self.messageIndicationAutoCloseTimer invalidate];
+    self.messageIndicationAutoCloseTimer = nil;
+    self.messageIndicationAutoCloseTimer = [NSTimer scheduledTimerWithTimeInterval:3.0
+                                                                            target:self
+                                                                          selector:@selector(hideIndicationText)
+                                                                          userInfo:nil
+                                                                           repeats:NO];
+#endif
+}
+
+
+- (void)hideIndicationText
+{
+    [UIView animateWithDuration:0.3f
+                          delay:0.0f
+                        options:UIViewAnimationOptionCurveEaseIn
+                     animations:^{
+                         self.messageIndication.frame = CGRectMake(0, -36, self.view.frame.size.width, 36);
+                     }
+                     completion:^(BOOL finished) {
+                         
+                     }];
+}
+#endif

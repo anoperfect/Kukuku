@@ -1,0 +1,17 @@
+//
+//  extension.pch
+//  hacfun
+//
+//  Created by Ben on 16/4/11.
+//  Copyright © 2016年 Ben. All rights reserved.
+//
+
+#ifndef extension_pch
+#define extension_pch
+
+#import "NSLogn.h"
+
+// Include any system framework and library headers here that should be included in all compilation units.
+// You will also need to set the Prefix Header build setting of one or more of your targets to reference this file.
+
+#endif /* extension_pch */

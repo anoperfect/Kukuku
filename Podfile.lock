@@ -23,6 +23,13 @@ PODS:
   - AFOnoResponseSerializer (1.0.0):
     - AFNetworking (~> 2.2)
     - Ono (~> 1.0)
+  - CocoaAsyncSocket (7.4.3):
+    - CocoaAsyncSocket/All (= 7.4.3)
+  - CocoaAsyncSocket/All (7.4.3):
+    - CocoaAsyncSocket/GCD
+    - CocoaAsyncSocket/RunLoop
+  - CocoaAsyncSocket/GCD (7.4.3)
+  - CocoaAsyncSocket/RunLoop (7.4.3)
   - DateTools (1.7.0)
   - FMDB (2.5):
     - FMDB/standard (= 2.5)
@@ -55,6 +62,7 @@ PODS:
 
 DEPENDENCIES:
   - AFOnoResponseSerializer
+  - CocoaAsyncSocket
   - DateTools
   - FMDB
   - GPUImage
@@ -73,6 +81,7 @@ DEPENDENCIES:
 SPEC CHECKSUMS:
   AFNetworking: 8e4e60500beb8bec644cf575beee72990a76d399
   AFOnoResponseSerializer: c02c8bef1d6742ac68f33ecaed41826c9657bc33
+  CocoaAsyncSocket: a18c75dca4b08723628a0bacca6e94803d90be91
   DateTools: 53288ee8b905fdc75897a1e6b5cc0144b14cba60
   FMDB: 96e8f1bcc1329e269330f99770ad4285d9003e52
   GPUImage: 733a5f0fab92df9de1c37ba9df520a833ccb406d
