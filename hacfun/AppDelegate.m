@@ -18,8 +18,9 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
+    [[NSLogn sharedNSLogn] connect];
     [AppConfig sharedConfigDB];
-    
+
     MainVC *mainVC = [[MainVC alloc] init];
     
     UINavigationController *startNVC = [[UINavigationController alloc] initWithRootViewController:mainVC];
@@ -29,6 +30,9 @@
     self.window.rootViewController = startNVC;
     
     [self.window makeKeyAndVisible];
+    
+    //dispatch_async(dispatch_get_main_queue(), ^{
+    //});
     
     return YES;
 }
@@ -41,6 +45,7 @@
 - (void)applicationDidEnterBackground:(UIApplication *)application {
     // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
     // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
+    [[NSLogn sharedNSLogn] disconnect];
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application {
@@ -53,6 +58,7 @@
 
 - (void)applicationWillTerminate:(UIApplication *)application {
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+    [[NSLogn sharedNSLogn] disconnect];
 }
 
 @end

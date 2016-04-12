@@ -457,23 +457,27 @@
         case ThreadsStatusInit:
         case ThreadsStatusLocalInit:
         case ThreadsStatusNetworkInit:
-            footViewString = NSSTRING_CLICK_TO_LOADING;
+            footViewString = KNSSTRING_CLICK_TO_LOADING;
             break;
             
         case ThreadsStatusLoading:
-            footViewString = NSSTRING_LOADING;
+            footViewString = KNSSTRING_LOADING;
             break;
             
         case ThreadsStatusLoadFailed:
-            footViewString = NSSTRING_LOAD_FAILED;
+            footViewString = KNSSTRING_LOAD_FAILED;
             break;
             
         case ThreadsStatusLoadSuccessful:
-            footViewString = NSSTRING_LOAD_SUCCESSFUL;
+            footViewString = KNSSTRING_LOAD_SUCCESSFUL;
+            break;
+            
+        case ThreadsStatusLoadNoMoreData:
+            footViewString = KNSSTRING_NO_MORE_DATA;
             break;
             
         default:
-            footViewString = NSSTRING_HAA;
+            footViewString = KNSSTRING_HAA;
             break;
     }
     
@@ -493,8 +497,17 @@
     if([str hasPrefix:@"No."]) {
         NSInteger tid = [str substringWithRange:NSMakeRange(3, str.length-3)].integerValue;
         [self showReferencePostDataView:tid];
+        return;
     }
-    else if([str hasPrefix:@"http://"] || [str hasPrefix:@"https://"]) {
+    
+    NSString *khttpUrlString = @"http://h.koukuko.com/t/";
+    if([str hasPrefix:khttpUrlString]) {
+        NSInteger tid = [str substringWithRange:NSMakeRange(khttpUrlString.length, str.length-khttpUrlString.length)].integerValue;
+        [self showReferencePostDataView:tid];
+        return;
+    }
+        
+    if([str hasPrefix:@"http://"] || [str hasPrefix:@"https://"]) {
         [[ UIApplication sharedApplication] openURL:url];
     }
 }

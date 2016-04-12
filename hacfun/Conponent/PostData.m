@@ -183,7 +183,7 @@
     
     NSString *searchText = stringFrom;
     NSRange rangeResult;
-    NSRange rangeSearch = NSMakeRange(0, searchText.length-1);
+    NSRange rangeSearch = NSMakeRange(0, searchText.length);
     NSMutableArray *aryLocation = [[NSMutableArray alloc] init];
     NSMutableArray *aryLength = [[NSMutableArray alloc] init];
     
@@ -197,7 +197,7 @@
         [aryLength addObject:[NSNumber numberWithInteger:rangeResult.length]];
         
         rangeSearch.location = rangeResult.location + rangeResult.length;
-        rangeSearch.length = searchText.length - 1 - rangeSearch.location;
+        rangeSearch.length = searchText.length - rangeSearch.location;
     }
     
     NSInteger num = [aryLocation count];
@@ -220,6 +220,53 @@
 }
 
 
++ (NSString*)addLinkForWebAddr:(NSString*)stringFrom {
+    
+    NSString *searchText = stringFrom;
+    NSRange rangeResult;
+    NSRange rangeSearch = NSMakeRange(0, searchText.length);
+    NSMutableArray *aryLocation = [[NSMutableArray alloc] init];
+    NSMutableArray *aryLength = [[NSMutableArray alloc] init];
+    
+    while(1) {
+        
+        NSString * regexString = @"\\bhttps?://[a-zA-Z0-9\\-.]+(?::(\\d+))?(?:(?:/[a-zA-Z0-9\\-._?,'+\\&%$=~*!():@\\\\]*)+)?";
+//        NSString *urlReg = @"^(https?://)?(([0-9a-z_!~*'().&=+$%-]+:)?[0-9a-z_!~*'().&=+$%-]+@)?(([0-9]{1,3}\\.){3}[0-9]{1,3}|([0-9a-z_!~*'()-]+\\.)*([0-9a-z][0-9a-z-]{0,61})?[0-9a-z]\\.[a-z]{2,6})(:[0-9]{1,4})?((/?)|(/[0-9a-z_!~*'().;?:@&=+$,%#-]+)+/?)$";
+        
+        rangeResult = [searchText rangeOfString:regexString options:NSRegularExpressionSearch range:rangeSearch];
+        if (rangeResult.location == NSNotFound) {
+            break;
+        }
+        NSLog(@"zxc %zd %zd", rangeResult.location, rangeResult.length);
+        
+        [aryLocation addObject:[NSNumber numberWithInteger:rangeResult.location]];
+        [aryLength addObject:[NSNumber numberWithInteger:rangeResult.length]];
+        
+        rangeSearch.location = rangeResult.location + rangeResult.length;
+        rangeSearch.length = searchText.length - rangeSearch.location;
+    }
+    
+    NSInteger num = [aryLocation count];
+    for(NSInteger i = num-1; i>=0 ; i--) {
+        
+        NS0Log(@"%zi %zi",
+               [((NSNumber*)[aryLocation objectAtIndex:i]) integerValue],
+               [((NSNumber*)[aryLength objectAtIndex:i]) integerValue]);
+        
+        NSRange range = NSMakeRange(
+                                    [((NSNumber*)[aryLocation objectAtIndex:i]) integerValue],
+                                    [((NSNumber*)[aryLength objectAtIndex:i]) integerValue]);
+        
+        NSString *sub = [searchText substringWithRange:NSMakeRange(range.location, range.length)];
+        
+        NSString *replacement = [NSString stringWithFormat:@"<a href='%@'>%@</a>", sub, sub];
+        searchText = [searchText stringByReplacingCharactersInRange:range withString:replacement];
+    }
+    
+    return searchText;
+}
+
+
 //字符转换.
 + (NSString*) postDataContentRetreat:(NSString*)content {
     
@@ -233,7 +280,7 @@
     content = [content stringByReplacingOccurrencesOfString:@"&amp;" withString:@"&"];
     content = [content stringByReplacingOccurrencesOfString:@"&lt;" withString:@"<"];
     content = [content stringByReplacingOccurrencesOfString:@"&gt;" withString:@">"];
-    content = [content stringByReplacingOccurrencesOfString:@"&nbsp;" withString:@" "];
+    content = [content stringByReplacingOccurrencesOfString:@"&nbsp;" withString:@];
     content = [content stringByReplacingOccurrencesOfString:@"&#39;" withString:@"'"];
     content = [content stringByReplacingOccurrencesOfString:@"<br>" withString:@"\n"];
     content = [content stringByReplacingOccurrencesOfString:tmpReplace withString:specialChar];
@@ -248,14 +295,8 @@
     //对No.xxx加载超链接.
     content = [self addLinkForReferenceNumber:content];
     
-    
-    
-    
-    
-    
-    
-    
-    
+    //对http地址加载超链接.
+    content = [self addLinkForWebAddr:content];
     
     return content;
 }
@@ -742,7 +783,7 @@ PostDataView 接收的字段字段
 //            pd.content = [pd.content stringByReplacingOccurrencesOfString:@"&amp;" withString:@"&"];
 //            pd.content = [pd.content stringByReplacingOccurrencesOfString:@"&lt;" withString:@"<"];
 //            pd.content = [pd.content stringByReplacingOccurrencesOfString:@"&gt;" withString:@">"];
-//            pd.content = [pd.content stringByReplacingOccurrencesOfString:@"&nbsp;" withString:@" "];
+//            pd.content = [pd.content stringByReplacingOccurrencesOfString:@"&nbsp;" withString:@];
 //            pd.content = [pd.content stringByReplacingOccurrencesOfString:@"<br>" withString:@"\n"];
 //        }
 //        else {
@@ -803,7 +844,7 @@ PostDataView 接收的字段字段
 //       ) {
 //           NSLog(@"///found");
 //           range.length += 1;
-//           content = [content stringByReplacingCharactersInRange:range withString:@" "];
+//           content = [content stringByReplacingCharactersInRange:range withString:@];
 //       }
 //       else {
 //           NSLog(@"///not found");

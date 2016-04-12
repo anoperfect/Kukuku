@@ -11,12 +11,12 @@
 #import "CustomViewController.h"
 @interface ThreadsViewController : CustomViewController
 
-#define NSSTRING_CLICK_TO_LOADING   @"点击加载."
-#define NSSTRING_LOADING            @"加载中 － 非常努力地加载中."
-#define NSSTRING_LOAD_SUCCESSFUL    @"加载成功. - "
-#define NSSTRING_LOAD_FAILED        @"加载失败. － oops ! 点击重新加载."
-#define NSSTRING_NO_MORE_DATA       @"加载无更多数据. - 已经没有了."
-#define NSSTRING_HAA                @"芦苇 芦苇 ......"
+#define KNSSTRING_CLICK_TO_LOADING   @"点击加载."
+#define KNSSTRING_LOADING            @"加载中 － 非常努力地加载中."
+#define KNSSTRING_LOAD_SUCCESSFUL    @"加载成功. - "
+#define KNSSTRING_LOAD_FAILED        @"加载失败. － oops ! 点击重新加载."
+#define KNSSTRING_NO_MORE_DATA       @"加载无更多数据. - 已经没有了."
+#define KNSSTRING_HAA                @"芦苇 芦苇 ......"
 
 typedef NS_ENUM(NSInteger, ThreadsStatus) {
     ThreadsStatusInit,
