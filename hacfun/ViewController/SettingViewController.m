@@ -119,7 +119,7 @@
     UIView *cell = [self.cellDict objectForKey:[NSNumber numberWithInteger:(NSInteger)tapGestureRecognizer]];
     UISegmentedControl *view = (UISegmentedControl*)[cell viewWithTag:(NSInteger)@"HostNameSelect"];
     
-    NSInteger indexSeleted = CONFIG_Object_To_NSInteger([[AppConfig sharedConfigDB] configDBGet:@"hostIndex"]);
+    NSInteger indexSeleted = [[[AppConfig sharedConfigDB] configDBGet:@"hostIndex"] integerValue];
     NSLog(@"-%zi", indexSeleted);
     
     [view setSelectedSegmentIndex:indexSeleted];
@@ -129,7 +129,7 @@
 
 - (void)selectHostName:(UISegmentedControl*)sender {
     NSInteger index = sender.selectedSegmentIndex;
-    [[AppConfig sharedConfigDB] configDBSet:@"hostIndex" withObject:CONFIG_NSInteger_To_Object(index)];
+    [[AppConfig sharedConfigDB] configDBSet:@"hostIndex" withObject:[NSNumber numberWithInteger:index]];
     
     /* 刷新对应的category. */
     [[NSNotificationCenter defaultCenter] postNotificationName:@"UpdateCategories" object:self userInfo:nil];

@@ -14,7 +14,7 @@
 
 
 //alloc init后调用设置tid.
-- (void)setPostThreadId:(NSInteger)threadId ;
+- (void)setPostThreadId:(NSInteger)threadId withData:(PostData*)postDataTopic;
 
 
 //前往最后一页.

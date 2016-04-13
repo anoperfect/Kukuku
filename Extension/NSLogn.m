@@ -18,16 +18,24 @@
 #include <string.h>
 #include <unistd.h>
 #include <pthread.h>
-#define NSLogo(FORMAT, ...) {\
-NSString *content = [NSString stringWithFormat:FORMAT, ##__VA_ARGS__];\
-printf("%s\n", [content UTF8String]);}
-
+/*
+  NSLog重新定义.
+  此文件中所有接口不能调用NSLog, 
+  否则触发循环调用.
+  调用NSLogo,
+  调用NSLog0 取消打印.
+ */
+#define NSLogo(FORMAT, ...) { NSString *content = [NSString stringWithFormat:FORMAT, ##__VA_ARGS__]; printf("------ %s\n", [content UTF8String]);}
+#define NSLog0(FORMAT, ...)
+ 
 
 @interface NSLogn ()<AsyncSocketDelegate>
 
 @property (nonatomic, strong) AsyncSocket *socket;
 @property (nonatomic, assign) BOOL connected;
 @property (nonatomic, strong) NSMutableString *storeString; //未连接时的log信息存起来.
+@property (nonatomic, assign) NSInteger lengthClear;
+@property (nonatomic, assign) NSInteger lengthLogMesseageTotal;
 @property (atomic,    assign) NSInteger sn;
 
 
@@ -91,7 +99,7 @@ printf("%s\n", [content UTF8String]);}
 
 - (void)dealloc
 {
-    NSLogo(@"&&&&&&dealloc.");
+    NSLogo(@"dealloc.");
 }
 
 
@@ -112,7 +120,7 @@ printf("%s\n", [content UTF8String]);}
 
 - (void)connect
 {
-    NSLogo(@"&&&&&& connnect");
+    NSLogo(@" connnect");
     
     //AsyncSocket *socket = [[AsyncSocket alloc] initWithDelegate:self];
     //[socket connectToHost:@SERVER_ADDR onPort:SERVER_PORT withTimeout:10 error:nil];
@@ -127,13 +135,13 @@ printf("%s\n", [content UTF8String]);}
     self.socket = [[AsyncSocket alloc] initWithDelegate:self];
     NSError *err = nil;
 //    BOOL bconnect = [self.socket connectToHost:@SERVER_ADDR onPort:SERVER_PORT error:&err];
-        NSLogo(@"&&&&&&connect start.");
+        NSLogo(@"connect start.");
     BOOL bconnect = [self.socket connectToHost:@SERVER_ADDR onPort:SERVER_PORT withTimeout:2.0 error:&err];
     if(bconnect) {
-        NSLogo(@"&&&&&&connected to.");
+        NSLogo(@"connected to.");
     }
     else {
-        NSLogo(@"&&&&&&connected failed : %@.", err);
+        NSLogo(@"connected failed : %@.", err);
     }
 #endif
 }
@@ -141,7 +149,7 @@ printf("%s\n", [content UTF8String]);}
 
 - (void)disconnect
 {
-    NSLogo(@"&&&&&&disconnect.");
+    NSLogo(@"disconnect.");
     [self.socket disconnect];
     self.socket = nil;
 }
@@ -150,11 +158,11 @@ printf("%s\n", [content UTF8String]);}
 
 -(void)sendLogContent1:(NSString*)logString
 {
-    NSLogo(@"&&&&&& sendLogContent1 : %zd", logString.length);
+    NSLog0(@" sendLogContent1 : %zd", logString.length);
     if(self.connected) {
-        //NSLogo(@"&&&&&&data : %@", data);
+        //NSLogo(@"data : %@", data);
         if(self.storeString.length > 0) {
-            NSLogo(@"@@@@@@ send store message : %@", self.storeString);
+            NSLog0(@"@@@@@@ send store message : %@", self.storeString);
             [self.socket writeData:[[NSString stringWithString:self.storeString] dataUsingEncoding:NSUTF8StringEncoding] withTimeout:-1 tag:0];
             self.storeString = [[NSMutableString alloc] init];
         }
@@ -165,15 +173,17 @@ printf("%s\n", [content UTF8String]);}
     else {
         static NSInteger klen = 0;
         klen += logString.length;
-        NSLogo(@"&&&&&& add to store +%zd <totoal : %zd>", logString.length, klen);
+        NSLog0(@" add to store +%zd <totoal : %zd>", logString.length, klen);
         if(!self.storeString) {
             self.storeString = [[NSMutableString alloc] init];
         }
         
         [self.storeString appendString:[NSString stringWithFormat:@"%@%@", logString, KNSSTRING_SEGMENT_HEADER]];
         
-        if(self.storeString.length < 1000) {
-            NSLogo(@"@@@@@@%@", self.storeString);
+        if((self.storeString.length - self.lengthClear) > (1024 * 100)) {
+            self.lengthLogMesseageTotal += self.storeString.length;
+            self.storeString = [[NSMutableString alloc] init];
+            NSLogo(@"log message total %zd.", self.storeString.length);
         }
     }
 }
@@ -181,7 +191,7 @@ printf("%s\n", [content UTF8String]);}
 
 -(void)onSocket:(AsyncSocket *)sock didConnectToHost:(NSString *)host port:(UInt16)port
 {
-    NSLogo(@"&&&&&&成功连接服务端：%@", host);
+    NSLogo(@"成功连接服务端：%@", host);
     self.connected = YES;
     
     //发送数据给服务端
@@ -201,7 +211,7 @@ printf("%s\n", [content UTF8String]);}
 //数据发送成功
 -(void)onSocket:(AsyncSocket *)sock didWriteDataWithTag:(long)tag
 {
-    //NSLogo(@"&&&&&&发送数据成功! ");
+    //NSLogo(@"发送数据成功! ");
 }
 
 
@@ -263,12 +273,12 @@ void* func_send_log(void *arg)
     
     int server_socket = socket(AF_INET, SOCK_STREAM, 0);
     if (server_socket == -1) {
-        perror("&&&&&&socket error");
+        perror("socket error");
         return NULL;
     }
     
     char reply_msg[1024];
-    printf("&&&&&& start connect.\n");
+    printf(" start connect.\n");
     
     if (connect(server_socket, (struct sockaddr *)&server_addr, sizeof(struct sockaddr_in))==0)     {
         //connect 成功之后，其实系统将你创建的socket绑定到一个系统分配的端口上，且其为全相关，包含服务器端的信息，可以用来和服务器端进行通信。
@@ -287,13 +297,13 @@ void* func_send_log(void *arg)
             snprintf(reply_msg, 1024, "123");
             
             if (send(server_socket, reply_msg, 1024, 0) == -1) {
-                perror("&&&&&&send error");
+                perror("send error");
             }
         }
     }
     
     // insert code here...
-    printf("&&&&&&#error. unexpected return.\n");
+    printf("#error. unexpected return.\n");
     
     return NULL;
 }

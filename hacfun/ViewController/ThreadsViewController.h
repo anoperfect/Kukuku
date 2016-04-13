@@ -43,8 +43,8 @@ typedef NS_ENUM(NSInteger, ThreadsStatus) {
 @property (strong,nonatomic) UITableView *postView;
 
 //显示threads的数据源.
-@property (strong,nonatomic) NSMutableArray *postDatas;
-@property (strong,nonatomic) NSMutableArray *postViewCellDatas;
+@property (strong,nonatomic) NSMutableArray *postDatas; // 成员为PostData数据.
+@property (strong,nonatomic) NSMutableArray *postViewCellDatas; //成员为NSMutableDictionary, 用于PostDataCellView的显示.
 
 //UITableView的footview.
 @property (strong,nonatomic) PushButton *footView;
@@ -89,7 +89,7 @@ typedef NS_ENUM(NSInteger, ThreadsStatus) {
 
 //override.
 //将刷新页得到的数据append到UITable的数据源时的行为. 可重写用于去重, 加页栏, 屏蔽等行为.
-- (NSInteger)appendParsedPostDatas:(NSMutableArray*)parsedPostDatasArray ;
+- (NSMutableArray*)parsedPostDatasRetreat:(NSMutableArray*)parsedPostDatas;
 
 
 //可重写以修改PostData显示到PostDataView时的数据行为.
@@ -107,15 +107,19 @@ typedef NS_ENUM(NSInteger, ThreadsStatus) {
 //DetailViewController用以记录用户浏览的最新回复. 可用于收藏页判断是否有新回复.
 - (void)threadDisplayActionInCell:(UITableViewCell*)cell withRow:(NSInteger)row;
 
-
 //可重写以判断是否到last page.
 - (BOOL)isLastPage;
 
 //可重写以针对不同状态提示不同显示内容.
 - (NSString*)getFooterViewTitleOnStatus:(ThreadsStatus)status;
 
+
+
 //重载以定义row行为. 定义为BOOL以实现让super尝试先处置.
 - (BOOL)actionOnRow:(NSInteger)row viaString:(NSString*)string;
+
+//重载以定义cell能支持的动作. NSArray成员为 NSString.
+- (NSArray*)actionStringsOnRow:(NSInteger)row;
 
 
 

@@ -144,7 +144,9 @@ CGPathRef NewPathWithRoundRect(CGRect rect, CGFloat cornerRadius)
     [[aSuperview layer] addAnimation:animation forKey:@"layerAnimation"];
     
     if(self.finish) {
-        self.finish();
+        dispatch_async(dispatch_get_main_queue(), ^{
+            self.finish();
+        });
     }
     
     [self removeFromSuperview];

@@ -151,11 +151,12 @@ static NSInteger kcountObject = 0;
 - (void)actionPressed:(UISegmentedControl*)sender {
     LOG_POSTION
     NSInteger index = sender.selectedSegmentIndex;
-    PostData *postData = [self.data objectForKey:@"postdata"];
-    NSLog(@"action on row %@ with action %@", self.data[@"row"], postData.actionStrings[index]);
+    
+    NSArray *actionStrings = [self.data objectForKey:@"actionStrings"];
+    NSLog(@"action on row %@ with action %@", self.data[@"row"], actionStrings[index]);
     
     if(self.rowAction) {
-        self.rowAction([(NSNumber*)(self.data[@"row"]) integerValue], postData.actionStrings[index]);
+        self.rowAction([(NSNumber*)(self.data[@"row"]) integerValue], actionStrings[index]);
     }
     
     sender.selectedSegmentIndex = -1;
@@ -214,13 +215,14 @@ static NSInteger kcountObject = 0;
     self.actionButtons.hidden = YES;
     NSNumber *showActions = [self.data objectForKey:@"showAction"];
     if([showActions boolValue]) {
-        NSInteger count = postData.actionStrings.count;
-        if([postData.actionStrings count] > 0) {
+        NSArray *actionStrings = [self.data objectForKey:@"actionStrings"];
+        NSInteger count = actionStrings.count;
+        if(count > 0) {
             self.actionButtons.hidden = NO;
             
             [self.actionButtons removeAllSegments];
             for(NSInteger index = 0; index < count; index ++) {
-                [self.actionButtons insertSegmentWithTitle:postData.actionStrings[index] atIndex:index animated:YES];
+                [self.actionButtons insertSegmentWithTitle:actionStrings[index] atIndex:index animated:YES];
             }
         }
     }
@@ -359,10 +361,10 @@ static NSInteger kcountObject = 0;
     dispatch_queue_t concurrentQueue = dispatch_queue_create("my.concurrent.queue", DISPATCH_QUEUE_CONCURRENT);
     dispatch_async(concurrentQueue, ^(void){
         //获取last page的信息.
-        NSMutableArray *postDataArray = [PostData sendSynchronousRequestByThreadId:tid andPage:0];
-        if([postDataArray count] > 0) {
-            PostData *postData = postDataArray[0];
-            postDataView.data = [NSDictionary dictionaryWithDictionary:[postData toViewDisplayData:ThreadDataToViewTypeInfoUseNumber]];
+        PostData *topic = [[PostData alloc] init];
+        [PostData sendSynchronousRequestByThreadId:tid andPage:1 andValueTopicTo:topic];
+        if(topic.id == tid) {
+            postDataView.data = [NSDictionary dictionaryWithDictionary:[topic toViewDisplayData:ThreadDataToViewTypeInfoUseNumber]];
         }
         else {
             NSMutableDictionary *dictm = [[NSMutableDictionary alloc] init];

@@ -27,30 +27,35 @@
     PostData *pdCopy = [[PostData alloc] init];
     NSLog(@"PostData deep copy");
     
-    pdCopy.content = [self.content copy];
-    pdCopy.createdAt = self.createdAt; //=1436622610000;
-    pdCopy.email = [self.email copy];//= "";
-    pdCopy.forum = self.forum; //= 4;
-    pdCopy.id = self.id;//= 6297913;
-    pdCopy.image = [self.image copy];
-    pdCopy.lock = self.lock ;//= 0;
-    pdCopy.name = [self.name copy]; //= "";
-    pdCopy.sage = self.sage ;//= 0;
-    pdCopy.thumb = [self.thumb copy];//= "";
-    pdCopy.title = [self.title copy];//= "";
-    pdCopy.uid = [self.uid copy];//= TYXC4L2E;
-    pdCopy.updatedAt = self.updatedAt;//= 1436668641000;
-    
-    pdCopy.bTopic = NO; //是否是主题. 否则为回复.
-    pdCopy.replys = NULL;
-    pdCopy.recentReply = [self.recentReply copy];
-    pdCopy.replyCount = self.replyCount ;
-    
-    pdCopy.optimumSizeHeight = self.optimumSizeHeight;
-    pdCopy.type = self.type;
-    pdCopy.actionStrings = self.actionStrings;
+    [pdCopy copyFrom:self];
     
     return pdCopy;
+}
+
+
+- (void)copyFrom:(PostData*)postDataFrom
+{
+    self.content = [postDataFrom.content copy];
+    self.createdAt = postDataFrom.createdAt; //=1436622610000;
+    self.email = [postDataFrom.email copy];//= "";
+    self.forum = postDataFrom.forum; //= 4;
+    self.id = postDataFrom.id;//= 6297913;
+    self.image = [postDataFrom.image copy];
+    self.lock = postDataFrom.lock ;//= 0;
+    self.name = [postDataFrom.name copy]; //= "";
+    self.sage = postDataFrom.sage ;//= 0;
+    self.thumb = [postDataFrom.thumb copy];//= "";
+    self.title = [postDataFrom.title copy];//= "";
+    self.uid = [postDataFrom.uid copy];//= TYXC4L2E;
+    self.updatedAt = postDataFrom.updatedAt;//= 1436668641000;
+    
+    self.bTopic = NO; //是否是主题. 否则为回复.
+    self.replys = NULL;
+    self.recentReply = [postDataFrom.recentReply copy];
+    self.replyCount = postDataFrom.replyCount ;
+    
+    self.optimumSizeHeight = postDataFrom.optimumSizeHeight;
+    self.type = postDataFrom.type;
 }
 
 
@@ -434,12 +439,6 @@ PostDataView 接收的字段字段
 }
 
 
-
-
-
-
-
-
 + (void)gotParsedThread:(NSDictionary*)dict belongTo:(NSInteger)threadId {
     
     LOG_POSTION
@@ -585,7 +584,6 @@ PostDataView 接收的字段字段
         //PostData各数据获取完成.
         pd.bTopic = YES;
         pd.mode = 1;
-        pd.actionStrings = @[@"复制", @"举报", @"加入草稿"];
         [postDatasArray addObject:pd];
     }
     
@@ -593,7 +591,8 @@ PostDataView 接收的字段字段
 }
 
 
-+ (NSMutableArray*)parseFromDetailedJsonData:(NSData*)data storeAdditional:(NSMutableDictionary*)additonal
+//下载内容为空或者解析出错时返回nil. no reply时返回空数组.
++ (NSMutableArray*)parseFromDetailedJsonData:(NSData*)data valueToTopic:(PostData*)topicNew storeAdditional:(NSMutableDictionary*)additonal
 {
     if(nil == data) {
         NSLog(@"data null");
@@ -617,7 +616,6 @@ PostDataView 接收的字段字段
         return nil;
     }
     
-    NSMutableArray *postDatasArray = [[NSMutableArray alloc] init];
     PostData *topic = nil;
     
     dict = (NSDictionary*)obj;
@@ -640,14 +638,15 @@ PostDataView 接收的字段字段
         }
         
         [self gotParsedThread:(NSDictionary*)obj belongTo:0];
-        topic.actionStrings = @[@"复制", @"举报", @"只看Po", @"加入草稿"];
-        [postDatasArray addObject:topic];
+        
+        [topicNew copyFrom:topic];
     }
     else {
-        NSLog(@"key threads nil.");
+        NSLog(@"error - key threads nil.");
         return nil;
     }
     
+    NSMutableArray *postDatasArray = [[NSMutableArray alloc] init];
     PostData *pd = nil;
     obj = [dict objectForKey:@"replys"];
     if(obj && [obj isKindOfClass:[NSMutableArray class]]) {
@@ -678,23 +677,23 @@ PostDataView 接收的字段字段
         
         pd.bTopic = NO;
         pd.mode = 2;
-        pd.actionStrings = @[@"复制", @"举报", @"关注", @"加入草稿"];
         [postDatasArray addObject:pd];
     }
     
-    NS0Log(@"<%p> count : %zd", postDatasArray, [postDatasArray count]);
     return postDatasArray;
 }
 
 
 //page=-1时取最后一页.
-+ (NSMutableArray*)sendSynchronousRequestByThreadId:(long long)tid andPage:(NSInteger)page
+//下载内容为空或者解析出错时返回nil. no reply时返回空数组.
++ (NSMutableArray*)sendSynchronousRequestByThreadId:(long long)tid andPage:(NSInteger)page andValueTopicTo:(PostData*)topic
 {
     NSString *urlString = nil;
     urlString = [NSString stringWithFormat:@"%@/t/%lld?page=%@",
                  [[AppConfig sharedConfigDB] configDBGet:@"host"],
                  tid,
-                 page!=-1?[NSNumber numberWithLongLong:tid]:@"last"];
+                 page!=-1?[NSNumber numberWithInteger:page]:@"last"];
+    NSLog(@"sync thread download url : %@", urlString);
     
     NSURL *url = [[NSURL alloc]initWithString:urlString];
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc]initWithURL:url];
@@ -708,7 +707,7 @@ PostDataView 接收的字段字段
     
     if (responseData && ([urlResponse statusCode] >= 200 && [urlResponse statusCode] < 300)) {
         //        NSString *responseText = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
-        return [PostData parseFromDetailedJsonData:responseData storeAdditional:nil];
+        return [PostData parseFromDetailedJsonData:responseData valueToTopic:topic storeAdditional:nil];
     }
     else {
         return nil;

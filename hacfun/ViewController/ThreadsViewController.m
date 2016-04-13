@@ -38,6 +38,7 @@
     if(self = [super init]) {
         self.threadsStatus = ThreadsStatusInit;
         self.pageNumLoaded = 0;
+        self.postDatas = [[NSMutableArray alloc] init];
     }
     
     return self;
@@ -49,10 +50,6 @@
     // Do any additional setup after loading the view, typically from a nib.
     
     self.host = [[AppConfig sharedConfigDB] configDBGet:@"host"];
-    //self.nameCategory = [@"综合版1" copy];
-    
-    //模拟的数据部分.
-    self.postDatas = [[NSMutableArray alloc] init];
     
     //tableview
     self.postView = [[UITableView alloc] init];
@@ -62,7 +59,6 @@
     self.postView.tag = 1;
     self.postView.backgroundColor = [AppConfig backgroundColorFor:@"PostTableView"];
     self.postView.separatorStyle = UITableViewCellSeparatorStyleNone;
-    [self.postView reloadData];
     
     //增加cell长按功能.
     UILongPressGestureRecognizer *longPressGr = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(longPressToDo:)];
@@ -93,14 +89,12 @@
         [self startAction];
     });
     
-
-
-    
     return;
 }
 
 
 - (void)viewWillLayoutSubviews {
+    LOG_POSTION
     [super viewWillLayoutSubviews];
     
     //tableview
@@ -213,11 +207,11 @@
     
     [self.postDatas removeAllObjects];
     [self.postViewCellDatas removeAllObjects];
-    [self.postView reloadData];
-        
     //could be override.
     [self clearDataAdditional];
-        
+    
+    [self postDatasToCellDataSource];
+    
     [self loadMore];
 }
 
@@ -241,24 +235,14 @@
 }
 
 
-- (NSInteger)appendParsedPostDatas:(NSMutableArray*)parsedPostDatasArray {
-    LOG_POSTION
-    
-    NSInteger returnNum = 0;
-    
-    if(nil == parsedPostDatasArray) {
-        NSLog(@"error - parseDownloadedData return nil.");
-        return NSNotFound;
-    }
-    
-    [self parsePostDatasPretreat:parsedPostDatasArray];
-    
-    [self.postDatas addObjectsFromArray:parsedPostDatasArray];
-    returnNum = [parsedPostDatasArray count];
-    
-    NSLog(@"numOfPost = %zi, array count =%zi", returnNum, [self.postDatas count]);
-    return returnNum;
+- (NSMutableArray*)parsedPostDatasRetreat:(NSMutableArray*)parsedPostData
+{
+    return [NSMutableArray arrayWithArray:parsedPostData];
 }
+
+
+
+
 
 
 - (void)postDatasToCellDataSource {
@@ -270,6 +254,10 @@
         index ++;
         [self.postViewCellDatas addObject:dict];
     }
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.postView reloadData];
+    });
 }
 
 
@@ -340,8 +328,8 @@
 
 
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    NSInteger rows = [self.postDatas count];
-    NSLog(@"------tableView numberOfRowsInSection : %zd", rows);
+    NSInteger rows = [self.postViewCellDatas count];
+    NSLog(@"------tableView numberOfRowsInSection : %zd [%zd]", rows, self.postDatas.count);
     return rows;
 }
 
@@ -433,11 +421,10 @@
                             - scrollView.frame.size.height;
                             //    - self.postView.tableFooterView.frame.size.height;
     
-    //NSLog(@"&&&&&&&&&&&&&&%f %f", offsetY, judgeOffsetY);
     //拉到低栏20及以上才出发上拉刷新.
     CGFloat heightTrigger = 36.0;
     if(offsetY >= judgeOffsetY + heightTrigger) {
-        NSLog(@"xxxxx")
+        NSLog(@"pull up trigger loadmore.");
         [self clickFootView];
     }
 }
@@ -544,12 +531,44 @@
                                                  andInitFrame:self.view.bounds
                                              completionHandle:^(PostDataCellView *postDataView, NSError *error) {
                                                  postDataView.center = postDataView.superview.center;
+                                                [self adjustPopupView:postDataView];
                                              }
                         ];
     }
     
     [self showPopupView:postDataView];
+    
+    [self adjustPopupView:postDataView];
+}
+
+
+//居中显示. 当弹出的PostDataCellView比superView高的时候, 需使用UIScrollView. 接口可移入CustomViewController中.
+- (void)adjustPopupView:(UIView*)postDataView
+{
     postDataView.center = postDataView.superview.center;
+    
+    LOG_POSTION
+    //当PostDataCellView的高度比superView的高度的一定比例高的时候, 加入UIScrollView.
+    if(postDataView.frame.size.height > (postDataView.superview.frame.size.height * 0.8)) {
+        UIView *superView = postDataView.superview;
+        
+        LOG_POSTION
+        CGRect frameScrollView = postDataView.superview.bounds;
+        frameScrollView.size.height = frameScrollView.size.height * 0.8;
+        UIScrollView *scrollView = [[UIScrollView alloc] initWithFrame:frameScrollView];
+        [postDataView.superview addSubview:scrollView];
+        scrollView.contentSize = postDataView.frame.size;
+        scrollView.center = postDataView.superview.center;
+        [postDataView removeFromSuperview];
+        
+        CGRect framePostDataView = postDataView.frame;
+        framePostDataView.origin.x = 0;
+        framePostDataView.origin.y = 0;
+        postDataView.frame = framePostDataView;
+        [scrollView addSubview:postDataView];
+        
+        NSLog(@"qaz %@", superView.subviews);
+    }
 }
 
 
@@ -592,6 +611,12 @@
     }
     
     return finishAction;
+}
+
+
+- (NSArray*)actionStringsOnRow:(NSInteger)row
+{
+    return @[@"复制", @"加入草稿"];
 }
 
 
@@ -641,28 +666,18 @@
 - (void)longPressOnRow:(NSInteger)row at:(CGPoint)pointInView {
     LOG_POSTION
     
-#if 0
-    UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 36, 36)];
-    view.center = pointInView;
-    [self.view addSubview:view];
-    view.backgroundColor = [UIColor blueColor];
-    
-    [UIView animateWithDuration:2.0
-                     animations:^{
-//                         view.hidden = YES;
-                         view.frame = CGRectMake(0, 0, 100, 100);
-                         view.center = pointInView;
-                     }
-                     completion:^(BOOL finished) {
-                         [view removeFromSuperview];
-    
-    
-                     }];
-#endif
-    
+    //标记需显示 cell栏的action.
     NSMutableDictionary * dictm = self.postViewCellDatas[row];
-    [dictm setObject:@YES forKey:@"showAction"];
+    NSNumber *numberBOOLShowAction = [dictm objectForKey:@"showAction"];
+    if(!numberBOOLShowAction || ![numberBOOLShowAction boolValue]) {
+        [dictm setObject:@YES forKey:@"showAction"];
+        [dictm setObject:[self actionStringsOnRow:row] forKey:@"actionStrings"];
+    }
+    else {
+        [dictm setObject:@NO forKey:@"showAction"];
+    }
     
+    //刷新指定row.
     NSIndexPath *indexPath_1=[NSIndexPath indexPathForRow:row inSection:0];
     NSArray *indexArray=[NSArray arrayWithObject:indexPath_1];
     [self.postView reloadRowsAtIndexPaths:indexArray withRowAnimation:UITableViewRowAnimationAutomatic];

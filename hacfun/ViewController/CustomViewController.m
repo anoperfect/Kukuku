@@ -81,6 +81,7 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
 
 
 - (void)viewWillLayoutSubviews {
+    LOG_POSTION
     [super viewWillLayoutSubviews];
     
     CGFloat heightViewIndication = 36;
@@ -97,7 +98,10 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
 
 
 - (void)viewWillAppear:(BOOL)animated {
+    LOG_POSTION
     [super viewWillAppear:animated];
+    
+    
     [self.navigationItem setHidesBackButton:YES];
     
     [self.navigationController.navigationBar setBackgroundImage:[UIImage imageNamed:@"bg"] forBarMetrics:UIBarMetricsDefault];

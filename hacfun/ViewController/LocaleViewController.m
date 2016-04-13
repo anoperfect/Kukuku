@@ -81,7 +81,12 @@
            andActivityIndicator:NO andDate:NO];
     
     [self postDatasToCellDataSource];
-    [self.postView reloadData];
+}
+
+
+- (NSArray*)actionStringsOnRow:(NSInteger)row
+{
+    return @[@"复制", @"加入草稿", @"删除"];
 }
 
 

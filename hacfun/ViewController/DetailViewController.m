@@ -88,15 +88,9 @@
 }
 
 
-- (void)viewDidLoad
-{
-    [super viewDidLoad];
-    LOG_POSTION
-}
-
-
 - (void)viewWillAppear:(BOOL)animated
 {
+    LOG_POSTION
     [super viewWillAppear:animated];
     //获取加载记录和浏览记录. (只记录加载记录和浏览记录的最大值.)
     NSDictionary *dictDatailHistory = [[AppConfig sharedConfigDB] configDBDetailHistoryQuery:@{@"id":[NSNumber numberWithInteger:self.threadId]}];
@@ -161,9 +155,14 @@
 }
 
 
-- (void) setPostThreadId:(NSInteger)id {
+- (void) setPostThreadId:(NSInteger)id withData:(PostData *)postDataTopic
+{
     self.threadId = id;
     self.textTopic =[NSString stringWithFormat:@"No.%zi", self.threadId];
+    if(postDataTopic) {
+        self.topic = [postDataTopic copy];
+        [self.postDatas addObject:self.topic];
+    }
 }
 
 
@@ -202,7 +201,7 @@
 
 
 - (void)postDatasToCellDataSource {
-    LOG_POSTION
+    NSLog(@"self.postDatas.count = %zd", self.postDatas.count);
     
     //在ThreadsViewController的解析基础上修改.
     [super postDatasToCellDataSource];
@@ -234,6 +233,7 @@
             index ++;
         }
     }
+    NSLog(@"self.postDatasCellDatas.count = %zd", self.postViewCellDatas.count);
 }
 
 
@@ -360,37 +360,20 @@
 }
 
 
-- (NSMutableArray*)parseDownloadedData:(NSData*)data {
+- (NSMutableArray*)parseDownloadedData:(NSData*)data
+{
+    LOG_POSTION
+    
     NSMutableDictionary *addtional = [[NSMutableDictionary alloc] init];
-    NSMutableArray *postDatas = [PostData parseFromDetailedJsonData:data storeAdditional:addtional];
+    PostData *topic = [[PostData alloc] init];
+    NSMutableArray *postDatas = [PostData parseFromDetailedJsonData:data valueToTopic:topic storeAdditional:addtional];
     
-    NSString *key = @"threads";
-    if([addtional[key] isEqual:self.threadsInfo]) {
-        NSLog(@"%@ info not change.", key)
-    }
-    else {
-        self.threadsInfo = addtional[key];
-        NSLog(@"%@ info updated.", key);
-    }
-    
-    return postDatas;
-}
-
-
-//---override. pretreat before append to self.postDatas.
-//it would cause after load the second page, cell location changed. ???
-//need to keep the optimumSizeHeight of index 0, or it would be set the default height.
-- (NSInteger)parsePostDatasPretreat:(NSMutableArray*)parsedPostDatasArray {
-
-    PostData *topic = [[parsedPostDatasArray objectAtIndex:0] copy];
-    NSInteger numOfReply = 0;
-    NSInteger numDuplicate = 0;
-    
-    //[parsedPostDatasArray removeAllObjects];
-    
+    //查看是否需更新主题.
+    //确认主题内容是否更新. 更新的话需保存主题的高度. 否则在主题不显示在屏幕的时候导致当前页面显示的原cell移动.
     if(!self.topic) {
         self.topic = topic;
-        numOfReply ++;
+        [self.postDatas addObject:self.topic];
+        [self postDatasToCellDataSource];
         NSLog(@"threads added");
     }
     else {
@@ -402,31 +385,56 @@
             self.topic = topic;
             NSLog(@"threads updated");
             [self.postDatas replaceObjectAtIndex:0 withObject:topic];
-            
+            [self postDatasToCellDataSource];
         }
     }
+    
+    //检查附属信息是否更新.
+    NSString *key = @"threads";
+    if([addtional[key] isEqual:self.threadsInfo]) {
+        NSLog(@"%@ info not change.", key)
+    }
+    else {
+        self.threadsInfo = addtional[key];
+        NSLog(@"%@ info updated.", key);
+    }
+    
+    NSLog(@"%zd %zd %@", self.postDatas.count, self.postViewCellDatas.count, postDatas);
+    
+    return postDatas;
+}
+
+//override.
+//将刷新页得到的数据append到UITable的数据源时的行为. 可重写用于去重, 加页栏, 屏蔽等行为.
+- (NSMutableArray*)parsedPostDatasRetreat:(NSMutableArray*)parsedPostDatas
+{
+    if(!parsedPostDatas) {
+        return nil;
+    }
+    
+    NSMutableArray *retreatedPostDatas = [[NSMutableArray alloc] init];
+    NSInteger numOfReply = 0;
+    NSInteger numDuplicate = 0;
     
     self.topic.bTopic = YES;
     self.topic.mode = 1;
     NSMutableIndexSet *removeIndexSet = [[NSMutableIndexSet alloc] init];
     NSInteger index = 0;
-    for(PostData* pd in parsedPostDatasArray) {
+    for(PostData* pd in parsedPostDatas) {
         
         if([pd isIdInArray:self.postDatas]) {
             numDuplicate ++;
-            //[parsedPostDatasArray removeObject:pd];
             [removeIndexSet addIndex:index];
         }
         else {
             numOfReply ++;
+            [retreatedPostDatas addObject:pd];
         }
         
         index ++;
     }
     
-    [parsedPostDatasArray removeObjectsAtIndexes:removeIndexSet];
-
-    return [parsedPostDatasArray count];
+    return retreatedPostDatas;
 }
 
 
@@ -479,11 +487,22 @@
 }
 
 
-- (void)storeLoadedData:(NSData*)data
+- (void)actionAfterParseAndRefresh:(NSData *)data andPostDataParsed:(NSMutableArray *)postDataParsed andPostDataAppended:(NSMutableArray *)postDataAppended
 {
+    [super actionAfterParseAndRefresh:data andPostDataParsed:postDataParsed andPostDataAppended:postDataAppended];
+    
+    //保存最新回复CreatedAt.
+    [self storeLoadedInfo];
+}
+
+
+- (void)storeLoadedInfo
+{
+    LOG_POSTION
     if([self.postDatas count] > 0) {
         PostData *pdLoaded = [self.postDatas lastObject];
         if(pdLoaded && pdLoaded.createdAt > self.createdAtForLoaded) {
+            return;
             self.createdAtForLoaded = pdLoaded.createdAt;
             NSLog(@"detail history : Loaded update to %lld[%@]",
                   self.createdAtForLoaded,
@@ -499,19 +518,36 @@
 
 
 - (void)clearDataAdditional {
-    self.topic = nil;
+    //refresh的时候, 一直显示已有的topic.
+    if(self.topic) {
+        [self.postDatas addObject:self.topic];
+    }
 }
 
 
-- (void)longPressOnRow:(NSInteger)row at:(CGPoint)pointInView {
-    LOG_POSTION
+- (NSString*)getFooterViewTitleOnStatus:(ThreadsStatus)status
+{
+    if(status == ThreadsStatusLoadSuccessful) {
+        NSInteger loadedReplyCount = self.postDatas.count;
+        if(loadedReplyCount > 0) {
+            loadedReplyCount -- ;
+        }
+        return [NSString stringWithFormat:@"加载成功, 已加载回复%zd条.", loadedReplyCount];
+    }
     
-    NSMutableDictionary * dictm = self.postViewCellDatas[row];
-    [dictm setObject:@YES forKey:@"showAction"];
-    
-    NSIndexPath *indexPath_1=[NSIndexPath indexPathForRow:row inSection:0];
-    NSArray *indexArray=[NSArray arrayWithObject:indexPath_1];
-    [self.postView reloadRowsAtIndexPaths:indexArray withRowAnimation:UITableViewRowAnimationAutomatic];
+    return [super getFooterViewTitleOnStatus:status];
+}
+
+
+//重载以定义cell能支持的动作. NSArray成员为 NSString.
+- (NSArray*)actionStringsOnRow:(NSInteger)row
+{
+    if(0 == row) {
+        return @[@"复制", @"举报", @"只看Po", @"加入草稿", @"链接"];
+    }
+    else {
+        return @[@"复制", @"举报", @"加入草稿"];
+    }
 }
 
 

@@ -42,7 +42,7 @@
 - (void)setBackgroundDownload {
     
     NSString *str = [self getDownloadUrlString];
-    NSLog(@"str=%@", str);
+    NSLog(@"threads download str=%@", str);
     
     //    NSURL *url=[[NSURL alloc] initWithString:[str stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
     NSURL *url=[[NSURL alloc] initWithString:str];
@@ -94,79 +94,79 @@
 - (void)parseAndFresh:(NSData*)data {
     self.boolRefresh = NO;
     
+    LOG_POSTION
+    
+    NSMutableArray *appendPostDatas = nil;
     NSMutableArray* parsedPostDatas = [self parseDownloadedData:data];
     if(nil == parsedPostDatas) {
         NSLog(@"xxxxxx parse json error \n%@",[[NSString alloc] initWithData:data  encoding:NSUTF8StringEncoding]);
         self.threadsStatus = ThreadsStatusLoadFailed;
         [self showfootViewWithTitle:[self getFooterViewTitleOnStatus:self.threadsStatus] andActivityIndicator:NO andDate:NO];
-        
-        if(self.autoRepeatDownload) {
-            self.autoRepeatDownload = NO;
-            //[self showIndicationText:@"获取数据失败. 自动加载停止."];
-        }
     }
     else if(0 == [parsedPostDatas count]) {
         NSLog(@"xxxxxx no more new data");
-        self.threadsStatus = ThreadsStatusLoadFailed;
+        self.threadsStatus = ThreadsStatusLoadNoMoreData;
         [self showfootViewWithTitle:[self getFooterViewTitleOnStatus:self.threadsStatus] andActivityIndicator:NO andDate:NO];
-        if(self.autoRepeatDownload) {
-            self.autoRepeatDownload = NO;
-            //[self showIndicationText:@"未获取到更多数据. 自动加载停止."];
-        }
     }
     else {
-        NSInteger numAdd = [self appendParsedPostDatas:parsedPostDatas];
-        if(numAdd <= 0) {
+        appendPostDatas = [self parsedPostDatasRetreat:parsedPostDatas];
+        NSLog(@"parsed : %zd, after retreated append : %zd.", parsedPostDatas.count, appendPostDatas.count);
+        
+        if(appendPostDatas.count <= 0) {
             NSLog(@"xxxxxx no more new data");
             self.threadsStatus = ThreadsStatusLoadNoMoreData;
             [self showfootViewWithTitle:[self getFooterViewTitleOnStatus:self.threadsStatus] andActivityIndicator:NO andDate:NO];
-            if(self.autoRepeatDownload) {
-                self.autoRepeatDownload = NO;
-                //[self showIndicationText:@"未获取到更多数据. 自动加载停止."];
-            }
         }
         else {
+            [self.postDatas addObjectsFromArray:appendPostDatas];
             NSLog(@"------ reload to count : %zi", self.postDatas.count);
             self.threadsStatus = ThreadsStatusLoadSuccessful;
             self.pageNumLoaded = self.pageNumLoading;
             [self postDatasToCellDataSource];
-            [self storeLoadedData:data];
-            [self.postView reloadData];
             [self.postView setHidden:NO];
             [self showfootViewWithTitle:[self getFooterViewTitleOnStatus:self.threadsStatus] andActivityIndicator:NO andDate:YES];
-            
-            if([self isLastPage]) {
-                NSLog(@"last page.");
-                if(self.autoRepeatDownload) {
-                    self.autoRepeatDownload = NO;
-                    //[self showIndicationText:@"加载完成. 自动加载停止."];
-                }
-            }
-            else {
-                NSLog(@"not last page.");
-                if(self.autoRepeatDownload) {
-                    [self showIndicationText:[NSString stringWithFormat:@"已加载第%zd页, 共%zd条.", self.pageNumLoaded, [self.postDatas count]]];
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        [self reloadPostData];
-                    });
-                }
-            }
         }
     }
     
     //根据刷新的原因分类. 1.栏目刷新. 2.加载. 3.下拉刷新.
     self.refresh.attributedTitle = [[NSAttributedString alloc]initWithString:@"刷新完成"];
     [self.refresh endRefreshing];
-}
-
-
-- (void)storeLoadedData:(NSData*)data
-{
     
+    [self actionAfterParseAndRefresh:data andPostDataParsed:parsedPostDatas andPostDataAppended:appendPostDatas];
 }
 
 
-
+- (void)actionAfterParseAndRefresh:(NSData*)data
+                 andPostDataParsed:(NSMutableArray*)postDataParsed
+               andPostDataAppended:(NSMutableArray*)postDataAppended
+{
+    //关于自动下载.
+    //停止自动下载.
+    if(postDataAppended.count <= 0) {
+        if(self.autoRepeatDownload) {
+            self.autoRepeatDownload = NO;
+            //[self showIndicationText:@"获取数据失败. 自动加载停止."];
+        }
+    }
+    else {
+        if([self isLastPage]) {
+            NSLog(@"last page.");
+            if(self.autoRepeatDownload) {
+                self.autoRepeatDownload = NO;
+                //[self showIndicationText:@"加载完成. 自动加载停止."];
+            }
+        }
+        else {
+            NSLog(@"not last page.");
+            if(self.autoRepeatDownload) {
+                [self showIndicationText:[NSString stringWithFormat:@"已加载第%zd页, 共%zd条.", self.pageNumLoaded, [self.postDatas count]]];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self reloadPostData];
+                });
+            }
+        }
+    }
+}
 
 
 @end

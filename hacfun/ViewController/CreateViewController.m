@@ -776,11 +776,9 @@
 {
     [self.navigationController popViewControllerAnimated:YES];
     DetailViewController *newDetailViewController = [[DetailViewController alloc] init];
-    [newDetailViewController setPostThreadId:tid];
+    [newDetailViewController setPostThreadId:tid withData:nil];
     [self.navigationController pushViewController:newDetailViewController animated:YES];
 }
-
-
 
 
 - (void)connection:(NSURLConnection *)connection

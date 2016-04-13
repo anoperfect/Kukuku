@@ -29,7 +29,7 @@
     
     // Initilizing data souce
     self.tableData = [@[@"搜索",@"收藏", @"发帖", @"回复", @"设置"] mutableCopy];
-    [self.tableData addObject:@"测试"];
+//    [self.tableData addObject:@"测试"];
     [self.tableData addObject:@"图片"];
     
 //    [self.view setBackgroundColor:[UIColor blueColor]];
@@ -137,9 +137,10 @@
 //        [popupView popupInSuperView:self.view];
         
         DetailViewController *vc = [[DetailViewController alloc]init];
-        [vc setPostThreadId:6670627];
-        [vc setPostThreadId:6477099];
-        [vc setPostThreadId:6468268];
+        [vc setPostThreadId:6670627 withData:nil];
+        [vc setPostThreadId:6477099 withData:nil];
+        [vc setPostThreadId:6468268 withData:nil];
+        [vc setPostThreadId:6468276 withData:nil];
         rootVC = vc;
     }
     

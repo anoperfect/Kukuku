@@ -85,39 +85,28 @@
 - (BOOL)configDBRecordInsertOrReplace:(NSDictionary*)infoInsert ;
 
 
+
+
+
+
+//颜文字. 颜文字当前只能获取不能增加,删除.
 - (NSArray*)getEmoticonStrings;
 
 
 
-
-
-
-
-
-
-
-
+//草稿.
 - (NSInteger)configDBInitCreateTableDraft:(FMDatabase *)dataBase;
 - (NSInteger)configDBDraftInsert:(NSDictionary *)infoInsert;
 - (NSInteger)configDBDraftDelete:(NSDictionary *)infoDelete;
 - (NSArray*)configDBDraftQuery:(NSDictionary*)infoQuery;
 
 
-
+//测试.
 - (void)configDBTestClearForRebuild;
 - (void)configDBTestOnConfig:(NSString*)sqlString;
 @end
 
 
-
-
-#define CONFIG_NSInteger_To_Object(integer) [NSNumber numberWithInteger:integer]
-#define CONFIG_Object_To_NSInteger(number)  [number integerValue]
-
-
-
-#define CONFIG_NSSTRING_TO_BOOL(s)
-#define CONFIG_NSSTRING_TO_INTEGER(s)
 
 
 

@@ -38,12 +38,6 @@
 
 @property (nonatomic, strong) NSString *jsonString;
 
-
-
-@property (nonatomic, strong) NSArray *actionStrings;
-
-
-
 typedef enum {
     PostDataTypeNone = 0,       //基础
     PostDataTypeReal,           //实时解析出来的.
@@ -77,13 +71,13 @@ typedef NS_ENUM(NSInteger, ThreadDataToViewType) {
 + (NSMutableArray*)parseFromCategoryJsonData:(NSData*)data storeAdditional:(NSMutableDictionary*)additonal;
 
 //从thread响应api中获取的内容中解出PostData数组. forum的信息以key=threads, obj=dict的形式存入additional.
-+ (NSMutableArray*)parseFromDetailedJsonData:(NSData*)data storeAdditional:(NSMutableDictionary*)additonal;
++ (NSMutableArray*)parseFromDetailedJsonData:(NSData*)data valueToTopic:(PostData*)topicNew storeAdditional:(NSMutableDictionary*)additonal;
 
 
 + (PostData*)parseFromThreadJsonData:(NSData*)data ;
 
 
-+ (NSMutableArray*)sendSynchronousRequestByThreadId:(long long)tid andPage:(NSInteger)page;
++ (NSMutableArray*)sendSynchronousRequestByThreadId:(long long)tid andPage:(NSInteger)page andValueTopicTo:(PostData*)topic;
 
 
 #if 0

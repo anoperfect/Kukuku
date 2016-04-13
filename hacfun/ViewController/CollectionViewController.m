@@ -38,10 +38,12 @@
         actionData.image    = @"refresh";
         [self actionAddData:actionData];
         
+#if 0
         actionData = [[ButtonData alloc] init];
         actionData.keyword  = @"删除";
 //        actionData.image    = @"delete";
         [self actionAddData:actionData];
+#endif
     }
     
     return self;
@@ -64,22 +66,13 @@
 - (void)didSelectRow:(NSInteger)row {
     
     DetailViewController *vc = [[DetailViewController alloc]init];
-    NSInteger threadId = ((PostData*)[self.postDatas objectAtIndex:row]).id;
     
+    PostData *postDataPresent = [self.postDatas objectAtIndex:row];
+    NSInteger threadId = postDataPresent.id;
     NSLog(@"threadId = %zi", threadId);
-    [vc setPostThreadId:threadId];
+    [vc setPostThreadId:threadId withData:postDataPresent];
     
     [self.navigationController pushViewController:vc animated:YES];
-}
-
-
-//信息部分显示更改为回复数.
-- (void)postDatasToCellDataSource {
-    LOG_POSTION
-    //在ThreadsViewController的解析基础上修改.
-    [super postDatasToCellDataSource];
-    
-    //无其他修改.
 }
 
 
@@ -123,10 +116,11 @@
     dispatch_queue_t concurrentQueue = dispatch_queue_create("my.concurrent.queue", DISPATCH_QUEUE_CONCURRENT);
     dispatch_async(concurrentQueue, ^(void){
         //获取last page的信息.
-        NSMutableArray *postDataArray = [PostData sendSynchronousRequestByThreadId:tid andPage:-1];
+        PostData *topic = [[PostData alloc] init];
+        NSMutableArray *postDataArray = [PostData sendSynchronousRequestByThreadId:tid andPage:-1 andValueTopicTo:topic];
         
         dispatch_async(dispatch_get_main_queue(), ^(void) {
-            [self checkUpdateTidResult:tid withPostDataArray:[NSArray arrayWithArray:postDataArray]];
+            [self checkUpdateTidResult:tid withReplyPostDatas:postDataArray andTopic:topic];
         });
     });
 }
@@ -157,7 +151,7 @@
 
 
 //需在主线程执行.
-- (void)checkUpdateTidResult:(NSInteger)tid withPostDataArray:(NSArray*)postDataArray
+- (void)checkUpdateTidResult:(NSInteger)tid withReplyPostDatas:(NSArray*)postDataArray andTopic:(PostData*)topic
 {
     NSNumber *number = [NSNumber numberWithInteger:tid];
 
@@ -166,7 +160,7 @@
         NSLog(@"tid [%zd] get page last error:%@", tid, @"no PostData parsed.");
         [self updateToCellData:tid withInfo:@{@"message":@"更新出错"}];
     }
-    else if([postDataArray count] == 1){
+    else if([postDataArray count] <= 0){
         NSLog(@"tid [%zd] no reply", tid);
         //没有更新则不修改显示.
     }

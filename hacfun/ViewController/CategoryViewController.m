@@ -129,17 +129,34 @@
 }
 
 
+- (NSString*)getFooterViewTitleOnStatus:(ThreadsStatus)status
+{
+    if(status == ThreadsStatusLoadSuccessful) {
+        return [NSString stringWithFormat:@"加载成功, 已加载%zd条.", self.postDatas.count];
+    }
+    
+    return [super getFooterViewTitleOnStatus:status];
+}
+
+
 - (void)didSelectRow:(NSInteger)row {
     
     DetailViewController *vc = [[DetailViewController alloc]init];
     
-    NSInteger threadId = ((PostData*)[self.postDatas objectAtIndex:row]).id;
+    PostData *postDataPresent = [self.postDatas objectAtIndex:row];
+    NSInteger threadId = postDataPresent.id;
     NSLog(@"threadId = %zi", threadId);
-    [vc setPostThreadId:threadId];
+    [vc setPostThreadId:threadId withData:postDataPresent];
 
     [self.navigationController pushViewController:vc animated:YES];
 }
 
+
+//重载以定义cell能支持的动作. NSArray成员为 NSString.
+- (NSArray*)actionStringsOnRow:(NSInteger)row
+{
+    return @[@"复制", @"举报", @"加入草稿"];
+}
 
 
 - (void)layoutCell: (UITableViewCell *)cell withRow:(NSInteger)row withPostData:(PostData*)postData {
