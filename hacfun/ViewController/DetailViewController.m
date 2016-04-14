@@ -502,7 +502,6 @@
     if([self.postDatas count] > 0) {
         PostData *pdLoaded = [self.postDatas lastObject];
         if(pdLoaded && pdLoaded.createdAt > self.createdAtForLoaded) {
-            return;
             self.createdAtForLoaded = pdLoaded.createdAt;
             NSLog(@"detail history : Loaded update to %lld[%@]",
                   self.createdAtForLoaded,

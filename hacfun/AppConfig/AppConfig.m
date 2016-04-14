@@ -318,7 +318,7 @@
 }
 
 
-- (NSArray*)configDBCollectionQuery:(NSDictionary*)infoQuery {
+- (NSArray*)configDBCollectionQuery1:(NSDictionary*)infoQuery {
     //默认按照最新收藏的放最前面.
     NSString *query = [NSString stringWithFormat:@"SELECT collection.id, collection.collectedAt, record.jsonstring FROM collection,record WHERE collection.id = record.id ORDER BY collection.collectedAt DESC"]; //ASC
     
@@ -339,10 +339,49 @@
                                };
         [array addObject:dict];
     }
-    NSLog(@"%s count : %zi", __FUNCTION__, [array count]);
+    NSLog(@"%s count : %zi \n%@", __FUNCTION__, [array count], array);
     
     return [NSArray arrayWithArray:array];
 }
+
+
+- (NSArray*)configDBCollectionQuery:(NSDictionary*)infoQuery {
+    
+    NSArray *arrayCollections = [self.dbData DBDataQuery:self.hostDataBase toTable:@"collection" withInfo:@{@"orderString":@"ORDER BY collection.collectedAt DESC"}];
+    NSMutableArray *idArrayM = [[NSMutableArray alloc] init];
+    for(NSDictionary *dict in arrayCollections) {
+        [idArrayM addObject:[dict objectForKey:@"id"]];
+    }
+    
+    NSArray *arrayRecords = nil;
+    if(idArrayM.count > 0) {
+        //正常情况下, record中有此记录. 但是post, reply可能因为网络原因未访问下thread信息然后存储到record. 因此需重新构建数组.
+        arrayRecords = [self.dbData DBDataQuery:self.hostDataBase toTable:@"record" withInfo:@{@"id":[NSArray arrayWithArray:idArrayM]}];
+        
+        if(arrayRecords.count == idArrayM.count) {
+            return arrayRecords;
+        }
+        else {
+            NSMutableArray *arrayMReturn = [[NSMutableArray alloc] init];
+            NSMutableDictionary *dictMRecord = [[NSMutableDictionary alloc] init];
+            for(NSInteger index=0; index < idArrayM.count; index++) {
+                [dictMRecord setObject:idArrayM[index] forKey:@"id"];
+            
+                //在record中寻找id对应的信息.然后填充到dictMRecord.
+                
+                
+                [arrayMReturn addObject:[NSDictionary dictionaryWithDictionary:dictMRecord]];
+            }
+            
+            arrayRecords = [NSArray arrayWithArray:arrayMReturn];
+        }
+    }
+    
+    return arrayRecords;
+}
+
+
+
 
 
 //- (BOOL)configDBCollectionUpdate:(NSDictionary*)infoUpdate {
@@ -791,6 +830,9 @@
 - (id)init {
     if (self = [super init]) {
         self.dbData = [[DBData alloc] init];
+        
+        [FuncDefine colorFromString:@"#123456@96"];
+        [FuncDefine colorFromString:@"#65432F"];
         
         //建立或者升级数据库.
         [self configDBBuildWithForceRebuild:NO];

@@ -18,6 +18,8 @@
 + (NSString*)stringsCombine:(NSArray*)strings withConnector:(NSString*)stringConnector;
 + (NSString*)stringPaste:(NSString*)string onTimes:(NSInteger)times withConnector:(NSString*)stringConnector;
 + (NSString*)decodeWWWEscape:(NSString*)string;
+
++(UIColor*)colorFromString:(NSString*)string;
 @end
 
 

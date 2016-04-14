@@ -192,13 +192,95 @@
         table.tableName = tableName;
         table.columns = [NSArray arrayWithArray:columnsm];
         table.forHost = NO;
-        table.primaryKey = @[@"sn"];
+        table.primaryKey = nil;//@[@"sn"];
+        
+        return table;
+    }
+    
+    if([tableName isEqualToString:@"record"]) {
+        NSMutableArray *columnsm = [[NSMutableArray alloc] init];
+        DBColumnValue *column;
+        column = [[DBColumnValue alloc] init];
+        column.columnName = @"id";
+        column.dataType = DBDataColumnTypeNumberInteger;
+        column.isNeedForInsert = NO;
+        column.isAutoIncrement = NO;
+        [columnsm addObject:column];
+        
+        column = [[DBColumnValue alloc] init];
+        column.columnName = @"threadId";
+        column.dataType = DBDataColumnTypeNumberInteger;
+        column.isNeedForInsert = NO;
+        column.isAutoIncrement = NO;
+        [columnsm addObject:column];
+    
+        column = [[DBColumnValue alloc] init];
+        column.columnName = @"createdAt";
+        column.dataType = DBDataColumnTypeNumberLongLong;
+        column.isNeedForInsert = NO;
+        column.isAutoIncrement = NO;
+        [columnsm addObject:column];
+        
+        column = [[DBColumnValue alloc] init];
+        column.columnName = @"updatedAt";
+        column.dataType = DBDataColumnTypeNumberLongLong;
+        column.isNeedForInsert = NO;
+        column.isAutoIncrement = NO;
+        [columnsm addObject:column];
+        
+        column = [[DBColumnValue alloc] init];
+        column.columnName = @"jsonstring";
+        column.dataType = DBDataColumnTypeString;
+        column.isNeedForInsert = NO;
+        column.isAutoIncrement = NO;
+        [columnsm addObject:column];
+        
+        column = [[DBColumnValue alloc] init];
+        column.columnName = @"belongTo";
+        column.dataType = DBDataColumnTypeNumberInteger;
+        column.isNeedForInsert = NO;
+        column.isAutoIncrement = NO;
+        [columnsm addObject:column];
+        
+        DBTableValue *table = [[DBTableValue alloc] init];
+        table.tableName = tableName;
+        table.columns = [NSArray arrayWithArray:columnsm];
+        table.forHost = NO;
+        table.primaryKey = @[@"id"];
+        
+        return table;
+    }
+    
+    if([tableName isEqualToString:@"collection"]) {
+        NSMutableArray *columnsm = [[NSMutableArray alloc] init];
+        DBColumnValue *column;
+        
+        column = [[DBColumnValue alloc] init];
+        column.columnName = @"id";
+        column.dataType = DBDataColumnTypeNumberInteger;
+        column.isNeedForInsert = NO;
+        column.isAutoIncrement = NO;
+        [columnsm addObject:column];
+        
+        column = [[DBColumnValue alloc] init];
+        column.columnName = @"collectedAt";
+        column.dataType = DBDataColumnTypeNumberLongLong;
+        column.isNeedForInsert = NO;
+        column.isAutoIncrement = NO;
+        [columnsm addObject:column];
+        
+        DBTableValue *table = [[DBTableValue alloc] init];
+        table.tableName = tableName;
+        table.columns = [NSArray arrayWithArray:columnsm];
+        table.forHost = NO;
+        table.primaryKey = @[@"id"];
         
         return table;
     }
     
     return nil;
 }
+
 
 
 
@@ -318,29 +400,67 @@
 
 
 //查
-- (NSArray*)DBDataQuery:(FMDatabase*)db toTable:(NSString*)tableName withInfo:(NSDictionary*)infoQuery
+- (NSArray*)DBDataQuery:(FMDatabase*)db toTable:(NSString*)tableName withInfo:(NSDictionary*)infoQuery1
 {
+    //获取表信息.
+    DBTableValue *table = [self getInitDBTableValue:db withTableName:tableName];
     NSMutableString *querym ;
     NSMutableArray *queryResultm = [[NSMutableArray alloc] init];
+    
+    NSString *orderQueryString = nil;
+    NSMutableDictionary *infoQueryUsing = [NSMutableDictionary dictionaryWithDictionary:infoQuery1];
+    orderQueryString = [infoQueryUsing objectForKey:@"orderString"];
+    if(orderQueryString) {
+        [infoQueryUsing removeObjectForKey:@"orderString"];
+    }
+    
     FMResultSet *rs ;
-    if(!infoQuery) {
-        querym = [NSMutableString stringWithFormat:@"SELECT rowid,* FROM %@", tableName];
+    if(0 == infoQueryUsing.count) {
+        querym = [NSMutableString stringWithFormat:@"SELECT *%@ FROM %@", table.primaryKey.count==0?@",rowid":@"", tableName];
+        //table.primaryKey.count==0?@",row":@""用于在主键缺省的时候使用隐藏主键rowid.
+        [querym appendFormat:@" %@", orderQueryString?orderQueryString:@""];
         rs = [db executeQuery:[NSString stringWithString:querym]];
+        NSLog(@"query string : %@", querym);
     }
     else {
-        NSArray *infoQueryKeys = infoQuery.allKeys;
-        NSArray *infoQueryValues = infoQuery.allValues;
-        querym = [NSMutableString stringWithFormat:@"SELECT rowid,* FROM %@ WHERE %@ = ?", tableName, infoQueryKeys[0]];
+        NSArray *infoQueryKeys = infoQueryUsing.allKeys;
+        NSArray *infoQueryValues = infoQueryUsing.allValues;
+        NSMutableArray *infoQueryPrameterm = [[NSMutableArray alloc] init];
+        
+        querym = [NSMutableString stringWithFormat:@"SELECT rowid,* FROM %@ WHERE", tableName];
+        for(NSInteger index = 0; index < infoQueryKeys.count; index++) {
+            if(index > 0) {
+                [querym appendString:@" and"];
+            }
+            
+            if([infoQueryValues[index] isKindOfClass:[NSArray class]]) {
+//                [querym appendFormat:@" %@ in (?)", infoQueryKeys[index]];
+//                [infoQueryPrameterm addObject:@"6624990, 6678673, 6686117, 6688224]"];
+                [querym appendFormat:@" %@ IN (%@)", infoQueryKeys[index], @"6624990, 6678673, 6686117, 6688224"];
+            }
+            else {
+                [querym appendFormat:@" %@ = ?", infoQueryKeys[index]];
+                [infoQueryPrameterm addObject:infoQueryValues];
+            }
+        }
+        
+#if 0
+        querym = [NSMutableString stringWithFormat:@"SELECT *%@ FROM %@ WHERE %@ = ?", tableName, table.primaryKey.count==0?@",rowid":@"", infoQueryKeys[0]];
         NSInteger count = infoQueryKeys.count;
         for(NSInteger index = 1; index < count; index ++) {
             [querym appendFormat:@" and %@ = ?", infoQueryKeys[index]];
         }
+        
         rs = [db executeQuery:[NSString stringWithString:querym] withArgumentsInArray:infoQueryValues];
+#endif
+        
+        [querym appendFormat:@" %@", orderQueryString?orderQueryString:@""];
+        NSLog(@"query string : %@", querym);
+        rs = [db executeQuery:[NSString stringWithString:querym] withArgumentsInArray:infoQueryPrameterm];
     }
     
     while ([rs next]) {
         NSMutableDictionary *dictm = [[NSMutableDictionary alloc] init];
-        DBTableValue *table = [self getInitDBTableValue:db withTableName:tableName];
         dictm[@"rowid"] = [NSNumber numberWithInteger:[rs intForColumn:@"rowid"]];
         for(DBColumnValue *column in table.columns) {
             switch (column.dataType) {
