@@ -27,6 +27,8 @@
 @property (nonatomic, strong) NSArray *images;
 @property (nonatomic, strong) NSArray *filePaths;
 
+@property (nonatomic, assign) NSInteger totalImagesNumber;
+
 
 @end
 
@@ -145,29 +147,45 @@
 {
     NSMutableArray *imageArray = [[NSMutableArray alloc] init];
     NSMutableArray *filePathArray = [[NSMutableArray alloc] init];
+    NSMutableDictionary *additonal = [[NSMutableDictionary alloc] init];
     
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    NSError *error = nil;
-    NSArray *fileList = nil; //[[NSArray alloc] init];
-    //fileList便是包含有该文件夹下所有文件的文件名及文件夹名的数组
+    //先只加载20张. 一次全部加载的话可能导致慢.
+    NSInteger numberGet = [ImageViewCache inputCacheImagesAndPathWithTopNumber:20
+                                                                outputImages:imageArray
+                                                              outputFilePathsM:filePathArray
+                                                               outputAdditonal:additonal];
+    NSLog(@"%zd total %@", numberGet, additonal);
+    self.totalImagesNumber = [[additonal objectForKey:@"totalNumber"] integerValue];
     
-    NSString* imageCacheFolder = [ImageViewCache getImageCacheFolder];
-    fileList = [fileManager contentsOfDirectoryAtPath:imageCacheFolder error:&error];
-    for(NSString *name in fileList) {
-        NSString *fullName = [NSString stringWithFormat:@"%@/%@", imageCacheFolder, name];
-        NSLog(@"image file name : %@", fullName);
-        
-        UIImage *image = [UIImage imageWithContentsOfFile:fullName];
-        if(image) {
-            [imageArray addObject:image];
-            [filePathArray addObject:fullName];
-        }
-    }
+    self.images = [NSArray arrayWithArray:imageArray];
+    self.filePaths = [NSArray arrayWithArray:filePathArray];
+    
+
     
     self.images = [NSArray arrayWithArray:imageArray];
     self.filePaths = [NSArray arrayWithArray:filePathArray];
     
     [self.imageDisplay setDisplayedImages:self.images];
+    
+    //剩下的异步加载.
+    if(numberGet >= 20 && self.totalImagesNumber > 20) {
+        dispatch_queue_t concurrentQueue = dispatch_queue_create("my.concurrent.queue", DISPATCH_QUEUE_CONCURRENT);
+        dispatch_async(concurrentQueue, ^(void){
+            NSMutableArray *imageArray = [[NSMutableArray alloc] init];
+            NSMutableArray *filePathArray = [[NSMutableArray alloc] init];
+            
+            [ImageViewCache inputCacheImagesAndPathWithTopNumber:NSIntegerMax
+                                                    outputImages:imageArray
+                                                outputFilePathsM:filePathArray
+                                                 outputAdditonal:nil];
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                self.images = [NSArray arrayWithArray:imageArray];
+                self.filePaths = [NSArray arrayWithArray:filePathArray];
+                [self.imageDisplay setDisplayedImages:self.images];
+            });
+        });
+    }
 }
 
 
@@ -189,7 +207,7 @@
 - (void)showImagesNumberAfterDelay:(NSInteger)sec
 {
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(sec * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        NSString *indicationString = [NSString stringWithFormat:@"共有图片%zd张", [self.images count]];
+        NSString *indicationString = [NSString stringWithFormat:@"共有图片%zd张", self.totalImagesNumber];
         if(0 == [self.images count]) {
             indicationString = [NSString stringWithFormat:@"暂无缓存图片"];
         }

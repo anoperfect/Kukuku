@@ -113,7 +113,7 @@ static UIView *kv = nil;
     button1 = [[UIButton alloc] initWithFrame:CGRectMake(111, 450, 100, 36)];
     [self.view addSubview:button1];
     [button1 setBackgroundColor:[UIColor blueColor]];
-    [button1 addTarget:self action:@selector(postDataCellViewTest:) forControlEvents:UIControlEventTouchDown];
+    //[button1 addTarget:self action:@selector(postDataCellViewTest:) forControlEvents:UIControlEventTouchDown];
     [button1 setTag:0];
     [button1 setTitle:@"postDataCellViewTest" forState:UIControlStateNormal];
     
@@ -214,29 +214,7 @@ static UIView *kv = nil;
 }
 
 
-- (void)postDataCellViewTest:(UIButton*)button {
-    
-    LOG_POSTION
-    
-    UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 510, self.view.frame.size.width, 100)];
-    [view setBackgroundColor:[UIColor clearColor]];
-    [self.view addSubview:view];
-    
-    PostDataCellViewLoad *cellView = [[PostDataCellViewLoad alloc] initWithFrame:CGRectMake(0, 0, view.frame.size.width-10, 100) andThreadId:6671396];
-//    UIView *cellView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 100, 100)];
-    [view addSubview:cellView];
-    [cellView setCenter:CGPointMake(view.frame.size.width/2, view.frame.size.height/2)];
-    [cellView setBackgroundColor:[UIColor blueColor]];
-    LOG_VIEW_RECT(cellView, @"cellViewLoad")
-    
-//    PostDataCellView*cellView = [[PostDataCellView alloc] initWithFrame:CGRectMake(0, 0, view.frame.size.width-10, 100)];
-//    UIView *cellView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 100, 100)];
-//    [view addSubview:cellView];
-//    [cellView setCenter:view.center];
-//    [cellView setBackgroundColor:[UIColor blueColor]];
-    
 
-}
 
 
 

@@ -50,16 +50,18 @@
 }
 
 
-- (NSArray*)getAllLocaleData {
-    NSArray *localDatas = [[AppConfig sharedConfigDB] configDBCollectionQuery:nil];
-    NSLog(@"localDatas count : %zd .", [localDatas count]);
+//将数据读入arrayAllRecord.
+- (void)getAllRecordData
+{
+    NSArray *queryDatas = [[AppConfig sharedConfigDB] configDBCollectionQuery:nil];
+    NSLog(@"localDatas count : %zd .", [queryDatas count]);
     
-    for(NSDictionary *dict in localDatas) {
+    for(NSDictionary *dict in queryDatas) {
         long long collectedAt = [(NSNumber*)(dict[@"collectedAt"]) longLongValue];
-        NSLog(@"111 - No.%@ at %@", dict[@"id"], [FuncDefine stringFromMSecondInterval:collectedAt andTimeZoneAdjustSecondInterval:0]);
+        NSLog(@"111 - No.%@ at %@", dict[@"id"], [FuncDefine stringFromMSecondInterval:collectedAt andTimeZoneAdjustSecondInterval:(NSInteger)(collectedAt/1000)]);
     }
     
-    return localDatas;
+    self.arrayAllRecord = [NSMutableArray arrayWithArray:queryDatas];
 }
 
 
@@ -96,7 +98,7 @@
     
     [self.postView reloadData];
     
-    for(id obj in self.arrayAllLocale) {
+    for(id obj in self.arrayAllRecord) {
         if(![obj isKindOfClass:[NSDictionary class]]) {
             NSLog(@"#error not expected class %@", obj);
             break;
@@ -117,10 +119,11 @@
     dispatch_async(concurrentQueue, ^(void){
         //获取last page的信息.
         PostData *topic = [[PostData alloc] init];
-        NSMutableArray *postDataArray = [PostData sendSynchronousRequestByThreadId:tid andPage:-1 andValueTopicTo:topic];
+        NSMutableArray *replys = [[NSMutableArray alloc] init];
+        topic = [PostData sendSynchronousRequestByThreadId:tid atPage:-1 replysTo:replys storeAdditional:nil];
         
         dispatch_async(dispatch_get_main_queue(), ^(void) {
-            [self checkUpdateTidResult:tid withReplyPostDatas:postDataArray andTopic:topic];
+            [self checkUpdateTidResult:tid withReplyPostDatas:replys andTopic:topic];
         });
     });
 }
@@ -151,26 +154,25 @@
 
 
 //需在主线程执行.
-- (void)checkUpdateTidResult:(NSInteger)tid withReplyPostDatas:(NSArray*)postDataArray andTopic:(PostData*)topic
+- (void)checkUpdateTidResult:(NSInteger)tid withReplyPostDatas:(NSArray*)replys andTopic:(PostData*)topic
 {
     NSNumber *number = [NSNumber numberWithInteger:tid];
-
     
-    if(nil == postDataArray) {
+    if(nil == topic) {
         NSLog(@"tid [%zd] get page last error:%@", tid, @"no PostData parsed.");
         [self updateToCellData:tid withInfo:@{@"message":@"更新出错"}];
     }
-    else if([postDataArray count] <= 0){
+    else if([replys count] <= 0){
         NSLog(@"tid [%zd] no reply", tid);
         //没有更新则不修改显示.
     }
     else {
         //跟浏览记录对比.
-        PostData *tPostData = postDataArray[0];
+        PostData *tPostData = replys[0];
         NSLog(@"tid [%zd[]updateAt %lld", tid, tPostData.updatedAt);
         
         //最后一条reply信息跟之前的Loaded记录, Display记录对比.
-        PostData *pdLastReply = [postDataArray lastObject];
+        PostData *pdLastReply = [replys lastObject];
         NSLog(@"tid [%zd] last reply createdAt : %lld.", tid, pdLastReply.createdAt);
         
         //读取之前的加载与显示记录.
@@ -247,7 +249,36 @@
 
 //暂时info中只有message. 未兼容之后可能添加的info信息, 将参数类型设置为NSDictionary.
 
-
+//重载以定义row行为.
+- (BOOL)actionOnRow:(NSInteger)row viaString:(NSString*)string
+{
+    BOOL finishAction = [super actionOnRow:row viaString:string];
+    if(finishAction) {
+        return finishAction;
+    }
+    
+    finishAction = YES;
+    PostData *postDataRow = [self.postDatas objectAtIndex:row];
+    
+    if([string isEqualToString:@"删除"]){
+        //从collection表中删除该条记录.
+        [[AppConfig sharedConfigDB] configDBCollectionDelete:@{@"id":[NSNumber numberWithInteger:postDataRow.id]}];
+        
+        //更新表数据源及表显示.
+        [self.postDatas         removeObjectAtIndex:row];
+        [self.postViewCellDatas removeObjectAtIndex:row];
+        [self.arrayAllRecord    removeObjectAtIndex:row];
+        [self.postView reloadData];
+        
+        [self showfootViewWithTitle:[NSString stringWithFormat:@"共%zi条, 已加载%zi条", [self.arrayAllRecord count], [self.postDatas count]]
+               andActivityIndicator:NO andDate:NO];
+    }
+    else {
+        finishAction = NO;
+    }
+    
+    return finishAction;
+}
 
 
 

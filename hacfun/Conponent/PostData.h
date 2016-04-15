@@ -32,6 +32,7 @@
 @property (strong, nonatomic) NSArray *recentReply ;//=     ( 6299638, 6299598, 6299451, 6299426, 6299069);
 @property (nonatomic) NSInteger replyCount ;//= 24;
 
+@property (nonatomic, assign) NSInteger page;
 @property (nonatomic) BOOL bTopic; //是否是主题. 否则为回复.
 @property (nonatomic) NSInteger mode; //数据是属于 1. 栏目模式; 2. Post模式.
 @property (nonatomic) CGFloat optimumSizeHeight;
@@ -49,7 +50,7 @@ typedef enum {
 @property (nonatomic,assign) PostDataType type;
 
 
-+ (PostData*)fromDictData: (NSDictionary *)dict ;
+
 - (BOOL)isIdInArray:(NSArray*)array;
 
 
@@ -68,24 +69,24 @@ typedef NS_ENUM(NSInteger, ThreadDataToViewType) {
 
 
 //从栏目请求响应api中获取的内容中解出PostData数组. forum的信息以key=forum, obj=dict的形式存入additional.
-+ (NSMutableArray*)parseFromCategoryJsonData:(NSData*)data storeAdditional:(NSMutableDictionary*)additonal;
++ (NSMutableArray*)parseFromCategoryJsonData:(NSData*)data atPage:(NSInteger)page storeAdditional:(NSMutableDictionary*)additonal;
 
-//从thread响应api中获取的内容中解出PostData数组. forum的信息以key=threads, obj=dict的形式存入additional.
-+ (NSMutableArray*)parseFromDetailedJsonData:(NSData*)data valueToTopic:(PostData*)topicNew storeAdditional:(NSMutableDictionary*)additonal;
-
-
-+ (PostData*)parseFromThreadJsonData:(NSData*)data ;
+//返回解析出的主题. 具体回复内容放置到replys中. additional可存储一些其他信息.
++ (PostData*)parseFromDetailedJsonData:(NSData*)data atPage:(NSInteger)page replysTo:(NSMutableArray*)replys  storeAdditional:(NSMutableDictionary*)additonal;
 
 
-+ (NSMutableArray*)sendSynchronousRequestByThreadId:(long long)tid andPage:(NSInteger)page andValueTopicTo:(PostData*)topic;
+//从json格式的 string中解析.
++ (PostData*)fromString:(NSString*)jsonstring atPage:(NSInteger)page;
 
 
-#if 0
-+ (void)postDataAsyncRequestByTid:(NSInteger)tid
-                          andPage:(NSInteger)page
-                completionHandler:(void (^)(PostData*))handle;
 
-#endif
+//page=-1时取最后一页.
+//下载内容为空或者解析出错时返回nil.
+//在主线程中执行时返回nil.
++ (PostData*)sendSynchronousRequestByThreadId:(long long)tid atPage:(NSInteger)page replysTo:(NSMutableArray*)replys storeAdditional:(NSMutableDictionary*)additonal;
+
+
+
 
 
 @end

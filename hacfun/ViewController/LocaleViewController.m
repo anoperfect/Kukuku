@@ -15,7 +15,6 @@
 
 @interface LocaleViewController ()
 
-@property (strong,nonatomic) NSArray *arrayAllLocaleMoveToPublic;
 
 @end
 
@@ -41,32 +40,30 @@
 }
 
 
-- (NSArray*)getAllLocaleData {
-    NSLog(@"error - must override.")
-    return nil;
+//将数据读入arrayAllRecord.
+- (void)getAllRecordData
+{
+    NSLog(@"#error - must override.")
 }
 
 
 - (void)reloadPostData {
     LOG_POSTION
     
-    if(nil == self.arrayAllLocale) {
-        self.arrayAllLocale = [self getAllLocaleData];
+    if(nil == self.arrayAllRecord) {
+        [self getAllRecordData];
     }
     
-    if([self.postDatas count] >= [self.arrayAllLocale count]) {
+    if([self.postDatas count] >= [self.arrayAllRecord count]) {
         NSLog(@"No more data.");
     }
     else {
         self.pageNumLoading ++;
-        for(NSInteger idx = (self.pageNumLoading-1)* 10 ; idx < [self.arrayAllLocale count] && idx < self.pageNumLoading * 10; idx++ ) {
+        for(NSInteger idx = (self.pageNumLoading-1)* 10 ; idx < [self.arrayAllRecord count] && idx < self.pageNumLoading * 10; idx++ ) {
             
-            NSDictionary *dict = [self.arrayAllLocale objectAtIndex:idx];
+            NSDictionary *dict = [self.arrayAllRecord objectAtIndex:idx];
             NSString *jsonstring = [dict objectForKey:@"jsonstring"];
-            
-            id obj = [NSJSONSerialization JSONObjectWithData:[jsonstring dataUsingEncoding:NSUTF8StringEncoding] options:NSJSONReadingMutableLeaves error:nil];
-            
-            PostData *pd = [PostData fromDictData:obj];
+            PostData *pd = [PostData fromString:jsonstring atPage:self.pageNumLoading];
             if(pd) {
                 pd.type = PostDataTypeLocal;
                 [self.postDatas addObject:pd];
@@ -77,7 +74,7 @@
         }
     }
     
-    [self showfootViewWithTitle:[NSString stringWithFormat:@"共%zi条, 已加载%zi条", [self.arrayAllLocale count], [self.postDatas count]]
+    [self showfootViewWithTitle:[NSString stringWithFormat:@"共%zi条, 已加载%zi条", [self.arrayAllRecord count], [self.postDatas count]]
            andActivityIndicator:NO andDate:NO];
     
     [self postDatasToCellDataSource];

@@ -16,6 +16,13 @@
 + (NSData*)getImageViewCache:(NSString*)stringUrl;
 + (void)setImageViewCache:(NSString*)stringUrl withData:(NSData*)data;
 
-+ (NSString*)getImageCacheFolder;
+//返回实际获取到的image个数.
++ (NSInteger)inputCacheImagesAndPathWithTopNumber:(NSInteger)topNumber
+                                     outputImages:(NSMutableArray*)imageArray
+                                 outputFilePathsM:(NSMutableArray*)filePathArray
+                                  outputAdditonal:(NSMutableDictionary*)dictm;
+
++ (void)deleteCaches;
+
 
 @end

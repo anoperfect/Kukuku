@@ -118,6 +118,8 @@ typedef NS_ENUM(NSInteger, ThreadsStatus) {
 //重载以定义row行为. 定义为BOOL以实现让super尝试先处置.
 - (BOOL)actionOnRow:(NSInteger)row viaString:(NSString*)string;
 
+
+
 //重载以定义cell能支持的动作. NSArray成员为 NSString.
 - (NSArray*)actionStringsOnRow:(NSInteger)row;
 

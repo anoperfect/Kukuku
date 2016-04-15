@@ -56,4 +56,63 @@
 }
 
 
+//返回实际获取到的image个数.
++ (NSInteger)inputCacheImagesAndPathWithTopNumber:(NSInteger)topNumber
+                                     outputImages:(NSMutableArray*)imageArray
+                                 outputFilePathsM:(NSMutableArray*)filePathArray
+                                  outputAdditonal:(NSMutableDictionary*)dictm
+{
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSError *error = nil;
+    NSArray *fileList = nil; //[[NSArray alloc] init];
+    //fileList便是包含有该文件夹下所有文件的文件名及文件夹名的数组
+    
+    NSString* imageCacheFolder = [ImageViewCache getImageCacheFolder];
+    fileList = [fileManager contentsOfDirectoryAtPath:imageCacheFolder error:&error];
+    NSInteger retNumber = 0;
+    for(NSString *name in fileList) {
+        NSString *fullName = [NSString stringWithFormat:@"%@/%@", imageCacheFolder, name];
+        NSLog(@"image file name : %@", fullName);
+        
+        UIImage *image = [UIImage imageWithContentsOfFile:fullName];
+        if(image) {
+            [imageArray addObject:image];
+            [filePathArray addObject:fullName];
+            
+            retNumber ++;
+            
+            if(retNumber >= topNumber) {
+                break;
+            }
+        }
+        else {
+            NSLog(@"#error - image NULL at : %@", name);
+        }
+    }
+    
+    [dictm setObject:[NSNumber numberWithInteger:fileList.count] forKey:@"totalNumber"];
+    
+    return retNumber;
+}
+
+
++ (void)deleteCaches
+{
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSError *error = nil;
+    NSArray *fileList = nil; //[[NSArray alloc] init];
+    //fileList便是包含有该文件夹下所有文件的文件名及文件夹名的数组
+    
+    NSString* imageCacheFolder = [ImageViewCache getImageCacheFolder];
+    fileList = [fileManager contentsOfDirectoryAtPath:imageCacheFolder error:&error];
+    for(NSString *name in fileList) {
+        NSString *fullName = [NSString stringWithFormat:@"%@/%@", imageCacheFolder, name];
+        [fileManager removeItemAtPath:fullName error:&error];
+        NSLog(@"remove %@", fullName);
+    }
+    
+    NSLog(@"路径==%@,fileList%@", imageCacheFolder, fileList);
+}
+
+
 @end

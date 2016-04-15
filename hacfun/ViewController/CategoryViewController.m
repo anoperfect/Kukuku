@@ -113,7 +113,7 @@
 //---override. different parse mothod.
 - (NSMutableArray*)parseDownloadedData:(NSData*)data {
     NSMutableDictionary *addtional = [[NSMutableDictionary alloc] init];
-    NSMutableArray *postDatas = [PostData parseFromCategoryJsonData:data storeAdditional:addtional];
+    NSMutableArray *postDatas = [PostData parseFromCategoryJsonData:data atPage:self.pageNumLoading storeAdditional:addtional];
     NSLog(@"addtional : %@", addtional);
     
     NSString *key = @"forum";

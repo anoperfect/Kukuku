@@ -266,8 +266,9 @@
     }
     
     //查看是否已经收藏过.
-    NSDictionary* infoQuery = @{@"id":[NSNumber numberWithInteger:self.threadId],
-                                @"threadId":[NSNumber numberWithInteger:self.threadId]};
+//    NSDictionary* infoQuery = @{@"id":[NSNumber numberWithInteger:self.threadId],
+ //                               @"threadId":[NSNumber numberWithInteger:self.threadId]};
+    NSDictionary* infoQuery = @{@"id":[NSNumber numberWithInteger:self.threadId]};
     NSArray* queryArray = [[AppConfig sharedConfigDB] configDBCollectionQuery:infoQuery];
     if([queryArray count] > 0) {
         
@@ -365,8 +366,11 @@
     LOG_POSTION
     
     NSMutableDictionary *addtional = [[NSMutableDictionary alloc] init];
-    PostData *topic = [[PostData alloc] init];
-    NSMutableArray *postDatas = [PostData parseFromDetailedJsonData:data valueToTopic:topic storeAdditional:addtional];
+    NSMutableArray *replys = [[NSMutableArray alloc] init];
+    PostData *topic = [PostData parseFromDetailedJsonData:data atPage:self.pageNumLoading replysTo:replys storeAdditional:addtional];
+    if(!topic) {
+        return nil;
+    }
     
     //查看是否需更新主题.
     //确认主题内容是否更新. 更新的话需保存主题的高度. 否则在主题不显示在屏幕的时候导致当前页面显示的原cell移动.
@@ -399,9 +403,7 @@
         NSLog(@"%@ info updated.", key);
     }
     
-    NSLog(@"%zd %zd %@", self.postDatas.count, self.postViewCellDatas.count, postDatas);
-    
-    return postDatas;
+    return replys;
 }
 
 //override.

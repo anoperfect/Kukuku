@@ -345,39 +345,63 @@
 }
 
 
+/*
+  1.  连表查询.
+  2.  分表查询, record单条查询.
+  3.  分表查询, record多条查询. 查询后直接比对匹配.
+  4.  分表查询, record多条查询. 查询后优化算法比对匹配.
+  方法1破坏暂定的结构.
+  使用方法3.
+*/
+
+
+ 
+ 
 - (NSArray*)configDBCollectionQuery:(NSDictionary*)infoQuery {
     
-    NSArray *arrayCollections = [self.dbData DBDataQuery:self.hostDataBase toTable:@"collection" withInfo:@{@"orderString":@"ORDER BY collection.collectedAt DESC"}];
+    if(!infoQuery) {
+        infoQuery = @{@"orderString":@"ORDER BY collection.collectedAt DESC"};
+    }
+    NSArray *arrayCollections = [self.dbData DBDataQuery:self.hostDataBase toTable:@"collection" withInfo:infoQuery];
     NSMutableArray *idArrayM = [[NSMutableArray alloc] init];
     for(NSDictionary *dict in arrayCollections) {
         [idArrayM addObject:[dict objectForKey:@"id"]];
     }
+    NSLog(@"qwerty : arrayCollections %@", arrayCollections);
     
-    NSArray *arrayRecords = nil;
-    if(idArrayM.count > 0) {
-        //正常情况下, record中有此记录. 但是post, reply可能因为网络原因未访问下thread信息然后存储到record. 因此需重新构建数组.
-        arrayRecords = [self.dbData DBDataQuery:self.hostDataBase toTable:@"record" withInfo:@{@"id":[NSArray arrayWithArray:idArrayM]}];
-        
-        if(arrayRecords.count == idArrayM.count) {
-            return arrayRecords;
-        }
-        else {
-            NSMutableArray *arrayMReturn = [[NSMutableArray alloc] init];
-            NSMutableDictionary *dictMRecord = [[NSMutableDictionary alloc] init];
-            for(NSInteger index=0; index < idArrayM.count; index++) {
-                [dictMRecord setObject:idArrayM[index] forKey:@"id"];
-            
-                //在record中寻找id对应的信息.然后填充到dictMRecord.
-                
-                
-                [arrayMReturn addObject:[NSDictionary dictionaryWithDictionary:dictMRecord]];
-            }
-            
-            arrayRecords = [NSArray arrayWithArray:arrayMReturn];
-        }
+    if(idArrayM.count <= 0) {
+        return nil;
     }
     
-    return arrayRecords;
+    //正常情况下, record中有此记录. 但是post, reply可能因为网络原因未访问下thread信息然后存储到record. 因此需重新构建数组.
+    NSArray *arrayRecords = [self.dbData DBDataQuery:self.hostDataBase toTable:@"record" withInfo:@{@"id":[NSArray arrayWithArray:idArrayM]}];
+    
+    NSMutableArray *arraymReturn = [[NSMutableArray alloc] init];
+    
+    NSInteger numberFound = 0;
+    for(NSInteger index = 0; index < arrayCollections.count; index++) {
+        NSDictionary *dict = arrayCollections[index];
+        NSMutableDictionary* dictm = [NSMutableDictionary dictionaryWithDictionary:dict];
+        
+        NSNumber *tid = [dict objectForKey:@"id"];
+        
+        for(NSDictionary *dictRecord in arrayRecords) {
+            if([[dictRecord objectForKey:@"id"] isEqualToNumber:tid]) {
+                numberFound ++;
+                [dictm addEntriesFromDictionary:dictRecord];
+                break;
+            }
+            else {
+                NSLog(@"#error id %@ not find record.", tid);
+            }
+        }
+        
+        [arraymReturn addObject:[NSDictionary dictionaryWithDictionary:dictm]];
+    }
+    
+    NSLog(@"qwerty[%zd] : %@\n%@\n%@", numberFound, arrayCollections, arrayRecords, arraymReturn);
+    
+    return [NSArray arrayWithArray:arraymReturn];
 }
 
 

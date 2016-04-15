@@ -404,6 +404,7 @@
 {
     //获取表信息.
     DBTableValue *table = [self getInitDBTableValue:db withTableName:tableName];
+    NSLog(@"table :%@ , name:%@, %zd.", table, table.tableName, table.primaryKey.count);
     NSMutableString *querym ;
     NSMutableArray *queryResultm = [[NSMutableArray alloc] init];
     
@@ -427,7 +428,7 @@
         NSArray *infoQueryValues = infoQueryUsing.allValues;
         NSMutableArray *infoQueryPrameterm = [[NSMutableArray alloc] init];
         
-        querym = [NSMutableString stringWithFormat:@"SELECT rowid,* FROM %@ WHERE", tableName];
+        querym = [NSMutableString stringWithFormat:@"SELECT *%@ FROM %@ WHERE", table.primaryKey.count==0?@",rowid":@"", tableName];
         for(NSInteger index = 0; index < infoQueryKeys.count; index++) {
             if(index > 0) {
                 [querym appendString:@" and"];
@@ -436,7 +437,10 @@
             if([infoQueryValues[index] isKindOfClass:[NSArray class]]) {
 //                [querym appendFormat:@" %@ in (?)", infoQueryKeys[index]];
 //                [infoQueryPrameterm addObject:@"6624990, 6678673, 6686117, 6688224]"];
-                [querym appendFormat:@" %@ IN (%@)", infoQueryKeys[index], @"6624990, 6678673, 6686117, 6688224"];
+                //[querym appendFormat:@" %@ IN (%@)", infoQueryKeys[index], @"6624990, 6678673, 6686117, 6688224"];
+                [querym appendFormat:@" %@ IN (%@)",
+                 infoQueryKeys[index],
+                 [FuncDefine combineArray:infoQueryValues[index] withInterval:@", " andPrefix:@"" andSuffix:@""]];
             }
             else {
                 [querym appendFormat:@" %@ = ?", infoQueryKeys[index]];
@@ -444,18 +448,9 @@
             }
         }
         
-#if 0
-        querym = [NSMutableString stringWithFormat:@"SELECT *%@ FROM %@ WHERE %@ = ?", tableName, table.primaryKey.count==0?@",rowid":@"", infoQueryKeys[0]];
-        NSInteger count = infoQueryKeys.count;
-        for(NSInteger index = 1; index < count; index ++) {
-            [querym appendFormat:@" and %@ = ?", infoQueryKeys[index]];
-        }
-        
-        rs = [db executeQuery:[NSString stringWithString:querym] withArgumentsInArray:infoQueryValues];
-#endif
-        
         [querym appendFormat:@" %@", orderQueryString?orderQueryString:@""];
         NSLog(@"query string : %@", querym);
+        NSLog(@"query parameterm : %@", infoQueryPrameterm);
         rs = [db executeQuery:[NSString stringWithString:querym] withArgumentsInArray:infoQueryPrameterm];
     }
     

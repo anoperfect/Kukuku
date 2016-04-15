@@ -257,20 +257,7 @@
     }
     
     if([[self.arraySettingItem objectAtIndex:indexPath.row] isEqualToString:@"清除缓存"]) {
-        NSFileManager *fileManager = [NSFileManager defaultManager];
-        NSError *error = nil;
-        NSArray *fileList = nil; //[[NSArray alloc] init];
-        //fileList便是包含有该文件夹下所有文件的文件名及文件夹名的数组
-        
-        NSString* imageCacheFolder = [ImageViewCache getImageCacheFolder];
-        fileList = [fileManager contentsOfDirectoryAtPath:imageCacheFolder error:&error];
-        for(NSString *name in fileList) {
-            NSString *fullName = [NSString stringWithFormat:@"%@/%@", imageCacheFolder, name];
-            [fileManager removeItemAtPath:fullName error:&error];
-            NSLog(@"remove %@", fullName);
-        }
-        
-        NSLog(@"路径==%@,fileList%@", imageCacheFolder, fileList);
+        [ImageViewCache deleteCaches];
     }
 }
 

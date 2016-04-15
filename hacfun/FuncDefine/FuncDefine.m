@@ -242,6 +242,23 @@
     }
 }
 
+
++ (NSString*)combineArray:(NSArray*)array withInterval:(NSString*)intetval andPrefix:(NSString*)prefix andSuffix:(NSString*)suffix
+{
+    NSMutableString *str = [NSMutableString stringWithString:prefix];
+    for(NSInteger index = 0; index < array.count; index++) {
+        if(index > 0) {
+            [str appendString:intetval];
+        }
+        
+        [str appendFormat:@"%@", array[index]];
+    }
+    
+    [str appendString:suffix];
+    
+    return [NSString stringWithString:str];
+}
+
 @end
 
 
@@ -2632,5 +2649,63 @@ frame = (0 -36; 320 36); text = '111111'; userInteractionEnabled = NO; layer = <
                      completion:^(BOOL finished) {
                          
                      }];
+}
+#endif
+
+
+
+
+#if 0 //PostData.
++ (PostData*)parseFromThreadJsonData:(NSData*)data atPage:(NSInteger)page {
+    LOG_POSTION
+    
+    PostData *postData = nil;
+    if(data) {
+        //NSLog(@"%s", [data bytes]);
+    }
+    else {
+        NSLog(@"data null");
+        return nil;
+    }
+    
+    NSObject *obj;
+    NSDictionary *dict;
+    obj = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableLeaves error:nil];
+    if(obj) {
+        NS0Log(@"obj class NSArray     : %d", [obj isKindOfClass:[NSArray class]]);
+        NS0Log(@"obj class NSDictionary: %d", [obj isKindOfClass:[NSDictionary class]]);
+    }
+    else {
+        NS0Log(@"obj nil %d", __LINE__);
+        return nil;
+    }
+    
+    dict = (NSDictionary*)obj;
+    
+    NS0Log(@"%@", dict);
+    
+    obj = [dict objectForKey:@"threads"];
+    if(obj) {
+        if(![obj isKindOfClass:[NSDictionary class]]) {
+            NSLog(@"%@ not dictionary", @"parsing threads obj");
+            return nil;
+        }
+        
+        postData = [PostData fromDictData:(NSDictionary*)obj];
+        if(nil == postData) {
+            NSLog(@"error : PostData formDictData with content %@", obj);
+            return nil;
+        }
+        
+        postData.jsonString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+        postData.bTopic = YES;
+        postData.mode = 1;
+    }
+    else {
+        NSLog(@"obj nil %d", __LINE__);
+        return nil;
+    }
+    
+    return postData;
 }
 #endif

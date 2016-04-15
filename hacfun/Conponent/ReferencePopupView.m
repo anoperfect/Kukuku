@@ -123,6 +123,7 @@
 }
 
 
+#if 0
 - (PostData*)parseFromJsonData:(NSData*)jsonData {
 
     PostData *postData = nil;
@@ -174,7 +175,7 @@
     
     return postData;
 }
-
+#endif
 
 
 

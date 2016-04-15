@@ -86,7 +86,7 @@
 }
 
 
-+ (PostData*)fromDictData:(NSDictionary *)dict {
++ (PostData*)fromDictData:(NSDictionary *)dict atPage:(NSInteger)page {
     
     PostData *pd = [[PostData alloc] init];
     pd.jsonString = [NSString stringWithFormat:@"%@", dict];
@@ -180,7 +180,24 @@
     //        @property (nonatomic) NSString *uid ;//= TYXC4L2E;
     //        @property (nonatomic) NSInteger updatedAt ;//= 1436668641000;
     
+    pd.page = page;
     return finished?pd:nil;
+}
+
+
++ (PostData*)fromString:(NSString*)jsonstring atPage:(NSInteger)page
+{
+    if(!jsonstring) {
+        return nil;
+    }
+    
+    id obj = [NSJSONSerialization JSONObjectWithData:[jsonstring dataUsingEncoding:NSUTF8StringEncoding] options:NSJSONReadingMutableLeaves error:nil];
+    if(obj && [obj isKindOfClass:[NSDictionary class]]) {
+        return [self fromDictData:obj atPage:page];
+    }
+    else {
+        return nil;
+    }
 }
 
 
@@ -194,7 +211,7 @@
     
     while(1) {
         rangeResult = [searchText rangeOfString:@">>No.[0-9]+" options:NSRegularExpressionSearch range:rangeSearch];
-        if (rangeResult.location == NSNotFound) {
+        if (rangeResult.location == NSNotFound || rangeResult.length == 0) {
             break;
         }
         
@@ -239,7 +256,7 @@
 //        NSString *urlReg = @"^(https?://)?(([0-9a-z_!~*'().&=+$%-]+:)?[0-9a-z_!~*'().&=+$%-]+@)?(([0-9]{1,3}\\.){3}[0-9]{1,3}|([0-9a-z_!~*'()-]+\\.)*([0-9a-z][0-9a-z-]{0,61})?[0-9a-z]\\.[a-z]{2,6})(:[0-9]{1,4})?((/?)|(/[0-9a-z_!~*'().;?:@&=+$,%#-]+)+/?)$";
         
         rangeResult = [searchText rangeOfString:regexString options:NSRegularExpressionSearch range:rangeSearch];
-        if (rangeResult.location == NSNotFound) {
+        if (rangeResult.location == NSNotFound || rangeResult.length == 0) {
             break;
         }
         NSLog(@"zxc %zd %zd", rangeResult.location, rangeResult.length);
@@ -274,23 +291,6 @@
 
 //字符转换.
 + (NSString*) postDataContentRetreat:(NSString*)content {
-    
-#if 0
-    //这个特殊字符,编辑或者是NSString的操作接口都有问题. 因此采用临时替换的方式.
-    NSString *specialChars = @";ﾟ";
-    NSString *specialChar = [specialChars substringWithRange:NSMakeRange(1, 1)];
-    NSString *tmpReplace = @"##special char##";
-    content = [content stringByReplacingOccurrencesOfString:specialChar withString:tmpReplace];
-    content = [content stringByReplacingOccurrencesOfString:@"&quot;" withString:@"\""];
-    content = [content stringByReplacingOccurrencesOfString:@"&amp;" withString:@"&"];
-    content = [content stringByReplacingOccurrencesOfString:@"&lt;" withString:@"<"];
-    content = [content stringByReplacingOccurrencesOfString:@"&gt;" withString:@">"];
-    content = [content stringByReplacingOccurrencesOfString:@"&nbsp;" withString:@];
-    content = [content stringByReplacingOccurrencesOfString:@"&#39;" withString:@"'"];
-    content = [content stringByReplacingOccurrencesOfString:@"<br>" withString:@"\n"];
-    content = [content stringByReplacingOccurrencesOfString:tmpReplace withString:specialChar];
-#endif
-    
     //一些www的关键字符信息需转义.
     content = [FuncDefine decodeWWWEscape:content];
     
@@ -401,7 +401,7 @@ PostDataView 接收的字段字段
     [dict setObject:@"" forKey:@"otherInfo"];
     
     content = [PostData postDataContentRetreat:self.content];
-    [dict setObject:content forKey:@"content"];
+    [dict setObject:content?content:@"无正文" forKey:@"content"];
     
     [dict setObject:[self copy] forKey:@"postdata"];
     
@@ -503,7 +503,7 @@ PostDataView 接收的字段字段
 }
 
 
-+ (NSMutableArray*)parseFromCategoryJsonData:(NSData*)data storeAdditional:(NSMutableDictionary*)additonal
++ (NSMutableArray*)parseFromCategoryJsonData:(NSData*)data atPage:(NSInteger)page storeAdditional:(NSMutableDictionary*)additonal
 {
     id obj;
     NSDictionary *dict;
@@ -573,7 +573,7 @@ PostDataView 接收的字段字段
             continue;
         }
         
-        pd = [PostData fromDictData:(NSDictionary*)obj];
+        pd = [PostData fromDictData:(NSDictionary*)obj atPage:page];
         if(nil == pd) {
             break;
         }
@@ -591,8 +591,8 @@ PostDataView 接收的字段字段
 }
 
 
-//下载内容为空或者解析出错时返回nil. no reply时返回空数组.
-+ (NSMutableArray*)parseFromDetailedJsonData:(NSData*)data valueToTopic:(PostData*)topicNew storeAdditional:(NSMutableDictionary*)additonal
+//返回解析出的主题. 具体回复内容放置到replys中. additional可存储一些其他信息.
++ (PostData*)parseFromDetailedJsonData:(NSData*)data atPage:(NSInteger)page replysTo:(NSMutableArray*)replys storeAdditional:(NSMutableDictionary*)additonal
 {
     if(nil == data) {
         NSLog(@"data null");
@@ -631,22 +631,19 @@ PostDataView 接收的字段字段
         
         [additonal setObject:obj forKey:key];
         
-        topic = [PostData fromDictData:(NSDictionary*)obj];
+        topic = [PostData fromDictData:(NSDictionary*)obj atPage:page];
         if(nil == topic) {
             NSLog(@"error- : PostData formDictData with content %@", obj);
             return nil;
         }
         
         [self gotParsedThread:(NSDictionary*)obj belongTo:0];
-        
-        [topicNew copyFrom:topic];
     }
     else {
         NSLog(@"error - key threads nil.");
         return nil;
     }
     
-    NSMutableArray *postDatasArray = [[NSMutableArray alloc] init];
     PostData *pd = nil;
     obj = [dict objectForKey:@"replys"];
     if(obj && [obj isKindOfClass:[NSMutableArray class]]) {
@@ -654,7 +651,7 @@ PostDataView 接收的字段字段
     }
     else {
         NSLog(@"key replys nil.");
-        return postDatasArray;
+        return topic;
     }
     
     arr = (NSMutableArray*)obj;
@@ -668,7 +665,7 @@ PostDataView 接收的字段字段
         dict = (NSDictionary*)obj;
         NS0Log(@"%@", dict);
         
-        pd = [PostData fromDictData:(NSDictionary*)obj];
+        pd = [PostData fromDictData:(NSDictionary*)obj atPage:page];
         if(nil == pd) {
             break;
         }
@@ -677,17 +674,22 @@ PostDataView 接收的字段字段
         
         pd.bTopic = NO;
         pd.mode = 2;
-        [postDatasArray addObject:pd];
+        [replys addObject:pd];
     }
     
-    return postDatasArray;
+    return topic;
 }
 
 
 //page=-1时取最后一页.
-//下载内容为空或者解析出错时返回nil. no reply时返回空数组.
-+ (NSMutableArray*)sendSynchronousRequestByThreadId:(long long)tid andPage:(NSInteger)page andValueTopicTo:(PostData*)topic
+//下载内容为空或者解析出错时返回nil.
++ (PostData*)sendSynchronousRequestByThreadId:(long long)tid atPage:(NSInteger)page replysTo:(NSMutableArray*)replys storeAdditional:(NSMutableDictionary*)additonal
 {
+    if([NSThread currentThread] == [NSThread mainThread]) {
+        NSLog(@"#error can not running at mainThread");
+        return nil;
+    }
+    
     NSString *urlString = nil;
     urlString = [NSString stringWithFormat:@"%@/t/%lld?page=%@",
                  [[AppConfig sharedConfigDB] configDBGet:@"host"],
@@ -707,66 +709,13 @@ PostDataView 接收的字段字段
     
     if (responseData && ([urlResponse statusCode] >= 200 && [urlResponse statusCode] < 300)) {
         //        NSString *responseText = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
-        return [PostData parseFromDetailedJsonData:responseData valueToTopic:topic storeAdditional:nil];
+        return [PostData parseFromDetailedJsonData:responseData atPage:page replysTo:replys storeAdditional:additonal];
     }
     else {
         return nil;
     }
 }
 
-
-+ (PostData*)parseFromThreadJsonData:(NSData*)data {
-    LOG_POSTION
-    
-    PostData *postData = nil;
-    if(data) {
-        //NSLog(@"%s", [data bytes]);
-    }
-    else {
-        NSLog(@"data null");
-        return nil;
-    }
-    
-    NSObject *obj;
-    NSDictionary *dict;
-    obj = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableLeaves error:nil];
-    if(obj) {
-        NS0Log(@"obj class NSArray     : %d", [obj isKindOfClass:[NSArray class]]);
-        NS0Log(@"obj class NSDictionary: %d", [obj isKindOfClass:[NSDictionary class]]);
-    }
-    else {
-        NS0Log(@"obj nil %d", __LINE__);
-        return nil;
-    }
-    
-    dict = (NSDictionary*)obj;
-    
-    NS0Log(@"%@", dict);
-    
-    obj = [dict objectForKey:@"threads"];
-    if(obj) {
-        if(![obj isKindOfClass:[NSDictionary class]]) {
-            NSLog(@"%@ not dictionary", @"parsing threads obj");
-            return nil;
-        }
-        
-        postData = [PostData fromDictData:(NSDictionary*)obj];
-        if(nil == postData) {
-            NSLog(@"error : PostData formDictData with content %@", obj);
-            return nil;
-        }
-        
-        postData.jsonString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-        postData.bTopic = YES;
-        postData.mode = 1;
-    }
-    else {
-        NSLog(@"obj nil %d", __LINE__);
-        return nil;
-    }
-    
-    return postData;
-}
 
 
 
@@ -775,98 +724,3 @@ PostDataView 接收的字段字段
 @end
 
 
-//        obj = [dict objectForKey:@"content"];
-//        if([obj isKindOfClass:[NSString class]]){
-//            pd.content = [(NSString*)obj copy];
-//            pd.content = [pd.content stringByReplacingOccurrencesOfString:@"&quot;" withString:@"\""];
-//            pd.content = [pd.content stringByReplacingOccurrencesOfString:@"&amp;" withString:@"&"];
-//            pd.content = [pd.content stringByReplacingOccurrencesOfString:@"&lt;" withString:@"<"];
-//            pd.content = [pd.content stringByReplacingOccurrencesOfString:@"&gt;" withString:@">"];
-//            pd.content = [pd.content stringByReplacingOccurrencesOfString:@"&nbsp;" withString:@];
-//            pd.content = [pd.content stringByReplacingOccurrencesOfString:@"<br>" withString:@"\n"];
-//        }
-//        else {
-//            NSLog(@"----------------------------------------------%@ not get", @"content");
-//            break;
-//        }
-//
-//        obj = [dict objectForKey:@"createdAt"];
-//        if([obj isKindOfClass:[NSNumber class]]){
-//            pd.createdAt = [(NSNumber*)obj longLongValue];
-//            NS0Log(@"nsnumber : %@", (NSNumber*)obj);
-//            NS0Log(@"pd.createdAt : %lld", pd.createdAt);
-//
-//        }
-//        else {
-//            NSLog(@"----------------------------------------------%@ not get", @"createdAt");
-//            break;
-//        }
-//
-//        obj = [dict objectForKey:@"uid"];
-//        if([obj isKindOfClass:[NSString class]]){
-//            pd.uid = [(NSString*)obj copy];
-//        }
-//        else {
-//            NSLog(@"----------------------------------------------%@ not get", @"uid");
-//            break;
-//        }
-//
-//        obj = [dict objectForKey:@"replyCount"];
-//        if([obj isKindOfClass:[NSNumber class]]){
-//            pd.replyCount = [(NSNumber*)obj integerValue];
-//        }
-//        else {
-//            NSLog(@"----------------------------------------------%@ not get", @"replyCount");
-//            break;
-//        }
-//
-//
-//        obj = [dict objectForKey:@"id"];
-//        if([obj isKindOfClass:[NSNumber class]]){
-//            pd.id = [(NSNumber*)obj integerValue];
-//        }
-//        else {
-//            NSLog(@"----------------------------------------------%@ not get", @"id");
-//            break;
-//        }
-
-
-//
-//    //跟 。时, nbsp; 可能监测不出. 增加此方法额外监测.
-//    NSRange range;
-//    while(0) {
-//    range = [content rangeOfString:@"&nbsp"];
-//    if(range.length > 0) {
-//        NSLog(@"111");
-//       if( content.length > (range.location+range.length)
-//       && [[content substringWithRange:NSMakeRange(range.location+range.length, 1)] isEqualToString:@";"]
-//       ) {
-//           NSLog(@"///found");
-//           range.length += 1;
-//           content = [content stringByReplacingCharactersInRange:range withString:@];
-//       }
-//       else {
-//           NSLog(@"///not found");
-//           break;
-//       }
-//    }
-//    else {
-//        break;
-//    }
-//    }
-//
-//    range = [content rangeOfString:@"&nbsp"];
-//    if(range.length > 0) {
-//        NSLog(@"111111 : %@", content);
-//
-//        NSString *str = @"你们的下一句话会是(&nbsp;ﾟ∀ﾟ)";
-//        NSString *str1 = [str substringWithRange:NSMakeRange(16, 1)];
-//        NSLog(@"%@", str1);
-//        printf("%s\n", [str1 cStringUsingEncoding:NSUTF8StringEncoding]);
-//
-//        NSString *specialChars = @";ﾟ";
-//        NSString *specialChar = [specialChars substringWithRange:NSMakeRange(1, 1)];
-//        NSString *tmpReplace = @"##special char##";
-//        NSLog(@"%@",specialChars);
-//
-//    }
