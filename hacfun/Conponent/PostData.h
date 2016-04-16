@@ -28,7 +28,7 @@
 @property (nonatomic) NSString *uid ;//= TYXC4L2E;
 @property (nonatomic) long long updatedAt ;//= 1436668641000;
 
-@property (strong,nonatomic) NSMutableArray *replys;
+@property (strong,nonatomic) NSMutableArray *replies;
 @property (strong, nonatomic) NSArray *recentReply ;//=     ( 6299638, 6299598, 6299451, 6299426, 6299069);
 @property (nonatomic) NSInteger replyCount ;//= 24;
 
@@ -71,8 +71,8 @@ typedef NS_ENUM(NSInteger, ThreadDataToViewType) {
 //从栏目请求响应api中获取的内容中解出PostData数组. forum的信息以key=forum, obj=dict的形式存入additional.
 + (NSMutableArray*)parseFromCategoryJsonData:(NSData*)data atPage:(NSInteger)page storeAdditional:(NSMutableDictionary*)additonal;
 
-//返回解析出的主题. 具体回复内容放置到replys中. additional可存储一些其他信息.
-+ (PostData*)parseFromDetailedJsonData:(NSData*)data atPage:(NSInteger)page replysTo:(NSMutableArray*)replys  storeAdditional:(NSMutableDictionary*)additonal;
+//返回解析出的主题. 具体回复内容放置到replies中. additional可存储一些其他信息.
++ (PostData*)parseFromDetailedJsonData:(NSData*)data atPage:(NSInteger)page repliesTo:(NSMutableArray*)replies  storeAdditional:(NSMutableDictionary*)additonal;
 
 
 //从json格式的 string中解析.
@@ -83,7 +83,7 @@ typedef NS_ENUM(NSInteger, ThreadDataToViewType) {
 //page=-1时取最后一页.
 //下载内容为空或者解析出错时返回nil.
 //在主线程中执行时返回nil.
-+ (PostData*)sendSynchronousRequestByThreadId:(long long)tid atPage:(NSInteger)page replysTo:(NSMutableArray*)replys storeAdditional:(NSMutableDictionary*)additonal;
++ (PostData*)sendSynchronousRequestByThreadId:(long long)tid atPage:(NSInteger)page repliesTo:(NSMutableArray*)replies storeAdditional:(NSMutableDictionary*)additonal;
 
 
 

@@ -189,62 +189,8 @@ static NSInteger kcountObjBannerView = 0;
         
         [self addSubview:button];
         
-//        [button addTarget:self action:@selector(clickButton:) forControlEvents:UIControlEventTouchDown];
-        
         indexBtn ++;
     }
-}
-
-
-- (void)clickButton:(PushButton*)button {
-    
-    NSInteger index = [self.buttons indexOfObject:button];
-    NS0Log(@"index : %zi", index);
-    
-    NSMutableArray *listAry = [[NSMutableArray alloc] init];
-    ButtonData *data = [self.buttonDataAry objectAtIndex:index];
-    for(ButtonData *obj in self.buttonDataAry) {
-        
-        if(obj.superId == data.id) {
-            [listAry addObject:obj];
-        }
-    }
-    
-    NSInteger num = [listAry count];
-    NSInteger indexButton;
-    PushButton *subButton;
-    UIView *view = [self viewWithTag:100];
-    LOG_VIEW_RECT(view, @"original")
-    FRAME_SET_HEIGHT(view, 0)
-    
-    if(num > 0) {
-        NSInteger indexSubButton = 0;
-        for(ButtonData *pdata in listAry) {
-            indexButton = [self.buttonDataAry indexOfObject:pdata];
-            subButton = [self.buttons objectAtIndex:indexButton];
-            [subButton setFrame:CGRectMake(0, 36*indexSubButton, 100, 36)];
-            [subButton setBackgroundColor:[AppConfig backgroundColorFor:@"MenuAction"]];
-            if(pdata.method == 2) {
-                [subButton setTitle:pdata.title forState:UIControlStateNormal];
-            }
-            
-            [view addSubview:subButton];
-            FRAME_ADD_HEIGHT(view, 36)
-            LOG_VIEW_RECT(view, @"after add");
-            [view setHidden:NO];
-            
-            indexSubButton ++;
-        }
-        [self.superview bringSubviewToFront:self];
-    }
-    else {
-        FRAME_SET_HEIGHT(view, 0)
-        LOG_VIEW_RECT(view, @"after set");
-        [view setHidden:YES];
-        [self.superview sendSubviewToBack:self];
-    }
-    
-    
 }
 
 

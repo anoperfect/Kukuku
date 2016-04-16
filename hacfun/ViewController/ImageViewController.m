@@ -33,10 +33,6 @@
 @property (strong,nonatomic) NSMutableData *imageDataDownload;
 @property (assign) long long expectedContentLength;
 
-//显示提示信息.
-@property (nonatomic, strong) UILabel       *messageIndication;
-//用于定时关闭提示信息.
-@property (nonatomic, strong) NSTimer       *messageIndicationAutoCloseTimer;
 
 
 @end
@@ -84,13 +80,7 @@
 - (void)viewWillLayoutSubviews {
     [super viewWillLayoutSubviews];
     
-    CGFloat heightViewIndication = 36;
-    
-    self.messageIndication.text = @"indication message";
-    self.messageIndication.frame = CGRectMake(0, -heightViewIndication, self.view.frame.size.width, heightViewIndication);
-//    self.messageIndication.frame = CGRectMake(0, -heightViewIndication, self.view.frame.size.width, heightViewIndication);
-    
-    CGFloat heightLabelPercentage = 36;
+    CGFloat heightLabelPercentage = 30;
     [self.labelPercentage setFrame:CGRectMake((self.view.frame.size.width - 100) / 2, self.yBolowView, 100, heightLabelPercentage)];
     [self.labelPercentage setTextAlignment:NSTextAlignmentCenter];
 }
@@ -112,7 +102,7 @@
         else {
             //显示下载完成之前的预制image.
             if(self.placeHoldImage) {
-                [self updateImageViewByImage:self.placeHoldImage withBorder:UIEdgeInsetsMake(20, 20, 20, 20)];
+                [self updateImageViewByImage:self.placeHoldImage withBorder:UIEdgeInsetsMake(45, 36, 45, 36)];
             }
             
             self.imageDataDownload = [[NSMutableData alloc] init];
@@ -178,14 +168,6 @@
 {
     [[NSLogn sharedNSLogn] sendLogContent:@"123"];
     UIImageWriteToSavedPhotosAlbum(self.imageDisplay, nil, nil, nil);
-}
-
-
-- (void)viewDidAppear:(BOOL)animated
-{
-    [super viewDidAppear:animated];
-    self.messageIndication.frame = CGRectMake(0, -36, self.view.frame.size.width, 36);
-    [self.messageIndication.superview bringSubviewToFront:self.messageIndication];
 }
 
 

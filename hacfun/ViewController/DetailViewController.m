@@ -115,9 +115,9 @@
     NSLog(@"Detail history [%zd] get : %lld[%@], %lld[%@]",
           self.threadId,
           self.createdAtForLoaded,
-          self.createdAtForLoaded  ==0?@"0":[FuncDefine stringFromMSecondInterval:self.createdAtForLoaded  andTimeZoneAdjustSecondInterval:0],
+          self.createdAtForLoaded  ==0?@"0":[NSString stringFromMSecondInterval:self.createdAtForLoaded  andTimeZoneAdjustSecondInterval:0],
           self.createdAtForDisplay,
-          self.createdAtForDisplay ==0?@"0":[FuncDefine stringFromMSecondInterval:self.createdAtForDisplay andTimeZoneAdjustSecondInterval:0]
+          self.createdAtForDisplay ==0?@"0":[NSString stringFromMSecondInterval:self.createdAtForDisplay andTimeZoneAdjustSecondInterval:0]
           );
 }
 
@@ -127,9 +127,9 @@
     NSLog(@"Detail history [%zd] set : %lld[%@], %lld[%@]",
           self.threadId,
           self.createdAtForLoaded,
-          self.createdAtForLoaded  ==0?@"0":[FuncDefine stringFromMSecondInterval:self.createdAtForLoaded  andTimeZoneAdjustSecondInterval:0],
+          self.createdAtForLoaded  ==0?@"0":[NSString stringFromMSecondInterval:self.createdAtForLoaded  andTimeZoneAdjustSecondInterval:0],
           self.createdAtForDisplay,
-          self.createdAtForDisplay ==0?@"0":[FuncDefine stringFromMSecondInterval:self.createdAtForDisplay andTimeZoneAdjustSecondInterval:0]
+          self.createdAtForDisplay ==0?@"0":[NSString stringFromMSecondInterval:self.createdAtForDisplay andTimeZoneAdjustSecondInterval:0]
           );
     
     if(self.isDatailHistoryUpdated) {
@@ -287,7 +287,7 @@
     NSTimeInterval t = [[NSDate date] timeIntervalSince1970];
     //使用msec.
     long long collectedAt = t * 1000.0;
-    NSLog(@"111 %lld, %@", collectedAt, [FuncDefine stringFromMSecondInterval:collectedAt andTimeZoneAdjustSecondInterval:0]);
+    NSLog(@"111 %lld, %@", collectedAt, [NSString stringFromMSecondInterval:collectedAt andTimeZoneAdjustSecondInterval:0]);
     
     NSInteger result ;
     NSDictionary *infoInsertCollection = @{
@@ -366,8 +366,8 @@
     LOG_POSTION
     
     NSMutableDictionary *addtional = [[NSMutableDictionary alloc] init];
-    NSMutableArray *replys = [[NSMutableArray alloc] init];
-    PostData *topic = [PostData parseFromDetailedJsonData:data atPage:self.pageNumLoading replysTo:replys storeAdditional:addtional];
+    NSMutableArray *replies = [[NSMutableArray alloc] init];
+    PostData *topic = [PostData parseFromDetailedJsonData:data atPage:self.pageNumLoading repliesTo:replies storeAdditional:addtional];
     if(!topic) {
         return nil;
     }
@@ -403,7 +403,7 @@
         NSLog(@"%@ info updated.", key);
     }
     
-    return replys;
+    return replies;
 }
 
 //override.
@@ -479,7 +479,7 @@
         self.createdAtForDisplay = pdDisplay.createdAt;
         NSLog(@"detail history : Display update to %lld[%@]",
                 self.createdAtForDisplay,
-                self.createdAtForDisplay ==0?@"0":[FuncDefine stringFromMSecondInterval:self.createdAtForDisplay andTimeZoneAdjustSecondInterval:0]
+                self.createdAtForDisplay ==0?@"0":[NSString stringFromMSecondInterval:self.createdAtForDisplay andTimeZoneAdjustSecondInterval:0]
               );
         self.isDatailHistoryUpdated = YES;
     }
@@ -507,7 +507,7 @@
             self.createdAtForLoaded = pdLoaded.createdAt;
             NSLog(@"detail history : Loaded update to %lld[%@]",
                   self.createdAtForLoaded,
-                  self.createdAtForLoaded ==0?@"0":[FuncDefine stringFromMSecondInterval:self.createdAtForLoaded andTimeZoneAdjustSecondInterval:0]
+                  self.createdAtForLoaded ==0?@"0":[NSString stringFromMSecondInterval:self.createdAtForLoaded andTimeZoneAdjustSecondInterval:0]
                   );
             self.isDatailHistoryUpdated = YES;
         }

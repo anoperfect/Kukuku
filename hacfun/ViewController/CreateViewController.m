@@ -15,7 +15,7 @@
 #import "CategoryViewController.h"
 #import "EmoticonCharacterView.h"
 #import "FrameLayout.h"
-#import "PercentageLayout.h"
+
 
 
 #define TAG_CONTENT_VIEW    1000
@@ -45,18 +45,19 @@
 
 
 
-@property (strong,nonatomic) NSString *nameCategory;
-@property (strong,nonatomic) NSString *originalContent;
-@property (assign,nonatomic) NSInteger id;
-@property (assign,nonatomic) NSInteger idReference;
+@property (strong,nonatomic) NSString *nameCategory; //提交主题贴时的栏目.
+@property (strong,nonatomic) NSString *originalContent; //提交主题时的预制内容, 用于举报时.
+@property (assign,nonatomic) NSInteger topicTid; //回复的主题id.
+@property (assign,nonatomic) NSInteger idReference; //引用的id.
 
-@property (assign,nonatomic) NSInteger threadsId;
+@property (nonatomic, assign) long long editedAt; //记录开始发送的时间.
 
-@property (nonatomic, strong) UIView *viewInputContainer;
+@property (assign,nonatomic) NSInteger newThreadId; //提交成功后的主题或回复id.
 
+
+//草稿相关.
 @property (nonatomic, strong) UITableView *draftView;
 @property (nonatomic, strong) NSArray *draftInfo;
-
 @property (nonatomic, assign) BOOL isDraftViewShowing;
 
 
@@ -85,13 +86,6 @@
     
     // 延时加载UITextView, 否则可能产生不流畅现象.
     
-#if 0
-    /* 颜文字, 图片, 发送按钮. */
-    _actionsContainerView = [[UIView alloc] init];
-    [self.view addSubview:_actionsContainerView];
-    [self setActionButtons];
-    LAYOUT_BORDER_ORANGE(_actionsContainerView)
-#endif
     
     /* 图片附件. */
     _viewAttachPicture = [[UIView alloc] init];
@@ -146,8 +140,8 @@
     //键盘出现时,重置textView高度和btn的高度.
     [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(keyboardChangeFrame:) name:UIKeyboardWillChangeFrameNotification object:nil];
     
-    if(0 != self.id) {
-        self.textTopic = [NSString stringWithFormat:@"No.%zi", self.id];
+    if(0 != self.topicTid) {
+        self.textTopic = [NSString stringWithFormat:@"No.%zi", self.topicTid];
     }
     else {
         self.textTopic = [NSString stringWithFormat:@"%@ - 新建", self.nameCategory];
@@ -242,7 +236,7 @@
     if(nil == _textView) {
         _textView = [[UITextView alloc] init];
         [self.view addSubview:_textView];
-        LAYOUT_BORDER_BLUE(_textView)
+        LAYOUT_VIEW_BORDER(_textView, [UIColor blueColor], 1)
         
         _textView.delegate = self;
         _textView.returnKeyType = UIReturnKeyDefault;
@@ -497,7 +491,7 @@
 {
     LOG_POSTION
     self.nameCategory = nameCategory;
-    self.id = 0;
+    self.topicTid = 0;
     self.idReference = 0;
     self.originalContent = originalContent;
 }
@@ -507,7 +501,7 @@
 {
     LOG_POSTION
     self.nameCategory = nil;
-    self.id = id;
+    self.topicTid = id;
     self.idReference = 0;
 }
 
@@ -516,7 +510,7 @@
 {
     LOG_POSTION
     self.nameCategory = nil;
-    self.id = id;
+    self.topicTid = id;
     self.idReference = idReference;
 }
 
@@ -563,6 +557,10 @@
 
 
 - (void)clickSend {
+    
+    NSTimeInterval t = [[NSDate date] timeIntervalSince1970];
+    self.editedAt = t * 1000.0;
+    
     [self notFocusToInput];
     
     NSString *host = [[AppConfig sharedConfigDB] configDBGet:@"host"];
@@ -572,7 +570,7 @@
         str =[NSString stringWithFormat:@"%@/%@/create", host, self.nameCategory];
     }
     else {
-        str = [NSString stringWithFormat:@"%@/t/%zi/create", host, self.id];
+        str = [NSString stringWithFormat:@"%@/t/%zi/create", host, self.topicTid];
     }
     
     NSURL *url=[[NSURL alloc] initWithString:[str stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
@@ -744,14 +742,41 @@
         NSInteger threadsId = [(NSNumber*)[dict objectForKey:@"threadsId"] integerValue];
         NSLog(@"%zi, %d, %zi", code, success, threadsId);
         
-        if(200 == code && success) {
+        if(200 == code && success && threadsId > 0) {
             NSLog(@"post successfully.");
-            self.threadsId = threadsId;
+            self.newThreadId = threadsId;
+            
+            //占位record表.
+            NSDictionary *infoInsert = @{
+                                         @"id":[NSNumber numberWithInteger:threadsId],
+                                         @"threadId":self.topicTid==0?[NSNumber numberWithInteger:threadsId]:[NSNumber numberWithInteger:self.topicTid],
+                                         @"createdAt":[NSNumber numberWithLongLong:0],
+                                         @"updatedAt":[NSNumber numberWithLongLong:0],
+                                         @"jsonstring":@""
+                                         };
+            
+           [[AppConfig sharedConfigDB] configDBRecordInsertOrReplace:infoInsert];
+            
+            //主题贴.
+            if(self.topicTid == 0) {
+                NSDictionary *infoInsertPost = @{
+                                             @"id":[NSNumber numberWithInteger:threadsId],
+                                             @"postedAt":[NSNumber numberWithLongLong:self.editedAt],
+                                             };
+                
+                [[AppConfig sharedConfigDB] configDBPostInsert:infoInsertPost];
+            }
+            else { // 回复帖.
+                NSDictionary *infoInsertReply = @{
+                                             @"id":[NSNumber numberWithInteger:threadsId],
+                                             @"repliedAt":[NSNumber numberWithLongLong:self.editedAt],
+                                             };
+                
+                [[AppConfig sharedConfigDB] configDBReplyInsert:infoInsertReply];
+            }
             
             //保存到post纪录.
             popupView.titleLabel = @"发送成功";
-            
-
             
             popupView.finish = ^(void) {
                 [self createFinishedWithTid:threadsId];

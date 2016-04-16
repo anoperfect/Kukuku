@@ -37,7 +37,7 @@
     imageName = [imageName stringByReplacingOccurrencesOfString:@"/" withString:@"#"];
 #endif
     //修改为URL的encode方式.
-    NSString *imageName = [FuncDefine URLEncodedString:stringUrl];
+    NSString *imageName = [NSString URLEncodedString:stringUrl];
     
     NSString *pngPath = [NSString stringWithFormat:@"%@/%@", imageCacheFolder, imageName];
     

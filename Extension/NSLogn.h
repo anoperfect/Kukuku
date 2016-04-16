@@ -7,7 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-
+#import "Extension.pch"
 @interface NSLogn : NSObject
 
 
@@ -28,6 +28,8 @@
 
 @end
 
+#define RetainCount(objectxxx) (CFGetRetainCount((__bridge CFTypeRef)objectxxx));
+
 #if 1
 #define NSLog(FORMAT, ...) {\
 NSString *content = [NSString stringWithFormat:FORMAT, ##__VA_ARGS__];\
@@ -35,6 +37,20 @@ NSString *content = [NSString stringWithFormat:FORMAT, ##__VA_ARGS__];\
 #endif
 
 
+#define LOG_POSTION NSLog(@"postion.");
+
+#define LOG_POSTION0
+
+#define LOG_RECT(rect, name)        NSLog(@"[%@] - %@", [NSString stringFromCGRect:rect], name);
+#define LOG_VIEW_RECT(view, name)   NSLog(@"[%@] - %@", [NSString stringFromViewFrame:view], name);
+
+
+
+
+
+#define LOG_VIEW_REC0(v, name) {}
+#define LOG_REC0(v, name) {}
+#define NS0Log(x...) {}
 
 
 #if 0

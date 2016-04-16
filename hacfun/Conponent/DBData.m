@@ -278,6 +278,61 @@
         return table;
     }
     
+    if([tableName isEqualToString:@"post"]) {
+        NSMutableArray *columnsm = [[NSMutableArray alloc] init];
+        DBColumnValue *column;
+        
+        column = [[DBColumnValue alloc] init];
+        column.columnName = @"id";
+        column.dataType = DBDataColumnTypeNumberInteger;
+        column.isNeedForInsert = NO;
+        column.isAutoIncrement = NO;
+        [columnsm addObject:column];
+        
+        column = [[DBColumnValue alloc] init];
+        column.columnName = @"postedAt";
+        column.dataType = DBDataColumnTypeNumberLongLong;
+        column.isNeedForInsert = NO;
+        column.isAutoIncrement = NO;
+        [columnsm addObject:column];
+        
+        DBTableValue *table = [[DBTableValue alloc] init];
+        table.tableName = tableName;
+        table.columns = [NSArray arrayWithArray:columnsm];
+        table.forHost = NO;
+        table.primaryKey = @[@"id"];
+        
+        return table;
+    }
+    
+    if([tableName isEqualToString:@"reply"]) {
+        NSMutableArray *columnsm = [[NSMutableArray alloc] init];
+        DBColumnValue *column;
+        
+        column = [[DBColumnValue alloc] init];
+        column.columnName = @"id";
+        column.dataType = DBDataColumnTypeNumberInteger;
+        column.isNeedForInsert = NO;
+        column.isAutoIncrement = NO;
+        [columnsm addObject:column];
+        
+        column = [[DBColumnValue alloc] init];
+        column.columnName = @"repliedAt";
+        column.dataType = DBDataColumnTypeNumberLongLong;
+        column.isNeedForInsert = NO;
+        column.isAutoIncrement = NO;
+        [columnsm addObject:column];
+        
+        DBTableValue *table = [[DBTableValue alloc] init];
+        table.tableName = tableName;
+        table.columns = [NSArray arrayWithArray:columnsm];
+        table.forHost = NO;
+        table.primaryKey = @[@"id"];
+        
+        return table;
+    }
+    
+    
     return nil;
 }
 
@@ -350,8 +405,8 @@
     NSString *insert = [NSString stringWithFormat:@"INSERT %@ INTO %@(%@) VALUES(%@)",
                         couldReplace?@"OR REPLACE":@"",
                         tableName,
-                        [FuncDefine stringsCombine:infoInsertColumnNames withConnector:@","],
-                        [FuncDefine stringPaste:@"?" onTimes:infoInsertColumnNames.count withConnector:@","]
+                        [NSString stringsCombine:infoInsertColumnNames withConnector:@","],
+                        [NSString stringPaste:@"?" onTimes:infoInsertColumnNames.count withConnector:@","]
                         ];
     
     BOOL executeResult = [db executeUpdate:insert withArgumentsInArray:infoInsertValues];
@@ -440,17 +495,18 @@
                 //[querym appendFormat:@" %@ IN (%@)", infoQueryKeys[index], @"6624990, 6678673, 6686117, 6688224"];
                 [querym appendFormat:@" %@ IN (%@)",
                  infoQueryKeys[index],
-                 [FuncDefine combineArray:infoQueryValues[index] withInterval:@", " andPrefix:@"" andSuffix:@""]];
+                 [NSString combineArray:infoQueryValues[index] withInterval:@", " andPrefix:@"" andSuffix:@""]];
             }
             else {
+                //
                 [querym appendFormat:@" %@ = ?", infoQueryKeys[index]];
-                [infoQueryPrameterm addObject:infoQueryValues];
+                [infoQueryPrameterm addObject:infoQueryValues[index]];
             }
         }
         
         [querym appendFormat:@" %@", orderQueryString?orderQueryString:@""];
-        NSLog(@"query string : %@", querym);
-        NSLog(@"query parameterm : %@", infoQueryPrameterm);
+        NSLog(@"query string : [%@]", querym);
+        NSLog(@"query parameterm : [%@]", infoQueryPrameterm);
         rs = [db executeQuery:[NSString stringWithString:querym] withArgumentsInArray:infoQueryPrameterm];
     }
     

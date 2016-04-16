@@ -361,8 +361,8 @@ static NSInteger kcountObject = 0;
     dispatch_queue_t concurrentQueue = dispatch_queue_create("my.concurrent.queue", DISPATCH_QUEUE_CONCURRENT);
     dispatch_async(concurrentQueue, ^(void){
         //获取last page的信息.
-        NSMutableArray *replys = [[NSMutableArray alloc] init];
-        PostData *topic = [PostData sendSynchronousRequestByThreadId:tid atPage:1 replysTo:replys storeAdditional:nil];
+        NSMutableArray *replies = [[NSMutableArray alloc] init];
+        PostData *topic = [PostData sendSynchronousRequestByThreadId:tid atPage:1 repliesTo:replies storeAdditional:nil];
         if(topic) {
             postDataView.data = [NSDictionary dictionaryWithDictionary:[topic toViewDisplayData:ThreadDataToViewTypeInfoUseNumber]];
         }

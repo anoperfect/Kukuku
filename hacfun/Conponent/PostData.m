@@ -50,7 +50,7 @@
     self.updatedAt = postDataFrom.updatedAt;//= 1436668641000;
     
     self.bTopic = NO; //是否是主题. 否则为回复.
-    self.replys = NULL;
+    self.replies = NULL;
     self.recentReply = [postDataFrom.recentReply copy];
     self.replyCount = postDataFrom.replyCount ;
     
@@ -292,7 +292,7 @@
 //字符转换.
 + (NSString*) postDataContentRetreat:(NSString*)content {
     //一些www的关键字符信息需转义.
-    content = [FuncDefine decodeWWWEscape:content];
+    content = [NSString decodeWWWEscape:content];
     
     //font属性由RTLabel显示大小不合适. 手动修改成这样.
     content = [content stringByReplacingOccurrencesOfString:@"font size=\"5\"" withString:@"font size=\"16\""];
@@ -323,7 +323,7 @@
     [encode encodeObject:[NSNumber numberWithLongLong:self.updatedAt] forKey:@"updatedAt"];
     
     [encode encodeObject:[NSNumber numberWithBool:self.bTopic] forKey:@"bTopic"];
-//    @property (strong,nonatomic) NSMutableArray *replys;
+//    @property (strong,nonatomic) NSMutableArray *replies;
 //    @property (strong, nonatomic) NSArray *recentReply ;//=     ( 6299638, 6299598, 6299451, 6299426, 6299069);
     [encode encodeObject:[NSNumber numberWithInteger:self.replyCount] forKey:@"replyCount"];
     [encode encodeObject:[NSNumber numberWithInteger:self.mode] forKey:@"mode"];
@@ -347,7 +347,7 @@
         self.updatedAt = [((NSNumber*)[decoder decodeObjectForKey:@"updatedAt"]) longLongValue];
         
         self.bTopic = [((NSNumber*)[decoder decodeObjectForKey:@"bTopic"]) boolValue];
-//    @property (strong,nonatomic) NSMutableArray *replys;
+//    @property (strong,nonatomic) NSMutableArray *replies;
 //    @property (strong, nonatomic) NSArray *recentReply ;//=     ( 6299638, 6299598, 6299451, 6299426, 6299069);
         self.replyCount = [((NSNumber*)[decoder decodeObjectForKey:@"replyCount"]) integerValue];
         self.mode = [((NSNumber*)[decoder decodeObjectForKey:@"mode"]) integerValue];
@@ -384,7 +384,7 @@ PostDataView 接收的字段字段
     //从实际测试情况看是没有添加时区影响的.
 //    NSTimeZone *zone = [NSTimeZone systemTimeZone];
     intervalTimeZoneAdjust = 0;
-    NSString *stringCreatedAt = [FuncDefine stringFromMSecondInterval:self.createdAt andTimeZoneAdjustSecondInterval:0];
+    NSString *stringCreatedAt = [NSString stringFromMSecondInterval:self.createdAt andTimeZoneAdjustSecondInterval:0];
     
     NSMutableString *titleText = [NSMutableString stringWithFormat:@"%@  %@ ", stringCreatedAt, self.uid];
     [dict setObject:titleText forKey:@"title"];
@@ -591,8 +591,8 @@ PostDataView 接收的字段字段
 }
 
 
-//返回解析出的主题. 具体回复内容放置到replys中. additional可存储一些其他信息.
-+ (PostData*)parseFromDetailedJsonData:(NSData*)data atPage:(NSInteger)page replysTo:(NSMutableArray*)replys storeAdditional:(NSMutableDictionary*)additonal
+//返回解析出的主题. 具体回复内容放置到replies中. additional可存储一些其他信息.
++ (PostData*)parseFromDetailedJsonData:(NSData*)data atPage:(NSInteger)page repliesTo:(NSMutableArray*)replies storeAdditional:(NSMutableDictionary*)additonal
 {
     if(nil == data) {
         NSLog(@"data null");
@@ -644,13 +644,14 @@ PostDataView 接收的字段字段
         return nil;
     }
     
+    key = @"replys";
     PostData *pd = nil;
-    obj = [dict objectForKey:@"replys"];
+    obj = [dict objectForKey:key];
     if(obj && [obj isKindOfClass:[NSMutableArray class]]) {
         
     }
     else {
-        NSLog(@"key replys nil.");
+        NSLog(@"key %@ nil.", key);
         return topic;
     }
     
@@ -674,7 +675,7 @@ PostDataView 接收的字段字段
         
         pd.bTopic = NO;
         pd.mode = 2;
-        [replys addObject:pd];
+        [replies addObject:pd];
     }
     
     return topic;
@@ -683,7 +684,7 @@ PostDataView 接收的字段字段
 
 //page=-1时取最后一页.
 //下载内容为空或者解析出错时返回nil.
-+ (PostData*)sendSynchronousRequestByThreadId:(long long)tid atPage:(NSInteger)page replysTo:(NSMutableArray*)replys storeAdditional:(NSMutableDictionary*)additonal
++ (PostData*)sendSynchronousRequestByThreadId:(long long)tid atPage:(NSInteger)page repliesTo:(NSMutableArray*)replies storeAdditional:(NSMutableDictionary*)additonal
 {
     if([NSThread currentThread] == [NSThread mainThread]) {
         NSLog(@"#error can not running at mainThread");
@@ -709,7 +710,7 @@ PostDataView 接收的字段字段
     
     if (responseData && ([urlResponse statusCode] >= 200 && [urlResponse statusCode] < 300)) {
         //        NSString *responseText = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
-        return [PostData parseFromDetailedJsonData:responseData atPage:page replysTo:replys storeAdditional:additonal];
+        return [PostData parseFromDetailedJsonData:responseData atPage:page repliesTo:replies storeAdditional:additonal];
     }
     else {
         return nil;

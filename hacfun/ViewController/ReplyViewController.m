@@ -7,7 +7,54 @@
 //
 
 #import "ReplyViewController.h"
+#import "FuncDefine.h"
+#import "DetailViewController.h"
+#import "PopupView.h"
+#import "AppConfig.h"
+
+
 
 @implementation ReplyViewController
+
+
+
+
+
+
+
+
+
+- (instancetype)init {
+    
+    self = [super init];
+    if(self) {
+        self.textTopic = @"回复";
+        
+        
+    }
+    
+    return self;
+}
+
+
+//将数据读入arrayAllRecord.
+- (void)getAllRecordData
+{
+    NSArray *queryDatas = [[AppConfig sharedConfigDB] configDBReplyQuery:nil];
+    NSLog(@"localDatas count : %zd .", [queryDatas count]);
+    
+    for(NSDictionary *dict in queryDatas) {
+        long long timestampMsecAt = [(NSNumber*)(dict[@"repliedAt"]) longLongValue];
+        NSLog(@"111 - No.%@ at %@", dict[@"id"], [NSString stringFromMSecondInterval:timestampMsecAt andTimeZoneAdjustSecondInterval:0]);
+    }
+    
+    self.arrayAllRecord = [NSMutableArray arrayWithArray:queryDatas];
+}
+
+
+
+
+
+
 
 @end

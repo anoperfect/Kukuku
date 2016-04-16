@@ -9,6 +9,7 @@
 #ifndef extension_pch
 #define extension_pch
 
+#import "NSString+Category.h"
 #import "NSLogn.h"
 
 // Include any system framework and library headers here that should be included in all compilation units.

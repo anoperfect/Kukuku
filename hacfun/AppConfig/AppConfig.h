@@ -42,13 +42,24 @@
 #define CONFIGDB_EXECUTE_ERROR_EXIST    -2
 #define CONFIGDB_EXECUTE_ERROR_DATA     -3
 
-
-
-
-
+//收藏. 与发帖,回复的表结构相类似,都是 id,记录时间(msec). 因此接口和实现都类似.
 - (NSInteger)configDBCollectionInsert:(NSDictionary*)infoInsert;
 - (BOOL)configDBCollectionDelete:(NSDictionary*)infoDelete ;
 - (NSArray*)configDBCollectionQuery:(NSDictionary*)infoQuery ;
+
+
+//发帖.
+- (NSInteger)configDBPostInsert:(NSDictionary*)infoInsert;
+- (BOOL)configDBPostDelete:(NSDictionary*)infoDelete ;
+- (NSArray*)configDBPostQuery:(NSDictionary*)infoQuery ;
+
+
+//回复.
+- (NSInteger)configDBReplyInsert:(NSDictionary*)infoInsert;
+- (BOOL)configDBReplyDelete:(NSDictionary*)infoDelete ;
+- (NSArray*)configDBReplyQuery:(NSDictionary*)infoQuery ;
+
+
 
 
 - (NSInteger)configDBDetailHistoryInsert:(NSDictionary*)infoInsert countBeReplaced:(BOOL)couldBeReplaced;
@@ -58,29 +69,7 @@
 
 
 
-//- (BOOL)configDBCollectionUpdate:(NSDictionary*)infoUpdate ;
 
-
-//- (BOOL)configDBCollectionInsert:(NSInteger)collectionId andUid:(NSString*)uid;
-//- (BOOL)configDBCollectionDelete:(NSInteger)collectionId;
-//- (NSArray*)configDBCollectionGet;
-//- (BOOL)configDBCollectionUpdate:(NSDictionary*)info ;
-
-
-
-//- (NSInteger)configDBPostInsert:(NSDictionary*)infoInsert orReplace:(BOOL)couldBeReplaced;
-//- (BOOL)configDBPostDelete:(NSDictionary*)infoDelete ;
-//- (NSArray*)configDBPostQuery:(NSDictionary*)infoQuery ;
-//
-//
-//- (BOOL)configDBRecordInsert:(NSDictionary*)infoInsert ;
-//- (BOOL)configDBRecordDelete:(NSDictionary*)infoDelete ;
-//- (NSArray*)configDBRecordQuery:(NSDictionary*)infoQuery ;
-//- (BOOL)configDBRecordUpdate:(NSDictionary*)infoUpdate ;
-//
-//
-//
-//- (BOOL)addRecord:(NSDictionary*)dict withThreadId:(NSInteger)threadId from:(NSString*)string ;
 
 - (BOOL)configDBRecordInsertOrReplace:(NSDictionary*)infoInsert ;
 

@@ -353,10 +353,6 @@
   方法1破坏暂定的结构.
   使用方法3.
 */
-
-
- 
- 
 - (NSArray*)configDBCollectionQuery:(NSDictionary*)infoQuery {
     
     if(!infoQuery) {
@@ -403,6 +399,290 @@
     
     return [NSArray arrayWithArray:arraymReturn];
 }
+
+
+
+//===========================================================================================================
+//id, postedAt
+- (NSInteger)configDBPostInsert:(NSDictionary*)infoInsert {
+    
+    LOG_POSTION
+    NSString *tableName = [NSString stringWithFormat:@"post"];
+    NSInteger id;
+    //NSInteger threadId;
+    long long postedAt;
+    
+    NSObject* obj;
+    
+    obj = [infoInsert objectForKey:@"id"];
+    if(!(obj && [obj isKindOfClass:[NSNumber class]])) {
+        NSLog(@"error- insert table %@ FAILED (need info %@).", tableName, @"id");
+        return CONFIGDB_EXECUTE_ERROR_DATA;
+    }
+    id = [(NSNumber*)obj integerValue];
+    
+    obj = [infoInsert objectForKey:@"postedAt"];
+    if(!(obj && [obj isKindOfClass:[NSNumber class]])) {
+        NSLog(@"error- insert table %@ FAILED (need info %@).", tableName, @"postedAt");
+        return CONFIGDB_EXECUTE_ERROR_DATA;
+    }
+    postedAt = [(NSNumber*)obj longLongValue];
+    
+    BOOL couldBeReplaced = NO;
+    
+    if(couldBeReplaced) {
+        NSString *insert = [NSString stringWithFormat:@"INSERT OR REPLACE INTO %@(id, postedAt) VALUES(%zi,%llu)", tableName, id, postedAt];
+        BOOL executeResult = [self.hostDataBase executeUpdate:insert];
+        if(executeResult) {
+            NSLog(@"insert table %@ OK.", tableName);
+        }
+        else {
+            NSLog(@"error- insert table %@ FAILED (executeUpdate [%@] error).", tableName, insert);
+            return CONFIGDB_EXECUTE_ERROR_SQL;
+        }
+    }
+    else {
+        NSString *insert = [NSString stringWithFormat:@"INSERT INTO %@(id, postedAt) VALUES(%zi,%llu)", tableName, id, postedAt];
+        BOOL executeResult = [self.hostDataBase executeUpdate:insert];
+        if(executeResult) {
+            NSLog(@"insert table %@ OK.", tableName);
+        }
+        else {
+            NSLog(@"error- insert table %@ FAILED (executeUpdate [%@] error).", tableName, insert);
+            return CONFIGDB_EXECUTE_ERROR_SQL;
+        }
+    }
+    
+    //insert record.
+    //[self configDBRecordInsertOrReplace:infoInsert];
+    
+    return CONFIGDB_EXECUTE_OK;
+}
+
+
+- (BOOL)configDBPostDelete:(NSDictionary*)infoDelete {
+    
+    LOG_POSTION
+    NSString *tableName = [NSString stringWithFormat:@"post"];
+    
+    NSString *delete = [NSString stringWithFormat:@"DELETE FROM %@ WHERE id = %@", tableName, [infoDelete objectForKey:@"id"]];
+    if(![infoDelete objectForKey:@"id"]) {
+        delete = [NSString stringWithFormat:@"DELETE FROM %@", tableName];
+        NSLog(@"error- delete table %@ FAILED (need info %@).", tableName, @"id");
+        return NO;
+    }
+    
+    BOOL executeResult = [self.hostDataBase executeUpdate:delete];
+    if(executeResult) {
+        NSLog(@"delete table %@ OK.", tableName);
+    }
+    else {
+        NSLog(@"error --- delete table %@ FAILED (executeUpdate [%@] error).", tableName, delete);
+        return NO;
+    }
+    
+    return YES;
+}
+
+
+/*
+ 1.  连表查询.
+ 2.  分表查询, record单条查询.
+ 3.  分表查询, record多条查询. 查询后直接比对匹配.
+ 4.  分表查询, record多条查询. 查询后优化算法比对匹配.
+ 方法1破坏暂定的结构.
+ 使用方法3.
+ */
+- (NSArray*)configDBPostQuery:(NSDictionary*)infoQuery {
+    
+    if(!infoQuery) {
+        infoQuery = @{@"orderString":@"ORDER BY post.postedAt DESC"};
+    }
+    NSArray *arrayPosts = [self.dbData DBDataQuery:self.hostDataBase toTable:@"post" withInfo:infoQuery];
+    NSMutableArray *idArrayM = [[NSMutableArray alloc] init];
+    for(NSDictionary *dict in arrayPosts) {
+        [idArrayM addObject:[dict objectForKey:@"id"]];
+    }
+    NSLog(@"qwerty : arrayPosts %@", arrayPosts);
+    
+    if(idArrayM.count <= 0) {
+        return nil;
+    }
+    
+    //正常情况下, record中有此记录. 但是post, reply可能因为网络原因未访问下thread信息然后存储到record. 因此需重新构建数组.
+    NSArray *arrayRecords = [self.dbData DBDataQuery:self.hostDataBase toTable:@"record" withInfo:@{@"id":[NSArray arrayWithArray:idArrayM]}];
+    
+    NSMutableArray *arraymReturn = [[NSMutableArray alloc] init];
+    
+    NSInteger numberFound = 0;
+    for(NSInteger index = 0; index < arrayPosts.count; index++) {
+        NSDictionary *dict = arrayPosts[index];
+        NSMutableDictionary* dictm = [NSMutableDictionary dictionaryWithDictionary:dict];
+        
+        NSNumber *tid = [dict objectForKey:@"id"];
+        
+        for(NSDictionary *dictRecord in arrayRecords) {
+            if([[dictRecord objectForKey:@"id"] isEqualToNumber:tid]) {
+                numberFound ++;
+                [dictm addEntriesFromDictionary:dictRecord];
+                break;
+            }
+            else {
+                NSLog(@"#error id %@ not find record.", tid);
+            }
+        }
+        
+        [arraymReturn addObject:[NSDictionary dictionaryWithDictionary:dictm]];
+    }
+    
+    NSLog(@"qwerty[%zd] : %@\n%@\n%@", numberFound, arrayPosts, arrayRecords, arraymReturn);
+    
+    return [NSArray arrayWithArray:arraymReturn];
+}
+
+
+//===========================================================================================================
+//id, repliedAt
+- (NSInteger)configDBReplyInsert:(NSDictionary*)infoInsert {
+    
+    LOG_POSTION
+    NSString *tableName = [NSString stringWithFormat:@"reply"];
+    NSInteger id;
+    //NSInteger threadId;
+    long long repliedAt;
+    
+    NSObject* obj;
+    
+    obj = [infoInsert objectForKey:@"id"];
+    if(!(obj && [obj isKindOfClass:[NSNumber class]])) {
+        NSLog(@"error- insert table %@ FAILED (need info %@).", tableName, @"id");
+        return CONFIGDB_EXECUTE_ERROR_DATA;
+    }
+    id = [(NSNumber*)obj integerValue];
+    
+    obj = [infoInsert objectForKey:@"repliedAt"];
+    if(!(obj && [obj isKindOfClass:[NSNumber class]])) {
+        NSLog(@"error- insert table %@ FAILED (need info %@).", tableName, @"repliedAt");
+        return CONFIGDB_EXECUTE_ERROR_DATA;
+    }
+    repliedAt = [(NSNumber*)obj longLongValue];
+    
+    BOOL couldBeReplaced = NO;
+    
+    if(couldBeReplaced) {
+        NSString *insert = [NSString stringWithFormat:@"INSERT OR REPLACE INTO %@(id, repliedAt) VALUES(%zi,%llu)", tableName, id, repliedAt];
+        BOOL executeResult = [self.hostDataBase executeUpdate:insert];
+        if(executeResult) {
+            NSLog(@"insert table %@ OK.", tableName);
+        }
+        else {
+            NSLog(@"error- insert table %@ FAILED (executeUpdate [%@] error).", tableName, insert);
+            return CONFIGDB_EXECUTE_ERROR_SQL;
+        }
+    }
+    else {
+        NSString *insert = [NSString stringWithFormat:@"INSERT INTO %@(id, repliedAt) VALUES(%zi,%llu)", tableName, id, repliedAt];
+        BOOL executeResult = [self.hostDataBase executeUpdate:insert];
+        if(executeResult) {
+            NSLog(@"insert table %@ OK.", tableName);
+        }
+        else {
+            NSLog(@"error- insert table %@ FAILED (executeUpdate [%@] error).", tableName, insert);
+            return CONFIGDB_EXECUTE_ERROR_SQL;
+        }
+    }
+    
+    //insert record.
+    //[self configDBRecordInsertOrReplace:infoInsert];
+    
+    return CONFIGDB_EXECUTE_OK;
+}
+
+
+- (BOOL)configDBReplyDelete:(NSDictionary*)infoDelete {
+    
+    LOG_POSTION
+    NSString *tableName = [NSString stringWithFormat:@"reply"];
+    
+    NSString *delete = [NSString stringWithFormat:@"DELETE FROM %@ WHERE id = %@", tableName, [infoDelete objectForKey:@"id"]];
+    if(![infoDelete objectForKey:@"id"]) {
+        delete = [NSString stringWithFormat:@"DELETE FROM %@", tableName];
+        NSLog(@"error- delete table %@ FAILED (need info %@).", tableName, @"id");
+        return NO;
+    }
+    
+    BOOL executeResult = [self.hostDataBase executeUpdate:delete];
+    if(executeResult) {
+        NSLog(@"delete table %@ OK.", tableName);
+    }
+    else {
+        NSLog(@"error --- delete table %@ FAILED (executeUpdate [%@] error).", tableName, delete);
+        return NO;
+    }
+    
+    return YES;
+}
+
+
+/*
+ 1.  连表查询.
+ 2.  分表查询, record单条查询.
+ 3.  分表查询, record多条查询. 查询后直接比对匹配.
+ 4.  分表查询, record多条查询. 查询后优化算法比对匹配.
+ 方法1破坏暂定的结构.
+ 使用方法3.
+ */
+- (NSArray*)configDBReplyQuery:(NSDictionary*)infoQuery {
+    
+    if(!infoQuery) {
+        infoQuery = @{@"orderString":@"ORDER BY reply.repliedAt DESC"};
+    }
+    NSArray *arrayReplies = [self.dbData DBDataQuery:self.hostDataBase toTable:@"reply" withInfo:infoQuery];
+    NSMutableArray *idArrayM = [[NSMutableArray alloc] init];
+    for(NSDictionary *dict in arrayReplies) {
+        [idArrayM addObject:[dict objectForKey:@"id"]];
+    }
+    NSLog(@"qwerty : arrayReplies %@", arrayReplies);
+    
+    if(idArrayM.count <= 0) {
+        return nil;
+    }
+    
+    //正常情况下, record中有此记录. 但是reply, reply可能因为网络原因未访问下thread信息然后存储到record. 因此需重新构建数组.
+    NSArray *arrayRecords = [self.dbData DBDataQuery:self.hostDataBase toTable:@"record" withInfo:@{@"id":[NSArray arrayWithArray:idArrayM]}];
+    
+    NSMutableArray *arraymReturn = [[NSMutableArray alloc] init];
+    
+    NSInteger numberFound = 0;
+    for(NSInteger index = 0; index < arrayReplies.count; index++) {
+        NSDictionary *dict = arrayReplies[index];
+        NSMutableDictionary* dictm = [NSMutableDictionary dictionaryWithDictionary:dict];
+        
+        NSNumber *tid = [dict objectForKey:@"id"];
+        
+        for(NSDictionary *dictRecord in arrayRecords) {
+            if([[dictRecord objectForKey:@"id"] isEqualToNumber:tid]) {
+                numberFound ++;
+                [dictm addEntriesFromDictionary:dictRecord];
+                break;
+            }
+            else {
+                NSLog(@"#error id %@ not find record.", tid);
+            }
+        }
+        
+        [arraymReturn addObject:[NSDictionary dictionaryWithDictionary:dictm]];
+    }
+    
+    NSLog(@"qwerty[%zd] : %@\n%@\n%@", numberFound, arrayReplies, arrayRecords, arraymReturn);
+    
+    return [NSArray arrayWithArray:arraymReturn];
+}
+
+
+
+
+
 
 
 
@@ -554,138 +834,7 @@
 
 
 
-- (NSInteger)configDBPostInsert:(NSDictionary*)infoInsert orReplace:(BOOL)couldBeReplaced{
-    
-    LOG_POSTION
-    NSString *tableName = [NSString stringWithFormat:@"post"];
-    
-    id obj = [infoInsert objectForKey:@"id"];
-    if(obj && [obj isKindOfClass:[NSNumber class]]) {
-        
-    }
-    else {
-        NSLog(@"error- insert table %@ FAILED (%@).", tableName, @"info error");
-        return CONFIGDB_EXECUTE_ERROR_DATA;
-    }
-    
-    if(couldBeReplaced) {
-        NSString *insert = [NSString stringWithFormat:@"INSERT OR REPLACE INTO %@(id) VALUES(%@)", tableName, obj];
-        BOOL executeResult = [self.hostDataBase executeUpdate:insert];
-        if(executeResult) {
-            NSLog(@"insert table %@ OK.", tableName);
-        }
-        else {
-            NSLog(@"error- insert table %@ FAILED (executeUpdate [%@] error).", tableName, insert);
-            return CONFIGDB_EXECUTE_ERROR_SQL;
-        }
-    }
-    else {
-        NSString *insert = [NSString stringWithFormat:@"INSERT INTO %@(id) VALUES(%@)", tableName, obj];
-        BOOL executeResult = [self.hostDataBase executeUpdate:insert];
-        if(executeResult) {
-            NSLog(@"insert table %@ OK.", tableName);
-        }
-        else {
-            NSLog(@"error- insert table %@ FAILED (executeUpdate [%@] error).", tableName, insert);
-            return CONFIGDB_EXECUTE_ERROR_SQL;
-        }
-    }
-    
-    return CONFIGDB_EXECUTE_OK;
-}
 
-
-
-- (BOOL)configDBPostDelete:(NSDictionary*)infoDelete {
-    
-    NSLog(@"3. delete : %@", infoDelete);
-    
-    NSString *tableName = [NSString stringWithFormat:@"post"];
-    
-    NSString *delete = [NSString stringWithFormat:@"DELETE FROM %@ WHERE id = %@", tableName, [infoDelete objectForKey:@"id"]];
-    if(![infoDelete objectForKey:@"id"]) {
-        delete = [NSString stringWithFormat:@"DELETE FROM %@", tableName];
-        NSLog(@"error --- delete table %@ FAILED.", tableName);
-        return NO;
-    }
-    
-    BOOL executeResult = [self.hostDataBase executeUpdate:delete];
-    if(executeResult) {
-        NSLog(@"delete table %@ OK.", tableName);
-    }
-    else {
-        NSLog(@"error --- delete table %@ FAILED.", tableName);
-        return NO;
-    }
-    
-    return YES;
-}
-
-
-- (NSArray*)configDBPostQuery1:(NSDictionary*)infoQuery {
-    
-    NSString *tableName = [NSString stringWithFormat:@"post"];
-    
-    NSString *query = [NSString stringWithFormat:@"SELECT threadId FROM %@ WHERE id = %@",tableName, [infoQuery objectForKey:@"id"]];
-    if(![infoQuery objectForKey:@"id"]) {
-        query = [NSString stringWithFormat:@"SELECT id FROM %@", tableName];
-    }
-    
-    NSMutableArray *array = [[NSMutableArray alloc] init];
-    FMResultSet *rs = [self.hostDataBase executeQuery:query];
-    while ([rs next]) {
-        NSInteger id = [rs intForColumn:@"id"];
-        [array addObject:[NSNumber numberWithInteger:id]];
-    }
-    
-    return [NSArray arrayWithArray:array];
-}
-
-- (NSArray*)configDBPostQuery:(NSDictionary*)infoQuery {
-    
-//    NSString *tableName = [NSString stringWithFormat:@"post"];
-    
-    NSString *query = [NSString stringWithFormat:@"SELECT id FROM post,record WHERE post.id = %@ AND post.id = record.id",
-                       [infoQuery objectForKey:@"id"]];
-    if(![infoQuery objectForKey:@"id"]) {
-        query = [NSString stringWithFormat:@"SELECT id, record.jsonstring FROM post,record WHERE post.id = record.id"];
-    }
-    
-    NSMutableArray *array = [[NSMutableArray alloc] init];
-    FMResultSet *rs = [self.hostDataBase executeQuery:query];
-    while ([rs next]) {
-        NSInteger id = [rs intForColumn:@"id"];
-        NSLog(@"%@", [rs stringForColumn:@"jsonstring"]);
-        NSDictionary *dict = @{
-                               @"id":[NSNumber numberWithInteger:id],
-                               @"jsonstring":[rs stringForColumn:@"jsonstring"]
-                               };
-        [array addObject:dict];
-    }
-    NSLog(@"%s count : %zi", __FUNCTION__, [array count]);
-    
-    return [NSArray arrayWithArray:array];
-}
-
-
-//- (BOOL)configDBPostUpdate:(NSDictionary*)infoUpdate {
-//    
-//    NSString *tableName = [NSString stringWithFormat:@"post"];
-//    NSString *update = [NSString stringWithFormat:@"UPDATE %@ set jsonstring = %@ WHERE id = %@", tableName,
-//                        [infoUpdate objectForKey:@"jsonstring"],
-//                        [infoUpdate objectForKey:@"id"]];
-//    
-//    BOOL executeResult = [self.hostDataBase executeUpdate:update];
-//    if(executeResult) {
-//        NSLog(@"update table %@ OK.", tableName);
-//    }
-//    else {
-//        NSLog(@"error --- update table %@ FAILED.", tableName);
-//        return NO;
-//    }
-//    
-//    return YES;
-//}
 
 
 - (BOOL)configDBRecordInsert:(NSDictionary*)infoInsert {
@@ -820,6 +969,13 @@
         if([dictQueryResult isEqual:infoInsert]) {
             NSLog(@"id = %@. not need update.", [infoInsert objectForKey:@"id"]);
         }
+        /*新建主题或者回复后, 选择是否占位. 占位的话则需取消此判断. 
+          关于是否占位, 是指在新建主题或者回复后, 只能获取到id信息. 此id信息需保存到post表活着reply表中. 
+          但是如果之后的对该主题/回复的访问有网络故障的情况. 则导致未获取到详细信息不能添加到record表. 
+          如果执行联表查询, 则此id不会出现在查询结果中.
+          如果占位的话, 则可以解决此问题, 只是查询处的jsonstring为空. 
+          暂时决定使用占位.
+         */
         else if([jsonstring length] == 0){
             NSLog(@"error- id = %@. no json string.", [infoInsert objectForKey:@"id"]);
             result = NO;
@@ -859,13 +1015,42 @@
         [FuncDefine colorFromString:@"#65432F"];
         
         //建立或者升级数据库.
-        [self configDBBuildWithForceRebuild:NO];
+        [self configDBBuildWithForceRebuild:YES];
+        NSLog(@"#error - force rebuild for test.");
         
         //打开对应的配置数据库和host数据库.
         [self configDBOpen];
+        
+        [self test];
     }
     
     return self;
+}
+
+
+- (void)test
+{
+//    NSString *sql = @"SELECT * from record where id = ?";
+//    NSString *sql = @"SELECT * FROM collection WHERE id = ?";
+    NSString *sql = @"SELECT * FROM post";
+    
+    NSMutableArray *arrayParameter = [[NSMutableArray alloc] init];
+    [arrayParameter addObject:[NSNumber numberWithInteger:6624990]];
+
+    NSMutableArray *array = [[NSMutableArray alloc] init];
+    FMResultSet *rs = [self.hostDataBase executeQuery:sql withArgumentsInArray:arrayParameter];
+    while ([rs next]) {
+        NSInteger id = [rs intForColumn:@"id"];
+        NSDictionary *dict = @{
+                               @"id":[NSNumber numberWithInteger:id]/*,
+                               @"jsonstring":[rs stringForColumn:@"jsonstring"]*/
+                               };
+        [array addObject:dict];
+    }
+    
+    NSLog(@" query : [%@]", sql);
+    NSLog(@" parameter : [%@]", arrayParameter);
+    NSLog(@"%s count : %zi \n%@", __FUNCTION__, [array count], array);
 }
 
 
@@ -1916,7 +2101,7 @@
         return YES;
     }
     
-    NSString *createHostsTable = [NSString stringWithFormat:@"create table if not exists %@(id integer primary key)", tableName];
+    NSString *createHostsTable = [NSString stringWithFormat:@"create table if not exists %@(id integer primary key, postAt integer)", tableName];
     BOOL executeResult = [dataBase executeUpdate:createHostsTable];
     if(executeResult) {
         NSLog(@"create table %@ OK.", tableName);
@@ -1938,7 +2123,7 @@
         return YES;
     }
     
-    NSString *createHostsTable = [NSString stringWithFormat:@"create table if not exists %@(id integer primary key, threadId integer)", tableName];
+    NSString *createHostsTable = [NSString stringWithFormat:@"create table if not exists %@(id integer primary key, repliedAt integer)", tableName];
     BOOL executeResult = [dataBase executeUpdate:createHostsTable];
     if(executeResult) {
         NSLog(@"create table %@ OK.", tableName);

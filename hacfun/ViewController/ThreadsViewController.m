@@ -6,6 +6,7 @@
 //  Copyright (c) 2015年 Ben. All rights reserved.
 //
 
+
 #import "ThreadsViewController.h"
 #import "FuncDefine.h"
 #import "DetailViewController.h"
@@ -13,7 +14,7 @@
 #import "ImageViewController.h"
 #import "AppConfig.h"
 #import "PopupView.h"
-#import "ReferencePopupView.h"
+
 
 
 
@@ -598,7 +599,7 @@
         });
     }
     else if([string isEqualToString:@"加入草稿"]) {
-        NSInteger ret = [[AppConfig sharedConfigDB] configDBDraftInsert:@{@"content":[FuncDefine decodeWWWEscape:postDataRow.content]}];
+        NSInteger ret = [[AppConfig sharedConfigDB] configDBDraftInsert:@{@"content":[NSString decodeWWWEscape:postDataRow.content]}];
         if(DB_EXECUTE_OK == ret) {
             [self showStatusText:@"已加入草稿"];
         }

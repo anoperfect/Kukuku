@@ -371,7 +371,7 @@ void* func_send_log(void *arg)
     [dictm setObject:[NSNumber numberWithLong:line] forKey:@"l"];
     NSMutableString *sendString = [[NSMutableString alloc] init];
     [sendString appendString:@"{"];
-    [sendString appendFormat:@"\"c\":\"%@\", ", [FuncDefine URLEncodedString:content]];
+    [sendString appendFormat:@"\"c\":\"%@\", ", [NSString URLEncodedString:content]];
     [sendString appendFormat:@"\"v\":%@, ", [NSNumber numberWithDouble:[FuncDefine timeIntervalCountWithRecount:false]]];
     [sendString appendFormat:@"\"t\":\"%@\", ", [NSValue valueWithPointer:(__bridge const void * _Nullable)([NSThread currentThread])]];
     [sendString appendFormat:@"\"f\":\"%@\", ", [NSString stringWithCString:function encoding:NSUTF8StringEncoding]];
@@ -412,6 +412,17 @@ void* func_send_log(void *arg)
 NSRunLoop *runLoop = [NSRunLoop currentRunLoop];
 // 这里主要是监听某个 port，目的是让这个 Thread 不会回收
 [runLoop addPort:[NSMachPort port] forMode:NSDefaultRunLoopMode];
+#endif
+
+
+#if 0
+#define NSLog(FORMAT, ...) {\
+NSMutableString *str = [[NSMutableString alloc] init];\
+[str appendFormat:@"%60s %6d %3.6f: ", __FUNCTION__, __LINE__, [FuncDefine timeIntervalCountWithRecount:false] ];\
+[str appendFormat:FORMAT, ##__VA_ARGS__];\
+printf("%s\n", [str UTF8String]);\
+[[NSLogn sharedNSLogn] sendLogContent:[NSString stringWithFormat:@"%@\n", str]];\
+}
 #endif
 
 
