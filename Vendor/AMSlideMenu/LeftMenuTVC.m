@@ -35,14 +35,14 @@
 //    [self.view setBackgroundColor:[UIColor blueColor]];
 //    [self.view setBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:@"bg"]]];
     self.tableView.contentInset = UIEdgeInsetsMake(100,0,0,0);
-    self.tableView.backgroundView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"bgright"]];
+    self.tableView.backgroundView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"bgleft"]];
 }
 
 
 - (void)viewDidAppear:(BOOL)animated {
 //        [self.view setFrame:CGRectMake(0, 20, self.view.frame.size.width, self.view.frame.size.height - 20)];
     [super viewDidAppear:animated];
-    [[[UIApplication sharedApplication] keyWindow] setBackgroundColor:[UIColor purpleColor]];
+//    [[[UIApplication sharedApplication] keyWindow] setBackgroundColor:[UIColor purpleColor]];
 }
 
 

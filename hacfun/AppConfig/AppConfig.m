@@ -376,6 +376,7 @@
     
     NSInteger numberFound = 0;
     for(NSInteger index = 0; index < arrayCollections.count; index++) {
+        BOOL foundInRecord = NO;
         NSDictionary *dict = arrayCollections[index];
         NSMutableDictionary* dictm = [NSMutableDictionary dictionaryWithDictionary:dict];
         
@@ -385,11 +386,13 @@
             if([[dictRecord objectForKey:@"id"] isEqualToNumber:tid]) {
                 numberFound ++;
                 [dictm addEntriesFromDictionary:dictRecord];
+                foundInRecord = YES;
                 break;
             }
-            else {
-                NSLog(@"#error id %@ not find record.", tid);
-            }
+        }
+        
+        if(!foundInRecord) {
+            NSLog(@"#error id %@ not find record.", tid);
         }
         
         [arraymReturn addObject:[NSDictionary dictionaryWithDictionary:dictm]];
@@ -1015,8 +1018,8 @@
         [FuncDefine colorFromString:@"#65432F"];
         
         //建立或者升级数据库.
-        [self configDBBuildWithForceRebuild:YES];
-        NSLog(@"#error - force rebuild for test.");
+        [self configDBBuildWithForceRebuild:NO];
+//        NSLog(@"#error - force rebuild for test.");
         
         //打开对应的配置数据库和host数据库.
         [self configDBOpen];
@@ -1032,7 +1035,7 @@
 {
 //    NSString *sql = @"SELECT * from record where id = ?";
 //    NSString *sql = @"SELECT * FROM collection WHERE id = ?";
-    NSString *sql = @"SELECT * FROM post";
+    NSString *sql = @"SELECT * FROM collection";
     
     NSMutableArray *arrayParameter = [[NSMutableArray alloc] init];
     [arrayParameter addObject:[NSNumber numberWithInteger:6624990]];
@@ -1051,6 +1054,9 @@
     NSLog(@" query : [%@]", sql);
     NSLog(@" parameter : [%@]", arrayParameter);
     NSLog(@"%s count : %zi \n%@", __FUNCTION__, [array count], array);
+    
+    
+    
 }
 
 

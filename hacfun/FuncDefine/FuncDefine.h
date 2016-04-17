@@ -57,17 +57,17 @@
 
 
 
-//CGRect applicationFrame = [[UIScreen mainScreen] applicationFrame];
-//LOG_RECT(applicationFrame, @"applicationFrame")
 
-//CGRect bounds = [[UIScreen mainScreen] bounds];
-//LOG_RECT(bounds, @"bounds")
-
-//判断竖屏横屏.
-#define VERTIVAL_SCREEN ([[UIScreen mainScreen] bounds].size.height >= [[UIScreen mainScreen] bounds].size.width)
 
 
 
 #define TAGVIEW(tag)                [self.view viewWithTag:tag]
 #define TAGVIEW2(tag1, tag2)        [[self.view viewWithTag:tag1] viewWithTag]
 #define TAGVIEW3(tag1, tag2, tag3)  [[[self.view viewWithTag:tag1] viewWithTag:tag2] viewWithTag:tag3]
+
+
+
+
+#define DISPATCH_ONCE_START     do {static dispatch_once_t once; dispatch_once(&once, ^{
+#define DISPATCH_ONCE_FINISH    }); }while(0);
+

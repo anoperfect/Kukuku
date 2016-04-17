@@ -28,6 +28,8 @@
 + (NSString*)decodeWWWEscape:(NSString*)string;
 + (NSString*)combineArray:(NSArray*)array withInterval:(NSString*)intetval andPrefix:(NSString*)prefix andSuffix:(NSString*)suffix;
 
++(NSString*)stringFromNSDictionary:(NSDictionary*)dict;
 
 
 @end
+

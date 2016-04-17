@@ -114,8 +114,10 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
     [self.bannerView.buttonTopic addTarget:self action:@selector(clickButtonTopic) forControlEvents:UIControlEventTouchDown];
     [self.bannerView setTextTopic:self.textTopic];
     
+    DISPATCH_ONCE_START
     NSLog(@"x %@- %@", self.navigationController.navigationBar, [self.navigationController.navigationBar subviews]);
-
+    DISPATCH_ONCE_FINISH
+    
     [self layoutBannerView];
 
     // 布局功能键.

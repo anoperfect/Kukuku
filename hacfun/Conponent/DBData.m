@@ -475,8 +475,8 @@
         querym = [NSMutableString stringWithFormat:@"SELECT *%@ FROM %@", table.primaryKey.count==0?@",rowid":@"", tableName];
         //table.primaryKey.count==0?@",row":@""用于在主键缺省的时候使用隐藏主键rowid.
         [querym appendFormat:@" %@", orderQueryString?orderQueryString:@""];
-        rs = [db executeQuery:[NSString stringWithString:querym]];
         NSLog(@"query string : %@", querym);
+        rs = [db executeQuery:[NSString stringWithString:querym]];
     }
     else {
         NSArray *infoQueryKeys = infoQueryUsing.allKeys;
@@ -512,7 +512,9 @@
     
     while ([rs next]) {
         NSMutableDictionary *dictm = [[NSMutableDictionary alloc] init];
-        dictm[@"rowid"] = [NSNumber numberWithInteger:[rs intForColumn:@"rowid"]];
+        if(table.primaryKey.count==0) {
+            dictm[@"rowid"] = [NSNumber numberWithInteger:[rs intForColumn:@"rowid"]];
+        }
         for(DBColumnValue *column in table.columns) {
             switch (column.dataType) {
                 case DBDataColumnTypeNumberInteger:

@@ -52,7 +52,7 @@
     NSData *dataRead = [ImageViewCache getImageViewCache:self.downloadString];
     NS0Log(@"%zi", [dataRead length]);
     if([dataRead length] > 0) {
-        NSLog(@"------ use cached image.%@ - %@", self, self.superview);
+        NSLog(@"------ use cached image.");
         [self updateImageByCachedData:dataRead];
     }
     else {

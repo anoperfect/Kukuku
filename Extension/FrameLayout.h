@@ -173,8 +173,14 @@ typedef NS_ENUM(NSInteger, FrameLayoutPosition) {
 
 
 
+//CGRect applicationFrame = [[UIScreen mainScreen] applicationFrame];
+//LOG_RECT(applicationFrame, @"applicationFrame")
 
+//CGRect bounds = [[UIScreen mainScreen] bounds];
+//LOG_RECT(bounds, @"bounds")
 
+//判断竖屏横屏.
+#define VERTIVAL_SCREEN ([[UIScreen mainScreen] bounds].size.height >= [[UIScreen mainScreen] bounds].size.width)
 
 
 
