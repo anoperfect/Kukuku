@@ -39,6 +39,7 @@
     if(self = [super init]) {
         self.threadsStatus = ThreadsStatusInit;
         self.pageNumLoaded = 0;
+        self.pageNumLoading = 1; //从page1开始加载.
         self.postDatas = [[NSMutableArray alloc] init];
     }
     
@@ -227,6 +228,14 @@
     NSLog(@"override for locale or network.");
 }
 
+
+//override.
+//一个满的page是多少. 用于判断是否进入下一个page的加载.
+- (NSInteger)numberExpectedInPage:(NSInteger)page
+{
+    NSLog(@"#error - should be override.");
+    return 20;
+}
 
 
 //---override. pretreat before append to self.postDatas.

@@ -161,6 +161,7 @@
     }
     
     NSMutableString *strm = [NSMutableString stringWithString:@"{\n"];
+    
     for(id key in dict.allKeys) {
         id obj = [dict objectForKey:key];
         if([obj isKindOfClass:[NSNumber class]]) {
@@ -170,6 +171,7 @@
             [strm appendFormat:@"%@ = \"%@\"\n", key, [dict objectForKey:key]];
         }
     }
+    
     [strm appendString:@"}"];
     
     return [NSString stringWithString:strm];

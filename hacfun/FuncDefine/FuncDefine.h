@@ -15,6 +15,19 @@
 
 
 +(UIColor*)colorFromString:(NSString*)string;
+
+
++ (UIImage*)circleImageWithImage:(UIImage*)imageOriginal borderWidth:(CGFloat)borderWidth borderColor:(UIColor *)borderColor;
+
+
++ (UIImage*)thumbOfImage:(UIImage*)image
+               fitToSize:(CGSize)size
+             isFillBlank:(BOOL)isFillBlank
+               fillColor:(UIColor*)fillColor
+             borderColor:(UIColor*)borderColor
+             borderWidth:(CGFloat)borderWidth;
+
+
 @end
 
 

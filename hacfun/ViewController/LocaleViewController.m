@@ -25,7 +25,7 @@
     
     self = [super init];
     if(self) {
-        self.numberInOnePage = 10; //一次加载全部.
+//        self.numberInOnePage = 10; //一次加载全部.
         self.textTopic = @"本地";
         
         ButtonData *actionData = nil;
@@ -58,6 +58,12 @@
 - (void)getAllRecordData
 {
     NSLog(@"#error - must override.")
+}
+
+
+- (NSInteger)numberExpectedInPage:(NSInteger)page
+{
+    return 10;
 }
 
 

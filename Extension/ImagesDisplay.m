@@ -108,12 +108,16 @@
     
     imageView.frame = cell.bounds;
     imageView.image = [self.imageDatas objectAtIndex:indexPath.row];
+    imageView.image = [FuncDefine thumbOfImage:imageView.image
+                                     fitToSize:CGSizeMake(100, 127)
+                                   isFillBlank:YES
+                                     fillColor:[UIColor clearColor]
+                                   borderColor:[UIColor orangeColor] borderWidth:3.6];
     
     CGFloat heightSelectSign = 36;
     UIImageView *muiltSelectSign = [cell viewWithTag:10000001];
     if(!muiltSelectSign) {
         LOG_RECT(cell.frame, @"111");
-        
         
         muiltSelectSign = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, heightSelectSign, heightSelectSign)];
         muiltSelectSign.tag = 10000001;
@@ -157,6 +161,8 @@
     CGSize sizeImage = image.size;
     
     height = sizeImage.height / sizeImage.width * width;
+    
+    height = 127;
     
     return CGSizeMake(width, height);
 }

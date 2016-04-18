@@ -98,6 +98,7 @@
     
     NSMutableArray *appendPostDatas = nil;
     NSMutableArray* parsedPostDatas = [self parseDownloadedData:data];
+    self.numberLoaded = parsedPostDatas.count;
     if(nil == parsedPostDatas) {
         NSLog(@"xxxxxx parse json error \n%@",[[NSString alloc] initWithData:data  encoding:NSUTF8StringEncoding]);
         self.threadsStatus = ThreadsStatusLoadFailed;
@@ -158,12 +159,7 @@
         }
         else {
             NSLog(@"not last page.");
-            if(self.autoRepeatDownload) {
-                [self showIndicationText:[NSString stringWithFormat:@"已加载第%zd页, 共%zd条.", self.pageNumLoaded, [self.postDatas count]]];
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self reloadPostData];
-                });
-            }
+
         }
     }
 }

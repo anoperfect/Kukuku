@@ -97,15 +97,22 @@
 }
 
 
-- (NSInteger)numInOnePage {
-#define NUM_IN_PAGE 10
-    return NUM_IN_PAGE;
+//一个满的page是多少. 用于判断是否进入下一个page的加载.
+- (NSInteger)numberExpectedInPage:(NSInteger)page
+{
+    //kukuku是10个.
+    //hacfun是20个.
+    //这个配置写到配库.
+    return [[[AppConfig sharedConfigDB] configDBGet:@"numberInCategoryPage"] integerValue ];
 }
 
 
 - (NSString*)getDownloadUrlString {
-    NSInteger count = [self.postDatas count];
-    self.pageNumLoading = count/[self numInOnePage] + 1;
+    //上一次加载满一个page的话, 才可以加载下一个page.
+    if(self.numberLoaded == [self numberExpectedInPage:self.pageNumLoading]) {
+        self.pageNumLoading ++;
+    }
+    
     return [NSString stringWithFormat:@"%@/%@?page=%zi", self.host, self.linkCategory, self.pageNumLoading];
 }
 

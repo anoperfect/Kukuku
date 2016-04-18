@@ -44,7 +44,7 @@
 @property (nonatomic, assign) CGFloat borderTop;
 @property (nonatomic, assign) CGFloat borderLeft;
 
-
+@property (nonatomic, assign) BOOL fold; //是否折叠.
 
 @end
 
@@ -185,31 +185,47 @@ static NSInteger kcountObject = 0;
     info = info?info:@"null";
     [self.infoLabel setText:info];
     
-    NSString *manageInfoString = [self.data objectForKey:@"manageInfo"];
-    [self.manageInfoLabel setText:manageInfoString];
-    
-    NSString *otherInfoString = [self.data objectForKey:@"otherInfo"];
-    [self.otherInfoLabel setText:otherInfoString];
-    
-    NSString *content = [self.data objectForKey:@"content"];
-    content = content?content:@"null\n111";
-    [self.contentLabel setText:content];
-    
-    PostData *postData = [self.data objectForKey:@"postdata"];
-    
-    //UIViewImage
-    NSString *thumb = postData.thumb;
-    
-    //判断是否设置无图模式.
-    NSString *value = [[AppConfig sharedConfigDB] configDBSettingKVGet:@"disableimageshow"] ;
-    BOOL b = [value boolValue];
-    if(nil == thumb || [thumb isEqualToString:@""] || b) {
+    //关于折叠.
+    NSString *foldReason = [self.data objectForKey:@"fold"];
+    if(foldReason) {
+        self.fold = YES;
+        [self.infoLabel setText:foldReason];
+        self.manageInfoLabel.hidden = YES;
+        self.otherInfoLabel.hidden = YES;
+        self.contentLabel.hidden = YES;
         self.imageView.hidden = YES;
     }
     else {
-        self.imageView.hidden = NO;
-        NSString *imageHost = [[AppConfig sharedConfigDB] configDBGet:@"imageHost"];
-        [self.imageView setDownloadUrlString:[NSString stringWithFormat:@"%@/%@", imageHost, thumb]];
+        self.fold = NO;
+        NSString *manageInfoString = [self.data objectForKey:@"manageInfo"];
+        [self.manageInfoLabel setText:manageInfoString];
+        self.manageInfoLabel.hidden = NO;
+        
+        NSString *otherInfoString = [self.data objectForKey:@"otherInfo"];
+        [self.otherInfoLabel setText:otherInfoString];
+        self.otherInfoLabel.hidden = NO;
+        
+        NSString *content = [self.data objectForKey:@"content"];
+        content = content?content:@"null\n111";
+        [self.contentLabel setText:content];
+        self.contentLabel.hidden = NO;
+        
+        PostData *postData = [self.data objectForKey:@"postdata"];
+        
+        //UIViewImage
+        NSString *thumb = postData.thumb;
+        
+        //判断是否设置无图模式.
+        NSString *value = [[AppConfig sharedConfigDB] configDBSettingKVGet:@"disableimageshow"] ;
+        BOOL b = [value boolValue];
+        if(nil == thumb || [thumb isEqualToString:@""] || b) {
+            self.imageView.hidden = YES;
+        }
+        else {
+            self.imageView.hidden = NO;
+            NSString *imageHost = [[AppConfig sharedConfigDB] configDBGet:@"imageHost"];
+            [self.imageView setDownloadUrlString:[NSString stringWithFormat:@"%@/%@", imageHost, thumb]];
+        }
     }
     
     self.actionButtons.hidden = YES;
@@ -263,59 +279,68 @@ static NSInteger kcountObject = 0;
     frameTitleLabel     = [layout getCGRect:@"Title"];
     frameInfoLabel      = [layout getCGRect:@"Info"];
     
-    CGFloat heightPaddingTitleContent = 10.0;
-    if([self.manageInfoLabel.text length] > 0 || [self.otherInfoLabel.text length] > 0) {
-        [layout setUseBesideMode:@"InfoAdditional" besideTo:@"TitleLine" withDirection:FrameLayoutDirectionBelow andSizeValue:20.0];
-        [layout divideInVertical:@"InfoAdditional" to:@"manageInfo" and:@"otherInfo" withWidthValue:60.0];
-        frameManageInfo = [layout getCGRect:@"manageInfo"];
-        frameOtherInfo  = [layout getCGRect:@"otherInfo"];
-        
-        heightPaddingTitleContent = 0.0;
-    }
-    else {
-        [layout setUseBesideMode:@"InfoAdditional" besideTo:@"TitleLine" withDirection:FrameLayoutDirectionBelow andSizeValue:0.0];
-    }
-    
-    //Title和正文间设置间距.
-    [layout setUseBesideMode:@"PaddingTitleContent" besideTo:@"InfoAdditional" withDirection:FrameLayoutDirectionBelow andSizeValue:heightPaddingTitleContent];
-    
-    //设置正文.
-    [layout setUseLeftMode:@"Content" standardTo:@"PaddingTitleContent" withDirection:FrameLayoutDirectionBelow];
-    //contentLabel需自调整高度.
-    frameContentLabel = [layout getCGRect:@"Content"];
-    self.contentLabel.frame = frameContentLabel;
-    CGSize size = [self.contentLabel optimumSize];
-    frameContentLabel.size.height = size.height;
-    //重新设置
-    [layout setCGRect:frameContentLabel toName:@"Content"];
-    
-    //Content和image之间的间距.
-    [layout setUseBesideMode:@"PaddingContentImage" besideTo:@"Content" withDirection:FrameLayoutDirectionBelow andSizeValue:10.0];
-    
+    //标记自适应高度.
     CGFloat heightAdjust = 0.0;
-    if(self.imageView.hidden) {
-        heightAdjust = FRAMELAYOUT_Y_BLOW_FRAME(frameContentLabel) + edge.bottom;
-        [layout setUseBesideMode:@"ImageLine" besideTo:@"PaddingContentImage" withDirection:FrameLayoutDirectionBelow andSizeValue:1.0];
+    
+    if(self.fold) {
+        heightAdjust = frameTitleLabel.origin.y + frameTitleLabel.size.height;
+        LOG_RECT(frameTitleLabel, @"xcv");
+        [layout setUseBesideMode:@"PaddingActionButtons" besideTo:@"TitleLine" withDirection:FrameLayoutDirectionBelow andSizeValue:6.0];
     }
     else {
-        CGFloat heightImage = 68.0;
-        [layout setUseBesideMode:@"ImageLine" besideTo:@"PaddingContentImage" withDirection:FrameLayoutDirectionBelow andSizeValue:heightImage];
-        [layout divideInVertical:@"ImageLine" to:@"Image" and:@"ImageLeft" withWidthValue:100.0];
-        frameImageViewContent = [layout getCGRect:@"Image"];
+        CGFloat heightPaddingTitleContent = 10.0;
+        if([self.manageInfoLabel.text length] > 0 || [self.otherInfoLabel.text length] > 0) {
+            [layout setUseBesideMode:@"InfoAdditional" besideTo:@"TitleLine" withDirection:FrameLayoutDirectionBelow andSizeValue:20.0];
+            [layout divideInVertical:@"InfoAdditional" to:@"manageInfo" and:@"otherInfo" withWidthValue:60.0];
+            frameManageInfo = [layout getCGRect:@"manageInfo"];
+            frameOtherInfo  = [layout getCGRect:@"otherInfo"];
+            
+            heightPaddingTitleContent = 0.0;
+        }
+        else {
+            [layout setUseBesideMode:@"InfoAdditional" besideTo:@"TitleLine" withDirection:FrameLayoutDirectionBelow andSizeValue:0.0];
+        }
         
-        heightAdjust = FRAMELAYOUT_Y_BLOW_FRAME(frameImageViewContent) + edge.bottom;
+        //Title和正文间设置间距.
+        [layout setUseBesideMode:@"PaddingTitleContent" besideTo:@"InfoAdditional" withDirection:FrameLayoutDirectionBelow andSizeValue:heightPaddingTitleContent];
+        
+        //设置正文.
+        [layout setUseLeftMode:@"Content" standardTo:@"PaddingTitleContent" withDirection:FrameLayoutDirectionBelow];
+        //contentLabel需自调整高度.
+        frameContentLabel = [layout getCGRect:@"Content"];
+        self.contentLabel.frame = frameContentLabel;
+        CGSize size = [self.contentLabel optimumSize];
+        frameContentLabel.size.height = size.height;
+        //重新设置
+        [layout setCGRect:frameContentLabel toName:@"Content"];
+        
+        //Content和image之间的间距.
+        [layout setUseBesideMode:@"PaddingContentImage" besideTo:@"Content" withDirection:FrameLayoutDirectionBelow andSizeValue:10.0];
+        
+        if(self.imageView.hidden) {
+            heightAdjust = FRAMELAYOUT_Y_BLOW_FRAME(frameContentLabel) + edge.bottom;
+            [layout setUseBesideMode:@"ImageLine" besideTo:@"PaddingContentImage" withDirection:FrameLayoutDirectionBelow andSizeValue:1.0];
+        }
+        else {
+            CGFloat heightImage = 68.0;
+            [layout setUseBesideMode:@"ImageLine" besideTo:@"PaddingContentImage" withDirection:FrameLayoutDirectionBelow andSizeValue:heightImage];
+            [layout divideInVertical:@"ImageLine" to:@"Image" and:@"ImageLeft" withWidthValue:100.0];
+            frameImageViewContent = [layout getCGRect:@"Image"];
+            
+            heightAdjust = FRAMELAYOUT_Y_BLOW_FRAME(frameImageViewContent) + edge.bottom;
+        }
+        
+        [layout setUseBesideMode:@"PaddingActionButtons" besideTo:@"ImageLine" withDirection:FrameLayoutDirectionBelow andSizeValue:6.0];
     }
-    
-    [layout setUseBesideMode:@"PaddingImageActionButtons" besideTo:@"ImageLine" withDirection:FrameLayoutDirectionBelow andSizeValue:6.0];
     
     if(!self.actionButtons.hidden) {
         CGFloat heightActionButtons = 36.0;
-        [layout setUseBesideMode:@"ActionButtons" besideTo:@"PaddingImageActionButtons" withDirection:FrameLayoutDirectionBelow andSizeValue:heightActionButtons];
+        [layout setUseBesideMode:@"ActionButtons" besideTo:@"PaddingActionButtons" withDirection:FrameLayoutDirectionBelow andSizeValue:heightActionButtons];
         frameActionButtons = [layout getCGRect:@"ActionButtons"];
-        
+            
         heightAdjust = FRAMELAYOUT_Y_BLOW_FRAME(frameActionButtons) + edge.bottom;
     }
-    
+
     self.titleLabel.frame           = frameTitleLabel;
     self.infoLabel.frame            = frameInfoLabel;
     self.manageInfoLabel.frame      = frameManageInfo;

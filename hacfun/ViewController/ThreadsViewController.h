@@ -31,7 +31,6 @@ typedef NS_ENUM(NSInteger, ThreadsStatus) {
 
 #define TAG_PostDataCellView    (4500000 + 1)
 
-@property (assign,nonatomic) NSInteger  numberInOnePage;
 @property (assign,nonatomic) NSInteger  numberOfAll;
 @property (assign,nonatomic) NSInteger  numberOfLoaded;
 
@@ -54,9 +53,10 @@ typedef NS_ENUM(NSInteger, ThreadsStatus) {
 @property (strong,nonatomic) UIRefreshControl *refresh;
 
 //多页加载模式下的页面序号. 已加载. 在加载成功后更新.
-@property (assign,nonatomic) NSInteger pageNumLoaded;
+@property (assign,nonatomic)    NSInteger pageNumLoaded;
+@property (nonatomic, assign)   NSInteger numberLoaded;
 
-//多页加载模式下的页面序号. 已加载.
+//多页加载模式下的页面序号. 正加载或刚加载完成的页面序号.
 @property (assign,nonatomic) NSInteger pageNumLoading;
 
 
@@ -88,6 +88,11 @@ typedef NS_ENUM(NSInteger, ThreadsStatus) {
 - (void)reloadPostData;
 
 //override.
+
+
+//一个满的page是多少. 用于判断是否进入下一个page的加载.
+- (NSInteger)numberExpectedInPage:(NSInteger)page;
+
 //将刷新页得到的数据append到UITable的数据源时的行为. 可重写用于去重, 加页栏, 屏蔽等行为.
 - (NSMutableArray*)parsedPostDatasRetreat:(NSMutableArray*)parsedPostDatas;
 
@@ -122,7 +127,6 @@ typedef NS_ENUM(NSInteger, ThreadsStatus) {
 
 //重载以定义cell能支持的动作. NSArray成员为 NSString.
 - (NSArray*)actionStringsOnRow:(NSInteger)row;
-
 
 
 @end

@@ -1317,6 +1317,18 @@
         object = arrayCategories;
     }
     
+    if([key isEqualToString:@"numberInCategoryPage"]) {
+        if([[self configDBGet:@"hostname"] isEqualToString:@"hacfun"]) {
+            object = [NSNumber numberWithInteger:20];
+        }
+        else if([[self configDBGet:@"hostname"] isEqualToString:@"kukuku"]) {
+            object = [NSNumber numberWithInteger:10];
+        }
+        else {
+            object = [NSNumber numberWithInteger:10];
+        }
+    }
+    
     return object;
 }
 

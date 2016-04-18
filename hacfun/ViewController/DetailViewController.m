@@ -36,6 +36,7 @@
 //记录加载或者浏览的最新回复是否有更新. 以执行是否更新存储.
 @property (nonatomic, assign) BOOL isDatailHistoryUpdated;
 
+@property (nonatomic, assign) BOOL isOnlyShowPo;
 
 @end
 
@@ -341,15 +342,19 @@
 }
 
 
-- (NSInteger)numInOnePage {
-#define NUM_IN_PAGE 20
-    return NUM_IN_PAGE;
+//一个满的page是多少. 用于判断是否进入下一个page的加载.
+- (NSInteger)numberExpectedInPage:(NSInteger)page
+{
+    return 20;
 }
 
 
 - (NSString*)getDownloadUrlString {
-    NSInteger count = [self.postDatas count];
-    self.pageNumLoading = count==0?1:((count-1)/[self numInOnePage] + 1);
+    //上一次加载满一个page的话, 才可以加载下一个page.
+    if(self.numberLoaded == [self numberExpectedInPage:self.pageNumLoading]) {
+        self.pageNumLoading ++;
+    }
+    
     return [NSString stringWithFormat:@"%@/t/%zi?page=%zi", self.host, self.threadId, self.pageNumLoading];
 }
 
@@ -493,6 +498,16 @@
 {
     [super actionAfterParseAndRefresh:data andPostDataParsed:postDataParsed andPostDataAppended:postDataAppended];
     
+    //自动加载的时候的提示信息.
+    if(self.autoRepeatDownload) {
+        if(![self isLastPage]) {
+            [self showIndicationText:[NSString stringWithFormat:@"已加载第%zd页, 共%zd条.", self.pageNumLoaded, [self.postDatas count] - 1]];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self reloadPostData];
+            });
+        }
+    }
+    
     //保存最新回复CreatedAt.
     [self storeLoadedInfo];
 }
@@ -544,11 +559,69 @@
 - (NSArray*)actionStringsOnRow:(NSInteger)row
 {
     if(0 == row) {
-        return @[@"复制", @"举报", @"只看Po", @"加入草稿", @"链接"];
+        if(!self.isOnlyShowPo) {
+            return @[@"复制", @"举报", @"开启只看Po", @"链接"];
+        }
+        else {
+            return @[@"复制", @"举报", @"关闭只看Po", @"链接"];
+        }
     }
     else {
         return @[@"复制", @"举报", @"加入草稿"];
     }
+}
+
+
+- (BOOL)actionOnRow:(NSInteger)row viaString:(NSString*)string
+{
+    BOOL finishAction = [super actionOnRow:row viaString:string];
+    if(finishAction) {
+        return finishAction;
+    }
+    
+    finishAction = YES;
+    PostData *postDataRow = [self.postDatas objectAtIndex:row];
+    
+    if([string isEqualToString:@"开启只看Po"]){
+        self.isOnlyShowPo = YES;
+        
+        //给PostDataCellData设置折叠标记.
+        NSInteger count = self.postDatas.count;
+        for (NSInteger index = 0; index < count; index ++) {
+            PostData *pd = self.postDatas[index];
+            NSMutableDictionary *dict = self.postViewCellDatas[index];
+            if(![pd.uid isEqualToString:postDataRow.uid]) {
+                [dict setObject:@"只看Po" forKey:@"fold"];
+                NSLog(@"fold...");
+            }
+            else {
+                NSLog(@"fold... not ");
+            }
+        }
+        
+        [self.postView reloadData];
+        
+        [self showfootViewWithTitle:[NSString stringWithFormat:@"当前为只看Po模式"]
+               andActivityIndicator:NO andDate:NO];
+    }
+    else if([string isEqualToString:@"关闭只看Po"]){
+        self.isOnlyShowPo = NO;
+        //给PostDataCellData取消.
+        for(NSMutableDictionary *dict in self.postViewCellDatas) {
+                [dict setObject:@"只看Po" forKey:@"fold"];
+            [dict removeObjectForKey:@"fold"];
+        }
+        
+        [self.postView reloadData];
+        
+        [self showfootViewWithTitle:[NSString stringWithFormat:@"已关闭只看Po模式"]
+               andActivityIndicator:NO andDate:NO];
+    }
+    else {
+        finishAction = NO;
+    }
+    
+    return finishAction;
 }
 
 
