@@ -18,7 +18,8 @@
 @property (nonatomic) long long createdAt ; //=1436622610000;
 @property (strong, nonatomic) NSString * email ;//= "";
 @property (nonatomic) NSInteger forum ; //= 4;
-@property (nonatomic) NSInteger id ;//= 6297913;
+@property (nonatomic) NSInteger tid ;//= 6297913;
+@property (nonatomic) NSInteger tidBelongTo ;//= 6297913;
 @property (strong, nonatomic) NSString *image ;
 @property (nonatomic) BOOL lock ;//= 0;
 @property (strong, nonatomic) NSString *name ; //= "";
@@ -37,13 +38,13 @@
 @property (nonatomic) NSInteger mode; //数据是属于 1. 栏目模式; 2. Post模式.
 @property (nonatomic) CGFloat optimumSizeHeight;
 
-@property (nonatomic, strong) NSString *jsonString;
+@property (nonatomic, strong) NSString *jsonstring;
 
 typedef enum {
     PostDataTypeNone = 0,       //基础
     PostDataTypeReal,           //实时解析出来的.
     PostDataTypeLocal,          //本地缓存数据.
-    PostDataTypeOnlyThreadId    //只有threadid的.
+    PostDataTypeOnlyTid         //只有tid的.
 }PostDataType;
 
 
@@ -58,9 +59,9 @@ typedef enum {
 
 
 typedef NS_ENUM(NSInteger, ThreadDataToViewType) {
-    ThreadDataToViewTypeInfoUseNumber,      //info栏显示No. 用于DetailViewControler.
+    ThreadDataToViewTypeInfoUseNumber = 0,      //info栏显示No. 用于DetailViewControler.
     ThreadDataToViewTypeInfoUseReplyCount,  //info栏显示
-    ThreadDataToViewTypeAdditionalInfoUseReplyCount,
+    ThreadDataToViewTypeAdditionalInfoUseReplyCount
 };
 
 
@@ -83,13 +84,35 @@ typedef NS_ENUM(NSInteger, ThreadDataToViewType) {
 //page=-1时取最后一页.
 //下载内容为空或者解析出错时返回nil.
 //在主线程中执行时返回nil.
-+ (PostData*)sendSynchronousRequestByThreadId:(long long)tid atPage:(NSInteger)page repliesTo:(NSMutableArray*)replies storeAdditional:(NSMutableDictionary*)additonal;
-
-
++ (PostData*)sendSynchronousRequestByTid:(long long)tid atPage:(NSInteger)page repliesTo:(NSMutableArray*)replies storeAdditional:(NSMutableDictionary*)additonal;
 
 
 
 @end
+
+
+
+
+
+
+
+@interface PostDataPage : NSObject
+
+@property (nonatomic, assign) NSInteger page;
+@property (nonatomic, assign) NSInteger section;
+@property (nonatomic, strong) NSMutableArray *postDatas;
+
+@end
+
+
+@interface PostViewDataPage : NSObject
+
+@property (nonatomic, assign) NSInteger page;
+@property (nonatomic, assign) NSInteger section;
+@property (nonatomic, strong) NSMutableArray *postViewDatas;
+
+@end
+
 
 
 

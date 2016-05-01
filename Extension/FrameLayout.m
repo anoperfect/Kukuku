@@ -34,7 +34,7 @@
     if(nil != self) {
         self.sizeSuper = sizeSuper;
         self.frames = [[NSMutableDictionary alloc] init];
-        [self.frames setValue:[NSValue valueWithCGRect:CGRectMake(0, 0, sizeSuper.width, sizeSuper.height)] forKey:FRAMELAYOUT_NAME_MAIN];
+        [self.frames setObject:[NSValue valueWithCGRect:CGRectMake(0, 0, sizeSuper.width, sizeSuper.height)] forKey:FRAMELAYOUT_NAME_MAIN];
     }
     
     return self;
@@ -43,7 +43,7 @@
 
 - (void)setCGRect:(CGRect)frame toName:(NSString*)name
 {
-    [self.frames setValue:[NSValue valueWithCGRect:frame] forKey:name];
+    [self.frames setObject:[NSValue valueWithCGRect:frame] forKey:name];
 }
 
 
@@ -51,7 +51,7 @@
 {
     CGRect frame = CGRectZero;
     
-    NSValue *frameValue = [self.frames valueForKey:name];
+    NSValue *frameValue = [self.frames objectForKey:name];
     if(nil != frameValue) {
         frame = [frameValue CGRectValue];
     }

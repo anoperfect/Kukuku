@@ -35,27 +35,29 @@
 
 - (void)copyFrom:(PostData*)postDataFrom
 {
-    self.content = [postDataFrom.content copy];
-    self.createdAt = postDataFrom.createdAt; //=1436622610000;
-    self.email = [postDataFrom.email copy];//= "";
-    self.forum = postDataFrom.forum; //= 4;
-    self.id = postDataFrom.id;//= 6297913;
-    self.image = [postDataFrom.image copy];
-    self.lock = postDataFrom.lock ;//= 0;
-    self.name = [postDataFrom.name copy]; //= "";
-    self.sage = postDataFrom.sage ;//= 0;
-    self.thumb = [postDataFrom.thumb copy];//= "";
-    self.title = [postDataFrom.title copy];//= "";
-    self.uid = [postDataFrom.uid copy];//= TYXC4L2E;
-    self.updatedAt = postDataFrom.updatedAt;//= 1436668641000;
+    self.content        = [postDataFrom.content copy];
+    self.createdAt      = postDataFrom.createdAt; //=1436622610000;
+    self.email          = [postDataFrom.email copy];//= "";
+    self.forum          = postDataFrom.forum; //= 4;
+    self.tid            = postDataFrom.tid;//= 6297913;
+    self.tidBelongTo    = postDataFrom.tidBelongTo;//= 6297913;
+    self.image          = [postDataFrom.image copy];
+    self.lock           = postDataFrom.lock ;//= 0;
+    self.name           = [postDataFrom.name copy]; //= "";
+    self.sage           = postDataFrom.sage ;//= 0;
+    self.thumb          = [postDataFrom.thumb copy];//= "";
+    self.title          = [postDataFrom.title copy];//= "";
+    self.uid            = [postDataFrom.uid copy];//= TYXC4L2E;
+    self.updatedAt      = postDataFrom.updatedAt;//= 1436668641000;
     
-    self.bTopic = NO; //是否是主题. 否则为回复.
-    self.replies = NULL;
-    self.recentReply = [postDataFrom.recentReply copy];
-    self.replyCount = postDataFrom.replyCount ;
+    self.bTopic         = NO; //是否是主题. 否则为回复.
+    self.replies        = NULL;
+    self.recentReply    = [postDataFrom.recentReply copy];
+    self.replyCount     = postDataFrom.replyCount ;
     
-    self.optimumSizeHeight = postDataFrom.optimumSizeHeight;
-    self.type = postDataFrom.type;
+    self.optimumSizeHeight  = postDataFrom.optimumSizeHeight;
+    self.type               = postDataFrom.type;
+    self.jsonstring         = [postDataFrom.jsonstring copy];
 }
 
 
@@ -77,7 +79,7 @@
 - (BOOL)isIdInArray:(NSArray*)array {
     
     for(PostData* pd in array) {
-        if(pd.id == self.id) {
+        if(pd.tid == self.tid) {
             return YES;
         }
     }
@@ -89,7 +91,17 @@
 + (PostData*)fromDictData:(NSDictionary *)dict atPage:(NSInteger)page {
     
     PostData *pd = [[PostData alloc] init];
-    pd.jsonString = [NSString stringWithFormat:@"%@", dict];
+    
+    NSError *parseError = nil;
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:dict options:NSJSONWritingPrettyPrinted error:&parseError];
+    if(jsonData) {
+        pd.jsonstring = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    }
+    else {
+        NSLog(@"#error - dict to jsonstring error. [dict:%@]", dict);
+        pd.jsonstring = @"";
+    }
+    
     BOOL finished = NO;
     id obj;
     NS0Log(@"%@", dict);
@@ -135,7 +147,7 @@
         DICT_PARSE_GET_LONGLONG(@"createdAt", pd.createdAt)
         DICT_PARSE_GET_NSSTRING(@"email", pd.email)
         DICT_PARSE_GET_NSINTEGER(@"forum", pd.forum)
-        DICT_PARSE_GET_NSINTEGER(@"id", pd.id)
+        DICT_PARSE_GET_NSINTEGER(@"id", pd.tid)
         DICT_PARSE_GET_NSSTRING(@"image", pd.image)
         DICT_PARSE_GET_NSINTEGER(@"lock", pd.lock)
         DICT_PARSE_GET_NSSTRING(@"name", pd.name)
@@ -312,7 +324,7 @@
     [encode encodeObject:[NSNumber numberWithLongLong:self.createdAt] forKey:@"createdAt"];
     [encode encodeObject:self.email forKey:@"email"];
     [encode encodeObject:[NSNumber numberWithInteger:self.forum] forKey:@"forum"];
-    [encode encodeObject:[NSNumber numberWithInteger:self.id] forKey:@"id"];
+    [encode encodeObject:[NSNumber numberWithInteger:self.tid] forKey:@"tid"];
     [encode encodeObject:self.image forKey:@"image"];
     [encode encodeObject:[NSNumber numberWithBool:self.lock] forKey:@"lock"];
     [encode encodeObject:self.name forKey:@"name"];
@@ -336,7 +348,7 @@
         self.createdAt = [((NSNumber*)[decoder decodeObjectForKey:@"createdAt"]) longLongValue];
         self.email = [decoder decodeObjectForKey:@"email"];
         self.forum = [((NSNumber*)[decoder decodeObjectForKey:@"forum"]) integerValue];
-        self.id = [((NSNumber*)[decoder decodeObjectForKey:@"id"]) integerValue];
+        self.tid = [((NSNumber*)[decoder decodeObjectForKey:@"tid"]) integerValue];
         self.image = [decoder decodeObjectForKey:@"image"];
         self.lock = [((NSNumber*)[decoder decodeObjectForKey:@"lock"]) boolValue];
         self.name = [decoder decodeObjectForKey:@"name"];
@@ -358,24 +370,17 @@
 
 
 - (NSString*)description {
-    return [NSString stringWithFormat:@"%@", self.jsonString];
+    return [NSString stringWithFormat:@"jsonstring : %@", self.jsonstring];
 }
 
 
 /*
 PostDataView 接收的字段字段
- @"title"           - 第一行左边的. 显示日期 uid.
- @"info"            - 第一行右边的. 显示tid, 或者replycount. 可重写.
- @"manageInfo"      - 第二行左边的. 显示sage.
- @"otherInfo"     - 第二行右边的. 显示一些其他信息. 暂时是显示更新回复信息. 用在CollectionViewController显示新回复状态.
- @"content"         - 正文.  根据需要已作内容调整.
- @"colorUid"        － 标记uid颜色. 暂时使用uid颜色标记特定thread. 比如Po, //self post , self reply, follow, other cookie.
- @"postdata"        - copy的PostData.
-                      id, thumb replycount直接从raw postdata中读取.
+按照PostDataCellView中的说明.
 */
-
-
 - (NSMutableDictionary*)toVIewDisplayDataUseCustom {
+    LOG_POSTION
+    NSString *uidRetreat = self.uid;
     
     NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
     
@@ -386,7 +391,44 @@ PostDataView 接收的字段字段
     intervalTimeZoneAdjust = 0;
     NSString *stringCreatedAt = [NSString stringFromMSecondInterval:self.createdAt andTimeZoneAdjustSecondInterval:0];
     
-    NSMutableString *titleText = [NSMutableString stringWithFormat:@"%@  %@ ", stringCreatedAt, self.uid];
+    if(self.uid.length > 8) {
+        NSLog(@"long uid %@", self.uid);
+    }
+    
+//    [self.uid rangeOfString:@"<font color=\"red">管理员1</font>" options:<#(NSStringCompareOptions)#> range:<#(NSRange)#>]
+    //uid可能已经有颜色标签.
+    NSRange range1 = [self.uid rangeOfString:@"<font color=\"[a-zA-Z]+\">" options:NSRegularExpressionSearch range:NSMakeRange(0, self.uid.length)];
+    if(range1.location == NSNotFound || range1.length == 0) {
+        
+    }
+    else {
+        NSRange range2 = [self.uid rangeOfString:@"</font>" options:0 range:NSMakeRange(range1.location + range1.length, self.uid.length - (range1.location + range1.length))];
+        
+        if(range2.location != NSNotFound && range2.length > 0) {
+            NSString *uid =  [self.uid substringWithRange:NSMakeRange(range1.location + range1.length,
+                                                                      range2.location - (range1.location + range1.length))];
+            NSLog(@"uid:%@", uid);
+            
+            NSString *fontString = [self.uid substringWithRange:range1];
+            uidRetreat = uid;
+            NSRange rangeFont1 = [fontString rangeOfString:@"<font color=\""];
+            if(rangeFont1.location != NSNotFound && rangeFont1.length > 0) {
+                NSRange rangeFont2 = [fontString rangeOfString:@"\"" options:0 range:NSMakeRange(rangeFont1.location + rangeFont1.length, fontString.length - (rangeFont1.location + rangeFont1.length))];
+                
+                if(rangeFont2.location != NSNotFound && rangeFont2.length > 0) {
+                    NSString *colorString =  [fontString substringWithRange:NSMakeRange(rangeFont1.location + rangeFont1.length,
+                                                                              rangeFont2.location - (rangeFont1.location + rangeFont1.length))];
+                    NSLog(@"color:%@", colorString);
+                    UIColor *color = [UIColor colorFromString:colorString];
+                    if(color) {
+                        [dict setObject:color forKey:@"colorUid"];
+                    }
+                }
+            }
+        }
+    }
+    
+    NSMutableString *titleText = [NSMutableString stringWithFormat:@"%@  %@ ", stringCreatedAt, uidRetreat];
     [dict setObject:titleText forKey:@"title"];
     [dict setObject:@"" forKey:@"info"];
     
@@ -400,7 +442,19 @@ PostDataView 接收的字段字段
     
     [dict setObject:@"" forKey:@"otherInfo"];
     
-    content = [PostData postDataContentRetreat:self.content];
+    //正文.
+    content = self.content;
+    if(self.name.length > 0) {
+        content = [NSString stringWithFormat:@"名称: %@\n%@", self.name, content];
+    }
+    if(self.email.length > 0) {
+        content = [NSString stringWithFormat:@"E-mail: %@\n%@", self.email, content];
+    }
+    if(self.title.length > 0) {
+        content = [NSString stringWithFormat:@"标题: %@\n%@", self.title, content];
+    }
+    
+    content = [PostData postDataContentRetreat:content];
     [dict setObject:content?content:@"无正文" forKey:@"content"];
     
     [dict setObject:[self copy] forKey:@"postdata"];
@@ -416,7 +470,7 @@ PostDataView 接收的字段字段
     switch (type) {
         case ThreadDataToViewTypeInfoUseNumber:
             dictm = [self toVIewDisplayDataUseCustom];
-            [dictm setObject:[NSString stringWithFormat:@"No.%zi", self.id] forKey:@"info"];
+            [dictm setObject:[NSString stringWithFormat:@"No.%zi", self.tid] forKey:@"info"];
             break;
             
         case ThreadDataToViewTypeInfoUseReplyCount:
@@ -426,7 +480,7 @@ PostDataView 接收的字段字段
             
         case ThreadDataToViewTypeAdditionalInfoUseReplyCount:
             dictm = [self toVIewDisplayDataUseCustom];
-            [dictm setObject:[NSString stringWithFormat:@"No.%zi", self.id] forKey:@"info"];
+            [dictm setObject:[NSString stringWithFormat:@"No.%zi", self.tid] forKey:@"info"];
             [dictm setObject:[NSString stringWithFormat:@"回应: %zi", self.replyCount] forKey:@"infoAdditional"];
             break;
             
@@ -439,67 +493,10 @@ PostDataView 接收的字段字段
 }
 
 
-+ (void)gotParsedThread:(NSDictionary*)dict belongTo:(NSInteger)threadId {
-    
-    LOG_POSTION
-    NSLog(@"%@ --- %zi" , [dict objectForKey:@"id"], threadId);
-    NS0Log(@"%@", dict);
-    
-    NSError *error = nil;
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:dict
-                                                       options:NSJSONWritingPrettyPrinted
-                                                         error:&error];
-    //    if(!([jsonData length] > 0 && error == nil)){
-    //        NSLog(@"error : ------");
-    //        return NO;
-    //    }
-    
-    NSString *jsonstring = [[NSString alloc] initWithData:jsonData
-                                                 encoding:NSUTF8StringEncoding];
-    
-    NSMutableDictionary *info = [[NSMutableDictionary alloc] init];
-    
-    id obj;
-    obj = [dict objectForKey:@"id"];
-    if([obj isKindOfClass:[NSNumber class]]) {
-        [info setObject:obj forKey:@"id"];
-    }
-    else {
-        NSLog(@"error- %@ not in dictionay.", @"id");
-        return;
-    }
-    
-    if(0 == threadId) {
-        [info setObject:obj forKey:@"threadId"];
-    }
-    else {
-        [info setObject:[NSNumber numberWithInteger:threadId] forKey:@"threadId"];
-    }
-    
-    obj = [dict objectForKey:@"createdAt"];
-    if([obj isKindOfClass:[NSNumber class]]) {
-        [info setObject:obj forKey:@"createdAt"];
-    }
-    else {
-        NSLog(@"error- %@ not in dictionay.", @"createdAt");
-        return;
-    }
-    
-    obj = [dict objectForKey:@"updatedAt"];
-    if([obj isKindOfClass:[NSNumber class]]) {
-        [info setObject:obj forKey:@"updatedAt"];
-    }
-    else {
-        NSLog(@"error- %@ not in dictionay.", @"updatedAt");
-        //return;
-        [info setObject:[NSNumber numberWithLongLong:0] forKey:@"updatedAt"];
-    }
-    
-    [info setObject:jsonstring forKey:@"jsonstring"];
-    
-    dispatch_async(dispatch_get_main_queue(), ^(void) {
-        [[AppConfig sharedConfigDB] configDBRecordInsertOrReplace:info];
-    });
++ (void)gotParsedPostDatas:(NSArray*)postDatas
+{
+    //将比对优化部分放到AppConfig的接口实现中.
+    [[AppConfig sharedConfigDB] configDBRecordAdds:postDatas];
 }
 
 
@@ -515,11 +512,11 @@ PostDataView 接收的字段字段
     }
     
     //NSData转 NSString.
-    NSString *jsonString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    NSLog(@"json data string : \n%@", jsonString);
+    NSString *jsonstring = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    NSLog(@"json data string : \n%@", jsonstring);
     
     //NSString转NSData.
-    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *jsonData = [jsonstring dataUsingEncoding:NSUTF8StringEncoding];
     NSLog(@"compare result : %d", [jsonData isEqual:data]);
     
     obj = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableLeaves error:nil];
@@ -578,13 +575,17 @@ PostDataView 接收的字段字段
             break;
         }
         
-        //将解析的数据加载到record表中.
-        [self gotParsedThread:(NSDictionary*)obj belongTo:0];
+        pd.tidBelongTo = 0;
         
         //PostData各数据获取完成.
         pd.bTopic = YES;
         pd.mode = 1;
         [postDatasArray addObject:pd];
+    }
+    
+    //将解析的数据加载到record表中.
+    if(postDatasArray.count > 0) {
+        [self gotParsedPostDatas:postDatasArray];
     }
     
     return postDatasArray;
@@ -600,8 +601,8 @@ PostDataView 接收的字段字段
     }
     
     //NSData转 NSString.
-    NSString *jsonString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    NSLog(@"json data string : \n%@", jsonString);
+    NSString *jsonstring = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    NSLog(@"json data string : \n%@", jsonstring);
     
     NSObject *obj;
     NSDictionary *dict;
@@ -637,7 +638,7 @@ PostDataView 接收的字段字段
             return nil;
         }
         
-        [self gotParsedThread:(NSDictionary*)obj belongTo:0];
+        topic.tidBelongTo = 0;
     }
     else {
         NSLog(@"error - key threads nil.");
@@ -671,11 +672,24 @@ PostDataView 接收的字段字段
             break;
         }
         
-        [self gotParsedThread:(NSDictionary*)obj belongTo:topic.id];
-        
+        pd.tidBelongTo = topic.tid;
         pd.bTopic = NO;
         pd.mode = 2;
         [replies addObject:pd];
+    }
+    
+    //记录更新到数据库.
+    NSMutableArray *parsedPostDatas = [[NSMutableArray alloc] init];
+    if(topic) {
+        [parsedPostDatas addObject:topic];
+    }
+
+    if(replies && replies.count) {
+        [parsedPostDatas addObjectsFromArray:replies];
+    }
+    
+    if(parsedPostDatas.count > 0) {
+        [self gotParsedPostDatas:parsedPostDatas];
     }
     
     return topic;
@@ -684,16 +698,18 @@ PostDataView 接收的字段字段
 
 //page=-1时取最后一页.
 //下载内容为空或者解析出错时返回nil.
-+ (PostData*)sendSynchronousRequestByThreadId:(long long)tid atPage:(NSInteger)page repliesTo:(NSMutableArray*)replies storeAdditional:(NSMutableDictionary*)additonal
++ (PostData*)sendSynchronousRequestByTid:(long long)tid atPage:(NSInteger)page repliesTo:(NSMutableArray*)replies storeAdditional:(NSMutableDictionary*)additonal
 {
     if([NSThread currentThread] == [NSThread mainThread]) {
         NSLog(@"#error can not running at mainThread");
         return nil;
     }
     
+    Host *host = [[AppConfig sharedConfigDB] configDBHostsGetCurrent];
+    
     NSString *urlString = nil;
     urlString = [NSString stringWithFormat:@"%@/t/%lld?page=%@",
-                 [[AppConfig sharedConfigDB] configDBGet:@"host"],
+                 host.host,
                  tid,
                  page!=-1?[NSNumber numberWithInteger:page]:@"last"];
     NSLog(@"sync thread download url : %@", urlString);
@@ -725,3 +741,30 @@ PostDataView 接收的字段字段
 @end
 
 
+
+
+
+@implementation PostDataPage
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        self.page = NSNotFound;
+        self.postDatas = [[NSMutableArray alloc] init];
+    }
+    return self;
+}
+@end
+
+
+@implementation PostViewDataPage
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        self.page = NSNotFound;
+        self.postViewDatas = [[NSMutableArray alloc] init];
+    }
+    return self;
+}
+@end

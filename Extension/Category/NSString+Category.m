@@ -178,6 +178,11 @@
 }
 
 
++(NSString*)stringFromTableIndexPath:(NSIndexPath*)indexPath
+{
+    return [NSString stringWithFormat:@"%zd:%zd", indexPath.section, indexPath.row];
+}
+
 
 
 

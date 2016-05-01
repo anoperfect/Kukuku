@@ -71,6 +71,7 @@
 		B5A8036D1CAA816400F88EC7 /* UIpConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = B5A8036C1CAA816400F88EC7 /* UIpConfig.m */; };
 		B5AFCA0E1C9FFE5A00D9DDB5 /* bgleft.png in Resources */ = {isa = PBXBuildFile; fileRef = B5AFCA0C1C9FFE5A00D9DDB5 /* bgleft.png */; };
 		B5AFCA0F1C9FFE5A00D9DDB5 /* bgright.png in Resources */ = {isa = PBXBuildFile; fileRef = B5AFCA0D1C9FFE5A00D9DDB5 /* bgright.png */; };
+		B5B077201CC626DE00CF50A2 /* db.json in Resources */ = {isa = PBXBuildFile; fileRef = B5B0771F1CC626DE00CF50A2 /* db.json */; };
 		B5B666311CACCEA10038A3EF /* PushButton.m in Sources */ = {isa = PBXBuildFile; fileRef = B5B666301CACCEA10038A3EF /* PushButton.m */; };
 		B5BC10541B8988EE0006EDD4 /* emoticon.png in Resources */ = {isa = PBXBuildFile; fileRef = B5BC10531B8988EE0006EDD4 /* emoticon.png */; };
 		B5D8D4761B52060C0091DA20 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = B5D8D4751B52060C0091DA20 /* main.m */; };
@@ -209,6 +210,7 @@
 		B5A8036C1CAA816400F88EC7 /* UIpConfig.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = UIpConfig.m; path = Extension/UIpConfig.m; sourceTree = SOURCE_ROOT; };
 		B5AFCA0C1C9FFE5A00D9DDB5 /* bgleft.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bgleft.png; sourceTree = "<group>"; };
 		B5AFCA0D1C9FFE5A00D9DDB5 /* bgright.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = bgright.png; sourceTree = "<group>"; };
+		B5B0771F1CC626DE00CF50A2 /* db.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = db.json; sourceTree = "<group>"; };
 		B5B6662F1CACCEA10038A3EF /* PushButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PushButton.h; sourceTree = "<group>"; };
 		B5B666301CACCEA10038A3EF /* PushButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PushButton.m; sourceTree = "<group>"; };
 		B5BC10531B8988EE0006EDD4 /* emoticon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = emoticon.png; sourceTree = "<group>"; };
@@ -375,6 +377,7 @@
 			children = (
 				B523C9F01B78FAFD00944004 /* AppConfig.h */,
 				B523C9F11B78FAFD00944004 /* AppConfig.m */,
+				B5B0771F1CC626DE00CF50A2 /* db.json */,
 			);
 			path = AppConfig;
 			sourceTree = "<group>";
@@ -706,6 +709,7 @@
 				B55E9D7F1C9CFD7D00F581F5 /* photolibrary.png in Resources */,
 				B523CA121B78FDB100944004 /* appicon1.png in Resources */,
 				B5039B381CBA5C1100C7865F /* airdrop1.png in Resources */,
+				B5B077201CC626DE00CF50A2 /* db.json in Resources */,
 				B523CA1E1B78FDB100944004 /* refresh.png in Resources */,
 				B523CA1C1B78FDB100944004 /* new.png in Resources */,
 				B5D8D4841B52060C0091DA20 /* LaunchScreen.xib in Resources */,

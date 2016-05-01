@@ -31,9 +31,6 @@
     
     [self.window makeKeyAndVisible];
     
-    //dispatch_async(dispatch_get_main_queue(), ^{
-    //});
-    
     return YES;
 }
 

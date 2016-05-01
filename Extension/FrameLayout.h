@@ -201,3 +201,7 @@ typedef NS_ENUM(NSInteger, FrameLayoutPosition) {
 
 #define FRAMELAYOUT_SET_HEIGHT(view, setHeight) { CGRect frame = view.frame; [view setFrame:CGRectMake(frame.origin.x, frame.origin.y, frame.size.width , setHeight)]; }
 #define FRAMELAYOUT_ADD_HEIGHT(view, addHeight) { CGRect frame = view.frame; [view setFrame:CGRectMake(frame.origin.x, frame.origin.y, frame.size.width , frame.size.height + addHeight)]; }
+
+
+
+#define FRAMELAYOUT_IS_EQUAL(frameqwe, frameqwr) ([[NSValue valueWithCGRect:frameqwe] isEqualToValue:[NSValue valueWithCGRect:frameqwr]])

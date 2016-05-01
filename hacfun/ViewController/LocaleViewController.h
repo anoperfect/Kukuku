@@ -15,7 +15,7 @@
 
 //将数据读入arrayAllRecord.
 - (void)getAllRecordData ;
-
+- (void)removeRecordsWithTids:(NSArray*)tids;
 
 
 @end

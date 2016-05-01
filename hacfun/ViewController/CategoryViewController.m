@@ -16,9 +16,7 @@
 @interface CategoryViewController ()
 
 
-@property (strong,nonatomic) NSString *nameCategory;
-@property (strong,nonatomic) NSString *linkCategory;
-
+@property (strong,nonatomic) Category *category;
 @property (nonatomic, strong) NSMutableDictionary *forumInfo;
 
 @end
@@ -33,13 +31,13 @@
         ButtonData *actionData = nil;
         
         actionData = [[ButtonData alloc] init];
-        actionData.keyword  = @"refresh";
-        actionData.image    = @"refresh";
+        actionData.keyword      = @"refresh";
+        actionData.imageName    = @"refresh";
         [self actionAddData:actionData];
         
         actionData = [[ButtonData alloc] init];
-        actionData.keyword  = @"new";
-        actionData.image    = @"edit";
+        actionData.keyword      = @"new";
+        actionData.imageName    = @"edit";
         [self actionAddData:actionData];
         
         NSLog(@"kcountObject %@ : %zd", @"PostDataCellView", [PostDataCellView countObject]);
@@ -65,12 +63,10 @@
 }
 
 
-- (void)setCategoryName:(NSString*)categoryName withLink:(NSString*)cateogryLink{
-    LOG_POSTION
-    self.nameCategory = [categoryName copy];
-    self.linkCategory = [cateogryLink copy];
-    NSLog(@"link %@", self.linkCategory);
-    self.textTopic = self.nameCategory;
+- (void)setCategoryPresent:(Category*)category
+{
+    self.category = category;
+    self.textTopic = self.category.name;
 }
 
 
@@ -91,7 +87,7 @@
 
 - (void)createNewPost {
     CreateViewController *createViewController = [[CreateViewController alloc]init];
-    [createViewController setCreateCategory:self.nameCategory withOriginalContent:nil];
+    [createViewController setCreateCategory:self.category.name withOriginalContent:nil];
     
     [self.navigationController pushViewController:createViewController animated:YES];
 }
@@ -103,17 +99,21 @@
     //kukuku是10个.
     //hacfun是20个.
     //这个配置写到配库.
-    return [[[AppConfig sharedConfigDB] configDBGet:@"numberInCategoryPage"] integerValue ];
+    Host *host = [[AppConfig sharedConfigDB] configDBHostsGetCurrent];
+    return host.numberInCategoryPage;
 }
 
 
 - (NSString*)getDownloadUrlString {
     //上一次加载满一个page的话, 才可以加载下一个page.
+    
+    NSLog(@"&&&&&&%zd %zd", self.numberLoaded, self.pageNumLoading);
+    
     if(self.numberLoaded == [self numberExpectedInPage:self.pageNumLoading]) {
         self.pageNumLoading ++;
     }
     
-    return [NSString stringWithFormat:@"%@/%@?page=%zi", self.host, self.linkCategory, self.pageNumLoading];
+    return [NSString stringWithFormat:@"%@/%@?page=%zi", self.host.host, self.category.link, self.pageNumLoading];
 }
 
 
@@ -139,35 +139,29 @@
 - (NSString*)getFooterViewTitleOnStatus:(ThreadsStatus)status
 {
     if(status == ThreadsStatusLoadSuccessful) {
-        return [NSString stringWithFormat:@"加载成功, 已加载%zd条.", self.postDatas.count];
+        return [NSString stringWithFormat:@"加载成功, 已加载%zd条.", [self numberOfPostDatasTotal]];
     }
     
     return [super getFooterViewTitleOnStatus:status];
 }
 
 
-- (void)didSelectRow:(NSInteger)row {
-    
+- (void)didSelectActionOnIndexPath:(NSIndexPath*)indexPath withPostData:(PostData*)postData
+{
     DetailViewController *vc = [[DetailViewController alloc]init];
-    
-    PostData *postDataPresent = [self.postDatas objectAtIndex:row];
-    NSInteger threadId = postDataPresent.id;
-    NSLog(@"threadId = %zi", threadId);
-    [vc setPostThreadId:threadId withData:postDataPresent];
+
+    NSInteger tid = postData.tid;
+    NSLog(@"tid = %zi", tid);
+    [vc setPostTid:tid withData:postData];
 
     [self.navigationController pushViewController:vc animated:YES];
 }
 
 
 //重载以定义cell能支持的动作. NSArray成员为 NSString.
-- (NSArray*)actionStringsOnRow:(NSInteger)row
+- (NSArray*)actionStringsForRowAtIndexPath:(NSIndexPath*)indexPath
 {
     return @[@"复制", @"举报", @"加入草稿"];
-}
-
-
-- (void)layoutCell: (UITableViewCell *)cell withRow:(NSInteger)row withPostData:(PostData*)postData {
-    [super layoutCell:cell withRow:row withPostData:postData];
 }
 
 

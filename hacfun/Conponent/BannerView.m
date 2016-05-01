@@ -81,31 +81,19 @@ static NSInteger kcountObjBannerView = 0;
 }
 
 
-- (UIImage*) imageScale:(UIImage*)image toSize:(CGSize)size{
-    
-    UIGraphicsBeginImageContext(size);
-    [image drawInRect:CGRectMake(0, 0, size.width, size.height)];
-    UIImage *scaledImage = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    
-    return scaledImage;
-}
-
 
 - (void)setTopicButton {
     
     LOG_POSTION
-    self.backgroundColor = [AppConfig backgroundColorFor:@"BannerView"];
+    self.backgroundColor = [UIColor colorWithName:@"BannerViewBackground"];
     
     self.buttonTopic = [[PushButton alloc] init];
     self.buttonTopic.showsTouchWhenHighlighted = YES;
     [self addSubview:self.buttonTopic];
-    [self.buttonTopic setTitleColor:[AppConfig textColorFor:@"Black"] forState:UIControlStateNormal];
-    [self.buttonTopic setTitleColor:[UIColor blueColor] forState:UIControlStateHighlighted];
-    [self.buttonTopic.titleLabel setFont:[AppConfig fontFor:@"ButtonTopic"]];
+    [self.buttonTopic setTitleColor:[UIColor colorWithName:@"BannerTopicText"] forState:UIControlStateNormal];
+    [self.buttonTopic.titleLabel setFont:[UIFont fontWithName:@"ButtonTopic"]];
 //    [self.buttonTopic setBackgroundImage:[self createImageWithColor:[UIColor orangeColor]] forState:UIControlStateSelected];
 //    [self.buttonTopic setBackgroundImage:[self createImageWithColor:[UIColor orangeColor]] forState:UIControlStateHighlighted];
-    [self.buttonTopic setTintColor:[UIColor redColor]];
     
     UIImageView *imageBack = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"backn"]];
     [self.buttonTopic addSubview:imageBack];
@@ -137,8 +125,8 @@ static NSInteger kcountObjBannerView = 0;
     for(id obj in buttonDataAry) {
         ButtonData *data = (ButtonData*)obj;
         PushButton *button = [[PushButton alloc] init];
-        [button.titleLabel setFont:[AppConfig fontFor:@"BannerButtonMenu"]];
-        [button setTitleColor:[AppConfig textColorFor:@"BannerButtonMenu"] forState:UIControlStateNormal];
+        [button.titleLabel setFont:[UIFont fontWithName:@"BannerButtonMenu"]];
+        [button setTitleColor:[UIColor colorWithName:@"BannerButtonMenuText"] forState:UIControlStateNormal];
         [button addTarget:data.target action:data.sel forControlEvents:UIControlEventTouchDown];
         [self.buttons addObject:button];
         
@@ -169,7 +157,7 @@ static NSInteger kcountObjBannerView = 0;
         
         if(data.method == 1) {
             widthBtn = height * 1.0;
-            [button setImage:[UIImage imageNamed:data.image] forState:UIControlStateNormal];
+            [button setImage:[UIImage imageNamed:data.imageName] forState:UIControlStateNormal];
         }
         else {
             widthBtn = 45;
@@ -209,21 +197,6 @@ static NSInteger kcountObjBannerView = 0;
     }
     
     return isFound?[self.buttons objectAtIndex:index]:nil;
-}
-
-
-- (UIImage*)createImageWithColor:(UIColor*)color {
-    
-    CGRect rect = CGRectMake(0, 0, 1, 1);
-    UIGraphicsBeginImageContext(rect.size);
-    CGContextRef context = UIGraphicsGetCurrentContext();
-    CGContextSetFillColorWithColor(context, [color CGColor]);
-    CGContextFillRect(context, rect);
-    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    return image;
-    
-//    [UIColor colorWithPatternImage:[UIImage imageNamed:@"bg.png"]];
 }
 
 

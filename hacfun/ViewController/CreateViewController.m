@@ -52,12 +52,15 @@
 
 @property (nonatomic, assign) long long editedAt; //记录开始发送的时间.
 
-@property (assign,nonatomic) NSInteger newThreadId; //提交成功后的主题或回复id.
+@property (assign,nonatomic) NSInteger newCommitedTid; //提交成功后的主题或回复id.
 
 
 //草稿相关.
 @property (nonatomic, strong) UITableView *draftView;
-@property (nonatomic, strong) NSArray *draftInfo;
+
+@property (nonatomic, strong) NSDictionary *draftInfo;
+@property (nonatomic, strong) NSArray *draftContents;
+
 @property (nonatomic, assign) BOOL isDraftViewShowing;
 
 
@@ -90,7 +93,7 @@
     /* 图片附件. */
     _viewAttachPicture = [[UIView alloc] init];
     [self.view addSubview:_viewAttachPicture];
-    _viewAttachPicture.backgroundColor  = [UIColor blueColor];
+    _viewAttachPicture.backgroundColor  = [UIColor colorWithName:@"AttachPictureBackground"];
     _viewAttachPicture.tag              = (NSInteger)@"ImageAttachView";
     
     _imageView = [[UIImageView alloc] init];
@@ -290,7 +293,8 @@
 - (void)inputEmoticon:(NSString*)emoticonString
 {
     [self inputString:emoticonString];
-
+    [[AppConfig sharedConfigDB] configDBAddClickOnString:emoticonString];
+    
     //选择后即回到编辑状态.
     [_emoticonView emoticonsHidden];
     [self focusToInput];
@@ -342,8 +346,8 @@
 - (void)addInputToDraft
 {
     if(_textView.text.length > 0) {
-        NSInteger ret = [[AppConfig sharedConfigDB] configDBDraftInsert:@{@"content":_textView.text}];
-        if(DB_EXECUTE_OK == ret) {
+        BOOL ret = [[AppConfig sharedConfigDB] configDBDraftAdd:_textView.text];
+        if(ret) {
             NSLog(@"已加入草稿");
             
             [self reloadDraftDataSource];
@@ -363,7 +367,7 @@
 
 - (void)reloadDraftDataSource
 {
-    self.draftInfo = [[AppConfig sharedConfigDB] configDBDraftQuery:nil];
+    self.draftContents = [[AppConfig sharedConfigDB] configDBDraftGet];
     NSLog(@"draft:::%@", self.draftInfo);
 }
 
@@ -387,11 +391,11 @@
         [footerButton addTarget:self action:@selector(addInputToDraft) forControlEvents:UIControlEventTouchDown];
         footerButton.frame = CGRectMake(0, 0, self.draftView.frame.size.width, 36);
         [footerButton setTitle:@"加入草稿(长按进入编辑模式)" forState:UIControlStateNormal];
-        [footerButton setTitleColor:[AppConfig textColorFor:@"draftCellText"] forState:UIControlStateNormal];
-        footerButton.titleLabel.font = [AppConfig fontFor:@"draftCellText"];
+        [footerButton setTitleColor:[UIColor colorWithName:@"draftCellText"] forState:UIControlStateNormal];
+        footerButton.titleLabel.font = [UIFont fontWithName:@"draftCellText"];
         self.draftView.tableFooterView = footerButton;
         
-        self.draftView.backgroundColor = [AppConfig backgroundColorFor:@"draftTableView"];
+        self.draftView.backgroundColor = [UIColor colorWithName:@"draftTableViewBackground"];
         
         //增加draft长按进入编辑功能.
         UILongPressGestureRecognizer *longPressGr = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(draftLongPressToEditMode:)];
@@ -563,14 +567,14 @@
     
     [self notFocusToInput];
     
-    NSString *host = [[AppConfig sharedConfigDB] configDBGet:@"host"];
+    Host *host = [[AppConfig sharedConfigDB] configDBHostsGetCurrent];
     NSString *str = nil;
     
     if(self.nameCategory) {
-        str =[NSString stringWithFormat:@"%@/%@/create", host, self.nameCategory];
+        str =[NSString stringWithFormat:@"%@/%@/create", host.host, self.nameCategory];
     }
     else {
-        str = [NSString stringWithFormat:@"%@/t/%zi/create", host, self.topicTid];
+        str = [NSString stringWithFormat:@"%@/t/%zi/create", host.host, self.topicTid];
     }
     
     NSURL *url=[[NSURL alloc] initWithString:[str stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
@@ -739,47 +743,46 @@
         NSLog(@"dict : %@", dict);
         NSInteger code = [(NSNumber*)[dict objectForKey:@"code"] integerValue];
         BOOL success = [(NSNumber*)[dict objectForKey:@"success"] boolValue];
-        NSInteger threadsId = [(NSNumber*)[dict objectForKey:@"threadsId"] integerValue];
-        NSLog(@"%zi, %d, %zi", code, success, threadsId);
+        NSInteger newCommitedTid = [(NSNumber*)[dict objectForKey:@"threadsId"] integerValue];
+        NSLog(@"%zi, %d, %zi", code, success, newCommitedTid);
         
-        if(200 == code && success && threadsId > 0) {
+        if(200 == code && success && newCommitedTid > 0) {
             NSLog(@"post successfully.");
-            self.newThreadId = threadsId;
+            self.newCommitedTid = newCommitedTid;
             
+#if 0
             //占位record表.
             NSDictionary *infoInsert = @{
-                                         @"id":[NSNumber numberWithInteger:threadsId],
-                                         @"threadId":self.topicTid==0?[NSNumber numberWithInteger:threadsId]:[NSNumber numberWithInteger:self.topicTid],
+                                         @"tid":[NSNumber numberWithInteger:newCommitedTid],
+                                         @"belongToTid":self.topicTid==0?[NSNumber numberWithInteger:newCommitedTid]:[NSNumber numberWithInteger:self.topicTid],
                                          @"createdAt":[NSNumber numberWithLongLong:0],
                                          @"updatedAt":[NSNumber numberWithLongLong:0],
                                          @"jsonstring":@""
                                          };
             
            [[AppConfig sharedConfigDB] configDBRecordInsertOrReplace:infoInsert];
-            
+#endif
             //主题贴.
             if(self.topicTid == 0) {
-                NSDictionary *infoInsertPost = @{
-                                             @"id":[NSNumber numberWithInteger:threadsId],
-                                             @"postedAt":[NSNumber numberWithLongLong:self.editedAt],
-                                             };
+                Post *post = [[Post alloc] init];
+                post.tid        = newCommitedTid;
+                post.postedAt   = self.editedAt;
                 
-                [[AppConfig sharedConfigDB] configDBPostInsert:infoInsertPost];
+                [[AppConfig sharedConfigDB] configDBPostAdd:post];
             }
             else { // 回复帖.
-                NSDictionary *infoInsertReply = @{
-                                             @"id":[NSNumber numberWithInteger:threadsId],
-                                             @"repliedAt":[NSNumber numberWithLongLong:self.editedAt],
-                                             };
+                Reply *reply = [[Reply alloc] init];
+                reply.tid       = newCommitedTid;
+                reply.repliedAt = self.editedAt;
                 
-                [[AppConfig sharedConfigDB] configDBReplyInsert:infoInsertReply];
+                [[AppConfig sharedConfigDB] configDBReplyAdd:reply];
             }
             
             //保存到post纪录.
             popupView.titleLabel = @"发送成功";
             
             popupView.finish = ^(void) {
-                [self createFinishedWithTid:threadsId];
+                [self createFinishedWithTid:newCommitedTid];
             };
         }
         else {
@@ -801,7 +804,7 @@
 {
     [self.navigationController popViewControllerAnimated:YES];
     DetailViewController *newDetailViewController = [[DetailViewController alloc] init];
-    [newDetailViewController setPostThreadId:tid withData:nil];
+    [newDetailViewController setPostTid:tid withData:nil];
     [self.navigationController pushViewController:newDetailViewController animated:YES];
 }
 
@@ -849,14 +852,13 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
 
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    
+    NSLog(@"------tableView------");
     CGFloat height = 36;
     
-    NSDictionary *dict = [self.draftInfo objectAtIndex:indexPath.row];
-    NSString *text = dict[@"content"];
+    NSString *text = [self draftTextOnRow:indexPath.row];
     
     NSMutableDictionary *attrs = [NSMutableDictionary dictionary];
-    attrs[NSFontAttributeName] = [AppConfig fontFor:@"draftCellText"];
+    attrs[NSFontAttributeName] = [UIFont fontWithName:@"draftCellText"];
     
     CGSize maxSize = CGSizeMake(self.draftView.frame.size.width, MAXFLOAT);
     CGSize optimizeSize = [text boundingRectWithSize:maxSize options:NSStringDrawingUsesLineFragmentOrigin attributes:attrs context:nil].size;
@@ -868,7 +870,8 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
 
 
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    NSInteger rows = [self.draftInfo count];
+    NSLog(@"------tableView------");
+    NSInteger rows = [self.draftContents count];
     return rows;
 }
 
@@ -883,17 +886,27 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
         frame.size.width = tableView.frame.size.width;
         [cell setFrame:frame];
         cell.textLabel.numberOfLines = 0;
-        cell.textLabel.font = [AppConfig fontFor:@"draftCellText"];
+        cell.textLabel.font = [UIFont fontWithName:@"draftCellText"];
         cell.backgroundColor = tableView.backgroundColor;
     }
     else {
         
     }
     
-    NSDictionary *dict = [self.draftInfo objectAtIndex:indexPath.row];
-    cell.textLabel.text = dict[@"content"];
+    cell.textLabel.text = [self draftTextOnRow:indexPath.row];
     
     return cell;
+}
+
+
+- (NSString*)draftTextOnRow:(NSInteger)row
+{
+    NSString *text = self.draftContents[row];
+    if(![text isKindOfClass:[NSString class]]) {
+        text = @"草稿读取错误.";
+    }
+    
+    return text;
 }
 
 
@@ -911,8 +924,7 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
         
     }
     else {
-        NSDictionary *dict = [self.draftInfo objectAtIndex:indexPath.row];
-        [self inputString:dict[@"content"]];
+        [self inputString:[self draftTextOnRow:indexPath.row]];
      
         [self hiddenDraftView];
         [self focusToInput];
@@ -929,19 +941,12 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
 {
     LOG_POSTION
     NSLog(@"%@ editing %zd", self.draftView, self.draftView.editing);
-    
-    NSDictionary *dict = [self.draftInfo objectAtIndex:indexPath.row];
-    
-    NSMutableArray *draftInfoNewm = [NSMutableArray arrayWithArray:self.draftInfo];
-    [draftInfoNewm removeObjectAtIndex:indexPath.row];
-    self.draftInfo = [NSArray arrayWithArray:draftInfoNewm];
-    draftInfoNewm = nil;
-    
-    [self.draftView reloadData];
-    
+
     //数据库删除.
-    [[AppConfig sharedConfigDB] configDBDraftDelete:@{@"rowid":dict[@"rowid"]}];
+    [[AppConfig sharedConfigDB] configDBDraftRemoveAtIndex:indexPath.row];
     
+    [self reloadDraftDataSource];
+    [self.draftView reloadData];
     
 }
 

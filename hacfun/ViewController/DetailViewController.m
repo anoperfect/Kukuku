@@ -16,7 +16,7 @@
 
 @interface DetailViewController ()
 
-@property (assign,nonatomic) NSInteger threadId;
+@property (assign,nonatomic) NSInteger tid;
 
 @property (strong,nonatomic) PostData *topic;
 @property (nonatomic,strong) NSMutableDictionary *threadsInfo;
@@ -28,10 +28,13 @@
 
 
 //记录加载的最新回复.
-@property (nonatomic, assign) long long createdAtForLoaded;
+@property (nonatomic, assign) long long createdAtForLoaded1;
 
 //记录浏览的最新回复.
-@property (nonatomic, assign) long long createdAtForDisplay;
+@property (nonatomic, assign) long long createdAtForDisplay1;
+
+@property (nonatomic, strong) DetailHistory *detailHistory;
+
 
 //记录加载或者浏览的最新回复是否有更新. 以执行是否更新存储.
 @property (nonatomic, assign) BOOL isDatailHistoryUpdated;
@@ -67,18 +70,18 @@
         ButtonData *actionData = nil;
         
         actionData = [[ButtonData alloc] init];
-        actionData.keyword  = @"reply";
-        actionData.image    = @"reply";
+        actionData.keyword      = @"reply";
+        actionData.imageName    = @"reply";
         [self actionAddData:actionData];
         
         actionData = [[ButtonData alloc] init];
-        actionData.keyword  = @"收藏";
-        actionData.image    = @"collection";
+        actionData.keyword      = @"收藏";
+        actionData.imageName    = @"collection";
         [self actionAddData:actionData];
         
         actionData = [[ButtonData alloc] init];
-        actionData.keyword  = @"加载全部";
-        actionData.image    = @"loadall";
+        actionData.keyword      = @"加载全部";
+        actionData.imageName    = @"loadall";
         [self actionAddData:actionData];
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reloadFromCreateReplyFinish:) name:@"CreateReplyFinish" object:nil];
@@ -94,57 +97,29 @@
     LOG_POSTION
     [super viewWillAppear:animated];
     //获取加载记录和浏览记录. (只记录加载记录和浏览记录的最大值.)
-    NSDictionary *dictDatailHistory = [[AppConfig sharedConfigDB] configDBDetailHistoryQuery:@{@"id":[NSNumber numberWithInteger:self.threadId]}];
-    NSLog(@"%@", dictDatailHistory);
-    if(dictDatailHistory) {
-        id obj;
-        
-        obj = [dictDatailHistory objectForKey:@"createdAtForLoaded"];
-        //#...obj的class类型怎么对不上.
-//        if(obj && [obj isKindOfClass:[NSNumber class]]) {
-        if(obj) {
-            self.createdAtForLoaded = [(NSNumber*)obj longLongValue];
-        }
-        
-        obj = [dictDatailHistory objectForKey:@"createdAtForDisplay"];
-//        if(obj && [obj isKindOfClass:[NSNumber class]]) {
-        if(obj) {
-            self.createdAtForDisplay = [(NSNumber*)obj longLongValue];
-        }
+    DetailHistory *detailHistory = [[AppConfig sharedConfigDB] configDBDetailHistoryGetByTid:self.tid];
+    if(detailHistory) {
+        self.detailHistory = detailHistory;
+    }
+    else {
+        self.detailHistory = [[DetailHistory alloc] init];
+        self.detailHistory.createdAtForDisplay = 0;
+        self.detailHistory.createdAtForLoaded = 0;
     }
     
-    NSLog(@"Detail history [%zd] get : %lld[%@], %lld[%@]",
-          self.threadId,
-          self.createdAtForLoaded,
-          self.createdAtForLoaded  ==0?@"0":[NSString stringFromMSecondInterval:self.createdAtForLoaded  andTimeZoneAdjustSecondInterval:0],
-          self.createdAtForDisplay,
-          self.createdAtForDisplay ==0?@"0":[NSString stringFromMSecondInterval:self.createdAtForDisplay andTimeZoneAdjustSecondInterval:0]
-          );
+    NSLog(@"Detail history get : %@", self.detailHistory);
+
 }
 
 
 - (void)viewWillDisappear:(BOOL)animated
 {
-    NSLog(@"Detail history [%zd] set : %lld[%@], %lld[%@]",
-          self.threadId,
-          self.createdAtForLoaded,
-          self.createdAtForLoaded  ==0?@"0":[NSString stringFromMSecondInterval:self.createdAtForLoaded  andTimeZoneAdjustSecondInterval:0],
-          self.createdAtForDisplay,
-          self.createdAtForDisplay ==0?@"0":[NSString stringFromMSecondInterval:self.createdAtForDisplay andTimeZoneAdjustSecondInterval:0]
-          );
-    
     if(self.isDatailHistoryUpdated) {
-        NSDictionary *infoInsert = @{
-                                     @"id":[NSNumber numberWithInteger:self.threadId],
-                                     @"createdAtForLoaded":[NSNumber numberWithLongLong:self.createdAtForLoaded],
-                                     @"createdAtForDisplay":[NSNumber numberWithLongLong:self.createdAtForDisplay],
-                                     };
-        
-        NSInteger result = [[AppConfig sharedConfigDB] configDBDetailHistoryInsert:infoInsert countBeReplaced:YES];
-        NSLog(@"%@ result : %zd", @"configDBDetailHistoryInsert", result);
+        NSLog(@"Detail history [%zd] update to : %@", self.tid, self.detailHistory);
+        [[AppConfig sharedConfigDB] configDBDetailHistoryUpdate:self.detailHistory];
     }
     else {
-        NSLog(@"Detail history [%zd] do not need to update to store.", self.threadId);
+        NSLog(@"Detail history [%zd] do not need to update to store.", self.tid);
     }
     
     [super viewWillDisappear:animated];
@@ -156,13 +131,18 @@
 }
 
 
-- (void) setPostThreadId:(NSInteger)id withData:(PostData *)postDataTopic
+- (void)setPostTid:(NSInteger)tid withData:(PostData *)postDataTopic
 {
-    self.threadId = id;
-    self.textTopic =[NSString stringWithFormat:@"No.%zi", self.threadId];
+    self.tid = tid;
+    self.textTopic =[NSString stringWithFormat:@"No.%zi", self.tid];
     if(postDataTopic) {
         self.topic = [postDataTopic copy];
-        [self.postDatas addObject:self.topic];
+        PostDataPage *postDataPage = [[PostDataPage alloc] init];
+        postDataPage.page = 0;
+        postDataPage.section = 0;
+        
+        [self.postDataPages addObject:postDataPage];
+        [self postDataPageToPostViewData:postDataPage onSection:0 andReload:NO];
     }
 }
 
@@ -201,40 +181,33 @@
 }
 
 
-- (void)postDatasToCellDataSource {
-    NSLog(@"self.postDatas.count = %zd", self.postDatas.count);
+- (NSMutableDictionary*)cellPresentDataFromPostData:(PostData*)postData onIndexPath:(NSIndexPath*)indexPath
+{
+    NSLog(@"-=-=-= %zd-%zd", indexPath.section, indexPath.row);
     
-    //在ThreadsViewController的解析基础上修改.
-    [super postDatasToCellDataSource];
-    
-    NSInteger count = [self.postDatas count];
-    if(count >= 1) {
+    NSMutableDictionary *dict = [super cellPresentDataFromPostData:postData onIndexPath:indexPath];
+    if([self numberOfPostDatasTotal] >= 1) {
+        PostData *topic = self.topic;
+        PostData *postData = [self postDataOnIndexPath:indexPath];
         
-        PostData *topic = [(NSMutableDictionary*)[self.postViewCellDatas objectAtIndex:0] objectForKey:@"postdata"];
-        
-        NSInteger index = 0;
-        for(NSMutableDictionary *dict in self.postViewCellDatas) {
-            PostData *pd = [dict objectForKey:@"postdata"];
-            //Po的主题及回复 title 加粗.
-            if([pd.uid isEqualToString:topic.uid]) {
-                [dict setObject:[UIColor blueColor] forKey:@"colorUid"];
-            }
-            
-            //统一显示No.
-            [dict setObject:[NSString stringWithFormat:@"No.%zd", pd.id] forKey:@"info"];
-            //信息部分显示NO. 主题显示回复数+NO.
-            if(index == 0) {
-                //主题增加附加显示信息.
-                [dict setObject:[NSString stringWithFormat:@"回应 : %zd", pd.replyCount] forKey:@"otherInfo"];
-            }
-            else {
-                
-            }
-            
-            index ++;
+        if(indexPath.section == 0 || [postData.uid isEqualToString:topic.uid]) {
+            [dict setObject:[UIColor blueColor] forKey:@"colorUidSign"];
         }
+        
+        //统一显示No.
+        [dict setObject:[NSString stringWithFormat:@"No.%zd", postData.tid] forKey:@"info"];
+        //信息部分显示NO. 主题显示回复数+NO.
+        if(indexPath.section == 0 && indexPath.row == 0) {
+            //主题增加附加显示信息.
+            [dict setObject:[NSString stringWithFormat:@"回应 : %zd", postData.replyCount] forKey:@"otherInfo"];
+        }
+        
     }
-    NSLog(@"self.postDatasCellDatas.count = %zd", self.postViewCellDatas.count);
+    else {
+        NSLog(@"no post data.");
+    }
+    
+    return dict;
 }
 
 
@@ -243,18 +216,7 @@
 }
 
 
-
 - (void)collection {
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
     if(!self.topic) {
         PopupView *popupView = [[PopupView alloc] init];
         popupView.numofTapToClose = 1;
@@ -267,11 +229,8 @@
     }
     
     //查看是否已经收藏过.
-//    NSDictionary* infoQuery = @{@"id":[NSNumber numberWithInteger:self.threadId],
- //                               @"threadId":[NSNumber numberWithInteger:self.threadId]};
-    NSDictionary* infoQuery = @{@"id":[NSNumber numberWithInteger:self.threadId]};
-    NSArray* queryArray = [[AppConfig sharedConfigDB] configDBCollectionQuery:infoQuery];
-    if([queryArray count] > 0) {
+    Collection *collection = [[AppConfig sharedConfigDB] configDBCollectionGetByTid:self.tid];
+    if(collection) {
         
         NSLog(@"duplicate");
         PopupView *popupView = [[PopupView alloc] init];
@@ -290,14 +249,12 @@
     long long collectedAt = t * 1000.0;
     NSLog(@"111 %lld, %@", collectedAt, [NSString stringFromMSecondInterval:collectedAt andTimeZoneAdjustSecondInterval:0]);
     
-    NSInteger result ;
-    NSDictionary *infoInsertCollection = @{
-                                 @"id":[NSNumber numberWithInteger:self.threadId],
-                                 @"collectedAt":[NSNumber numberWithLongLong:collectedAt]
-                                 };
+    collection = [[Collection alloc] init];
+    collection.tid          = self.tid;
+    collection.collectedAt  = collectedAt;
     
-    result = [[AppConfig sharedConfigDB] configDBCollectionInsert:infoInsertCollection];
-    if(CONFIGDB_EXECUTE_OK == result) {
+    BOOL result = [[AppConfig sharedConfigDB] configDBCollectionAdd:collection];
+    if(result) {
         PopupView *popupView = [[PopupView alloc] init];
         popupView.numofTapToClose = 1;
         popupView.secondsOfAutoClose = 2;
@@ -332,10 +289,10 @@
 - (void)presentCreateViewControllerWithReferenceId:(NSInteger)referenceId {
     CreateViewController *vc = [[CreateViewController alloc] init];
     if(referenceId == 0) {
-        [vc setReplyId:self.threadId];
+        [vc setReplyId:self.tid];
     }
     else {
-        [vc setReplyId:self.threadId withReference:referenceId];
+        [vc setReplyId:self.tid withReference:referenceId];
     }
     
     [self.navigationController pushViewController:vc animated:YES];
@@ -345,7 +302,8 @@
 //一个满的page是多少. 用于判断是否进入下一个page的加载.
 - (NSInteger)numberExpectedInPage:(NSInteger)page
 {
-    return 20;
+    Host *host = [[AppConfig sharedConfigDB] configDBHostsGetCurrent];
+    return host.numberInDetailPage;
 }
 
 
@@ -355,14 +313,15 @@
         self.pageNumLoading ++;
     }
     
-    return [NSString stringWithFormat:@"%@/t/%zi?page=%zi", self.host, self.threadId, self.pageNumLoading];
+    return [NSString stringWithFormat:@"%@/t/%zi?page=%zi", self.host.host, self.tid, self.pageNumLoading];
 }
 
 
-- (void)didSelectRow:(NSInteger)row {
-    NSInteger referenceId = ((PostData*)[self.postDatas objectAtIndex:row]).id;
-    NSLog(@"referenceId = %zi", referenceId);
-    [self presentCreateViewControllerWithReferenceId:referenceId];
+- (void)didSelectActionOnIndexPath:(NSIndexPath*)indexPath withPostData:(PostData*)postData
+{
+    NSInteger tidReference = postData.tid;
+    NSLog(@"tidReference = %zi", tidReference);
+    [self presentCreateViewControllerWithReferenceId:tidReference];
 }
 
 
@@ -381,8 +340,14 @@
     //确认主题内容是否更新. 更新的话需保存主题的高度. 否则在主题不显示在屏幕的时候导致当前页面显示的原cell移动.
     if(!self.topic) {
         self.topic = topic;
-        [self.postDatas addObject:self.topic];
-        [self postDatasToCellDataSource];
+        PostDataPage *postDataPage = [[PostDataPage alloc] init];
+        postDataPage.page = 0;
+        [postDataPage.postDatas addObject:self.topic];
+        
+        [self.postDataPages insertObject:postDataPage atIndex:0];
+        PostViewDataPage *postViewDataPage = [self postDataPageToPostViewData:postDataPage onSection:0 andReload:YES];
+        postViewDataPage = nil;
+        
         NSLog(@"threads added");
     }
     else {
@@ -393,8 +358,13 @@
             topic.optimumSizeHeight = self.topic.optimumSizeHeight;
             self.topic = topic;
             NSLog(@"threads updated");
-            [self.postDatas replaceObjectAtIndex:0 withObject:topic];
-            [self postDatasToCellDataSource];
+            PostDataPage *postDataPage = [[PostDataPage alloc] init];
+            postDataPage.page = 0;
+            [postDataPage.postDatas addObject:self.topic];
+            
+            [self.postDataPages replaceObjectAtIndex:0 withObject:postDataPage];
+            PostViewDataPage *postViewDataPage = [self postDataPageToPostViewData:postDataPage onSection:0 andReload:YES];
+            postViewDataPage = nil;
         }
     }
     
@@ -413,10 +383,20 @@
 
 //override.
 //将刷新页得到的数据append到UITable的数据源时的行为. 可重写用于去重, 加页栏, 屏蔽等行为.
-- (NSMutableArray*)parsedPostDatasRetreat:(NSMutableArray*)parsedPostDatas
+- (NSMutableArray*)parsedPostDatasRetreat:(NSMutableArray*)parsedPostDatas onPage:(NSInteger)page
 {
     if(!parsedPostDatas) {
         return nil;
+    }
+    
+    if(self.postDataPages.count == 0) {
+        return [NSMutableArray arrayWithArray:parsedPostDatas];
+    }
+    
+    PostDataPage *postDataPage = [self.postDataPages lastObject];
+    if(postDataPage.page != page) {
+        NSLog(@"it's new page. add all.");
+        return [NSMutableArray arrayWithArray:parsedPostDatas];
     }
     
     NSMutableArray *retreatedPostDatas = [[NSMutableArray alloc] init];
@@ -427,9 +407,10 @@
     self.topic.mode = 1;
     NSMutableIndexSet *removeIndexSet = [[NSMutableIndexSet alloc] init];
     NSInteger index = 0;
+    
     for(PostData* pd in parsedPostDatas) {
         
-        if([pd isIdInArray:self.postDatas]) {
+        if([pd isIdInArray:postDataPage.postDatas]) {
             numDuplicate ++;
             [removeIndexSet addIndex:index];
         }
@@ -445,10 +426,12 @@
 }
 
 
-- (void)layoutCell: (UITableViewCell *)cell withRow:(NSInteger)row withPostData:(PostData *)postData{
-//    [cell.layer removeAllAnimations];
+- (void)layoutCell: (UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath*)indexPath withPostData:(PostData *)postData
+{
+
     
-    NSLog(@"row at : %zi", row);
+//    [cell.layer removeAllAnimations];
+    NSLog(@"row at : %@", indexPath);
     PostDataCellView *cellView = (PostDataCellView*)[cell viewWithTag:TAG_PostDataCellView];
 //    cell.backgroundColor = cellView.backgroundColor;
     [cellView setBackgroundColor:[UIColor whiteColor]];
@@ -456,8 +439,8 @@
     [cellView.layer removeAllAnimations];
     
     CALayer *border = [CALayer layer];
-    if(0 == row) {
-        border.backgroundColor = [[UIColor redColor] CGColor];
+    if(0 == indexPath.section && 0 == indexPath.row) {
+        border.backgroundColor = [[UIColor colorWithName:@"DetailCellTopicBorder"] CGColor];
         float borderHeight = 1.0;
         border.frame = CGRectMake(0.0f,
                                   cellView.frame.size.height-borderHeight,
@@ -465,7 +448,7 @@
                                   borderHeight);
     }
     else {
-        border.backgroundColor = [HexRGBAlpha(0x000011, 0.2) CGColor];
+        border.backgroundColor = [[UIColor colorWithName:@"DetailCellReplyBorder"] CGColor];
         float borderHeight = 1.0;
         border.frame = CGRectMake(0.0f,
                                   cellView.frame.size.height-borderHeight,
@@ -477,14 +460,15 @@
 }
 
 
-- (void)threadDisplayActionInCell:(UITableViewCell*)cell withRow:(NSInteger)row
+- (void)threadDisplayActionInCell:(UITableViewCell*)cell forRowAtIndexPath:(NSIndexPath*)indexPath
 {
-    PostData *pdDisplay = self.postDatas[row];
-    if(pdDisplay && pdDisplay.createdAt > self.createdAtForDisplay) {
-        self.createdAtForDisplay = pdDisplay.createdAt;
+    PostData *postDataRow = [self postDataOnIndexPath:indexPath];
+    
+    if(postDataRow && postDataRow.createdAt > self.detailHistory.createdAtForDisplay) {
+        self.detailHistory.createdAtForDisplay = postDataRow.createdAt;
         NSLog(@"detail history : Display update to %lld[%@]",
-                self.createdAtForDisplay,
-                self.createdAtForDisplay ==0?@"0":[NSString stringFromMSecondInterval:self.createdAtForDisplay andTimeZoneAdjustSecondInterval:0]
+                self.detailHistory.createdAtForDisplay,
+                self.detailHistory.createdAtForDisplay ==0?@"0":[NSString stringFromMSecondInterval:self.detailHistory.createdAtForDisplay andTimeZoneAdjustSecondInterval:0]
               );
         self.isDatailHistoryUpdated = YES;
     }
@@ -501,7 +485,7 @@
     //自动加载的时候的提示信息.
     if(self.autoRepeatDownload) {
         if(![self isLastPage]) {
-            [self showIndicationText:[NSString stringWithFormat:@"已加载第%zd页, 共%zd条.", self.pageNumLoaded, [self.postDatas count] - 1]];
+            [self showIndicationText:[NSString stringWithFormat:@"已加载第%zd页, 共%zd条.", self.pageNumLoaded, [self numberOfPostDatasTotal] - 1]];
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self reloadPostData];
             });
@@ -516,13 +500,13 @@
 - (void)storeLoadedInfo
 {
     LOG_POSTION
-    if([self.postDatas count] > 0) {
-        PostData *pdLoaded = [self.postDatas lastObject];
-        if(pdLoaded && pdLoaded.createdAt > self.createdAtForLoaded) {
-            self.createdAtForLoaded = pdLoaded.createdAt;
+    if([self numberOfPostDatasTotal] > 0) {
+        PostData *pdLoaded = [self postDataLastObject];
+        if(pdLoaded && pdLoaded.createdAt > self.detailHistory.createdAtForLoaded) {
+            self.detailHistory.createdAtForLoaded = pdLoaded.createdAt;
             NSLog(@"detail history : Loaded update to %lld[%@]",
-                  self.createdAtForLoaded,
-                  self.createdAtForLoaded ==0?@"0":[NSString stringFromMSecondInterval:self.createdAtForLoaded andTimeZoneAdjustSecondInterval:0]
+                  self.detailHistory.createdAtForLoaded,
+                  self.detailHistory.createdAtForLoaded ==0?@"0":[NSString stringFromMSecondInterval:self.detailHistory.createdAtForLoaded andTimeZoneAdjustSecondInterval:0]
                   );
             self.isDatailHistoryUpdated = YES;
         }
@@ -536,7 +520,13 @@
 - (void)clearDataAdditional {
     //refresh的时候, 一直显示已有的topic.
     if(self.topic) {
-        [self.postDatas addObject:self.topic];
+        PostDataPage *postDataPage = [[PostDataPage alloc] init];
+        postDataPage.page = 0;
+        postDataPage.section = 0;
+        [postDataPage.postDatas addObject:self.topic];
+        
+        [self.postDataPages addObject:postDataPage];
+        [self postDataPageToPostViewData:postDataPage onSection:0 andReload:NO];
     }
 }
 
@@ -544,11 +534,7 @@
 - (NSString*)getFooterViewTitleOnStatus:(ThreadsStatus)status
 {
     if(status == ThreadsStatusLoadSuccessful) {
-        NSInteger loadedReplyCount = self.postDatas.count;
-        if(loadedReplyCount > 0) {
-            loadedReplyCount -- ;
-        }
-        return [NSString stringWithFormat:@"加载成功, 已加载回复%zd条.", loadedReplyCount];
+        return [NSString stringWithFormat:@"加载成功, 已加载回复%zd条.", [self numberOfPostDatasTotal] - 1 ];
     }
     
     return [super getFooterViewTitleOnStatus:status];
@@ -556,9 +542,9 @@
 
 
 //重载以定义cell能支持的动作. NSArray成员为 NSString.
-- (NSArray*)actionStringsOnRow:(NSInteger)row
+- (NSArray*)actionStringsForRowAtIndexPath:(NSIndexPath*)indexPath
 {
-    if(0 == row) {
+    if(0 == indexPath.section) {
         if(!self.isOnlyShowPo) {
             return @[@"复制", @"举报", @"开启只看Po", @"链接"];
         }
@@ -572,30 +558,33 @@
 }
 
 
-- (BOOL)actionOnRow:(NSInteger)row viaString:(NSString*)string
+- (BOOL)actionForRowAtIndexPath:(NSIndexPath*)indexPath viaString:(NSString*)string
 {
-    BOOL finishAction = [super actionOnRow:row viaString:string];
+    BOOL finishAction = [super actionForRowAtIndexPath:indexPath viaString:string];
     if(finishAction) {
         return finishAction;
     }
     
     finishAction = YES;
-    PostData *postDataRow = [self.postDatas objectAtIndex:row];
+    //PostData *postDataRow = [self postDataOnIndexPath:indexPath];
     
     if([string isEqualToString:@"开启只看Po"]){
         self.isOnlyShowPo = YES;
         
         //给PostDataCellData设置折叠标记.
-        NSInteger count = self.postDatas.count;
-        for (NSInteger index = 0; index < count; index ++) {
-            PostData *pd = self.postDatas[index];
-            NSMutableDictionary *dict = self.postViewCellDatas[index];
-            if(![pd.uid isEqualToString:postDataRow.uid]) {
-                [dict setObject:@"只看Po" forKey:@"fold"];
-                NSLog(@"fold...");
-            }
-            else {
-                NSLog(@"fold... not ");
+        NSInteger sectionTotal = self.postViewDataPages.count;
+        for(NSInteger section = 0; section < sectionTotal; section ++) {
+            PostViewDataPage *postViewDataPage = self.postViewDataPages[section];
+            NSInteger rowTotal = postViewDataPage.postViewDatas.count;
+            for(NSInteger row = 0; row < rowTotal; row ++) {
+                PostData *postData = [self postDataOnIndexPath:[NSIndexPath indexPathForRow:row inSection:section]];
+                if(![postData.uid isEqualToString:self.topic.uid]) {
+                    [postViewDataPage.postViewDatas[row] setObject:@"只看Po" forKey:@"fold"];
+                    NSLog(@"fold...");
+                }
+                else {
+                    NSLog(@"fold... not ");
+                }
             }
         }
         
@@ -606,12 +595,16 @@
     }
     else if([string isEqualToString:@"关闭只看Po"]){
         self.isOnlyShowPo = NO;
-        //给PostDataCellData取消.
-        for(NSMutableDictionary *dict in self.postViewCellDatas) {
-                [dict setObject:@"只看Po" forKey:@"fold"];
-            [dict removeObjectForKey:@"fold"];
+        //给PostDataCellData取消 fold.
+        NSInteger sectionTotal = self.postViewDataPages.count;
+        for(NSInteger section = 0; section < sectionTotal; section ++) {
+            PostViewDataPage *postViewDataPage = self.postViewDataPages[section];
+            NSInteger rowTotal = postViewDataPage.postViewDatas.count;
+            for(NSInteger row = 0; row < rowTotal; row ++) {
+                [postViewDataPage.postViewDatas[row] removeObjectForKey:@"fold"];
+            }
         }
-        
+
         [self.postView reloadData];
         
         [self showfootViewWithTitle:[NSString stringWithFormat:@"已关闭只看Po模式"]

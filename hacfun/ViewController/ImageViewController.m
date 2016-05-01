@@ -47,13 +47,13 @@
         ButtonData *actionData = nil;
         
         actionData = [[ButtonData alloc] init];
-        actionData.keyword  = @"分享";
-        actionData.image    = @"buttonshare";
+        actionData.keyword      = @"分享";
+        actionData.imageName    = @"buttonshare";
         [self actionAddData:actionData];
         
         actionData = [[ButtonData alloc] init];
-        actionData.keyword  = @"保存";
-        actionData.image    = @"album";
+        actionData.keyword      = @"保存";
+        actionData.imageName    = @"album";
         [self actionAddData:actionData];
         
         self.textTopic = @"图片";
@@ -69,7 +69,7 @@
     
     self.labelPercentage = [[UILabel alloc] init];
     [self.view addSubview:self.labelPercentage];
-    [self.labelPercentage setFont:[AppConfig fontFor:@"NavigationInfo"]];
+    [self.labelPercentage setFont:[UIFont fontWithName:@"ImageDownloadStatusLabel"]];
     
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         [self startDisplayAction];

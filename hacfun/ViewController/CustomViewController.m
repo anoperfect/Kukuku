@@ -69,13 +69,14 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
     // Do any additional setup after loading the view.
     
     self.messageIndication = [[UILabel alloc] init];
-    self.messageIndication.backgroundColor = HexRGBAlpha(0xaaaaaa, 0.6);
-    self.messageIndication.textColor = HexRGBAlpha(0x000000, 0.6);
+    self.messageIndication.backgroundColor = [UIColor colorWithName:@"messageIndicationBackground"];
+    self.messageIndication.textColor = [UIColor colorWithName:@"messageIndicationText"];
     self.messageIndication.textAlignment = NSTextAlignmentCenter;
     [self.view addSubview:self.messageIndication];
     
+
     
-    self.view.backgroundColor = [AppConfig backgroundColorFor:@"ViewController"];
+    self.view.backgroundColor = [UIColor colorWithName:@"ViewControllerBackground"];
     self.view.backgroundColor = [UIColor colorWithPatternImage:[UIImage imageNamed:@"bg"]];
 }
 
@@ -101,7 +102,6 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
     LOG_POSTION
     [super viewWillAppear:animated];
     
-    
     [self.navigationItem setHidesBackButton:YES];
     
     [self.navigationController.navigationBar setBackgroundImage:[UIImage imageNamed:@"bg"] forBarMetrics:UIBarMetricsDefault];
@@ -113,15 +113,16 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
     [self.navigationController.navigationBar addSubview:self.bannerView];
     [self.bannerView.buttonTopic addTarget:self action:@selector(clickButtonTopic) forControlEvents:UIControlEventTouchDown];
     [self.bannerView setTextTopic:self.textTopic];
+    [self layoutBannerView];
+    
     
     DISPATCH_ONCE_START
     NSLog(@"x %@- %@", self.navigationController.navigationBar, [self.navigationController.navigationBar subviews]);
     DISPATCH_ONCE_FINISH
     
-    [self layoutBannerView];
-
     // 布局功能键.
     [self loadActionButtons];
+    [self layoutActionButtons:self.bannerView];
 }
 
 
@@ -135,17 +136,6 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
 {
     [super viewDidAppear:animated];
     [self.messageIndication.superview bringSubviewToFront:self.messageIndication];
-}
-
-
-- (UIImage*) imageScale:(UIImage*)image toSize:(CGSize)size{
-    
-    UIGraphicsBeginImageContext(size);
-    [image drawInRect:CGRectMake(0, 0, size.width, size.height)];
-    UIImage *scaledImage = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    
-    return scaledImage;
 }
 
 
@@ -185,26 +175,18 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
         [buttonSuperView addSubview:button];
         [button addTarget:self action:@selector(action:) forControlEvents:UIControlEventTouchDown];
         [button setFrame:CGRectMake(0, 0, self.heightBanner, self.heightBanner)];
-        if(nil != data.image) {
-            UIImage *image = [UIImage imageNamed:data.image];
-            image = [self imageScale:image toSize:CGSizeMake(28, 28)];
-            //[button setImage:image forState:UIControlStateNormal];
-            
-            UIImageView *imageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:data.image]];
-            [imageView setFrame:CGRectMake(0, 0, 22, 22)];
-            imageView.center = button.center;
-            [button addSubview:imageView];
+        if(nil != data.imageName) {
+            UIImage *image = [UIImage imageNamed:data.imageName];
+            button.imageEdgeInsets = UIEdgeInsetsMake(6, 6, 6, 6);
+            [button setImage:image forState:UIControlStateNormal];
         }
         else {
             [button setTitle:data.keyword forState:UIControlStateNormal];
             [button setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
         }
-        button.showsTouchWhenHighlighted = YES;
         
         index ++;
     }
-    
-    [self layoutActionButtons:buttonSuperView];
 }
 
 
@@ -221,7 +203,7 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
     for(NSInteger index = 0; index < count ; index ++) {
         ButtonData *data = self.actionDatas[index];
         UIView *button = [superView viewWithTag:(self.tagButtons + index)];
-        if(nil != data.image) {
+        if(nil != data.imageName) {
             center.x -= self.heightBanner/2;
             [button setCenter:center];
             center.x -= self.heightBanner/2;

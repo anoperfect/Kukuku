@@ -8,7 +8,7 @@
 #import <UIKit/UIKit.h>
 #import "BannerView.h"
 #import "ButtonData.h"
-#import "NSLogn.h"
+#import "FuncDefine.h"
 @interface CustomViewController : UIViewController
 
 

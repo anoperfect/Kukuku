@@ -15,12 +15,12 @@
 
 @interface PostDataCellView : UIView
 
-typedef void (^blockRowActionHandle)(NSInteger row, NSString *actionString);
+typedef void (^blockRowActionHandle)(NSIndexPath *indexPath, NSString *actionString);
 
 @property (nonatomic, strong) blockRowActionHandle rowAction;
 
-- (UIView*)getThumbImage;
-- (UIView*)getContentLabel;
+- (id)getThumbImage;
+- (id)getContentLabel;
 
 
 

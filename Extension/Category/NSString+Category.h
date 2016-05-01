@@ -30,6 +30,7 @@
 
 +(NSString*)stringFromNSDictionary:(NSDictionary*)dict;
 
++(NSString*)stringFromTableIndexPath:(NSIndexPath*)indexPath;
 
 @end
 

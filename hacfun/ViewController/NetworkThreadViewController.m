@@ -74,14 +74,14 @@
 - (void)connectionDidFinishLoading:(NSURLConnection*)connection {
     NSLog(@"%@数据包传输完成%s", [NSThread currentThread], __FUNCTION__);
     NS0Log(@"connection data : %@", [[NSString alloc] initWithData:self.jsonData encoding:NSUTF8StringEncoding]);
-    [self parseAndFresh:self.jsonData];
+    [self parseAndFresh:self.jsonData onPage:self.pageNumLoading];
 }
 
 
 - (void)connection:(NSURLConnection*)connection didFailWithError:(NSError *)error {
     NSLog(@"%@数据传输失败,产生错误%s", [NSThread currentThread], __FUNCTION__);
     NSLog(@"error:%@", error);
-    [self parseAndFresh:nil];
+    [self parseAndFresh:nil onPage:self.pageNumLoading];
 }
 
 
@@ -91,7 +91,7 @@
 }
 
 
-- (void)parseAndFresh:(NSData*)data {
+- (void)parseAndFresh:(NSData*)data onPage:(NSInteger)page{
     self.boolRefresh = NO;
     
     LOG_POSTION
@@ -110,7 +110,7 @@
         [self showfootViewWithTitle:[self getFooterViewTitleOnStatus:self.threadsStatus] andActivityIndicator:NO andDate:NO];
     }
     else {
-        appendPostDatas = [self parsedPostDatasRetreat:parsedPostDatas];
+        appendPostDatas = [self parsedPostDatasRetreat:parsedPostDatas onPage:page];
         NSLog(@"parsed : %zd, after retreated append : %zd.", parsedPostDatas.count, appendPostDatas.count);
         
         if(appendPostDatas.count <= 0) {
@@ -119,11 +119,13 @@
             [self showfootViewWithTitle:[self getFooterViewTitleOnStatus:self.threadsStatus] andActivityIndicator:NO andDate:NO];
         }
         else {
-            [self.postDatas addObjectsFromArray:appendPostDatas];
-            NSLog(@"------ reload to count : %zi", self.postDatas.count);
+            //返回更新的section.
+            NSInteger section = [self addPostDatas:appendPostDatas onPage:page];
+            [self postDataPageToPostViewData:nil onSection:section andReload:YES];
+            
             self.threadsStatus = ThreadsStatusLoadSuccessful;
             self.pageNumLoaded = self.pageNumLoading;
-            [self postDatasToCellDataSource];
+            
             [self.postView setHidden:NO];
             [self showfootViewWithTitle:[self getFooterViewTitleOnStatus:self.threadsStatus] andActivityIndicator:NO andDate:YES];
         }

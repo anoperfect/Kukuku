@@ -8,11 +8,45 @@
 
 #import <Foundation/Foundation.h>
 
+@interface ColorItem : NSObject
+@property (nonatomic, strong) NSString *name;
+@property (nonatomic, strong) NSString *colorstring;
+@property (nonatomic, strong) UIColor  *color;
+@end
+
+@interface FontItem : NSObject
+@property (nonatomic, strong) NSString *name;
+@property (nonatomic, strong) NSString *fontstring;
+@property (nonatomic, strong) UIFont   *font;
+@end
+
+
+
+@interface UIColor (Util)
+
++ (UIColor*)colorFromString:(NSString*)string;
++ (UIColor*)colorWithName:(NSString*)name;
+
+@end
+
+
+@interface UIFont (Util)
+
++ (UIFont*)fontFromString:(NSString*)string;
++ (UIFont*)fontWithName:(NSString*)name;
+
+
+@end
+
+
+
+
 @interface UIpConfig : NSObject
 
 
-
-
++ (UIpConfig*)sharedUIpConfig;
+- (NSMutableArray*)getUIpConfigColors;
+- (NSMutableArray*)getUIpConfigFonts;
 
 
 @end

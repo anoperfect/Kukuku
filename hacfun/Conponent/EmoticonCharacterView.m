@@ -24,8 +24,14 @@
 @implementation EmoticonCharacterView
 
 - (NSArray*)getEmoticonStrings {
-    //NSMutableArray *mutableStrings = [[NSMutableArray alloc] init];
-    return [[AppConfig sharedConfigDB] getEmoticonStrings];
+
+    NSArray *emoticons = [[AppConfig sharedConfigDB] configDBEmoticonGet];
+    NSMutableArray *stringsM = [[NSMutableArray alloc] init];
+    for(Emoticon *emoticon in emoticons) {
+        [stringsM addObject:emoticon.emoticon];
+    }
+    
+    return [NSArray arrayWithArray:stringsM];
 }
 
 
@@ -70,7 +76,8 @@
         [button setTitleColor:[UIColor blueColor] forState:UIControlStateSelected];
         [button addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchDown];
         [button.layer setBorderWidth:0.5];
-        [button.layer setBorderColor:HexRGBAlpha(0x0000ff, 0.1).CGColor];
+
+        [button.layer setBorderColor:[UIColor colorWithName:@"EmoticonButtonBorder"].CGColor];
         [self.buttonsGridView addCellView:button];
         button.adjustsImageWhenHighlighted = YES;
         button.showsTouchWhenHighlighted = YES;

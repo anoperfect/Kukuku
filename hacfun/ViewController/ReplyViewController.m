@@ -40,15 +40,17 @@
 //将数据读入arrayAllRecord.
 - (void)getAllRecordData
 {
+#if 0
     NSArray *queryDatas = [[AppConfig sharedConfigDB] configDBReplyQuery:nil];
     NSLog(@"localDatas count : %zd .", [queryDatas count]);
     
     for(NSDictionary *dict in queryDatas) {
         long long timestampMsecAt = [(NSNumber*)(dict[@"repliedAt"]) longLongValue];
-        NSLog(@"111 - No.%@ at %@", dict[@"id"], [NSString stringFromMSecondInterval:timestampMsecAt andTimeZoneAdjustSecondInterval:0]);
+        NSLog(@"111 - No.%@ at %@", dict[@"tid"], [NSString stringFromMSecondInterval:timestampMsecAt andTimeZoneAdjustSecondInterval:0]);
     }
     
     self.arrayAllRecord = [NSMutableArray arrayWithArray:queryDatas];
+#endif
 }
 
 

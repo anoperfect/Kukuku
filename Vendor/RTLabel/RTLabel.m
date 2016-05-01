@@ -139,7 +139,7 @@
 
 
 - (id)initWithCoder:(NSCoder *)aDecoder
-{    
+{
     self = [super initWithCoder:aDecoder];
     if (self)
 	{
@@ -929,10 +929,13 @@
 					if ([pair count]>=2) {
 						// Trim " charactere
 						NSString *value = [[pair subarrayWithRange:NSMakeRange(1, [pair count] - 1)] componentsJoinedByString:@"="];
-//                NSLog(@"xxxxxx %d", __LINE__);
-						value = [value stringByReplacingOccurrencesOfString:@"\"" withString:@"" options:NSLiteralSearch range:NSMakeRange(0, 1)];
-//                NSLog(@"xxxxxx %d", __LINE__);
-						value = [value stringByReplacingOccurrencesOfString:@"\"" withString:@"" options:NSLiteralSearch range:NSMakeRange([value length]-1, 1)];
+                        if([value length] > 0) {
+                            value = [value stringByReplacingOccurrencesOfString:@"\"" withString:@"" options:NSLiteralSearch range:NSMakeRange(0, 1)];
+                        }
+                        
+                        if([value length] > 0) {
+                            value = [value stringByReplacingOccurrencesOfString:@"\"" withString:@"" options:NSLiteralSearch range:NSMakeRange([value length]-1, 1)];
+                        }
 						
 						[attributes setObject:value forKey:key];
 					} else if ([pair count]==1) {

@@ -48,8 +48,10 @@
 + (NSString*)getImageCacheFolder {
     NSString *documentPath = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) firstObject];
     
+    Host *host = [[AppConfig sharedConfigDB] configDBHostsGetCurrent];
+    
     NSString *imageCacheFolder =
-        [NSString stringWithFormat:@"%@/%@/ImageCache", documentPath, [[AppConfig sharedConfigDB] configDBGet:@"hostname"]];
+        [NSString stringWithFormat:@"%@/%@/ImageCache", documentPath, host.hostname];
     [[NSFileManager defaultManager] createDirectoryAtPath:imageCacheFolder withIntermediateDirectories:YES attributes:nil error:nil];
     
     return imageCacheFolder;

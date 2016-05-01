@@ -31,16 +31,9 @@
         ButtonData *actionData = nil;
         
         actionData = [[ButtonData alloc] init];
-        actionData.keyword  = @"refresh";
-        actionData.image    = @"refresh";
+        actionData.keyword      = @"refresh";
+        actionData.imageName    = @"refresh";
         [self actionAddData:actionData];
-        
-#if 0
-        actionData = [[ButtonData alloc] init];
-        actionData.keyword  = @"删除";
-        //        actionData.image    = @"delete";
-        [self actionAddData:actionData];
-#endif
     }
     
     return self;
@@ -74,47 +67,51 @@
         [self getAllRecordData];
     }
     
-    if([self.postDatas count] >= [self.arrayAllRecord count]) {
+    if([self numberOfPostDatasTotal] >= [self.arrayAllRecord count]) {
         NSLog(@"No more data.");
     }
     else {
-        self.pageNumLoading ++;
-        for(NSInteger idx = (self.pageNumLoading-1)* 10 ; idx < [self.arrayAllRecord count] && idx < self.pageNumLoading * 10; idx++ ) {
+        NSMutableArray *appendPostDatas = [[NSMutableArray alloc] init];
+        
+        //一次全部加载.
+        for(NSInteger idx = (self.pageNumLoading-1)* 1000 ; idx < [self.arrayAllRecord count] && idx < self.pageNumLoading * 1000; idx++ ) {
             
             NSDictionary *dict = [self.arrayAllRecord objectAtIndex:idx];
             NSString *jsonstring = [dict objectForKey:@"jsonstring"];
             PostData *pd = [PostData fromString:jsonstring atPage:self.pageNumLoading];
             if(pd) {
                 pd.type = PostDataTypeLocal;
-                [self.postDatas addObject:pd];
+                [appendPostDatas addObject:pd];
             }
             else {
                 NSLog(@"error --- ");
             }
         }
+                 
+        [self addPostDatas:appendPostDatas onPage:self.pageNumLoading];
+        
     }
     
-    [self showfootViewWithTitle:[NSString stringWithFormat:@"共%zi条, 已加载%zi条", [self.arrayAllRecord count], [self.postDatas count]]
+    [self showfootViewWithTitle:[NSString stringWithFormat:@"共%zi条, 已加载%zi条", [self.arrayAllRecord count], [self numberOfPostDatasTotal]]
            andActivityIndicator:NO andDate:NO];
     
     [self postDatasToCellDataSource];
 }
 
 
-- (NSArray*)actionStringsOnRow:(NSInteger)row
+- (NSArray*)actionStringsForRowAtIndexPath:(NSIndexPath*)indexPath
 {
     return @[@"复制", @"加入草稿", @"删除"];
 }
 
 
-- (void)didSelectRow:(NSInteger)row {
-    
+- (void)didSelectActionOnIndexPath:(NSIndexPath*)indexPath withPostData:(PostData*)postData
+{
     DetailViewController *vc = [[DetailViewController alloc]init];
-    
-    PostData *postDataPresent = [self.postDatas objectAtIndex:row];
-    NSInteger threadId = postDataPresent.id;
-    NSLog(@"threadId = %zi", threadId);
-    [vc setPostThreadId:threadId withData:postDataPresent];
+
+    NSInteger tid = postData.tid;
+    NSLog(@"tid = %zi", tid);
+    [vc setPostTid:tid withData:postData];
     
     [self.navigationController pushViewController:vc animated:YES];
 }
@@ -134,8 +131,10 @@
     self.updateResult = [[NSMutableDictionary alloc] init];
     
     //所有显示更新中提示.
-    for(NSMutableDictionary *dictm in self.postViewCellDatas) {
-        [dictm setObject:@"更新中" forKey:@"otherInfo"];
+    for(PostViewDataPage *postViewDataPage in self.postViewDataPages) {
+        for(NSMutableDictionary *dictm in postViewDataPage.postViewDatas) {
+            [dictm setObject:@"更新中" forKey:@"otherInfo"];
+        }
     }
     
     [self.postView reloadData];
@@ -147,7 +146,7 @@
         }
         
         NSDictionary *dict = obj;
-        NSNumber *number = dict[@"id"];
+        NSNumber *number = dict[@"tid"];
         [self.updateResult setObject:[NSNumber numberWithBool:NO] forKey:number];
         [self updateThreadById:[number integerValue]];
     }
@@ -162,7 +161,7 @@
         //获取last page的信息.
         PostData *topic = [[PostData alloc] init];
         NSMutableArray *replies = [[NSMutableArray alloc] init];
-        topic = [PostData sendSynchronousRequestByThreadId:tid atPage:-1 repliesTo:replies storeAdditional:nil];
+        topic = [PostData sendSynchronousRequestByTid:tid atPage:-1 repliesTo:replies storeAdditional:nil];
         
         dispatch_async(dispatch_get_main_queue(), ^(void) {
             [self checkUpdateTidResult:tid withReplyPostDatas:replies andTopic:topic];
@@ -176,15 +175,18 @@
 {
     BOOL found = NO;
     NSString *message = [info objectForKey:@"message"];
-    for(NSMutableDictionary* dict in self.postViewCellDatas) {
-        PostData *postData = [dict objectForKey:@"postdata"];
-        if(tid == postData.id) {
-            NSLog(@"find in ");
-            
-            [dict setObject:message forKey:@"otherInfo"];
-            
-            found = YES;
-            break;
+    
+    for(PostViewDataPage *postViewDataPage in self.postViewDataPages) {
+        for(NSMutableDictionary *dictm in postViewDataPage.postViewDatas) {
+            PostData *postData = [dictm objectForKey:@"postdata"];
+            if(tid == postData.tid) {
+                NSLog(@"find in ");
+                
+                [dictm setObject:message forKey:@"otherInfo"];
+                
+                found = YES;
+                break;
+            }
         }
     }
     
@@ -219,40 +221,31 @@
         
         //读取之前的加载与显示记录.
         //获取加载记录和浏览记录. (只记录加载记录和浏览记录的最大值.)
-        long long createdAtForLoaded = 0;
-        long long createdAtForDisplay = 0;
         BOOL isComparedOK = false;
-        
-        NSDictionary *dictDatailHistory = [[AppConfig sharedConfigDB] configDBDetailHistoryQuery:@{@"id":[NSNumber numberWithInteger:tid]}];
-        NSLog(@"%@", dictDatailHistory);
-        
-        if(dictDatailHistory) {
-            id obj;
+        DetailHistory *detailHistory = [[AppConfig sharedConfigDB] configDBDetailHistoryGetByTid:tid];
+        if(detailHistory) {
             
-            obj = [dictDatailHistory objectForKey:@"createdAtForLoaded"];
-            if(obj) {
-                createdAtForLoaded = [(NSNumber*)obj longLongValue];
-            }
-            
-            obj = [dictDatailHistory objectForKey:@"createdAtForDisplay"];
-            if(obj) {
-                createdAtForDisplay = [(NSNumber*)obj longLongValue];
-            }
+        }
+        else {
+            detailHistory = [[DetailHistory alloc] init];
+            detailHistory.tid = tid;
+            detailHistory.createdAtForDisplay = 0;
+            detailHistory.createdAtForLoaded  = 0;
         }
         
-        if(!(createdAtForLoaded > 0 && createdAtForDisplay > 0)) {
+        if(!(detailHistory.createdAtForLoaded > 0 && detailHistory.createdAtForDisplay > 0)) {
             NSLog(@"#error - tid [%zd] read detail history failed.", tid);
             [self updateToCellData:tid withInfo:@{@"message":@"比较数据出错"}];
         }
         else {
             isComparedOK = YES;
             
-            if(pdLastReply.createdAt > createdAtForLoaded) {
+            if(pdLastReply.createdAt > detailHistory.createdAtForLoaded) {
                 NSString *messge = [NSString stringWithFormat:@"更新于%@",
                                     [NSString stringFromMSecondInterval:pdLastReply.createdAt andTimeZoneAdjustSecondInterval:0]];
                 [self updateToCellData:tid withInfo:@{@"message":messge}];
             }
-            else if(pdLastReply.createdAt > createdAtForDisplay) {
+            else if(pdLastReply.createdAt > detailHistory.createdAtForDisplay) {
                 NSString *messge = [NSString stringWithFormat:@"更新于%@",
                                     [NSString stringFromMSecondInterval:pdLastReply.createdAt andTimeZoneAdjustSecondInterval:0]];
                 [self updateToCellData:tid withInfo:@{@"message":messge}];
@@ -290,27 +283,35 @@
 
 
 //重载以定义row行为.
-- (BOOL)actionOnRow:(NSInteger)row viaString:(NSString*)string
+- (BOOL)actionForRowAtIndexPath:(NSIndexPath*)indexPath viaString:(NSString*)string
 {
-    BOOL finishAction = [super actionOnRow:row viaString:string];
+    BOOL finishAction = [super actionForRowAtIndexPath:indexPath viaString:string];
     if(finishAction) {
         return finishAction;
     }
     
     finishAction = YES;
-    PostData *postDataRow = [self.postDatas objectAtIndex:row];
+    PostDataPage *postDataPage = self.postDataPages[indexPath.section];
+    PostData *postDataRow = postDataPage.postDatas[indexPath.row];
+    
+    PostViewDataPage *postViewDataPage = self.postViewDataPages[indexPath.section];
+    //PostData *postViewDataRow = postViewDataPage.postViewDatas[indexPath.row];
     
     if([string isEqualToString:@"删除"]){
-        //从collection表中删除该条记录.
-        [[AppConfig sharedConfigDB] configDBCollectionDelete:@{@"id":[NSNumber numberWithInteger:postDataRow.id]}];
+        
+        [self removeRecordsWithTids:@[[NSNumber numberWithInteger:postDataRow.tid]]];
         
         //更新表数据源及表显示.
-        [self.postDatas         removeObjectAtIndex:row];
-        [self.postViewCellDatas removeObjectAtIndex:row];
-        [self.arrayAllRecord    removeObjectAtIndex:row];
-        [self.postView reloadData];
+        [postDataPage.postDatas                         removeObjectAtIndex:indexPath.row];
+        [postViewDataPage.postViewDatas removeObjectAtIndex:indexPath.row];
+        [self.arrayAllRecord                            removeObjectAtIndex:indexPath.row];
         
-        [self showfootViewWithTitle:[NSString stringWithFormat:@"共%zi条, 已加载%zi条", [self.arrayAllRecord count], [self.postDatas count]]
+        //更新该扇区.
+        NSIndexSet *indexSet = [NSIndexSet indexSetWithIndex:indexPath.section];
+        [self.postView reloadSections:indexSet withRowAnimation:UITableViewRowAnimationFade];
+        
+        NSInteger number = [self numberOfPostDatasTotal];
+        [self showfootViewWithTitle:[NSString stringWithFormat:@"共%zi条, 已加载%zi条", [self.arrayAllRecord count], number]
                andActivityIndicator:NO andDate:NO];
     }
     else {
@@ -320,5 +321,10 @@
     return finishAction;
 }
 
+
+- (void)removeRecordsWithTids:(NSArray*)tids
+{
+    NSLog(@"#error - should be override.");
+}
 
 @end

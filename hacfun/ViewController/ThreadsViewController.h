@@ -42,10 +42,9 @@ typedef NS_ENUM(NSInteger, ThreadsStatus) {
 @property (strong,nonatomic) UITableView *postView;
 
 //显示threads的数据源.
-@property (strong,nonatomic) NSMutableArray *postDatas; // 成员为PostData数据.
-@property (strong,nonatomic) NSMutableArray *postViewCellDatas; //成员为NSMutableDictionary, 用于PostDataCellView的显示.
+@property (strong,nonatomic) NSMutableArray *postDataPages;
+@property (strong,nonatomic) NSMutableArray *postViewDataPages;
 
-//UITableView的footview.
 @property (strong,nonatomic) PushButton *footView;
 //@property (assign,nonatomic) ThreadLoadStatus footViewStatus;
 
@@ -69,7 +68,7 @@ typedef NS_ENUM(NSInteger, ThreadsStatus) {
 //自动刷新.
 @property (assign,nonatomic) BOOL autoRefresh;
 
-@property (strong,nonatomic) NSString *host;
+@property (strong,nonatomic) Host *host;
 @property (strong,nonatomic) NSMutableData *jsonData;
 
 //持续加载下一页.
@@ -86,6 +85,16 @@ typedef NS_ENUM(NSInteger, ThreadsStatus) {
 
 - (void)refreshPostData;
 - (void)reloadPostData;
+- (void)postDatasToCellDataSource ;
+- (PostViewDataPage*)postDataPageToPostViewData:(PostDataPage*)postDataPage onSection:(NSInteger)section andReload:(BOOL)reload;
+- (NSInteger)addPostDatas:(NSMutableArray*)appendPostDatas onPage:(NSInteger)page;
+
+- (NSInteger)numberOfPostDatasTotal;
+- (PostData*)postDataLastObject;
+
+
+- (PostData*)postDataOnIndexPath:(NSIndexPath*)indexPath;
+- (NSMutableDictionary*)postViewDataOnIndexPath:(NSIndexPath*)indexPath;
 
 //override.
 
@@ -94,15 +103,15 @@ typedef NS_ENUM(NSInteger, ThreadsStatus) {
 - (NSInteger)numberExpectedInPage:(NSInteger)page;
 
 //将刷新页得到的数据append到UITable的数据源时的行为. 可重写用于去重, 加页栏, 屏蔽等行为.
-- (NSMutableArray*)parsedPostDatasRetreat:(NSMutableArray*)parsedPostDatas;
+- (NSMutableArray*)parsedPostDatasRetreat:(NSMutableArray*)parsedPostDatas onPage:(NSInteger)page;
 
 
 //可重写以修改PostData显示到PostDataView时的数据行为.
-- (void)postDatasToCellDataSource ;
+- (NSMutableDictionary*)cellPresentDataFromPostData:(PostData*)postData onIndexPath:(NSIndexPath*)indexPath;
 
 
 //可重写以修改cell显示样式.
-- (void)layoutCell: (UITableViewCell *)cell withRow:(NSInteger)row withPostData:(PostData*)postData ;
+- (void)layoutCell: (UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath*)indexPath withPostData:(PostData*)postData;
 
 //可重写以修改refresh时的数据清楚行为.
 - (void)clearDataAdditional ;
@@ -110,7 +119,7 @@ typedef NS_ENUM(NSInteger, ThreadsStatus) {
 //可重写以修改cell显示时的行为.
 //目前使用:
 //DetailViewController用以记录用户浏览的最新回复. 可用于收藏页判断是否有新回复.
-- (void)threadDisplayActionInCell:(UITableViewCell*)cell withRow:(NSInteger)row;
+- (void)threadDisplayActionInCell:(UITableViewCell*)cell forRowAtIndexPath:(NSIndexPath*)indexPath;
 
 //可重写以判断是否到last page.
 - (BOOL)isLastPage;
@@ -118,15 +127,16 @@ typedef NS_ENUM(NSInteger, ThreadsStatus) {
 //可重写以针对不同状态提示不同显示内容.
 - (NSString*)getFooterViewTitleOnStatus:(ThreadsStatus)status;
 
-
+//重载以定义点击row后的行为.
+- (void)didSelectActionOnIndexPath:(NSIndexPath*)indexPath withPostData:(PostData*)postData;
 
 //重载以定义row行为. 定义为BOOL以实现让super尝试先处置.
-- (BOOL)actionOnRow:(NSInteger)row viaString:(NSString*)string;
 
+- (BOOL)actionForRowAtIndexPath:(NSIndexPath*)indexPath viaString:(NSString*)string;
 
 
 //重载以定义cell能支持的动作. NSArray成员为 NSString.
-- (NSArray*)actionStringsOnRow:(NSInteger)row;
+- (NSArray*)actionStringsForRowAtIndexPath:(NSIndexPath*)indexPath;
 
 
 @end

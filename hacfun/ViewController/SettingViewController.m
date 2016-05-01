@@ -51,7 +51,7 @@
     CGRect frameTableView = CGRectZero;
     self.tableView = [[UITableView alloc] initWithFrame:frameTableView style:UITableViewStyleGrouped];
     [self.view addSubview:self.tableView];
-    [self.tableView setBackgroundColor:[AppConfig backgroundColorFor:@"whiteColor"]];
+    [self.tableView setBackgroundColor:[UIColor colorWithName:@"SettingTableViewBackground"]];
     [self.tableView setDelegate:self];
     [self.tableView setDataSource:self];
     
@@ -119,7 +119,7 @@
     UIView *cell = [self.cellDict objectForKey:[NSNumber numberWithInteger:(NSInteger)tapGestureRecognizer]];
     UISegmentedControl *view = (UISegmentedControl*)[cell viewWithTag:(NSInteger)@"HostNameSelect"];
     
-    NSInteger indexSeleted = [[[AppConfig sharedConfigDB] configDBGet:@"hostIndex"] integerValue];
+    NSInteger indexSeleted = [[AppConfig sharedConfigDB] configDBHostIndexGet];
     NSLog(@"-%zi", indexSeleted);
     
     [view setSelectedSegmentIndex:indexSeleted];
@@ -129,7 +129,7 @@
 
 - (void)selectHostName:(UISegmentedControl*)sender {
     NSInteger index = sender.selectedSegmentIndex;
-    [[AppConfig sharedConfigDB] configDBSet:@"hostIndex" withObject:[NSNumber numberWithInteger:index]];
+    [[AppConfig sharedConfigDB] configDBHostIndexSet:index];
     
     /* 刷新对应的category. */
     [[NSNotificationCenter defaultCenter] postNotificationName:@"UpdateCategories" object:self userInfo:nil];
@@ -213,7 +213,7 @@
         
         UISegmentedControl *view = [[UISegmentedControl alloc] initWithFrame:CGRectMake(0, 0, cell.frame.size.width * 0.45, 36)];
         
-        NSArray *hostnames = [[AppConfig sharedConfigDB] configDBGet:@"hostnames"];
+        NSArray *hostnames = [[AppConfig sharedConfigDB] configDBHostsGetHostnames];
         NSInteger index = 0;
         for(NSString* host in hostnames) {
             [view insertSegmentWithTitle:host atIndex:index animated:YES];

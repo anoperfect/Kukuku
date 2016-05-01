@@ -13,6 +13,6 @@
 
 
 
-- (void)setCategoryName:(NSString*)categoryName withLink:(NSString*)cateogryLink;
+- (void)setCategoryPresent:(Category*)category;
 
 @end

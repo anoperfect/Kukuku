@@ -12,8 +12,8 @@
 #import "AMSlideMenuMainViewController.h"
 
 @interface RightMenuTVC ()
-@property (strong,nonatomic) NSArray *categories;
-@property (strong, nonatomic) NSMutableArray *tableData;
+@property (strong, nonatomic) NSArray *category;
+@property (strong, nonatomic) NSArray *tableData1;
 @end
 
 @implementation RightMenuTVC
@@ -23,26 +23,21 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
     
-    self.categories = [[NSArray alloc] initWithArray:[[AppConfig sharedConfigDB] configDBGet:@"categories"]];
-    self.tableData = [[NSMutableArray alloc] init];
-    for(NSDictionary *dic in self.categories) {
-        [self.tableData addObject:[dic objectForKey:@"name"]];
-//        [self.tableData addObject:[NSString stringWithFormat:@"%@ %@", [dic objectForKey:@"name"], [dic objectForKey:@"click"]]];
-    }
-    
-//    [self.view setBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:@"bg"]]];
     self.tableView.backgroundView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"bgleft"]];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateCategories) name:@"UpdateCategories" object:nil];
+    
+    [self updateCategories];
 }
 
 
 - (void)updateCategories {
     
-    self.categories = [[NSArray alloc] initWithArray:[[AppConfig sharedConfigDB] configDBGet:@"categories"]];
-    self.tableData = [[NSMutableArray alloc] init];
-    for(NSDictionary *dic in self.categories) {
-        [self.tableData addObject:[dic objectForKey:@"name"]];
-//        [self.tableData addObject:[NSString stringWithFormat:@"%@ %@", [dic objectForKey:@"name"], [dic objectForKey:@"click"]]];
+    self.category = [[AppConfig sharedConfigDB] configDBCategoryGet];
+    if(self.category.count <= 0) {
+        Category *category = [[Category alloc] init];
+        category.name = @"获取栏目出错";
+        category.link = @"获取栏目出错";
+        self.category = @[category];
     }
     
     [self.tableView reloadData];
@@ -64,7 +59,7 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    return [self.tableData count];
+    return [self.category count];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -76,7 +71,17 @@
     }
     
     [cell setBackgroundColor:[UIColor clearColor]];
-    cell.textLabel.text = self.tableData[indexPath.row];
+    
+    Category *category = self.category[indexPath.row];
+    NSString *name = category.name;
+    if(name && [name isKindOfClass:[NSString class]]) {
+        
+    }
+    else {
+        name = @"获取栏目出错";
+    }
+    
+    cell.textLabel.text = name;
     
     return cell;
 }
@@ -101,12 +106,14 @@
             break;
     }
 #endif
-    //rootVC = [[PostDataViewController alloc] init ];
-    rootVC = [[CategoryViewController alloc] init ];
-    NSDictionary *dict = [self.categories objectAtIndex:indexPath.row];
-    [(CategoryViewController*)rootVC setCategoryName:[dict objectForKey:@"name"] withLink:[dict objectForKey:@"link"]];
+
+    Category *category = self.category[indexPath.row];
+    NSString *name = category.name;
+    [[AppConfig sharedConfigDB] configDBCategoryAddClick:name];
     
-    [[AppConfig sharedConfigDB] configDBSetAddCategoryClick:[dict objectForKey:@"name"]];
+    rootVC = [[CategoryViewController alloc] init ];
+    [(CategoryViewController*)rootVC setCategoryPresent:category];
+    
     [self updateCategories];
     
     if(self.mainVC.currentActiveNVC) {

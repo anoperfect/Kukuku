@@ -16,6 +16,7 @@
 #import "PopupView.h"
 #import "AMSlideMenuMainViewController.h"
 #import "GalleryViewController.h"
+#import "TOWebViewController.h"
 @interface LeftMenuTVC ()
 @property (strong, nonatomic) NSMutableArray *tableData;
 @end
@@ -28,9 +29,10 @@
     // Do any additional setup after loading the view from its nib.
     
     // Initilizing data souce
-    self.tableData = [@[@"搜索",@"收藏", @"发帖", @"回复", @"设置"] mutableCopy];
-//    [self.tableData addObject:@"测试"];
-    [self.tableData addObject:@"图片"];
+    self.tableData = [[NSMutableArray alloc] init];
+    Host *host = [[AppConfig sharedConfigDB] configDBHostsGetCurrent];
+    [self.tableData addObject:host.hostname];
+    [self.tableData addObjectsFromArray:@[@"搜索",@"收藏", @"发帖", @"回复", @"设置", @"图片"]];
     
 //    [self.view setBackgroundColor:[UIColor blueColor]];
 //    [self.view setBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:@"bg"]]];
@@ -87,8 +89,8 @@
 //        {
 ////            rootVC = [[FirstVC alloc] initWithNibName:@"FirstVC" bundle:nil];
 ////            DetailViewController *vc = [[DetailViewController alloc]init];
-////            [vc setPostThreadId:6414910];
-////            [vc setPostThreadId:6434886];
+////            [vc setPostTid:6414910];
+////            [vc setPostTid:6434886];
 ////            rootVC = vc;
 //            
 //            PopupView *popupView = [[PopupView alloc] init];
@@ -130,6 +132,12 @@
 //            break;
 //    }
     
+    if(indexPath.row == 0) {
+        TOWebViewController *vc = [[TOWebViewController alloc] initWithURLString:@"http://kukuku.cc"];
+        rootVC = vc;
+        //rootVC.view.backgroundColor = [UIColor blueColor];
+    }
+    
     NSString *strItem = [self.tableData objectAtIndex:indexPath.row];
     if([strItem isEqualToString:@"搜索"]) {
 //        PopupView *popupView = [[PopupView alloc] init];
@@ -137,11 +145,13 @@
 //        [popupView popupInSuperView:self.view];
         
         DetailViewController *vc = [[DetailViewController alloc]init];
-        [vc setPostThreadId:6670627 withData:nil];
-        [vc setPostThreadId:6477099 withData:nil];
-        [vc setPostThreadId:6468268 withData:nil];
-        [vc setPostThreadId:6468276 withData:nil];
-        [vc setPostThreadId:6624990 withData:nil];
+        [vc setPostTid:6670627 withData:nil];
+        [vc setPostTid:6477099 withData:nil];
+        [vc setPostTid:6468268 withData:nil];
+        [vc setPostTid:6468276 withData:nil];
+        [vc setPostTid:6624990 withData:nil];
+//        [vc setPostTid:6708309 withData:nil];
+        
         rootVC = vc;
     }
     
@@ -171,21 +181,8 @@
     }
     
     if([strItem isEqualToString:@"图片"]) {
-
-        
-        
-        
-        
         GalleryViewController *galleryViewController = [[GalleryViewController alloc] init];
-
         rootVC = galleryViewController;
-        
-#if 0
-        NVGalleryViewController *vc = [[NVGalleryViewController alloc] init];
-        vc.images = imageArray;
-        rootVC = vc;
-#endif
-        
     }
     
     
@@ -198,7 +195,7 @@
     }
     else
 #endif
-    {
+    if(rootVC) {
         nvc = [[UINavigationController alloc] initWithRootViewController:rootVC];
         NSLog(@"### create UINavigationController : %@", nvc);
         [self openContentNavigationController:nvc];

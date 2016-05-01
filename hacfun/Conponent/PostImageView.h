@@ -14,8 +14,9 @@
 
 
 - (UIImage*)getDisplayingImage;
-- (void)setDownloadUrlString : (NSString*)downloadString;
+- (void)setDownloadUrlString:(NSString*)downloadString;
 
+@property (nonatomic, strong) NSString *linkImageString;
 
 //- (void)setDidSelectedResponseTarget : (id) target selector:(SEL)selector;
 

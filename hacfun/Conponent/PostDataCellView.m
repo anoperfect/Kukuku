@@ -25,7 +25,8 @@
  @"manageInfo"      - 第二行左边的. 显示sage.
  @"otherInfo"       - 第二行右边的. 显示一些其他信息. 暂时是显示更新回复信息. 用在CollectionViewController显示新回复状态.
  @"content"         - 正文.  根据需要已作内容调整.
- @"colorUid"        - 标记uid颜色. 暂时使用uid颜色标记特定thread. 比如Po, //self post , self reply, follow, other cookie.
+ @"colorUid"        － 标记uid颜色. 接口返回的<font color>标签解析出的颜色.
+ @"colorUidSign"    － 标记uid颜色. 暂时使用uid颜色标记特定thread. 比如Po, //self post , self reply, follow, other cookie.
  @"postdata"        -   copy的PostData.
                         id, thumb replycount直接从raw postdata中读取.
  @"showAction"      - 是否显示postdata中的操作菜单.
@@ -61,12 +62,12 @@ static NSInteger kcountObject = 0;
 
 
 @implementation PostDataCellView
-- (UIView*) getThumbImage {
+- (id) getThumbImage {
     return self.imageView;
 }
 
 
-- (UIView*)getContentLabel {
+- (id)getContentLabel {
     return self.contentLabel;
 }
 
@@ -79,13 +80,13 @@ static NSInteger kcountObject = 0;
         
         kcountObject ++;
         self.row = -1;
-        self.backgroundColor = [AppConfig backgroundColorFor:@"PostDataCellView"];
+        self.backgroundColor = [UIColor colorWithName:@"PostDataCellViewBackground"];
         
         if(!self.titleLabel) {
             self.titleLabel = [[UILabel alloc] init];
             self.titleLabel.text = @"yyyy-mm-dd xyu-ACV-";
-            self.titleLabel.font = [AppConfig fontFor:@"PostTitle"];
-            self.titleLabel.textColor = [AppConfig textColorFor:@"CellTitle"];
+            self.titleLabel.font = [UIFont fontWithName:@"PostTitle"];
+            self.titleLabel.textColor = [UIColor colorWithName:@"CellTitleText"];
 //            self.titleLabel.lineBreakMode = RTTextLineBreakModeWordWrapping;
             [self addSubview:self.titleLabel];
         }
@@ -94,8 +95,8 @@ static NSInteger kcountObject = 0;
             self.infoLabel = [[UILabel alloc] init];
             self.infoLabel.text = [NSString stringWithFormat:@"回应: %ld", -1L];
             
-            self.infoLabel.font = [AppConfig fontFor:@"PostTitle"];
-            self.infoLabel.textColor = [AppConfig textColorFor:@"CellInfo"];
+            self.infoLabel.font = [UIFont fontWithName:@"PostTitle"];
+            self.infoLabel.textColor = [UIColor colorWithName:@"CellInfoText"];
             [self.infoLabel setTextAlignment:NSTextAlignmentRight];
             
             [self addSubview:self.infoLabel];
@@ -104,8 +105,8 @@ static NSInteger kcountObject = 0;
         if(!self.manageInfoLabel) {
             self.manageInfoLabel = [[UILabel alloc] init];
             self.manageInfoLabel.text = @"";
-            self.manageInfoLabel.font = [AppConfig fontFor:@"PostTitle"];
-            self.manageInfoLabel.textColor = [AppConfig textColorFor:@"manageInfo"];
+            self.manageInfoLabel.font = [UIFont fontWithName:@"PostTitle"];
+            self.manageInfoLabel.textColor = [UIColor colorWithName:@"manageInfoText"];
             self.manageInfoLabel.textAlignment = NSTextAlignmentLeft;
             
             [self addSubview:self.manageInfoLabel];
@@ -114,8 +115,8 @@ static NSInteger kcountObject = 0;
         if(!self.otherInfoLabel) {
             self.otherInfoLabel = [[UILabel alloc] init];
             self.otherInfoLabel.text = @"";
-            self.otherInfoLabel.font = [AppConfig fontFor:@"PostTitle"];
-            self.otherInfoLabel.textColor = [AppConfig textColorFor:@"otherInfo"];
+            self.otherInfoLabel.font = [UIFont fontWithName:@"PostTitle"];
+            self.otherInfoLabel.textColor = [UIColor colorWithName:@"otherInfoText"];
             self.otherInfoLabel.textAlignment = NSTextAlignmentRight;
             
             [self addSubview:self.otherInfoLabel];
@@ -128,8 +129,9 @@ static NSInteger kcountObject = 0;
             self.contentLabel.text = @"content\n内容\n示范";
             
             self.contentLabel.lineBreakMode = NSLineBreakByWordWrapping;
-            self.contentLabel.font = [AppConfig fontFor:@"PostContent"];
-            self.contentLabel.textColor = [AppConfig textColorFor:@"Black"];
+            self.contentLabel.font = [UIFont fontWithName:@"PostContent"];
+            self.contentLabel.textColor = [UIColor colorWithName:@"ThreadContentText"];
+            self.contentLabel.textColor = [UIColor blackColor];
         }
         
         if(!self.imageView) {
@@ -155,8 +157,9 @@ static NSInteger kcountObject = 0;
     NSArray *actionStrings = [self.data objectForKey:@"actionStrings"];
     NSLog(@"action on row %@ with action %@", self.data[@"row"], actionStrings[index]);
     
+    NSIndexPath *indexPath = [self.data objectForKey:@"indexPath"];
     if(self.rowAction) {
-        self.rowAction([(NSNumber*)(self.data[@"row"]) integerValue], actionStrings[index]);
+        self.rowAction(indexPath, actionStrings[index]);
     }
     
     sender.selectedSegmentIndex = -1;
@@ -172,9 +175,19 @@ static NSInteger kcountObject = 0;
     
     NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:title];
     UIColor *colorUid = [self.data objectForKey:@"colorUid"];
-    if([title length] >= 29 && colorUid) {
-        [attributedString addAttribute:NSForegroundColorAttributeName value:[UIColor blueColor] range:NSMakeRange(21,8)];
+    UIColor *colorUidSign = [self.data objectForKey:@"colorUidSign"];
+    if(colorUid) {
+        if(title.length > 21) {
+            [attributedString addAttribute:NSForegroundColorAttributeName value:colorUid range:NSMakeRange(21, title.length-21)];
+            NSLog(@"colorUid %@ to [%@]", colorUid, [title substringWithRange:NSMakeRange(21, title.length-21)]);
+        }
     }
+    else if(colorUidSign) {
+        if(title.length > 21) {
+            [attributedString addAttribute:NSForegroundColorAttributeName value:colorUidSign range:NSMakeRange(21, title.length-21)];
+        }
+    }
+    
     //    [attributedString addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:10.0] range:NSMakeRange(0, [textTitle length])];
     //[str addAttribute:NSForegroundColorAttributeName value:[UIColor greenColor] range:NSMakeRange(19,6)];
     //    self.titleView.font = [UIFont systemFontOfSize:10.0];
@@ -223,7 +236,8 @@ static NSInteger kcountObject = 0;
         }
         else {
             self.imageView.hidden = NO;
-            NSString *imageHost = [[AppConfig sharedConfigDB] configDBGet:@"imageHost"];
+            Host *host = [[AppConfig sharedConfigDB] configDBHostsGetCurrent];
+            NSString *imageHost = host.imageHost;
             [self.imageView setDownloadUrlString:[NSString stringWithFormat:@"%@/%@", imageHost, thumb]];
         }
     }
@@ -235,6 +249,11 @@ static NSInteger kcountObject = 0;
         NSInteger count = actionStrings.count;
         if(count > 0) {
             self.actionButtons.hidden = NO;
+            NSIndexPath *indexPath = [self.data objectForKey:@"indexPath"];
+            if(!indexPath) {
+                NSLog(@"#error - PostViewData indexPath nil.");
+                indexPath = [NSIndexPath indexPathWithIndex:0];
+            }
             
             [self.actionButtons removeAllSegments];
             for(NSInteger index = 0; index < count; index ++) {
@@ -264,7 +283,7 @@ static NSInteger kcountObject = 0;
     [layout setUseIncludedMode:@"TitleLine" includedTo:@"LayoutAll" withPostion:FrameLayoutPositionTop andSizeValue:20.0];
     
     //UIFont *font = [UIFont systemFontOfSize:12];
-    UIFont *font = [AppConfig fontFor:@"PostTitle"];
+    UIFont *font = [UIFont fontWithName:@"PostTitle"];
 //    NSString *text = @"2016-02-03 12:34:56 ABCDEF00";
     NSString *text = @"2016-02-03 12:34:56 WWWWWWWW";
     NSMutableDictionary *attrs=[NSMutableDictionary dictionary];
@@ -387,7 +406,7 @@ static NSInteger kcountObject = 0;
     dispatch_async(concurrentQueue, ^(void){
         //获取last page的信息.
         NSMutableArray *replies = [[NSMutableArray alloc] init];
-        PostData *topic = [PostData sendSynchronousRequestByThreadId:tid atPage:1 repliesTo:replies storeAdditional:nil];
+        PostData *topic = [PostData sendSynchronousRequestByTid:tid atPage:1 repliesTo:replies storeAdditional:nil];
         if(topic) {
             postDataView.data = [NSDictionary dictionaryWithDictionary:[topic toViewDisplayData:ThreadDataToViewTypeInfoUseNumber]];
         }

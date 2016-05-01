@@ -13,139 +13,36 @@
 
 
 
-@implementation DBColumnValue
+@implementation DBColumnAttribute
+- (NSString*)description
+{
+    return [NSString stringWithFormat:@"%@ description not implemente", [self class]];
+}
 @end
 
 
-@implementation DBTableValue
+@implementation DBTableAttribute
+- (NSString*)description
+{
+    return [NSString stringWithFormat:@"%@ description not implemente", [self class]];
+}
 @end
 
 
 @interface DBData ()
-@property (strong,nonatomic) FMDatabase *configDataBase ;
-@property (strong,nonatomic) FMDatabase *hostDataBase ;
+
+@property (atomic, strong) NSMutableDictionary *dataBases; //name:db
+
 
 @end
 
 @implementation DBData
 
 
-
-
-- (NSInteger)DBCollectionInsert:(NSDictionary*)infoInsert {
-    
-    LOG_POSTION
-    NSString *tableName = [NSString stringWithFormat:@"collection"];
-    NSInteger id;
-    //NSInteger threadId;
-    long long collectedAt;
-    
-    NSObject* obj;
-    
-    obj = [infoInsert objectForKey:@"id"];
-    if(!(obj && [obj isKindOfClass:[NSNumber class]])) {
-        NSLog(@"error- insert table %@ FAILED (need info %@).", tableName, @"id");
-        return DB_EXECUTE_ERROR_DATA;
-    }
-    id = [(NSNumber*)obj integerValue];
-    
-    obj = [infoInsert objectForKey:@"collectedAt"];
-    if(!(obj && [obj isKindOfClass:[NSNumber class]])) {
-        NSLog(@"error- insert table %@ FAILED (need info %@).", tableName, @"collectedAt");
-        return DB_EXECUTE_ERROR_DATA;
-    }
-    collectedAt = [(NSNumber*)obj longLongValue];
-    
-    BOOL couldBeReplaced = NO;
-    
-    if(couldBeReplaced) {
-        NSString *insert = [NSString stringWithFormat:@"INSERT OR REPLACE INTO %@(id, collectedAt) VALUES(%zi,%llu)", tableName, id, collectedAt];
-        BOOL executeResult = [self.hostDataBase executeUpdate:insert];
-        if(executeResult) {
-            NSLog(@"insert table %@ OK.", tableName);
-        }
-        else {
-            NSLog(@"error- insert table %@ FAILED (executeUpdate [%@] error).", tableName, insert);
-            return DB_EXECUTE_ERROR_SQL;
-        }
-    }
-    else {
-        NSString *insert = [NSString stringWithFormat:@"INSERT INTO %@(id, collectedAt) VALUES(%zi,%llu)", tableName, id, collectedAt];
-        BOOL executeResult = [self.hostDataBase executeUpdate:insert];
-        if(executeResult) {
-            NSLog(@"insert table %@ OK.", tableName);
-        }
-        else {
-            NSLog(@"error- insert table %@ FAILED (executeUpdate [%@] error).", tableName, insert);
-            return DB_EXECUTE_ERROR_SQL;
-        }
-    }
-    
-    //insert record.
-    //[self DBRecordInsertOrReplace:infoInsert];
-    
-    return DB_EXECUTE_OK;
-}
-
-
-- (BOOL)DBCollectionDelete:(NSDictionary*)infoDelete {
-    
-    LOG_POSTION
-    NSString *tableName = [NSString stringWithFormat:@"collection"];
-    
-    NSString *delete = [NSString stringWithFormat:@"DELETE FROM %@ WHERE id = %@", tableName, [infoDelete objectForKey:@"id"]];
-    if(![infoDelete objectForKey:@"id"]) {
-        delete = [NSString stringWithFormat:@"DELETE FROM %@", tableName];
-        NSLog(@"error- delete table %@ FAILED (need info %@).", tableName, @"id");
-        return NO;
-    }
-    
-    BOOL executeResult = [self.hostDataBase executeUpdate:delete];
-    if(executeResult) {
-        NSLog(@"delete table %@ OK.", tableName);
-    }
-    else {
-        NSLog(@"error --- delete table %@ FAILED (executeUpdate [%@] error).", tableName, delete);
-        return NO;
-    }
-    
-    return YES;
-}
-
-
-- (NSArray*)DBCollectionQuery:(NSDictionary*)infoQuery {
-    
-    NSString *query = [NSString stringWithFormat:@"SELECT collection.id, record.jsonstring FROM collection,record WHERE collection.id = record.id"];
-    
-    NSObject *obj = [infoQuery objectForKey:@"id"];
-    if(obj && [obj isKindOfClass:[NSNumber class]]) {
-        query = [NSString stringWithFormat:@"SELECT collection.id, record.jsonstring FROM collection,record WHERE collection.id = %@ AND collection.id = record.id", obj];
-    }
-    
-    NSMutableArray *array = [[NSMutableArray alloc] init];
-    FMResultSet *rs = [self.hostDataBase executeQuery:query];
-    while ([rs next]) {
-        NSInteger id = [rs intForColumn:@"id"];
-        //        NSLog(@"%@", [rs stringForColumn:@"jsonstring"]);
-        NSDictionary *dict = @{
-                               @"id":[NSNumber numberWithInteger:id],
-                               @"jsonstring":[rs stringForColumn:@"jsonstring"]
-                               };
-        [array addObject:dict];
-    }
-    NSLog(@"%s count : %zi", __FUNCTION__, [array count]);
-    
-    return [NSArray arrayWithArray:array];
-}
-
-
-
-
-
 - (BOOL)DBDataDetectTableExist:(FMDatabase *)db withTableName:(NSString*)tableName
 {
     BOOL isExist = NO;
-    FMResultSet *rs = [db executeQuery:@"select count(*) as 'count' from sqlite_master where type ='table' and name = ?", tableName];
+    FMResultSet *rs = [db executeQuery:@"SELECT COUNT(*) as 'count' FROM sqlite_master WHERE type ='table' AND name = ?", tableName];
     while ([rs next])
     {
         // just print out what we've got in a number of formats.
@@ -155,209 +52,209 @@
             break;
         }
     }
-    
+    [rs close];
     return isExist;
 }
 
 
-//各表属性.
-- (DBTableValue*)getInitDBTableValue:(FMDatabase*)db withTableName:(NSString*)tableName
+- (DBTableAttribute*)getDBTableAttribute:(NSString*)databaseName withTableName:(NSString*)tableName
 {
-    if([tableName isEqualToString:@"draft"]) {
-        NSMutableArray *columnsm = [[NSMutableArray alloc] init];
-        DBColumnValue *column;
-        column = [[DBColumnValue alloc] init];
-        column.columnName = @"sn";
-        column.dataType = DBDataColumnTypeNumberInteger;
-        column.isNeedForInsert = NO;
-        column.isAutoIncrement = YES;
-        [columnsm addObject:column];
-        
-        column = [[DBColumnValue alloc] init];
-        column.columnName = @"content";
-        column.dataType = DBDataColumnTypeString;
-        column.isNeedForInsert = YES;
-        column.isAutoIncrement = NO;
-        [columnsm addObject:column];
-        
-        column = [[DBColumnValue alloc] init];
-        column.columnName = @"selectedtimes";
-        column.dataType = DBDataColumnTypeNumberInteger;
-        column.isNeedForInsert = NO;
-        column.isAutoIncrement = NO;
-        column.defaultValue = @0;
-        [columnsm addObject:column];
-        
-        DBTableValue *table = [[DBTableValue alloc] init];
-        table.tableName = tableName;
-        table.columns = [NSArray arrayWithArray:columnsm];
-        table.forHost = NO;
-        table.primaryKey = nil;//@[@"sn"];
-        
-        return table;
+    NSLog(@"self.tableAttributess.count : %zd", self.tableAttributes.count);
+    
+    for(DBTableAttribute *tableAttribute in self.tableAttributes) {
+        if([tableAttribute.tableName isEqualToString:tableName]) {
+            if([tableAttribute.databaseNames indexOfObject:databaseName] != NSNotFound) {
+                NSLog(@"<%@ : %@> table value found.", databaseName, tableName);
+                return tableAttribute;
+            }
+            else {
+                NSLog(@"#error - <%@ : %@> table value not found.", databaseName, tableName);
+            }
+        }
     }
-    
-    if([tableName isEqualToString:@"record"]) {
-        NSMutableArray *columnsm = [[NSMutableArray alloc] init];
-        DBColumnValue *column;
-        column = [[DBColumnValue alloc] init];
-        column.columnName = @"id";
-        column.dataType = DBDataColumnTypeNumberInteger;
-        column.isNeedForInsert = NO;
-        column.isAutoIncrement = NO;
-        [columnsm addObject:column];
-        
-        column = [[DBColumnValue alloc] init];
-        column.columnName = @"threadId";
-        column.dataType = DBDataColumnTypeNumberInteger;
-        column.isNeedForInsert = NO;
-        column.isAutoIncrement = NO;
-        [columnsm addObject:column];
-    
-        column = [[DBColumnValue alloc] init];
-        column.columnName = @"createdAt";
-        column.dataType = DBDataColumnTypeNumberLongLong;
-        column.isNeedForInsert = NO;
-        column.isAutoIncrement = NO;
-        [columnsm addObject:column];
-        
-        column = [[DBColumnValue alloc] init];
-        column.columnName = @"updatedAt";
-        column.dataType = DBDataColumnTypeNumberLongLong;
-        column.isNeedForInsert = NO;
-        column.isAutoIncrement = NO;
-        [columnsm addObject:column];
-        
-        column = [[DBColumnValue alloc] init];
-        column.columnName = @"jsonstring";
-        column.dataType = DBDataColumnTypeString;
-        column.isNeedForInsert = NO;
-        column.isAutoIncrement = NO;
-        [columnsm addObject:column];
-        
-        column = [[DBColumnValue alloc] init];
-        column.columnName = @"belongTo";
-        column.dataType = DBDataColumnTypeNumberInteger;
-        column.isNeedForInsert = NO;
-        column.isAutoIncrement = NO;
-        [columnsm addObject:column];
-        
-        DBTableValue *table = [[DBTableValue alloc] init];
-        table.tableName = tableName;
-        table.columns = [NSArray arrayWithArray:columnsm];
-        table.forHost = NO;
-        table.primaryKey = @[@"id"];
-        
-        return table;
-    }
-    
-    if([tableName isEqualToString:@"collection"]) {
-        NSMutableArray *columnsm = [[NSMutableArray alloc] init];
-        DBColumnValue *column;
-        
-        column = [[DBColumnValue alloc] init];
-        column.columnName = @"id";
-        column.dataType = DBDataColumnTypeNumberInteger;
-        column.isNeedForInsert = NO;
-        column.isAutoIncrement = NO;
-        [columnsm addObject:column];
-        
-        column = [[DBColumnValue alloc] init];
-        column.columnName = @"collectedAt";
-        column.dataType = DBDataColumnTypeNumberLongLong;
-        column.isNeedForInsert = NO;
-        column.isAutoIncrement = NO;
-        [columnsm addObject:column];
-        
-        DBTableValue *table = [[DBTableValue alloc] init];
-        table.tableName = tableName;
-        table.columns = [NSArray arrayWithArray:columnsm];
-        table.forHost = NO;
-        table.primaryKey = @[@"id"];
-        
-        return table;
-    }
-    
-    if([tableName isEqualToString:@"post"]) {
-        NSMutableArray *columnsm = [[NSMutableArray alloc] init];
-        DBColumnValue *column;
-        
-        column = [[DBColumnValue alloc] init];
-        column.columnName = @"id";
-        column.dataType = DBDataColumnTypeNumberInteger;
-        column.isNeedForInsert = NO;
-        column.isAutoIncrement = NO;
-        [columnsm addObject:column];
-        
-        column = [[DBColumnValue alloc] init];
-        column.columnName = @"postedAt";
-        column.dataType = DBDataColumnTypeNumberLongLong;
-        column.isNeedForInsert = NO;
-        column.isAutoIncrement = NO;
-        [columnsm addObject:column];
-        
-        DBTableValue *table = [[DBTableValue alloc] init];
-        table.tableName = tableName;
-        table.columns = [NSArray arrayWithArray:columnsm];
-        table.forHost = NO;
-        table.primaryKey = @[@"id"];
-        
-        return table;
-    }
-    
-    if([tableName isEqualToString:@"reply"]) {
-        NSMutableArray *columnsm = [[NSMutableArray alloc] init];
-        DBColumnValue *column;
-        
-        column = [[DBColumnValue alloc] init];
-        column.columnName = @"id";
-        column.dataType = DBDataColumnTypeNumberInteger;
-        column.isNeedForInsert = NO;
-        column.isAutoIncrement = NO;
-        [columnsm addObject:column];
-        
-        column = [[DBColumnValue alloc] init];
-        column.columnName = @"repliedAt";
-        column.dataType = DBDataColumnTypeNumberLongLong;
-        column.isNeedForInsert = NO;
-        column.isAutoIncrement = NO;
-        [columnsm addObject:column];
-        
-        DBTableValue *table = [[DBTableValue alloc] init];
-        table.tableName = tableName;
-        table.columns = [NSArray arrayWithArray:columnsm];
-        table.forHost = NO;
-        table.primaryKey = @[@"id"];
-        
-        return table;
-    }
-    
     
     return nil;
 }
 
 
-
-
-
-//创建.
-- (NSInteger)DBDataCreateTable:(FMDatabase*)db tableName:(NSString*)tableName
+- (DBColumnAttribute*)getDBColumnAttributeFromTableAttribute:(DBTableAttribute*)tableAttributes withColumnName:(NSString*)columnName
 {
-    LOG_POSTION
-    //需替换为检查列信息.
-    if([self DBDataDetectTableExist:db withTableName:tableName]) {
-        NSLog(@"table exist : %@", tableName);
-        return DB_EXECUTE_OK;
+    for(DBColumnAttribute *columnAttribute in tableAttributes.columnAttributes) {
+        if([columnAttribute.columnName isEqualToString:columnName]) {
+            return columnAttribute;
+        }
     }
     
-    DBTableValue *table = [self getInitDBTableValue:db withTableName:tableName];
-    NSString *createTableSQLString = [self generateCreateSQLWithTableValue:table];
-    BOOL executeResult = [db executeUpdate:createTableSQLString];
-    if(executeResult) {
-        NSLog(@"create table %@ OK.", tableName);
+    return nil;
+}
+
+
+-(NSArray*)getColumnNamesFromTableAttribute:(DBTableAttribute*)tableAttributes
+{
+    NSMutableArray *columnNamesM = [[NSMutableArray alloc] init];
+    for(DBColumnAttribute *columnAttribute in tableAttributes.columnAttributes) {
+        [columnNamesM addObject:columnAttribute.columnName];
+    }
+    
+    return [NSArray arrayWithArray:columnNamesM];
+}
+
+
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        self.tableAttributes = [[NSMutableArray alloc] init];
+        self.dataBases = [[NSMutableDictionary alloc] init];
+        
+        DISPATCH_ONCE_START
+        //测试阶段一直删除重建数据库.
+        NSString *documentPath =[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
+        NSString *folder = [NSString stringWithFormat:@"%@/%@", documentPath, @"sqlite"];
+        NSLog(@"#error - delete database folder.");
+        [[NSFileManager defaultManager] removeItemAtPath:folder error:nil];
+        DISPATCH_ONCE_FINISH
+    }
+    return self;
+}
+
+
+
+
+
+
+
+//增
+- (NSInteger)DBDataInsert:(FMDatabase*)db toTable:(DBTableAttribute*)tableAttribute withInfo:(NSDictionary*)infoInsert countReplace:(BOOL)couldReplace
+{
+    //检查infoInsert.
+    //检查columnNames.
+    NSArray *columnNames = [infoInsert objectForKey:DBDATA_STRING_COLUMNS];
+    BOOL columnNamesChecked = YES;
+    if(columnNames && [columnNames isKindOfClass:[NSArray class]]) {
+        for(NSString *columnName in columnNames) {
+            if([columnName isKindOfClass:[NSString class]]) {
+                
+            }
+            else {
+                NSLog(@"#error - columnName (%@) is not string.", columnName);
+                columnNamesChecked = NO;
+                break;
+            }
+        }
     }
     else {
-        NSLog(@"error- create table %@ FAILED \n%@\n", tableName, createTableSQLString);
+        NSLog(@"#error - %@ (%@) is not columnName array.", DBDATA_STRING_COLUMNS, columnNames);
+        columnNamesChecked = NO;
+    }
+    
+    if(!columnNamesChecked) {
+        NSLog(@"#error - %@ check error. (%@).", DBDATA_STRING_COLUMNS, columnNames);
+        return DB_EXECUTE_ERROR_DATA;
+    }
+    
+    //检查values.
+    NSArray *values = [infoInsert objectForKey:DBDATA_STRING_VALUES];
+    BOOL valuesChecked = YES;
+    if(values && [values isKindOfClass:[NSArray class]]) {
+        for(NSArray *value in values) {
+            if([value isKindOfClass:[NSArray class]]) {
+                NSInteger countValue = value.count;
+                //＃检查value值个数和属性是否跟对应的ColumnAttribute匹配.
+                if(countValue != columnNames.count) {
+                    NSLog(@"#error - value count is not fit to %@ count.", DBDATA_STRING_COLUMNS);
+                    valuesChecked = NO;
+                    break;
+                }
+                
+                for(NSInteger index = 0; index < countValue; index ++) {
+                    DBColumnAttribute *columnAttribute = [self getDBColumnAttributeFromTableAttribute:tableAttribute withColumnName:columnNames[index]];
+                    if(columnAttribute) {
+                        if(columnAttribute.dataType == DBDataColumnTypeNumberInteger || columnAttribute.dataType == DBDataColumnTypeNumberLongLong) {
+                            if([value[index] isKindOfClass:[NSNumber class]]) {
+                                
+                            }
+                            else {
+                                NSLog(@"#error - columnName (%@) value type not checked.", columnNames[index]);
+                                valuesChecked = NO;
+                                break;
+                            }
+                        }
+                        else if(columnAttribute.dataType == DBDataColumnTypeString) {
+                            if([value[index] isKindOfClass:[NSString class]]) {
+                                
+                            }
+                            else {
+                                NSLog(@"#error - columnName (%@) value type not checked.", columnNames[index]);
+                                valuesChecked = NO;
+                                break;
+                            }
+                        }
+                    }
+                    else {
+                        NSLog(@"#error - columnName (%@) not found.", columnNames[index]);
+                        valuesChecked = NO;
+                        break;
+                    }
+                }
+                
+                if(!valuesChecked) {
+                    break;
+                }
+                
+            }
+            else {
+                NSLog(@"#error - value (%@) is not array.", value);
+                valuesChecked = NO;
+                break;
+                
+            }
+        }
+    }
+    else {
+        NSLog(@"#error - %@ (%@) is not values array.", DBDATA_STRING_VALUES, values);
+        valuesChecked = NO;
+    }
+    
+    if(!valuesChecked) {
+        NSLog(@"#error - %@ check error. (%@).", DBDATA_STRING_VALUES, values);
+        return DB_EXECUTE_ERROR_DATA;
+    }
+    
+    NSLog(@"infoInsert checked OK.");
+    
+    NSMutableArray *infoInsertValuesM = [[NSMutableArray alloc] init];
+    
+    //获取insert信息值. 组成sql语句.
+    //执行.
+    NSMutableString *insert = [NSMutableString stringWithFormat:@"INSERT %@ INTO %@(%@) VALUES ",
+                        couldReplace?@"OR REPLACE":@"",
+                        tableAttribute.tableName,
+                        [NSString stringsCombine:columnNames withConnector:@","]
+                        ];
+    
+    
+    NSInteger countOfValues = values.count;
+    BOOL addJoiner = NO;
+    for(NSArray *value in values) {
+        //执行语句.
+        if(addJoiner) {
+            [insert appendString:@", "];
+        }
+        [insert appendFormat:@"(%@)", [NSString stringPaste:@"?" onTimes:columnNames.count withConnector:@","]];
+        
+        //?对应的参数.
+        [infoInsertValuesM addObjectsFromArray:value];
+        
+         addJoiner = YES;
+    }
+    
+    BOOL executeResult = [db executeUpdate:insert withArgumentsInArray:infoInsertValuesM];
+    if(executeResult) {
+        NSLog(@"insert table %@ [%zd] OK.", tableAttribute.tableName, countOfValues);
+    }
+    else {
+        NSLog(@"error- insert table %@ FAILED (executeUpdate [%@] error).", tableAttribute.tableName, insert);
         return DB_EXECUTE_ERROR_SQL;
     }
     
@@ -366,75 +263,43 @@
 
 
 //增
-- (NSInteger)DBDataInsert:(FMDatabase*)db toTable:(NSString*)tableName withInfo:(NSDictionary*)infoInsert countReplace:(BOOL)couldReplace
+- (NSInteger)DBDataInsertDBName:(NSString*)databaseName toTable:(NSString*)tableName withInfo:(NSDictionary*)infoInsert countReplace:(BOOL)couldReplace
 {
-    LOG_POSTION
-    NSArray *infoInsertColumnNames = infoInsert.allKeys;
-    NSArray *infoInsertValues = infoInsert.allValues;
-    
-#if 0 //暂时不加检测.
-    //根据tableName查找table信息.
-    DBTableValue *table = [self getDBTableValueByTableName:tableName];
-    
-    //获取insert时的必须填写字段.
-    for(DBColumnValue *column in table.columns) {
-        if(column.isNeedForInsert) {
-            NSObject* obj = [infoInsert objectForKey:column.columnName];
-            if(!(obj && ([obj isKindOfClass:[NSNumber class]] || [obj isKindOfClass:[NSString class]]))) {
-                NSLog(@"error- insert table %@ FAILED (need value %@).", tableName, column.columnName);
-                return DB_EXECUTE_ERROR_DATA;
-            }
-        }
+    FMDatabase *db = [self getDataBaseByName:databaseName];
+    if(!db) {
+        NSLog(@"#error - not find database <%@>", databaseName);
+        return DB_EXECUTE_ERROR_NOT_FOUND;
     }
     
-    //检查infoInsert中是否含该地段, 同时进行类型检查.
-    for(NSString *key in infoInsertColumnNames) {
-        NSInteger index = [key indexOfAccessibilityElement:table.columns];
-        if(index != NSNotFound) {
-            
-        }
-        else {
-            NSLog(@"error- insert table %@ FAILED (column not exist %@).", tableName, key);
-            return DB_EXECUTE_ERROR_DATA;
-        }
-    }
-#endif
-    
-    //获取insert信息值. 组成sql语句.
-    //执行.
-    NSString *insert = [NSString stringWithFormat:@"INSERT %@ INTO %@(%@) VALUES(%@)",
-                        couldReplace?@"OR REPLACE":@"",
-                        tableName,
-                        [NSString stringsCombine:infoInsertColumnNames withConnector:@","],
-                        [NSString stringPaste:@"?" onTimes:infoInsertColumnNames.count withConnector:@","]
-                        ];
-    
-    BOOL executeResult = [db executeUpdate:insert withArgumentsInArray:infoInsertValues];
-    if(executeResult) {
-        NSLog(@"insert table %@ OK.", tableName);
-    }
-    else {
-        NSLog(@"error- insert table %@ FAILED (executeUpdate [%@] error).", tableName, insert);
-        return DB_EXECUTE_ERROR_SQL;
+    DBTableAttribute *tableAttribute = [self getDBTableAttribute:databaseName withTableName:tableName];
+    if(!tableAttribute) {
+        NSLog(@"#error - not find database <%@>", databaseName);
+        return DB_EXECUTE_ERROR_NOT_FOUND;
     }
     
-    return DB_EXECUTE_OK;
+    return [self DBDataInsert:db toTable:tableAttribute withInfo:infoInsert countReplace:couldReplace];
 }
 
 
+
+
+
+
+
 //删
-- (NSInteger)DBDataDelete:(FMDatabase*)db toTable:(NSString*)tableName withInfo:(NSDictionary*)infoDelete
+- (NSInteger)DBDataDelete:(FMDatabase*)db toTable:(DBTableAttribute*)tableAttribute withQuery:(NSDictionary*)infoQuery
 {
     NSMutableString *deletem ;
     BOOL executeResult ;
-    if(!infoDelete) {
-        deletem = [NSMutableString stringWithFormat:@"DELETE FROM %@", tableName];
+    if(!infoQuery) {
+        deletem = [NSMutableString stringWithFormat:@"DELETE FROM %@", tableAttribute.tableName];
         executeResult = [db executeUpdate:[NSString stringWithString:deletem]];
     }
     else {
-        NSArray *infoDeleteKeys = infoDelete.allKeys;
-        NSArray *infoDeleteValues = infoDelete.allValues;
-        deletem = [NSMutableString stringWithFormat:@"DELETE FROM %@ WHERE %@ = ?", tableName, infoDeleteKeys[0]];
+        NSArray *infoDeleteKeys = infoQuery.allKeys;
+        NSArray *infoDeleteValues = infoQuery.allValues;
+        //只支持一个条件的简单query语句.
+        deletem = [NSMutableString stringWithFormat:@"DELETE FROM %@ WHERE %@ = ?", tableAttribute.tableName, infoDeleteKeys[0]];
         NSInteger count = infoDeleteKeys.count;
         for(NSInteger index = 1; index < count; index ++) {
             [deletem appendFormat:@" and %@ = ?", infoDeleteKeys[index]];
@@ -443,10 +308,10 @@
     }
     
     if(executeResult) {
-        NSLog(@"delete table %@ OK.", tableName);
+        NSLog(@"delete table %@ OK.", tableAttribute.tableName);
     }
     else {
-        NSLog(@"error --- delete table %@ FAILED (executeUpdate [%@] error).", tableName, deletem);
+        NSLog(@"error --- delete table %@ FAILED (executeUpdate [%@] error).", tableAttribute.tableName, deletem);
         return DB_EXECUTE_ERROR_SQL;
     }
     
@@ -454,48 +319,101 @@
 }
 
 
+//删
+- (NSInteger)DBDataDeleteDBName:(NSString*)databaseName toTable:(NSString*)tableName withQuery:(NSDictionary*)infoQuery
+{
+    FMDatabase *db = [self getDataBaseByName:databaseName];
+    if(!db) {
+        NSLog(@"#error - not find database <%@>", databaseName);
+        return DB_EXECUTE_ERROR_NOT_FOUND;
+    }
+    
+    DBTableAttribute *tableAttribute = [self getDBTableAttribute:databaseName withTableName:tableName];
+    if(!tableAttribute) {
+        NSLog(@"#error - not find database <%@>", databaseName);
+        return DB_EXECUTE_ERROR_NOT_FOUND;
+    }
+    
+    return [self DBDataDelete:db toTable:tableAttribute withQuery:infoQuery];
+}
+
+
 //查
-- (NSArray*)DBDataQuery:(FMDatabase*)db toTable:(NSString*)tableName withInfo:(NSDictionary*)infoQuery1
+
+/*
+ columnNames : 获取的column名字. 为nil时则查询时使用SELECT *.
+ infoQuery : 格式为.
+            {@"column1string":"value1string", @"column2number":@10086}
+        或者 {@"column1string":"value1string", @"column2number":@10086, @"column3string":["value1string","value1string"]}
+        可为nil
+ infoLimit : 支持 DBDATA_STRING_ORDER:"ORDER BY ... DESC"
+ */
+
+
+
+
+- (NSDictionary*)DBDataQuery:(FMDatabase*)db
+                toTable:(DBTableAttribute*)tableAttribute
+            columnNames:(NSArray*)columnNames
+              withQuery:(NSDictionary*)infoQuery
+              withLimit:(NSDictionary*)infoLimit
 {
     //获取表信息.
-    DBTableValue *table = [self getInitDBTableValue:db withTableName:tableName];
-    NSLog(@"table :%@ , name:%@, %zd.", table, table.tableName, table.primaryKey.count);
+    NSLog(@"table :%@ , name:%@, %zd.", tableAttribute, tableAttribute.tableName, tableAttribute.primaryKeys.count);
     NSMutableString *querym ;
-    NSMutableArray *queryResultm = [[NSMutableArray alloc] init];
+    NSMutableDictionary *queryResultm = [[NSMutableDictionary alloc] init];
+    NSMutableArray *queryColumnsNamesM = [[NSMutableArray alloc] init];
     
-    NSString *orderQueryString = nil;
-    NSMutableDictionary *infoQueryUsing = [NSMutableDictionary dictionaryWithDictionary:infoQuery1];
-    orderQueryString = [infoQueryUsing objectForKey:@"orderString"];
-    if(orderQueryString) {
-        [infoQueryUsing removeObjectForKey:@"orderString"];
+    if(!columnNames) {
+        [queryColumnsNamesM addObjectsFromArray:[self getColumnNamesFromTableAttribute:tableAttribute]];
+        //tableAttribute.primaryKey.count==0?@",row":@""用于在主键缺省的时候使用隐藏主键rowid.
+        if(tableAttribute.primaryKeys.count==0) {
+            columnNames = @[@"*, rowid"];
+            [queryColumnsNamesM addObject:@"rowid"];
+        }
+        else {
+            columnNames = @[@"*"];
+        }
+    }
+    else {
+        [queryColumnsNamesM addObjectsFromArray:columnNames];
     }
     
     FMResultSet *rs ;
-    if(0 == infoQueryUsing.count) {
-        querym = [NSMutableString stringWithFormat:@"SELECT *%@ FROM %@", table.primaryKey.count==0?@",rowid":@"", tableName];
-        //table.primaryKey.count==0?@",row":@""用于在主键缺省的时候使用隐藏主键rowid.
-        [querym appendFormat:@" %@", orderQueryString?orderQueryString:@""];
+    if(0 == infoQuery.count) {
+        querym = [NSMutableString stringWithFormat:@"SELECT %@ FROM %@",
+                            [NSString combineArray:columnNames withInterval:@", " andPrefix:@"" andSuffix:@""],
+                            tableAttribute.tableName];
+        
+        if([infoLimit objectForKey:DBDATA_STRING_ORDER]) {
+            [querym appendFormat:@" %@", [infoLimit objectForKey:DBDATA_STRING_ORDER]];
+        }
+        
         NSLog(@"query string : %@", querym);
         rs = [db executeQuery:[NSString stringWithString:querym]];
     }
     else {
-        NSArray *infoQueryKeys = infoQueryUsing.allKeys;
-        NSArray *infoQueryValues = infoQueryUsing.allValues;
+        NSArray *infoQueryKeys = infoQuery.allKeys;
+        NSArray *infoQueryValues = infoQuery.allValues;
         NSMutableArray *infoQueryPrameterm = [[NSMutableArray alloc] init];
         
-        querym = [NSMutableString stringWithFormat:@"SELECT *%@ FROM %@ WHERE", table.primaryKey.count==0?@",rowid":@"", tableName];
+        querym = [NSMutableString stringWithFormat:@"SELECT %@ FROM %@ WHERE",
+                  [NSString combineArray:columnNames withInterval:@", " andPrefix:@"" andSuffix:@""],
+                  tableAttribute.tableName];
         for(NSInteger index = 0; index < infoQueryKeys.count; index++) {
             if(index > 0) {
                 [querym appendString:@" and"];
             }
             
             if([infoQueryValues[index] isKindOfClass:[NSArray class]]) {
-//                [querym appendFormat:@" %@ in (?)", infoQueryKeys[index]];
-//                [infoQueryPrameterm addObject:@"6624990, 6678673, 6686117, 6688224]"];
+                //                [querym appendFormat:@" %@ in (?)", infoQueryKeys[index]];
+                //                [infoQueryPrameterm addObject:@"6624990, 6678673, 6686117, 6688224]"];
                 //[querym appendFormat:@" %@ IN (%@)", infoQueryKeys[index], @"6624990, 6678673, 6686117, 6688224"];
+                NSArray *columnValues = infoQueryValues[index];
                 [querym appendFormat:@" %@ IN (%@)",
-                 infoQueryKeys[index],
-                 [NSString combineArray:infoQueryValues[index] withInterval:@", " andPrefix:@"" andSuffix:@""]];
+                                                    infoQueryKeys[index],
+                                                    [NSString stringPaste:@"?" onTimes:columnValues.count withConnector:@","]];
+                [infoQueryPrameterm addObjectsFromArray:columnValues];
             }
             else {
                 //
@@ -504,72 +422,286 @@
             }
         }
         
-        [querym appendFormat:@" %@", orderQueryString?orderQueryString:@""];
+        if([infoLimit objectForKey:DBDATA_STRING_ORDER]) {
+            [querym appendFormat:@" %@", [infoLimit objectForKey:DBDATA_STRING_ORDER]];
+        }
+        
         NSLog(@"query string : [%@]", querym);
         NSLog(@"query parameterm : [%@]", infoQueryPrameterm);
         rs = [db executeQuery:[NSString stringWithString:querym] withArgumentsInArray:infoQueryPrameterm];
     }
     
+    for(NSString *columnName in queryColumnsNamesM) {
+        [queryResultm setObject:[[NSMutableArray alloc] init] forKey:columnName];
+    }
+    
+    NSInteger rsRows = 0;
+    BOOL parseOK = YES;
     while ([rs next]) {
-        NSMutableDictionary *dictm = [[NSMutableDictionary alloc] init];
-        if(table.primaryKey.count==0) {
-            dictm[@"rowid"] = [NSNumber numberWithInteger:[rs intForColumn:@"rowid"]];
-        }
-        for(DBColumnValue *column in table.columns) {
-            switch (column.dataType) {
-                case DBDataColumnTypeNumberInteger:
-                    dictm[column.columnName] = [NSNumber numberWithInteger:[rs intForColumn:column.columnName]];
-                    break;
-                    
-                case DBDataColumnTypeNumberLongLong:
-                    dictm[column.columnName] = [NSNumber numberWithLongLong:[rs longLongIntForColumn:column.columnName]];
-                    break;
-                    
-                case DBDataColumnTypeString:
-                    dictm[column.columnName] = [rs stringForColumn:column.columnName];
-                    break;
-                    
-                default:
-                    NSLog(@"#error - not expected default value(%zd)", column.dataType);
-                    break;
+        BOOL parseOK = YES;
+        
+        for(NSString *columnName in queryColumnsNamesM) {
+            if(!parseOK) {
+                break;
             }
+            
+            NSMutableArray *columnValues = [queryResultm objectForKey:columnName];
+            if([columnName isEqualToString:@"rowid"]) {
+                [columnValues addObject:[NSNumber numberWithInteger:[rs intForColumn:@"rowid"]]];
+            }
+            else {
+                DBColumnAttribute *columnAttribute = [self getDBColumnAttributeFromTableAttribute:tableAttribute withColumnName:columnName];
+                if(!columnAttribute) {
+                    NSLog(@"#error - [table : %@] can not find column (%@).",  tableAttribute.tableName, columnName);
+                    return nil;
+                }
+                
+                switch (columnAttribute.dataType) {
+                    case DBDataColumnTypeNumberInteger:
+                        [columnValues addObject:[NSNumber numberWithInteger:[rs intForColumn:columnAttribute.columnName]]];
+                        break;
+                        
+                    case DBDataColumnTypeNumberLongLong:
+                        [columnValues addObject:[NSNumber numberWithLongLong:[rs longLongIntForColumn:columnAttribute.columnName]]];
+                        break;
+                        
+                    case DBDataColumnTypeString:
+                        [columnValues addObject:[rs stringForColumn:columnAttribute.columnName]];
+                        break;
+                        
+                    default:
+                        NSLog(@"#error - not expected default value(%zd)", columnAttribute.dataType);
+                        parseOK = NO;
+                        break;
+                }
+            }
+            
         }
         
-        [queryResultm addObject:dictm];
-    }
-    NSLog(@"%s count : %zi", __FUNCTION__, [queryResultm count]);
-    
-    return [NSArray arrayWithArray:queryResultm];
- 
-#if 0
-    //默认按照最新收藏的放最前面.
-    NSString *query = [NSString stringWithFormat:@"SELECT collection.id, collection.collectedAt, record.jsonstring FROM collection,record WHERE collection.id = record.id ORDER BY collection.collectedAt DESC"]; //ASC
-    
-    NSObject *obj = [infoQuery objectForKey:@"id"];
-    if(obj && [obj isKindOfClass:[NSNumber class]]) {
-        query = [NSString stringWithFormat:@"SELECT collection.id, record.jsonstring FROM collection,record WHERE collection.id = %@ AND collection.id = record.id", obj];
+        if(!parseOK) {
+            break;
+        }
+        
+        rsRows ++;
     }
     
-    NSMutableArray *array = [[NSMutableArray alloc] init];
-    FMResultSet *rs = [self.hostDataBase executeQuery:query];
-    while ([rs next]) {
-        NSInteger id = [rs intForColumn:@"id"];
-        long long collectedAt = [rs longLongIntForColumn:@"collectedAt"];
-        NSDictionary *dict = @{
-                               @"id":[NSNumber numberWithInteger:id],
-                               @"collectedAt":[NSNumber numberWithLongLong:collectedAt],
-                               @"jsonstring":[rs stringForColumn:@"jsonstring"]
-                               };
-        [array addObject:dict];
-    }
-    NSLog(@"%s count : %zi", __FUNCTION__, [array count]);
+    [rs close];
     
-    return [NSArray arrayWithArray:array];
-#endif
+    if(!parseOK) {
+        NSLog(@"#error - column value parse FAILED.");
+        return nil;
+    }
+    else if(rsRows == 0) {
+        NSLog(@"query result NONE.");
+        return nil;
+    }
+    
+    NSInteger countValues = 0;
+    
+    for(NSString *columnName in queryColumnsNamesM) {
+        NSMutableArray *columnValues = [queryResultm objectForKey:columnName];
+        [queryResultm setObject:[NSArray arrayWithArray:columnValues] forKey:columnName];
+        
+        if(countValues == 0) {
+            countValues = columnValues.count;
+        }
+        else {
+            if(countValues != columnValues.count) {
+                NSLog(@"#error - count of values not fit.");
+                return nil;
+            }
+        }
+    }
+    
+    //查询结果为0时, 返回nil.
+    NSLog(@"query result count : %zd", countValues);
+    if(countValues == 0) {
+        NSLog(@"query result count 0, return nil");
+        return nil;
+    }
+    
+    return [NSDictionary dictionaryWithDictionary:queryResultm];
+}
+
+
+//查
+- (NSDictionary*)DBDataQueryDBName:(NSString*)databaseName
+                           toTable:(NSString*)tableName
+                       columnNames:(NSArray*)columnNames
+                         withQuery:(NSDictionary*)infoQuery
+                         withLimit:(NSDictionary*)infoLimit
+{
+    FMDatabase *db = [self getDataBaseByName:databaseName];
+    if(!db) {
+        NSLog(@"#error - not find database <%@ : %@>", databaseName, tableName);
+        return nil;
+    }
+    
+    DBTableAttribute *tableAttribute = [self getDBTableAttribute:databaseName withTableName:tableName];
+    if(!tableAttribute) {
+        NSLog(@"#error - not find table <%@ : %@>", databaseName, tableName);
+        return nil;
+    }
+    
+    return [self DBDataQuery:db toTable:tableAttribute columnNames:columnNames withQuery:infoQuery withLimit:infoLimit];
 }
 
 
 //改. 暂时不实现.
+- (NSInteger)DBDataUpdate:(FMDatabase*)db toTable:(DBTableAttribute*)tableAttribute withInfoUpdate:(NSDictionary*)infoUpdate withInfoQuery:(NSDictionary*)infoQuery
+{
+    NSMutableString *updatem = nil;
+    BOOL retFMDB;
+    NSMutableArray *infoUpdatePrameterm = [[NSMutableArray alloc] init];
+    
+    NSArray *infoUpdateKeys = infoUpdate.allKeys;
+    NSArray *infoUpdateValues = infoUpdate.allValues;
+    
+    updatem = [NSMutableString stringWithFormat:@"UPDATE %@ set ", tableAttribute.tableName];
+    
+    for(NSInteger index = 0; index < infoUpdateKeys.count; index++) {
+        if(index > 0) {
+            [updatem appendString:@", "];
+        }
+        
+        [updatem appendFormat:@"%@ = ? ", infoUpdateKeys[index]];
+        [infoUpdatePrameterm addObject:infoUpdateValues[index]];
+    }
+    
+    if(0 == infoQuery.count) {
+        
+    }
+    else {
+        NSArray *infoQueryKeys = infoQuery.allKeys;
+        NSArray *infoQueryValues = infoQuery.allValues;
+        [updatem appendString:@" WHERE "];
+        for(NSInteger index = 0; index < infoQueryKeys.count; index++) {
+            if(index > 0) {
+                [updatem appendString:@" and"];
+            }
+            
+            if([infoQueryValues[index] isKindOfClass:[NSArray class]]) {
+                [updatem appendFormat:@" %@ IN (%@)",
+                 infoQueryKeys[index],
+                 [NSString combineArray:infoQueryValues[index] withInterval:@", " andPrefix:@"" andSuffix:@""]];
+            }
+            else {
+                //
+                [updatem appendFormat:@" %@ = ?", infoQueryKeys[index]];
+                [infoUpdatePrameterm addObject:infoQueryValues[index]];
+            }
+        }
+    }
+    
+    NSLog(@"query string : [%@]", updatem);
+    NSLog(@"query parameterm : [%@]", infoUpdatePrameterm);
+    
+    retFMDB = [db executeUpdate:updatem withArgumentsInArray:infoUpdatePrameterm];
+    
+    if(retFMDB) {
+        
+    }
+    else {
+        NSLog(@"#error - DBDataUpdate failed.");
+        return DB_EXECUTE_ERROR_DATA;
+    }
+    
+    return DB_EXECUTE_OK;
+}
+
+
+- (NSInteger)DBDataUpdateDBName:(NSString*)databaseName toTable:(NSString*)tableName withInfoUpdate:(NSDictionary*)infoUpdate withInfoQuery:(NSDictionary*)infoQuery
+{
+    FMDatabase *db = [self getDataBaseByName:databaseName];
+    if(!db) {
+        NSLog(@"#error - not find database <%@ : %@>", databaseName, tableName);
+        return DB_EXECUTE_ERROR_NOT_FOUND;
+    }
+    
+    DBTableAttribute *tableAttribute = [self getDBTableAttribute:databaseName withTableName:tableName];
+    if(!tableAttribute) {
+        NSLog(@"#error - not find table <%@ : %@>", databaseName, tableName);
+        return DB_EXECUTE_ERROR_NOT_FOUND;
+    }
+    
+    return [self DBDataUpdate:db toTable:tableAttribute withInfoUpdate:infoUpdate withInfoQuery:infoQuery];
+}
+
+
+
+
+
+
+- (NSInteger)DBDataUpdateAdd1:(FMDatabase*)db toTable:(DBTableAttribute*)tableAttribute withColumnName:(NSString*)columnName withInfoQuery:(NSDictionary*)infoQuery
+{
+    NSMutableString *updatem = nil;
+    BOOL retFMDB;
+    
+    if(0 == infoQuery.count) {
+        updatem = [NSMutableString stringWithFormat:@"UPDATE %@ SET %@ = %@+1", tableAttribute.tableName, columnName, columnName];
+        retFMDB = [db executeUpdate:updatem];
+    }
+    else {
+        NSArray *infoQueryKeys = infoQuery.allKeys;
+        NSArray *infoQueryValues = infoQuery.allValues;
+        NSMutableArray *infoQueryPrameterm = [[NSMutableArray alloc] init];
+        
+        updatem = [NSMutableString stringWithFormat:@"UPDATE %@ SET %@ = %@+1 WHERE", tableAttribute.tableName, columnName, columnName];
+        for(NSInteger index = 0; index < infoQueryKeys.count; index++) {
+            if(index > 0) {
+                [updatem appendString:@" and"];
+            }
+            
+            if([infoQueryValues[index] isKindOfClass:[NSArray class]]) {
+                [updatem appendFormat:@" %@ IN (%@)",
+                 infoQueryKeys[index],
+                 [NSString combineArray:infoQueryValues[index] withInterval:@", " andPrefix:@"" andSuffix:@""]];
+            }
+            else {
+                //
+                [updatem appendFormat:@" %@ = ?", infoQueryKeys[index]];
+                [infoQueryPrameterm addObject:infoQueryValues[index]];
+            }
+        }
+        
+        NSLog(@"query string : [%@]", updatem);
+        NSLog(@"query parameterm : [%@]", infoQueryPrameterm);
+        
+        retFMDB = [db executeUpdate:updatem withArgumentsInArray:infoQueryPrameterm];
+    }
+
+    if(retFMDB) {
+        
+    }
+    else {
+        NSLog(@"#error - DBDataUpdateAdd1 failed.");
+        return DB_EXECUTE_ERROR_DATA;
+    }
+    
+    return DB_EXECUTE_OK;
+}
+
+
+- (NSInteger)DBDataUpdateAdd1DBName:(NSString*)databaseName toTable:(NSString*)tableName withColumnName:(NSString*)columnName withInfoQuery:(NSDictionary*)infoQuery
+{
+    FMDatabase *db = [self getDataBaseByName:databaseName];
+    if(!db) {
+        NSLog(@"#error - not find database <%@ : %@>", databaseName, tableName);
+        return DB_EXECUTE_ERROR_NOT_FOUND;
+    }
+    
+    DBTableAttribute *tableAttribute = [self getDBTableAttribute:databaseName withTableName:tableName];
+    if(!tableAttribute) {
+        NSLog(@"#error - not find table <%@ : %@>", databaseName, tableName);
+        return DB_EXECUTE_ERROR_NOT_FOUND;
+    }
+    
+    return [self DBDataUpdateAdd1:db toTable:tableAttribute withColumnName:columnName withInfoQuery:infoQuery];
+}
+
+
+
+
 //删. 暂时不实现.
 
 
@@ -601,17 +733,38 @@
 }
 
 
-- (NSString*)generateCreateSQLWithTableValue:(DBTableValue*)table
+- (DBDataColumnType)columnTypeFromString:(NSString*)typeString
 {
-    NSMutableString *strm = [NSMutableString stringWithFormat:@"create table if not exists %@(", table.tableName];
-    NSInteger count = table.columns.count;
+    DBDataColumnType type = NSNotFound;
+    
+    if([typeString isEqualToString:@"integer"]) {
+        type = DBDataColumnTypeNumberInteger;
+    }
+    else if([typeString isEqualToString:@"longlong"]) {
+        type = DBDataColumnTypeNumberLongLong;
+    }
+    else if([typeString isEqualToString:@"var"]) {
+        type = DBDataColumnTypeString;
+    }
+    
+    return type;
+}
+
+
+
+
+
+- (NSString*)generateCreateSQLWithTableValue:(DBTableAttribute*)tableAttribute
+{
+    NSMutableString *strm = [NSMutableString stringWithFormat:@"CREATE TABLE IF NOT EXISTS %@(", tableAttribute.tableName];
+    NSInteger count = tableAttribute.columnAttributes.count;
     for(NSInteger index = 0; index < count ; index ++) {
         if(index > 0) {
             [strm appendFormat:@", "];
         }
         
-        DBColumnValue *column = table.columns[index];
-        [strm appendFormat:@"%@ %@", column.columnName, [self columnTypeToString:column.dataType]];
+        DBColumnAttribute *columnAttribute = tableAttribute.columnAttributes[index];
+        [strm appendFormat:@"%@ %@", columnAttribute.columnName, [self columnTypeToString:columnAttribute.dataType]];
         
         if(index == (count - 1)) {
             [strm appendFormat:@")"];
@@ -622,4 +775,340 @@
 }
 
 
+
+
+
+
+
+- (void)buildByJsonData:(NSData*)data
+{
+    NSDictionary *dict;
+    id obj = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableLeaves error:nil];
+    //NSLog(@"obj : %@", obj);
+    
+    if(!obj || ![obj isKindOfClass:[NSDictionary class]]) {
+        NSLog(@"#error :");sleep(100);
+        return;
+    }
+    
+    NSLog(@"version : %@", [obj objectForKey:@"version"]);
+    
+    obj = [obj objectForKey:@"tables"];
+    if(!obj || ![obj isKindOfClass:[NSArray class]]) {
+        NSLog(@"#error :");sleep(100);
+        return;
+    }
+    
+    NSArray *arrayTable = obj;
+    for(obj in arrayTable) {
+        if(!obj || ![obj isKindOfClass:[NSDictionary class]]) {
+            NSLog(@"#error :");sleep(100);
+            return;
+        }
+        
+        dict = obj;
+        
+        DBTableAttribute *tableAttribute = [self DBTableAttributeFromDict:dict];
+        if(!tableAttribute) {
+            NSLog(@"#error :");sleep(100);
+        }
+        
+        NS0Log(@"table : %@, tableName : %@, databaseNames : %@",table, tableAttribute.tableName, tableAttribute.databaseNames);
+        [self.tableAttributes addObject:tableAttribute];
+        
+        //detect , checked / add / update .
+        [self buildTable:tableAttribute];
+    }
+    
+}
+
+
+- (DBTableAttribute*)DBTableAttributeFromDict:(NSDictionary*)dict
+{
+    DBTableAttribute *tableAttribute = [[DBTableAttribute alloc] init];
+    
+    NSString *tableName         = [dict objectForKey:@"tableName"];
+    NSArray *databaseNames      = [dict objectForKey:@"databaseNames"];
+    NSArray *columnAttributes   = [dict objectForKey:@"columnAttributes"];
+    NSArray *primaryKeys        = [dict objectForKey:@"primaryKeys"];
+    NSArray *preset             = [dict objectForKey:@"preset"];
+    NSString *comment           = [dict objectForKey:@"comment"];
+    
+    if([tableName           isKindOfClass:[NSString class]] &&
+       [databaseNames       isKindOfClass:[NSArray class]]  &&
+       [columnAttributes    isKindOfClass:[NSArray class]]  &&
+       [primaryKeys         isKindOfClass:[NSArray class]]  &&
+       [preset              isKindOfClass:[NSArray class]]  &&
+       [comment             isKindOfClass:[NSString class]]) {
+        NS0Log(@"checked");
+        
+        NSMutableArray *columnAttributesM = [[NSMutableArray alloc] init];
+        for (NSDictionary *dictColumnAttribute in columnAttributes) {
+            if(![dictColumnAttribute isKindOfClass:[NSDictionary class]]) {
+                NSLog(@"#error-");sleep(100);
+                return nil;
+            }
+            
+            DBColumnAttribute *columnAttribute = [self DBColumnAttributeFromDict:dictColumnAttribute];
+            if(!columnAttribute) {
+                NSLog(@"#error-");sleep(100);
+                return nil;
+            }
+            
+            [columnAttributesM addObject:columnAttribute];
+        }
+        
+        tableAttribute.tableName         = tableName;
+        tableAttribute.databaseNames     = databaseNames;
+        tableAttribute.columnAttributes  = [NSArray arrayWithArray:columnAttributesM];
+        tableAttribute.primaryKeys       = primaryKeys;
+        tableAttribute.preset            = preset;// [NSArray arrayWithArray:presetm];
+        tableAttribute.comment           = comment;
+    }
+    else {
+        NSLog(@"#error- %@[%d %d %d %d %d %d]",
+              dict,
+              [tableName           isKindOfClass:[NSString class]],
+              [databaseNames       isKindOfClass:[NSArray class]],
+              [columnAttributes    isKindOfClass:[NSArray class]],
+              [primaryKeys         isKindOfClass:[NSArray class]],
+              [preset              isKindOfClass:[NSArray class]],
+              [comment             isKindOfClass:[NSString class]]
+              
+              
+              
+              );
+        sleep(100);
+        return nil;
+    }
+    
+    return tableAttribute;
+}
+
+
+- (DBColumnAttribute*)DBColumnAttributeFromDict:(NSDictionary*)dict
+{
+    DBColumnAttribute *columnAttribute = [[DBColumnAttribute alloc] init];
+    
+    NSString    *columnName             = [dict objectForKey:@"columnName"];
+    NSString    *dataTypeString         = [dict objectForKey:@"dataType"];
+    NSNumber    *isNeedForInsertNumber  = [dict objectForKey:@"isNeedForInsert"];
+    NSNumber    *isAutoIncrementNumber  = [dict objectForKey:@"isAutoIncrement"];
+    id          defaultValue            = [dict objectForKey:@"defaultValue"];
+    
+    //NSLog(@"%@", dict);
+    
+    //if([columnName isKindOfClass:[NSString class]]){NSLog(@"checked");}else {NSLog(@"#error-");}
+    //if(  [dataTypeString isKindOfClass:[NSString class]]){NSLog(@"checked");}else {NSLog(@"#error-");}
+    //if(  [isNeedForInsertNumber isKindOfClass:[NSNumber class]]){NSLog(@"checked");}else {NSLog(@"#error-");}
+    //if(  [isAutoIncrementNumber isKindOfClass:[NSNumber class]]){NSLog(@"checked");}else {NSLog(@"#error-");}
+    //if(   ([defaultValue isKindOfClass:[NSString class]] || [defaultValue isKindOfClass:[NSNumber class]])){NSLog(@"checked");}else {NSLog(@"#error-");}
+
+    if([columnName isKindOfClass:[NSString class]] &&
+       [dataTypeString isKindOfClass:[NSString class]] &&
+       [isNeedForInsertNumber isKindOfClass:[NSNumber class]] &&
+       [isAutoIncrementNumber isKindOfClass:[NSNumber class]] &&
+       ([defaultValue isKindOfClass:[NSString class]] || [defaultValue isKindOfClass:[NSNumber class]])){
+        
+        columnAttribute.columnName          = columnName;
+        columnAttribute.dataType            = [self columnTypeFromString:dataTypeString];
+        columnAttribute.isNeedForInsert     = [isNeedForInsertNumber boolValue];
+        columnAttribute.isAutoIncrement     = [isAutoIncrementNumber boolValue];
+        columnAttribute.defaultValue        = defaultValue;
+    }
+    else {
+        NSLog(@"#error-");
+        sleep(100);
+        return nil;
+    }
+    
+    return columnAttribute;
+}
+
+
+- (id)getDataBaseByName:(NSString*)databaseName
+{
+    NSString *documentPath =[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
+    NSString *folder = [NSString stringWithFormat:@"%@/%@", documentPath, @"sqlite"];
+    
+    NS0Log(@"[%@] getDataBaseByName. dict = %@", databaseName, self.dataBases);
+    
+    FMDatabase *db = [self.dataBases objectForKey:databaseName];
+    if(!db) {
+        [[NSFileManager defaultManager] createDirectoryAtPath:folder withIntermediateDirectories:YES attributes:nil error:nil];
+        NSString *dbName = [NSString stringWithFormat:@"%@.db", databaseName];
+        
+        NSString *pathConfigDB = [NSString stringWithFormat:@"%@/%@", folder, dbName];
+        NSLog(@"[%@] create %@ ", databaseName, pathConfigDB);
+        db = [FMDatabase databaseWithPath:pathConfigDB];
+        
+        if(db) {
+            [db open];
+            NSLog(@"[%@] add to global FMDatabase dict.", databaseName);
+            [self.dataBases setObject:db forKey:databaseName];
+        }
+    }
+    
+    return db;
+}
+
+
+- (void)buildTable:(DBTableAttribute*)tableAttribute
+{
+    NSString *databaseName;
+    for(databaseName in tableAttribute.databaseNames) {
+        NSLog(@"[%@ : %@] build tableAttribute.", databaseName, tableAttribute.tableName);
+        
+        FMDatabase *db = [self getDataBaseByName:databaseName];
+        if(!db) {
+            NSLog(@"#error - ");
+            sleep(100);
+            continue;
+        }
+        
+        //判断表是否存在.
+        if([self DBDataDetectTableExist:db withTableName:tableAttribute.tableName]) {
+            NSLog(@"[%@ : %@] table exist.", databaseName, tableAttribute.tableName);
+            continue;
+        }
+        
+//        NSMutableString *createStringm = [NSMutableString stringWithFormat:@"create table if not exists %@(", tableAttribute.tableName];
+        NSMutableString *createStringm = [NSMutableString stringWithFormat:@"create table %@(", tableAttribute.tableName];
+        NSInteger index = 0;
+        for(DBColumnAttribute *columnAttribute in tableAttribute.columnAttributes) {
+            if(index > 0) {
+                [createStringm appendString:@", "];
+            }
+            
+//            [createStringm appendFormat:@"%@ %@ %@", columnAttribute.columnName, [self columnTypeToString:columnAttribute.dataType], columnAttribute.isAutoIncrement?@"autoincrement":@""];
+            [createStringm appendFormat:@"%@ %@ %@", columnAttribute.columnName, [self columnTypeToString:columnAttribute.dataType], columnAttribute.isAutoIncrement?@"":@""];
+            
+            index ++;
+        }
+        
+        if(tableAttribute.primaryKeys.count > 0) {
+            [createStringm appendFormat:@", PRIMARY KEY(%@)", [NSString combineArray:tableAttribute.primaryKeys withInterval:@"\", " andPrefix:@"\"" andSuffix:@"\""]];
+        }
+        
+        [createStringm appendString:@")"];
+        
+        //NSString *createHostsTable = @"create table if not exists hosts(id integer primary key autoincrement, hostname varchar, host varchar, imageHost varchar)";
+        BOOL executeResult = [db executeUpdate:[NSString stringWithString:createStringm]];
+        if(executeResult) {
+            NSLog(@"[%@ : %@] create table OK.", databaseName, tableAttribute.tableName);
+        }
+        else {
+            NSLog(@"#error- [%@ : %@] create table FAILED. <%@>",databaseName, tableAttribute.tableName, createStringm);
+            sleep(100);
+            continue;
+        }
+        
+        //添加预置数据.
+        for(NSDictionary *dict in tableAttribute.preset) {
+            NSString *databaseNamePreset = [dict objectForKey:@"databaseName"];
+            if(!([databaseNamePreset isEqualToString:databaseName] || [databaseNamePreset isEqualToString:@"*"])) {
+                continue;
+            }
+            
+            //检测. values 的类型为NSArray, array中的成员为NSDictionary.
+            BOOL dataChecked = YES;
+            NSDictionary *contents = [dict objectForKey:@"content"];
+            if([contents isKindOfClass:[NSDictionary class]]) {
+                
+            }
+            else {
+                dataChecked = NO;
+            }
+            
+            if(!dataChecked) {
+                NSLog(@"#error- [%@ : %@] create table preset FAILED.",databaseNamePreset, tableAttribute.tableName);
+                sleep(100);
+                continue;
+            }
+
+            NSLog(@"[%@ : %@] insert presets.", databaseName, tableAttribute.tableName);
+            
+            NSInteger retInsert = [self DBDataInsert:db toTable:tableAttribute withInfo:contents countReplace:NO];
+            if(DB_EXECUTE_OK != retInsert) {
+                NSLog(@"#error- [%@ : %@] insert preset FAILED. <%@>", databaseName, tableAttribute.tableName, contents);
+                sleep(100);
+                continue;
+            }
+            else {
+                NSLog(@"[%@ : %@] insert presets OK.", databaseName, tableAttribute.tableName);
+            }
+            
+        }
+    }
+}
+
+
+//对Insert, Update的输入数据, Query的输出数据进行检测. 返回行数. 执行时检测所有key对应的value array的个数相同.
+//错误时返回 NSNotFound.
+- (NSInteger)DBDataCheckRowsInDictionary:(NSDictionary*)dict
+{
+    NSInteger rows = 0;
+    
+    NSArray *columnNames = dict.allKeys;
+    for(NSString *columnName in columnNames) {
+        if(![columnName isKindOfClass:[NSString class]]) {
+            NSLog(@"#error - columns should be NSString.");
+            rows = NSNotFound;
+            break;
+        }
+        
+        NSArray *values = [dict objectForKey:columnName];
+        if(values && [values isKindOfClass:[NSArray class]] && (0 == rows || values.count == rows )) {
+            rows = values.count;
+        }
+        else {
+            NSLog(@"#error - rows not fit.");
+            rows = NSNotFound;
+            break;
+        }
+    }
+    
+    return rows;
+}
+
+
+
+- (BOOL)DBDataCheckCountOfArray:(NSArray*)arrays withCount:(NSInteger)count
+{
+    BOOL result = YES;
+    
+    for(NSArray *array in arrays) {
+        if([array isKindOfClass:[NSArray class]] && array.count == count) {
+            
+        }
+        else {
+            result = NO;
+            break;
+        }
+    }
+    
+    return result;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 @end
+
+
+
+

@@ -107,7 +107,7 @@ CGPathRef NewPathWithRoundRect(CGRect rect, CGFloat cornerRadius)
         [label setBackgroundColor:[UIColor whiteColor]];
         [label setText:self.titleLabel];
         [label setTextColor:[UIColor blackColor]];
-        [label setFont:[AppConfig fontFor:@"PopupView"]];
+        [label setFont:[UIFont fontWithName:@"PopupView"]];
         label.layer.cornerRadius = 2;//设置那个圆角的有多圆
         label.layer.masksToBounds = YES;
         self.labelText = label;

@@ -18,7 +18,7 @@
 @property (strong,nonatomic) NSString *keyword;
 @property (assign,nonatomic) NSInteger id;
 @property (assign,nonatomic) NSInteger superId;
-@property (strong,nonatomic) NSString *image;
+@property (strong,nonatomic) NSString *imageName;
 @property (strong,nonatomic) NSString *title;
 @property (assign,nonatomic) NSInteger method;//只显示图片,只显示文字,图片＋文字
 

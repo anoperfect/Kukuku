@@ -11,89 +11,97 @@
 #import "DBData.h"
 @interface AppConfig : NSObject
 
-
-
-
-+ (AppConfig*)sharedConfigDB;
-
-
-//接口给测试用.
-- (void)configDBBuildWithForceRebuild:(BOOL)forceRebuild;
-
-
-+ (UIColor*)backgroundColorFor:(NSString*)name;
-+ (UIColor*)textColorFor:(NSString*)name;
-+ (UIFont*)fontFor:(NSString*)name;
-
-- (id)configDBGet:(id)key ;
-- (void)configDBSet:(id)key withObject:(id)object ;
-
-- (NSString*)configDBSettingKVGet:(NSString*)key ;
-- (BOOL)configDBSettingKVSet:(NSString*)key withValue:(NSString*)value ;
-
-- (void)configDBSetAddCategoryClick:(NSString*)cateogry ;
-
-
-
-
-
 #define CONFIGDB_EXECUTE_OK 0
 #define CONFIGDB_EXECUTE_ERROR_SQL      -1
 #define CONFIGDB_EXECUTE_ERROR_EXIST    -2
 #define CONFIGDB_EXECUTE_ERROR_DATA     -3
 
-//收藏. 与发帖,回复的表结构相类似,都是 id,记录时间(msec). 因此接口和实现都类似.
-- (NSInteger)configDBCollectionInsert:(NSDictionary*)infoInsert;
-- (BOOL)configDBCollectionDelete:(NSDictionary*)infoDelete ;
-- (NSArray*)configDBCollectionQuery:(NSDictionary*)infoQuery ;
 
-
-//发帖.
-- (NSInteger)configDBPostInsert:(NSDictionary*)infoInsert;
-- (BOOL)configDBPostDelete:(NSDictionary*)infoDelete ;
-- (NSArray*)configDBPostQuery:(NSDictionary*)infoQuery ;
-
-
-//回复.
-- (NSInteger)configDBReplyInsert:(NSDictionary*)infoInsert;
-- (BOOL)configDBReplyDelete:(NSDictionary*)infoDelete ;
-- (NSArray*)configDBReplyQuery:(NSDictionary*)infoQuery ;
++ (AppConfig*)sharedConfigDB;
 
 
 
+//host.
+- (NSArray*)configDBHostsGet;
+- (Host*)configDBHostsGetCurrent;
+- (NSArray*)configDBHostsGetHostnames;
 
-- (NSInteger)configDBDetailHistoryInsert:(NSDictionary*)infoInsert countBeReplaced:(BOOL)couldBeReplaced;
-- (BOOL)configDBDetailHistoryDelete:(NSDictionary*)infoDelete;
-- (NSDictionary*)configDBDetailHistoryQuery:(NSDictionary*)infoQuery;
+//hostindex.
+- (NSInteger)configDBHostIndexGet;
+- (BOOL)configDBHostIndexSet:(NSInteger)hostIndex;
 
-
-
-
-
-
-- (BOOL)configDBRecordInsertOrReplace:(NSDictionary*)infoInsert ;
-
-
-
-
+//emoticon
+- (NSArray*)configDBEmoticonGet;
+- (BOOL)configDBAddClickOnString:(NSString*)emoticonString;
+- (BOOL)configDBEmoticonAdd:(NSArray*)emoticonStrings;
 
 
-//颜文字. 颜文字当前只能获取不能增加,删除.
-- (NSArray*)getEmoticonStrings;
+//draft.
+- (NSArray*)configDBDraftGet;
+- (BOOL    )configDBDraftAdd:(NSString*)index;
+- (BOOL    )configDBDraftRemoveAtIndex:(NSInteger)index;
+- (BOOL    )configDBDraftRemoveAtIndexSet:(NSIndexSet*)indexSet;
+
+
+//color.
+- (NSArray*)configDBColorGet;
+
+//font.
+- (NSArray*)configDBFontGet;
+
+//settingkv.
+- (NSString*)configDBSettingKVGet:(NSString*)key ;
+-      (BOOL)configDBSettingKVSet:(NSString*)key withValue:(NSString*)value ;
+
+
+//category.
+- (NSArray*)configDBCategoryGet;
+-     (BOOL)configDBCategoryAddClick:(NSString*)cateogry;
+
+
+//DetailHistory
+- (DetailHistory*)configDBDetailHistoryGetByTid:(NSInteger)tid;
+- (BOOL)configDBDetailHistoryUpdate:(DetailHistory*)history;
+
+
+//Collection.
+- (NSArray*)configDBCollectionGet;
+- (Collection*)configDBCollectionGetByTid:(NSInteger)tid;
+- (BOOL)configDBCollectionAdd:(Collection*)collection;
+
+
+//Post.
+- (NSArray*)configDBPostGet;
+- (Post*)configDBPostGetByTid:(NSInteger)tid;
+- (BOOL)configDBPostAdd:(Post*)post;
+
+
+//Reply.
+- (NSArray*)configDBReplyGet;
+- (Reply*)configDBPReplyGetByTid:(NSInteger)tid;
+- (BOOL)configDBReplyAdd:(Reply*)reply;
+
+
+- (BOOL)configDBRecordAdds:(NSArray*)postDatas;
 
 
 
-//草稿.
-- (NSInteger)configDBInitCreateTableDraft:(FMDatabase *)dataBase;
-- (NSInteger)configDBDraftInsert:(NSDictionary *)infoInsert;
-- (NSInteger)configDBDraftDelete:(NSDictionary *)infoDelete;
-- (NSArray*)configDBDraftQuery:(NSDictionary*)infoQuery;
-
-
-//测试.
-- (void)configDBTestClearForRebuild;
-- (void)configDBTestOnConfig:(NSString*)sqlString;
 @end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
