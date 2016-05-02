@@ -37,16 +37,24 @@
 }
 
 
-//将数据读入arrayAllRecord.
-- (void)getAllRecordData
+- (NSArray*)getALLRecordTid
 {
-#if 0
-    NSArray *queryDatas = [[AppConfig sharedConfigDB] configDBCollectionQuery:nil];
-    NSLog(@"localDatas count : %zd .", [queryDatas count]);
-
+    NSArray *allTid = nil;
+    NSMutableArray *allTidM = [[NSMutableArray alloc] init];
     
-    self.arrayAllRecord = [NSMutableArray arrayWithArray:queryDatas];
-#endif
+    NSArray *collections = [[AppConfig sharedConfigDB] configDBCollectionGets];
+    for(Collection *collection in collections) {
+        [allTidM addObject:[NSNumber numberWithInteger:collection.tid]];
+    }
+    
+    allTid = [NSArray arrayWithArray:allTidM];
+    return allTid;
+}
+
+
+- (void)removeRecordsWithTids:(NSArray*)tids
+{
+    [[AppConfig sharedConfigDB] configDBCollectionRemoveByTidArray:tids];
 }
 
 

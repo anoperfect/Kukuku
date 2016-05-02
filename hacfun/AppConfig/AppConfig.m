@@ -203,7 +203,7 @@
 
 - (void)configDBInitReadHost
 {
-    
+    //current not used.
     
     
 }
@@ -211,7 +211,7 @@
 
 - (void)test
 {
-    
+    //current not used.
     
     
 }
@@ -232,7 +232,7 @@
     NSArray *arrayReturn = nil ;
     if(count > 0) {
 
-        NSArray *idArray                    = queryResult[@"id"];
+        NSArray *snArray                    = queryResult[@"sn"];
         NSArray *hostnameArray              = queryResult[@"hostname"];
         NSArray *hostArray                  = queryResult[@"host"];
         NSArray *imageHostArray             = queryResult[@"imageHost"];
@@ -240,12 +240,12 @@
         NSArray *numberInCategoryPageArray  = queryResult[@"numberInCategoryPage"];
         NSArray *numberInDetailPageArray    = queryResult[@"numberInDetailPage"];
         
-        if([self.dbData DBDataCheckCountOfArray:@[idArray, hostnameArray, hostArray, imageHostArray, urlStringArray, numberInCategoryPageArray, numberInDetailPageArray] withCount:count]) {
+        if([self.dbData DBDataCheckCountOfArray:@[snArray, hostnameArray, hostArray, imageHostArray, urlStringArray, numberInCategoryPageArray, numberInDetailPageArray] withCount:count]) {
             NSMutableArray *arrayReturnM = [NSMutableArray arrayWithCapacity:count];
             
             for(NSInteger index = 0; index < count ;  index ++) {
                 Host *host = [[Host alloc] init];
-                host.id                     = [idArray[index] integerValue];
+                host.id                     = [snArray[index] integerValue];
                 host.hostname               = hostnameArray[index];
                 host.host                   = hostArray[index];
                 host.imageHost              = imageHostArray[index];
@@ -288,7 +288,7 @@ if([arrayasd[indexzxc] isKindOfClass:[NSNumber class]]) {varqwe = [arrayasd[inde
 else {NSLog(@"#error - obj (%@) is not NSNumber class.", arrayasd[indexzxc]);varqwe = defaultqaz;}
 
 #define ASSIGN_LONGLONG_VALUE_FROM_ARRAYMEMBER(varqwe, arrayasd, indexzxc, defaultqaz) \
-if([arrayasd[indexzxc] isKindOfClass:[NSNumber class]]) {varqwe = [arrayasd[indexzxc] longlongValue];}\
+if([arrayasd[indexzxc] isKindOfClass:[NSNumber class]]) {varqwe = [arrayasd[indexzxc] longLongValue];}\
 else {NSLog(@"#error - obj (%@) is not NSNumber class.", arrayasd[indexzxc]);varqwe = defaultqaz;}
 
 #define ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER(varqwe, arrayasd, indexzxc, defaultqaz) \
@@ -361,22 +361,22 @@ else {NSLog(@"#error - obj (%@) is not NSString class.", arrayasd[indexzxc]);var
                                                        toTable:TABLENAME_EMOTICON
                                                    columnNames:nil
                                                      withQuery:nil
-                                                     withLimit:@{DBDATA_STRING_ORDER:@"ORDER BY selectedtimes DESC"}];
+                                                     withLimit:@{DBDATA_STRING_ORDER:@"ORDER BY click DESC"}];
     NSInteger count = [self.dbData DBDataCheckRowsInDictionary:queryResult];
     
     NSArray *arrayReturn = nil ;
     if(count > 0) {
         NSArray *emoticonArray      = queryResult[@"emoticon"];
-        NSArray *selectedtimesArray = queryResult[@"selectedtimes"];
+        NSArray *clickArray = queryResult[@"click"];
         
-        if([self.dbData DBDataCheckCountOfArray:@[emoticonArray, selectedtimesArray] withCount:count]) {
+        if([self.dbData DBDataCheckCountOfArray:@[emoticonArray, clickArray] withCount:count]) {
             NSMutableArray *arrayReturnM = [NSMutableArray arrayWithCapacity:count];
             
             for(NSInteger index = 0; index < count ;  index ++) {
                 Emoticon *emoticon = [[Emoticon alloc] init];
                 
                 ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER(emoticon.emoticon, emoticonArray, index, @"NAN")
-                ASSIGN_INTEGER_VALUE_FROM_ARRAYMEMBER(emoticon.selectedtimes, selectedtimesArray, index, 0)
+                ASSIGN_INTEGER_VALUE_FROM_ARRAYMEMBER(emoticon.click, clickArray, index, 0)
   
                 [arrayReturnM addObject:emoticon];
             }
@@ -393,7 +393,7 @@ else {NSLog(@"#error - obj (%@) is not NSString class.", arrayasd[indexzxc]);var
 {
     BOOL result = YES;
     
-    NSInteger retDBData = [self.dbData DBDataUpdateAdd1DBName:DBNAME_CONFIG toTable:TABLENAME_EMOTICON withColumnName:@"selectedtimes" withInfoQuery:@{@"emoticon":emoticonString}];
+    NSInteger retDBData = [self.dbData DBDataUpdateAdd1DBName:DBNAME_CONFIG toTable:TABLENAME_EMOTICON withColumnName:@"click" withInfoQuery:@{@"emoticon":emoticonString}];
     
     if(retDBData != DB_EXECUTE_OK) {
         NSLog(@"#error - configDBAddClickOnString");
@@ -408,19 +408,24 @@ else {NSLog(@"#error - obj (%@) is not NSString class.", arrayasd[indexzxc]);var
 - (BOOL)configDBEmoticonAdd:(NSArray*)emoticonStrings
 {
     BOOL result = YES;
-#if 0
+    
+    NSMutableArray *valuesM = [[NSMutableArray alloc] init];
+    for(NSString *emoticonString in emoticonStrings) {
+        [valuesM addObject:@[emoticonString, @0]];
+    }
+    
+    //#如果更新的话, 则click会刷新到0.
     NSDictionary *infoInsert = @{
-                                 DBDATA_STRING_COLUMNS:
-                                 DBDATA_STRING_VALUES:[NSArray arrayWithArray:values]
-                                 
-                                 
+                                 DBDATA_STRING_COLUMNS:@[@"emoticon", @"click"],
+                                 DBDATA_STRING_VALUES:[NSArray arrayWithArray:valuesM]
                                  };
     
-    [self.dbData DBDataInsertDBName:DBNAME_CONFIG toTable:TABLENAME_EMOTICON withInfo:<#(NSDictionary *)#> countReplace:<#(BOOL)#>]
+    NSInteger retDBData = [self.dbData DBDataInsertDBName:DBNAME_CONFIG toTable:TABLENAME_EMOTICON withInfo:infoInsert countReplace:YES];
+    if(retDBData != DB_EXECUTE_OK) {
+        NSLog(@"#error - ");
+        result = NO;
+    }
     
-    
-    
-#endif
     return result;
 }
 
@@ -429,27 +434,83 @@ else {NSLog(@"#error - obj (%@) is not NSString class.", arrayasd[indexzxc]);var
 //draft.
 - (NSArray*)configDBDraftGet
 {
-    return nil;
+    //从数据库查询.
+    NSDictionary *queryResult = [self.dbData DBDataQueryDBName:DBNAME_CONFIG
+                                                       toTable:TABLENAME_DRAFT
+                                                   columnNames:nil
+                                                     withQuery:nil
+                                                     withLimit:@{DBDATA_STRING_ORDER:@"ORDER BY click DESC"}];
+    NSInteger count = [self.dbData DBDataCheckRowsInDictionary:queryResult];
+    
+    NSArray *arrayReturn = nil ;
+    if(count > 0) {
+        NSArray *contentArray      = queryResult[@"content"];
+        NSArray *clickArray = queryResult[@"click"];
+        
+        if([self.dbData DBDataCheckCountOfArray:@[contentArray, clickArray] withCount:count]) {
+            NSMutableArray *arrayReturnM = [NSMutableArray arrayWithCapacity:count];
+            
+            for(NSInteger index = 0; index < count ;  index ++) {
+                Draft *draft = [[Draft alloc] init];
+                
+                ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER(draft.content, contentArray, index, @"NAN")
+                ASSIGN_INTEGER_VALUE_FROM_ARRAYMEMBER(draft.click, clickArray, index, 0)
+                
+                [arrayReturnM addObject:draft];
+            }
+            
+            arrayReturn = [NSArray arrayWithArray:arrayReturnM];
+        }
+    }
+    
+    return arrayReturn;
 }
 
 
-- (BOOL    )configDBDraftAdd:(NSString*)index
+- (BOOL    )configDBDraftAdd:(NSString*)content
 {
     BOOL result = YES;
+
+    //#如果更新的话, 则click会刷新到0.
+    NSDictionary *infoInsert = @{
+                                 DBDATA_STRING_COLUMNS:@[@"content", @"click"],
+                                 DBDATA_STRING_VALUES:@[@[content, @0]]
+                                 };
+    
+    NSInteger retDBData = [self.dbData DBDataInsertDBName:DBNAME_CONFIG toTable:TABLENAME_DRAFT withInfo:infoInsert countReplace:YES];
+    if(DB_EXECUTE_OK != retDBData) {
+        NSLog(@"#error - ");
+        result = NO;
+    }
+    
     return result;
 }
 
 
-- (BOOL    )configDBDraftRemoveAtIndex:(NSInteger)index
+- (BOOL    )configDBDraftRemoveBySn:(NSInteger)sn
 {
     BOOL result = YES;
+    
+    NSInteger retDBData = [self.dbData DBDataDeleteDBName:DBNAME_CONFIG toTable:TABLENAME_DRAFT withQuery:@{@"sn":[NSNumber numberWithInteger:sn]}];
+    if(DB_EXECUTE_OK != retDBData) {
+        NSLog(@"#error - ");
+        result = NO;
+    }
+    
     return result;
 }
 
 
-- (BOOL    )configDBDraftRemoveAtIndexSet:(NSIndexSet*)indexSet
+- (BOOL    )configDBDraftRemoveBySns:(NSArray*)sns
 {
     BOOL result = YES;
+    
+    NSInteger retDBData = [self.dbData DBDataDeleteDBName:DBNAME_CONFIG toTable:TABLENAME_DRAFT withQuery:@{@"sn":sns}];
+    if(DB_EXECUTE_OK != retDBData) {
+        NSLog(@"#error - ");
+        result = NO;
+    }
+    
     return result;
 }
 
@@ -533,18 +594,49 @@ else {NSLog(@"#error - obj (%@) is not NSString class.", arrayasd[indexzxc]);var
 //settingkv.
 - (NSString*)configDBSettingKVGet:(NSString*)key
 {
-    return @"NAN";
+    NSString *valueString = @"NAN";
+    NSDictionary *queryResult = [self.dbData DBDataQueryDBName:DBNAME_HOST
+                                                       toTable:TABLENAME_SETTINGKV
+                                                   columnNames:@[@"value"]
+                                                     withQuery:@{@"key":key}
+                                                     withLimit:nil];
+    NSInteger count = [self.dbData DBDataCheckRowsInDictionary:queryResult];
+    
+    if(count == 1) {
+        
+        NSArray *values    = queryResult[@"value"];
+        
+        if([self.dbData DBDataCheckCountOfArray:@[values] withCount:count]) {
+            ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER(valueString, values, 0, @"NAN")
+        }
+    }
+    else {
+        NSLog(@"#error - ");
+    }
+    
+    return valueString;
 }
 
 
 -      (BOOL)configDBSettingKVSet:(NSString*)key withValue:(NSString*)value
 {
     BOOL result = YES;
+    
+    //#如果更新的话, 则click会刷新到0.
+    NSDictionary *infoInsert = @{
+                                 DBDATA_STRING_COLUMNS:@[@"key", @"value"],
+                                 DBDATA_STRING_VALUES:@[@[key, value]]
+                                 };
+    
+    NSInteger retDBData = [self.dbData DBDataInsertDBName:DBNAME_HOST toTable:TABLENAME_SETTINGKV withInfo:infoInsert countReplace:YES];
+    if(DB_EXECUTE_OK != retDBData) {
+        NSLog(@"#error - ");
+        result = NO;
+    }
+    
     return result;
+
 }
-
-
-
 
 
 //category.
@@ -581,6 +673,17 @@ else {NSLog(@"#error - obj (%@) is not NSString class.", arrayasd[indexzxc]);var
             arrayReturn = [NSArray arrayWithArray:arrayReturnM];
         }
     }
+
+    if(!arrayReturn) {
+        NSLog(@"#error - configDBCategoryGet");
+        Category *category = [[Category alloc] init];
+        category.name           = @"获取栏目错误";
+        category.link           = @"获取栏目错误";
+        category.forum          = 0;
+        category.click          = 0;
+        
+        arrayReturn = @[category];
+    }
     
     return arrayReturn;
 }
@@ -589,6 +692,13 @@ else {NSLog(@"#error - obj (%@) is not NSString class.", arrayasd[indexzxc]);var
 -     (BOOL)configDBCategoryAddClick:(NSString*)cateogry
 {
     BOOL result = YES;
+    
+    NSInteger retDBData = [self.dbData DBDataUpdateAdd1DBName:DBNAME_HOST toTable:TABLENAME_CATEGORY withColumnName:@"click" withInfoQuery:@{@"name":cateogry}];
+    if(retDBData != DB_EXECUTE_OK) {
+        NSLog(@"#error - DBDataUpdateAdd1DBName");
+        result = NO;
+    }
+    
     return result;
 }
 
@@ -599,13 +709,58 @@ else {NSLog(@"#error - obj (%@) is not NSString class.", arrayasd[indexzxc]);var
 //DetailHistory
 - (DetailHistory*)configDBDetailHistoryGetByTid:(NSInteger)tid
 {
-    return nil;
+    //从数据库查询.
+    NSDictionary *queryResult = [self.dbData DBDataQueryDBName:DBNAME_HOST
+                                                       toTable:TABLENAME_DETAILHISTORY
+                                                   columnNames:nil
+                                                     withQuery:@{@"tid":[NSNumber numberWithInteger:tid]}
+                                                     withLimit:nil];
+    NSInteger count = [self.dbData DBDataCheckRowsInDictionary:queryResult];
+    
+    DetailHistory *detailHistory = nil ;
+    if(count <= 0) {
+        NSLog(@"configDBDetailHistoryGetByTid none.")
+    }
+    else if(count > 1) {
+        NSLog(@"#error - ")
+    }
+    else {
+        NSArray *tidArray                   = queryResult[@"tid"];
+        NSArray *createdAtForDisplayArray   = queryResult[@"createdAtForDisplay"];
+        NSArray *createdAtForLoadedArray    = queryResult[@"createdAtForLoaded"];
+        
+        if([self.dbData DBDataCheckCountOfArray:@[tidArray, createdAtForDisplayArray, createdAtForLoadedArray] withCount:count]) {
+            detailHistory = [[DetailHistory alloc] init];
+            ASSIGN_INTEGER_VALUE_FROM_ARRAYMEMBER(detailHistory.tid, tidArray, 0, 0)
+            ASSIGN_LONGLONG_VALUE_FROM_ARRAYMEMBER(detailHistory.createdAtForDisplay, createdAtForDisplayArray, 0, 0)
+            ASSIGN_LONGLONG_VALUE_FROM_ARRAYMEMBER(detailHistory.createdAtForLoaded, createdAtForLoadedArray, 0, 0)
+        }
+    }
+    
+    return detailHistory;
 }
 
 
-- (BOOL)configDBDetailHistoryUpdate:(DetailHistory*)history
+- (BOOL)configDBDetailHistoryUpdate:(DetailHistory*)detailHistory;
 {
     BOOL result = YES;
+    
+    NSDictionary *infoUpdate = @{
+                                 @"tid":[NSNumber numberWithInteger:detailHistory.tid],
+                                 @"createdAtForDisplay":[NSNumber numberWithLongLong:detailHistory.createdAtForDisplay],
+                                 @"createdAtForLoaded":[NSNumber numberWithLongLong:detailHistory.createdAtForLoaded]
+                                 };
+    
+    NSDictionary *infoQuery = @{
+                                 @"tid":[NSNumber numberWithInteger:detailHistory.tid]
+                                 };
+    
+    NSInteger retDBData = [self.dbData DBDataUpdateDBName:DBNAME_HOST toTable:TABLENAME_DETAILHISTORY withInfoUpdate:infoUpdate withInfoQuery:infoQuery];
+    if(retDBData != DB_EXECUTE_OK) {
+        NSLog(@"#error - ");
+        result = NO;
+    }
+    
     return result;
 }
 
@@ -614,37 +769,123 @@ else {NSLog(@"#error - obj (%@) is not NSString class.", arrayasd[indexzxc]);var
 
 
 //Collection.
-- (NSArray*)configDBCollectionGet
+- (NSArray*)configDBCollectionGets
 {
-    return nil;
+    //从数据库查询.
+    NSDictionary *queryResult = [self.dbData DBDataQueryDBName:DBNAME_HOST
+                                                       toTable:TABLENAME_COLLECTION
+                                                   columnNames:nil
+                                                     withQuery:nil
+                                                     withLimit:@{DBDATA_STRING_ORDER:@"ORDER BY collectedAt DESC"}];
+    NSInteger count = [self.dbData DBDataCheckRowsInDictionary:queryResult];
+    
+    NSArray *arrayReturn = nil ;
+    if(count > 0) {
+        NSArray *tidArray           = queryResult[@"tid"];
+        NSArray *collectedAtArray   = queryResult[@"collectedAt"];
+        
+        if(![self.dbData DBDataCheckCountOfArray:@[tidArray, collectedAtArray] withCount:count]) {
+            return nil;
+        }
+        
+        arrayReturn = [self configDBRecordGets:tidArray];
+    }
+    
+    return arrayReturn;
 }
 
 
 - (Collection*)configDBCollectionGetByTid:(NSInteger)tid
 {
-    return nil;
+    //从数据库查询.
+    NSDictionary *queryResult = [self.dbData DBDataQueryDBName:DBNAME_HOST
+                                                       toTable:TABLENAME_COLLECTION
+                                                   columnNames:nil
+                                                     withQuery:@{@"tid":[NSNumber numberWithInteger:tid]}
+                                                     withLimit:nil];
+    NSInteger count = [self.dbData DBDataCheckRowsInDictionary:queryResult];
+    
+    Collection *collection = nil;
+    
+    if(count > 0) {
+        NSArray *tidArray           = queryResult[@"tid"];
+        NSArray *collectedAtArray   = queryResult[@"collectedAt"];
+        
+        if(![self.dbData DBDataCheckCountOfArray:@[tidArray, collectedAtArray] withCount:count]) {
+            return nil;
+        }
+        
+        collection = [[Collection alloc] init];
+        
+        ASSIGN_INTEGER_VALUE_FROM_ARRAYMEMBER(collection.tid, tidArray, 0, 0)
+        ASSIGN_LONGLONG_VALUE_FROM_ARRAYMEMBER(collection.collectedAt, collectedAtArray, 0, 0)
+    }
+    
+    return collection;
 }
 
 
+//不能添加已存在的tid.
 - (BOOL)configDBCollectionAdd:(Collection*)collection
 {
     BOOL result = YES;
+    
+    //#如果更新的话, 则click会刷新到0.
+    NSDictionary *infoInsert = @{
+                                 DBDATA_STRING_COLUMNS:@[@"tid", @"collectedAt"],
+                                 DBDATA_STRING_VALUES:@[@[[NSNumber numberWithInteger:collection.tid], [NSNumber numberWithLongLong:collection.collectedAt]]]
+                                 };
+    
+    NSInteger retDBData = [self.dbData DBDataInsertDBName:DBNAME_HOST toTable:TABLENAME_COLLECTION withInfo:infoInsert countReplace:NO];
+    if(DB_EXECUTE_OK != retDBData) {
+        NSLog(@"#error - ");
+        result = NO;
+    }
+    
+    return result;
+}
+
+
+- (BOOL)configDBCollectionRemove:(NSInteger)tid
+{
+    BOOL result = YES;
+    
+    NSInteger retDBData = [self.dbData DBDataDeleteDBName:DBNAME_HOST toTable:TABLENAME_COLLECTION withQuery:@{@"tid":[NSNumber numberWithInteger:tid]}];
+    if(DB_EXECUTE_OK != retDBData) {
+        NSLog(@"#error - ");
+        result = NO;
+    }
+    
     return result;
 }
 
 
 
+- (BOOL)configDBCollectionRemoveByTidArray:(NSArray*)tidArray
+{
+    BOOL result = YES;
+    
+    NSInteger retDBData = [self.dbData DBDataDeleteDBName:DBNAME_HOST toTable:TABLENAME_COLLECTION withQuery:@{@"tid":tidArray}];
+    if(DB_EXECUTE_OK != retDBData) {
+        NSLog(@"#error - ");
+        result = NO;
+    }
+    
+    return result;
+}
 
 
 //Post.
 - (NSArray*)configDBPostGet
 {
+    NSLog(@"#error - not implement");
     return nil;
 }
 
 
 - (Post*)configDBPostGetByTid:(NSInteger)tid
 {
+    NSLog(@"#error - not implement");
     return nil;
 }
 
@@ -652,6 +893,7 @@ else {NSLog(@"#error - obj (%@) is not NSString class.", arrayasd[indexzxc]);var
 - (BOOL)configDBPostAdd:(Post*)post
 {
     BOOL result = YES;
+    NSLog(@"#error - not implement");
     return result;
 }
 
@@ -662,12 +904,14 @@ else {NSLog(@"#error - obj (%@) is not NSString class.", arrayasd[indexzxc]);var
 //Reply.
 - (NSArray*)configDBReplyGet
 {
+    NSLog(@"#error - not implement");
     return nil;
 }
 
 
 - (Reply*)configDBPReplyGetByTid:(NSInteger)tid
 {
+    NSLog(@"#error - not implement");
     return nil;
 }
 
@@ -675,6 +919,7 @@ else {NSLog(@"#error - obj (%@) is not NSString class.", arrayasd[indexzxc]);var
 - (BOOL)configDBReplyAdd:(Reply*)reply
 {
     BOOL result = YES;
+    NSLog(@"#error - not implement");
     return result;
 }
 
@@ -782,7 +1027,53 @@ else {NSLog(@"#error - obj (%@) is not NSString class.", arrayasd[indexzxc]);var
 }
 
 
-
+- (NSArray*)configDBRecordGets:(NSArray*)tidGets
+{
+    //从数据库查询.
+    NSDictionary *queryResult = [self.dbData DBDataQueryDBName:DBNAME_HOST
+                                                       toTable:TABLENAME_RECORD
+                                                   columnNames:nil
+                                                     withQuery:@{@"tid":tidGets}
+                                                     withLimit:nil];
+    NSInteger count = [self.dbData DBDataCheckRowsInDictionary:queryResult];
+    
+    NSArray *arrayReturn = nil ;
+    if(count > 0) {
+        NSArray *tidArray           = queryResult[@"tid"];
+        NSArray *jsonstringArray    = queryResult[@"jsonstring"];
+        
+        if(![self.dbData DBDataCheckCountOfArray:@[tidArray, jsonstringArray] withCount:count]) {
+            return nil;
+        }
+        
+        NSMutableArray *arrayPostDataM = [[NSMutableArray alloc] init];
+        for(NSNumber *tidNumber in tidGets) {
+            
+            for(NSInteger indexCount = 0; indexCount < count; indexCount ++) {
+                if([tidNumber isEqual:tidArray[indexCount]]) {
+                    NSLog(@"configDBRecordGets tid [%zd] got", tidNumber);
+                    
+                    PostData *postData = [PostData fromString:jsonstringArray[indexCount] atPage:0];
+                    if(postData) {
+                        postData.type = PostDataTypeLocal;
+                    }
+                    else {
+                        postData = [PostData fromOnlyTid:[tidNumber integerValue]];
+                    }
+                    
+                    [arrayPostDataM addObject:postData];
+                    
+                    break;
+                }
+            }
+            
+        }
+        
+        arrayReturn = [NSArray arrayWithArray:arrayPostDataM];
+    }
+    
+    return arrayReturn;
+}
 
 
 

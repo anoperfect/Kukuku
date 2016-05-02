@@ -78,6 +78,7 @@ typedef NS_ENUM(NSInteger, ThreadDataToViewType) {
 
 //从json格式的 string中解析.
 + (PostData*)fromString:(NSString*)jsonstring atPage:(NSInteger)page;
++ (PostData*)fromOnlyTid:(NSInteger)tid;
 
 
 

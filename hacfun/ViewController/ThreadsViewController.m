@@ -752,8 +752,8 @@
         });
     }
     else if([string isEqualToString:@"加入草稿"]) {
-        NSInteger ret = [[AppConfig sharedConfigDB] configDBDraftAdd:[NSString decodeWWWEscape:postDataRow.content]];
-        if(DB_EXECUTE_OK == ret) {
+        BOOL ret = [[AppConfig sharedConfigDB] configDBDraftAdd:[NSString decodeWWWEscape:postDataRow.content]];
+        if(ret) {
             [self showStatusText:@"已加入草稿"];
         }
         else {
@@ -927,6 +927,19 @@
     }
     
     return postViewData;
+}
+
+
+- (NSArray*)generatePostDataArray
+{
+    NSMutableArray *postDatasM = [[NSMutableArray alloc] init];
+    for(PostDataPage *page in self.postDataPages) {
+        for(PostData *postData in page.postDatas) {
+            [postDatasM addObject:postData];
+        }
+    }
+    
+    return [NSArray arrayWithArray:postDatasM];
 }
 
 

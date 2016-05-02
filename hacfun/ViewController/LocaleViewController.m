@@ -16,6 +16,8 @@
 @interface LocaleViewController ()
 @property (nonatomic, strong) NSMutableDictionary *updateResult;
 
+@property (nonatomic, strong) NSArray *allTid;
+
 @end
 
 
@@ -43,56 +45,30 @@
 - (void)viewDidLoad {
     LOG_POSTION
     [super viewDidLoad];
-
-}
-
-
-//将数据读入arrayAllRecord.
-- (void)getAllRecordData
-{
-    NSLog(@"#error - must override.")
+    
+    self.allTid = [self getALLRecordTid];
 }
 
 
 - (NSInteger)numberExpectedInPage:(NSInteger)page
 {
-    return 10;
+    return 1000;
 }
 
 
 - (void)reloadPostData {
     LOG_POSTION
     
-    if(nil == self.arrayAllRecord) {
-        [self getAllRecordData];
+    if(!self.allTid) {
+        self.allTid = [self getALLRecordTid];
     }
     
-    if([self numberOfPostDatasTotal] >= [self.arrayAllRecord count]) {
-        NSLog(@"No more data.");
-    }
-    else {
-        NSMutableArray *appendPostDatas = [[NSMutableArray alloc] init];
-        
-        //一次全部加载.
-        for(NSInteger idx = (self.pageNumLoading-1)* 1000 ; idx < [self.arrayAllRecord count] && idx < self.pageNumLoading * 1000; idx++ ) {
-            
-            NSDictionary *dict = [self.arrayAllRecord objectAtIndex:idx];
-            NSString *jsonstring = [dict objectForKey:@"jsonstring"];
-            PostData *pd = [PostData fromString:jsonstring atPage:self.pageNumLoading];
-            if(pd) {
-                pd.type = PostDataTypeLocal;
-                [appendPostDatas addObject:pd];
-            }
-            else {
-                NSLog(@"error --- ");
-            }
-        }
-                 
-        [self addPostDatas:appendPostDatas onPage:self.pageNumLoading];
-        
-    }
+    NSMutableArray *appendPostDatas = [[NSMutableArray alloc] init];
+    [appendPostDatas addObjectsFromArray:[[AppConfig sharedConfigDB] configDBRecordGets:self.allTid]];
     
-    [self showfootViewWithTitle:[NSString stringWithFormat:@"共%zi条, 已加载%zi条", [self.arrayAllRecord count], [self numberOfPostDatasTotal]]
+    [self addPostDatas:appendPostDatas onPage:self.pageNumLoading];
+    
+    [self showfootViewWithTitle:[NSString stringWithFormat:@"共%zd条, 已加载%zi条", self.allTid.count, [self numberOfPostDatasTotal]]
            andActivityIndicator:NO andDate:NO];
     
     [self postDatasToCellDataSource];
@@ -139,16 +115,14 @@
     
     [self.postView reloadData];
     
-    for(id obj in self.arrayAllRecord) {
-        if(![obj isKindOfClass:[NSDictionary class]]) {
-            NSLog(@"#error not expected class %@", obj);
+    for(NSNumber *tidNumber in self.allTid) {
+        if(![tidNumber isKindOfClass:[NSNumber class]]) {
+            NSLog(@"#error not expected class %@", tidNumber);
             break;
         }
         
-        NSDictionary *dict = obj;
-        NSNumber *number = dict[@"tid"];
-        [self.updateResult setObject:[NSNumber numberWithBool:NO] forKey:number];
-        [self updateThreadById:[number integerValue]];
+        [self.updateResult setObject:[NSNumber numberWithBool:NO] forKey:tidNumber];
+        [self updateThreadById:[tidNumber integerValue]];
     }
 }
 
@@ -294,31 +268,29 @@
     PostDataPage *postDataPage = self.postDataPages[indexPath.section];
     PostData *postDataRow = postDataPage.postDatas[indexPath.row];
     
-    PostViewDataPage *postViewDataPage = self.postViewDataPages[indexPath.section];
+    //PostViewDataPage *postViewDataPage = self.postViewDataPages[indexPath.section];
     //PostData *postViewDataRow = postViewDataPage.postViewDatas[indexPath.row];
     
     if([string isEqualToString:@"删除"]){
         
         [self removeRecordsWithTids:@[[NSNumber numberWithInteger:postDataRow.tid]]];
         
-        //更新表数据源及表显示.
-        [postDataPage.postDatas                         removeObjectAtIndex:indexPath.row];
-        [postViewDataPage.postViewDatas removeObjectAtIndex:indexPath.row];
-        [self.arrayAllRecord                            removeObjectAtIndex:indexPath.row];
-        
-        //更新该扇区.
-        NSIndexSet *indexSet = [NSIndexSet indexSetWithIndex:indexPath.section];
-        [self.postView reloadSections:indexSet withRowAnimation:UITableViewRowAnimationFade];
-        
-        NSInteger number = [self numberOfPostDatasTotal];
-        [self showfootViewWithTitle:[NSString stringWithFormat:@"共%zi条, 已加载%zi条", [self.arrayAllRecord count], number]
-               andActivityIndicator:NO andDate:NO];
+        self.allTid = nil;
+        [self reloadPostData];
     }
     else {
         finishAction = NO;
     }
     
     return finishAction;
+}
+
+
+//override. 获取本地记录数据.
+- (NSArray*)getALLRecordTid
+{
+    NSLog(@"#error - should be override.");
+    return nil;
 }
 
 

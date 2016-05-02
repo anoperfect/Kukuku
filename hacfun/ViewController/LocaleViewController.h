@@ -9,12 +9,15 @@
 #import <UIKit/UIKit.h>
 #import "ThreadsViewController.h"
 @interface LocaleViewController : ThreadsViewController
-@property (strong,nonatomic) NSMutableArray *arrayAllRecord; //成员为NSDictionary. NSDictionary的核心key是id,jsonstring.
 
 
 
-//将数据读入arrayAllRecord.
-- (void)getAllRecordData ;
+
+//override. 获取本地记录数据.
+- (NSArray*)getALLRecordTid;
+
+
+//override. 
 - (void)removeRecordsWithTids:(NSArray*)tids;
 
 

@@ -95,6 +95,7 @@ typedef NS_ENUM(NSInteger, ThreadsStatus) {
 
 - (PostData*)postDataOnIndexPath:(NSIndexPath*)indexPath;
 - (NSMutableDictionary*)postViewDataOnIndexPath:(NSIndexPath*)indexPath;
+- (NSArray*)generatePostDataArray;
 
 //override.
 

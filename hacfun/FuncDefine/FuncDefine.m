@@ -179,7 +179,8 @@
 @end
 
 
-
+@implementation Draft
+@end
 
 
 @implementation SettingKV

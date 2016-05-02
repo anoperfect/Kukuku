@@ -109,10 +109,13 @@
         
         DISPATCH_ONCE_START
         //测试阶段一直删除重建数据库.
-        NSString *documentPath =[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
-        NSString *folder = [NSString stringWithFormat:@"%@/%@", documentPath, @"sqlite"];
-        NSLog(@"#error - delete database folder.");
-        [[NSFileManager defaultManager] removeItemAtPath:folder error:nil];
+        BOOL rebuildDB = YES;
+        if(rebuildDB) {
+            NSString *documentPath =[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
+            NSString *folder = [NSString stringWithFormat:@"%@/%@", documentPath, @"sqlite"];
+            NSLog(@"#error - delete database folder.");
+            [[NSFileManager defaultManager] removeItemAtPath:folder error:nil];
+        }
         DISPATCH_ONCE_FINISH
     }
     return self;

@@ -1219,13 +1219,13 @@ NSString *pathJsonCache = [NSString stringWithFormat:@"%@/Post_%08zi.json", json
     
     //帖子的信息已经在解析的时候自动存储到record表.
     
-    NSInteger result ;
+    BOOL result ;
     NSDictionary *infoInsertCollection = @{
                                            @"id":[NSNumber numberWithInteger:self.threadId],
                                            @"collectedAt":[NSNumber numberWithLongLong:111]
                                            };
     result = [[AppConfig sharedConfigDB] configDBCollectionInsert:infoInsertCollection];
-    if(CONFIGDB_EXECUTE_OK == result) {
+    if(result) {
         PopupView *popupView = [[PopupView alloc] init];
         popupView.numofTapToClose = 1;
         popupView.secondsOfAutoClose = 2;

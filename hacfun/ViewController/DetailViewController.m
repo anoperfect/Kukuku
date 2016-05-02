@@ -230,6 +230,7 @@
     
     //查看是否已经收藏过.
     Collection *collection = [[AppConfig sharedConfigDB] configDBCollectionGetByTid:self.tid];
+    NSLog(@"collection : %@", collection);
     if(collection) {
         
         NSLog(@"duplicate");

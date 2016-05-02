@@ -58,8 +58,8 @@
 //草稿相关.
 @property (nonatomic, strong) UITableView *draftView;
 
-@property (nonatomic, strong) NSDictionary *draftInfo;
-@property (nonatomic, strong) NSArray *draftContents;
+//@property (nonatomic, strong) NSDictionary *draftInfo;
+@property (nonatomic, strong) NSArray *drafts;
 
 @property (nonatomic, assign) BOOL isDraftViewShowing;
 
@@ -367,8 +367,7 @@
 
 - (void)reloadDraftDataSource
 {
-    self.draftContents = [[AppConfig sharedConfigDB] configDBDraftGet];
-    NSLog(@"draft:::%@", self.draftInfo);
+    self.drafts = [[AppConfig sharedConfigDB] configDBDraftGet];
 }
 
 
@@ -871,7 +870,7 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
 
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     NSLog(@"------tableView------");
-    NSInteger rows = [self.draftContents count];
+    NSInteger rows = [self.drafts count];
     return rows;
 }
 
@@ -901,10 +900,8 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
 
 - (NSString*)draftTextOnRow:(NSInteger)row
 {
-    NSString *text = self.draftContents[row];
-    if(![text isKindOfClass:[NSString class]]) {
-        text = @"草稿读取错误.";
-    }
+    Draft *draft = self.drafts[row];
+    NSString *text = draft.content;
     
     return text;
 }
@@ -941,9 +938,11 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
 {
     LOG_POSTION
     NSLog(@"%@ editing %zd", self.draftView, self.draftView.editing);
+    
+    Draft *draft = [self.drafts objectAtIndex:indexPath.row];
 
     //数据库删除.
-    [[AppConfig sharedConfigDB] configDBDraftRemoveAtIndex:indexPath.row];
+    [[AppConfig sharedConfigDB] configDBDraftRemoveBySn:draft.sn];
     
     [self reloadDraftDataSource];
     [self.draftView reloadData];

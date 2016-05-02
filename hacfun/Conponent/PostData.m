@@ -213,6 +213,16 @@
 }
 
 
++ (PostData*)fromOnlyTid:(NSInteger)tid
+{
+    PostData *postData = [[PostData alloc] init];
+    postData.tid = tid;
+    postData.type = PostDataTypeOnlyTid;
+    
+    return postData;
+}
+
+
 + (NSString*)addLinkForReferenceNumber:(NSString*)stringFrom {
     
     NSString *searchText = stringFrom;

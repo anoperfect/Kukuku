@@ -67,11 +67,19 @@
 @interface Emoticon : NSObject
 
 @property (nonatomic, copy  ) NSString     *emoticon;
-@property (nonatomic, assign) NSInteger     selectedtimes;
+@property (nonatomic, assign) NSInteger     click;
 
 @end
 
-//draft. NSString
+//draft.
+@interface Draft : NSObject
+
+@property (nonatomic, assign) NSInteger     sn;
+@property (nonatomic, copy  ) NSString     *content;
+@property (nonatomic, assign) NSInteger     click;
+
+@end
+
 
 
 
@@ -87,7 +95,7 @@
 
 @interface Category : NSObject
 
-@property (nonatomic, assign) NSInteger     id;
+@property (nonatomic, assign) NSInteger     sn;
 @property (nonatomic, copy  ) NSString     *name;
 @property (nonatomic, copy  ) NSString     *link;
 @property (nonatomic, assign) NSInteger     forum;

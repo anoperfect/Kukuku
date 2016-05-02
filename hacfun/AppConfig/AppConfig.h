@@ -11,10 +11,7 @@
 #import "DBData.h"
 @interface AppConfig : NSObject
 
-#define CONFIGDB_EXECUTE_OK 0
-#define CONFIGDB_EXECUTE_ERROR_SQL      -1
-#define CONFIGDB_EXECUTE_ERROR_EXIST    -2
-#define CONFIGDB_EXECUTE_ERROR_DATA     -3
+
 
 
 + (AppConfig*)sharedConfigDB;
@@ -39,8 +36,8 @@
 //draft.
 - (NSArray*)configDBDraftGet;
 - (BOOL    )configDBDraftAdd:(NSString*)index;
-- (BOOL    )configDBDraftRemoveAtIndex:(NSInteger)index;
-- (BOOL    )configDBDraftRemoveAtIndexSet:(NSIndexSet*)indexSet;
+- (BOOL    )configDBDraftRemoveBySn:(NSInteger)sn;
+- (BOOL    )configDBDraftRemoveBySns:(NSArray*)sns;
 
 
 //color.
@@ -61,15 +58,18 @@
 
 //DetailHistory
 - (DetailHistory*)configDBDetailHistoryGetByTid:(NSInteger)tid;
-- (BOOL)configDBDetailHistoryUpdate:(DetailHistory*)history;
+- (BOOL)configDBDetailHistoryUpdate:(DetailHistory*)detailHistory;
 
 
 //Collection.
-- (NSArray*)configDBCollectionGet;
+- (NSArray*)configDBCollectionGets;
 - (Collection*)configDBCollectionGetByTid:(NSInteger)tid;
 - (BOOL)configDBCollectionAdd:(Collection*)collection;
+- (BOOL)configDBCollectionRemove:(NSInteger)tid;
+- (BOOL)configDBCollectionRemoveByTidArray:(NSArray*)tidArray;
 
 
+#if 1
 //Post.
 - (NSArray*)configDBPostGet;
 - (Post*)configDBPostGetByTid:(NSInteger)tid;
@@ -80,10 +80,12 @@
 - (NSArray*)configDBReplyGet;
 - (Reply*)configDBPReplyGetByTid:(NSInteger)tid;
 - (BOOL)configDBReplyAdd:(Reply*)reply;
+#endif
 
 
+//Record.
 - (BOOL)configDBRecordAdds:(NSArray*)postDatas;
-
+- (NSArray*)configDBRecordGets:(NSArray*)tidArray;
 
 
 @end

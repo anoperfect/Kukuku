@@ -1,0 +1,454 @@
+{
+    "version":111,
+    "tables": [
+               {
+               "tableName":"hosts",
+               "databaseNames":["config"],
+               "columnAttributes":
+                        [
+                           {"columnName":"sn"                  , "dataType":"integer", "isNeedForInsert":true, "isAutoIncrement":false, "defaultValue":123 },
+                           {"columnName":"hostname"            , "dataType":"var"    , "isNeedForInsert":true, "isAutoIncrement":false, "defaultValue":"qwe" },
+                           {"columnName":"host"                , "dataType":"var"    , "isNeedForInsert":true, "isAutoIncrement":false, "defaultValue":"qwe" },
+                           {"columnName":"imageHost"           , "dataType":"var"    , "isNeedForInsert":true, "isAutoIncrement":false, "defaultValue":"qwe" },
+                           {"columnName":"urlString"           , "dataType":"var"    , "isNeedForInsert":true, "isAutoIncrement":false, "defaultValue":"qwe" },
+                           {"columnName":"numberInCategoryPage", "dataType":"integer", "isNeedForInsert":true, "isAutoIncrement":false, "defaultValue":123 },
+                           {"columnName":"numberInDetailPage"  , "dataType":"integer", "isNeedForInsert":true, "isAutoIncrement":false, "defaultValue":123 }
+                        ],
+               "primaryKeys":["sn"],
+               "preset":[
+                         {
+                         "databaseName":"*",
+                         "content":
+                            {
+                                "COLUMNS":["sn", "hostname", "host", "imageHost", "urlString", "numberInCategoryPage", "numberInDetailPage"],
+                                "VALUES":[
+                                          [0, "hacfun", "http://hacfun.tv/api", "http://img1.nimingban.com", "http://hacfun.tv", 20, 20],
+                                          [1, "kukuku", "http://kukuku.cc/api", "http://static.koukuko.com/h", "http://kukuku.cc", 10, 20]
+                                         ]
+                            }
+                         }
+                        ],
+               "comment":"岛s",
+               },
+
+               {
+               "tableName":"hostindex",
+               "databaseNames":["config"],
+               "columnAttributes": [
+                           {"columnName":"selectedIndex", "dataType":"integer", "isNeedForInsert":true, "isAutoIncrement":false, "defaultValue":0 }
+                           ],
+               "primaryKeys":["selectedIndex"],
+               "preset":[
+                         {"databaseName":"*", "content":{"COLUMNS":["selectedIndex"],"VALUES":[[1]]}}
+                        ],
+               "comment":"当前岛"
+               },
+               
+               {
+               "tableName":"emoticon",
+               "databaseNames":["config"],
+               "columnAttributes": [
+                           {"columnName":"emoticon", "dataType":"var"    , "isNeedForInsert":true , "isAutoIncrement":false, "defaultValue":"emoticonqwe" },
+                           {"columnName":"click"   , "dataType":"integer", "isNeedForInsert":false, "isAutoIncrement":false, "defaultValue":0 }
+                           ],
+               "primaryKeys":[],
+               "preset":[
+                         {"databaseName":"*", "content":{"COLUMNS":["emoticon", "click"],
+                                                        "VALUES":[
+                                                                  ["|∀ﾟ", 0],
+                                                                  ["(´ﾟДﾟ`)", 0],
+                                                                  ["(;´Д`)", 0],
+                                                                  ["(｀･ω･)", 0],
+                                                                  ["(=ﾟωﾟ)=", 0],
+                                                                  ["| ω・´)", 0],
+                                                                  ["|-` )", 0],
+                                                                  ["|д` )", 0],
+                                                                  ["|ー` )", 0],
+                                                                  ["|∀` )", 0],
+                                                                  ["(つд⊂)", 0],
+                                                                  ["(ﾟДﾟ≡ﾟДﾟ)", 0],
+                                                                  ["(＾o＾)ﾉ", 0],
+                                                                  ["(|||ﾟДﾟ)", 0],
+                                                                  ["( ﾟ∀ﾟ)", 0],
+                                                                  ["( ´∀`)", 0],
+                                                                  ["(*´∀`)", 0],
+                                                                  ["(*ﾟ∇ﾟ)", 0],
+                                                                  ["(*ﾟーﾟ)", 0],
+                                                                  ["(　ﾟ 3ﾟ)", 0],
+                                                                  ["( ´ー`)", 0],
+                                                                  ["( ・_ゝ・)", 0],
+                                                                  ["( ´_ゝ`)", 0],
+                                                                  ["(*´д`)", 0],
+                                                                  ["(・ー・)", 0],
+                                                                  ["(・∀・)", 0],
+                                                                  ["(ゝ∀･)", 0],
+                                                                  ["(〃∀〃)", 0],
+                                                                  ["(*ﾟ∀ﾟ*)", 0],
+                                                                  ["( ﾟ∀。)", 0],
+                                                                  ["( `д´)", 0],
+                                                                  ["(`ε´ )", 0],
+                                                                  ["(`ヮ´ )", 0],
+                                                                  ["σ`∀´)", 0],
+                                                                  [" ﾟ∀ﾟ)σ", 0],
+                                                                  ["ﾟ ∀ﾟ)ノ", 0],
+                                                                  ["(╬ﾟдﾟ)", 0],
+                                                                  ["(|||ﾟдﾟ)", 0],
+                                                                  ["( ﾟдﾟ)", 0],
+                                                                  ["Σ( ﾟдﾟ)", 0],
+                                                                  ["( ;ﾟдﾟ)", 0],
+                                                                  ["( ;´д`)", 0],
+                                                                  ["(　д ) ﾟ ﾟ", 0],
+                                                                  ["( ☉д⊙)", 0],
+                                                                  ["(((　ﾟдﾟ)))", 0], 
+                                                                  ["( ` ・´)", 0], 
+                                                                  ["( ´д`)", 0], 
+                                                                  ["( -д-)", 0], 
+                                                                  ["(, д<)", 0], 
+                                                                  ["･ﾟ( ﾉд`ﾟ)", 0], 
+                                                                  ["( TдT)", 0], 
+                                                                  ["(￣∇￣)", 0], 
+                                                                  ["(￣3￣)", 0], 
+                                                                  ["(￣ｰ￣)", 0], 
+                                                                  ["(￣ . ￣)", 0], 
+                                                                  ["(￣皿￣)", 0], 
+                                                                  ["(￣艸￣)", 0], 
+                                                                  ["(￣︿￣)", 0], 
+                                                                  ["(￣︶￣)", 0], 
+                                                                  ["ヾ(´ωﾟ｀)", 0], 
+                                                                  ["(*´ω`*)", 0], 
+                                                                  ["(・ω・)", 0], 
+                                                                  ["( ´・ω)", 0], 
+                                                                  ["(｀・ω)", 0], 
+                                                                  ["(´・ω・`)", 0], 
+                                                                  ["(`・ω・´)", 0], 
+                                                                  ["( `_っ´)", 0], 
+                                                                  ["( `ー´)", 0], 
+                                                                  ["( ´_っ`)", 0], 
+                                                                  ["( ´ρ`)", 0], 
+                                                                  ["( ﾟωﾟ)", 0], 
+                                                                  ["(oﾟωﾟo)", 0], 
+                                                                  ["(　^ω^)", 0], 
+                                                                  ["(｡◕∀◕｡)", 0], 
+                                                                  ["/( ◕‿‿◕ )\\", 0], 
+                                                                  ["ヾ(´ε`ヾ)", 0], 
+                                                                  ["(ノﾟ∀ﾟ)ノ", 0], 
+                                                                  ["(σﾟдﾟ)σ", 0], 
+                                                                  ["(σﾟ∀ﾟ)σ", 0], 
+                                                                  ["|дﾟ )", 0], 
+                                                                  ["┃電柱┃", 0], 
+                                                                  ["ﾟ(つд`ﾟ)", 0], 
+                                                                  ["ﾟÅﾟ )　", 0], 
+                                                                  ["⊂彡☆))д`)", 0], 
+                                                                  ["⊂彡☆))д´)", 0], 
+                                                                  ["⊂彡☆))∀`)", 0], 
+                                                                  ["(´∀((☆ミつ", 0]
+                                                                ]
+                                                        }
+                         }
+               ],
+               "comment":"颜文字"
+               },
+               
+               {
+               "tableName":"draft",
+               "databaseNames":["config"],
+               "columnAttributes": [
+                           {"columnName":"sn",      "dataType":"integer", "isNeedForInsert":false, "isAutoIncrement":true,  "defaultValue":0 },
+                           {"columnName":"content", "dataType":"var",     "isNeedForInsert":true,  "isAutoIncrement":false, "defaultValue":"draftqwe" },
+                           {"columnName":"click"  , "dataType":"integer", "isNeedForInsert":false, "isAutoIncrement":false, "defaultValue":0 }
+                           ],
+               "primaryKeys":[],
+               "preset":[],
+               "comment":"草稿"
+               },
+               
+               {
+               "tableName":"color",
+               "databaseNames":["config"],
+               "columnAttributes": [
+                           {"columnName":"keyword"    , "dataType":"var", "isNeedForInsert":true, "isAutoIncrement":false, "defaultValue":"keywordqwe" },
+                           {"columnName":"colorstring", "dataType":"var", "isNeedForInsert":true, "isAutoIncrement":false, "defaultValue":"colorstringqwe" }
+                           ],
+               "primaryKeys":["keyword"],
+               "preset":[],
+               "comment":"颜色"
+               },
+               
+               {
+               "tableName":"font",
+               "databaseNames":["config"],
+               "columnAttributes": [
+                           {"columnName":"keyword"   , "dataType":"var", "isNeedForInsert":true, "isAutoIncrement":false, "defaultValue":"keywordqwe" },
+                           {"columnName":"fontstring", "dataType":"var", "isNeedForInsert":true, "isAutoIncrement":false, "defaultValue":"fonttringqwe" }
+                           ],
+               "primaryKeys":["keyword"],
+               "preset":[],
+               "comment":"字体"
+               },
+    
+               {
+               "tableName":"settingkv",
+               "databaseNames":["kukuku","hacfun"],
+               "columnAttributes": [
+                           {"columnName":"key"  , "dataType":"var", "isNeedForInsert":true, "isAutoIncrement":false, "defaultValue":"keyqwe" },
+                           {"columnName":"value", "dataType":"var", "isNeedForInsert":true, "isAutoIncrement":false, "defaultValue":"valueqwe" }
+                           ],
+               "primaryKeys":["key"],
+               "preset":[
+                         {
+                         "databaseName":"*",
+                         "content":
+                                {
+                                    "COLUMNS":["key", "value"],
+                                    "VALUES":[
+                                              ["disableimageshow", "0"],
+                                              ["autosaveimagetoalbum", "0"]
+                                    ]
+                                }
+                         }
+               ],
+               "comment":"设置"
+               },
+               
+               {
+               "tableName":"category",
+               "databaseNames":["kukuku","hacfun"],
+               "columnAttributes": [
+                           {"columnName":"sn"   , "dataType":"integer", "isNeedForInsert":false, "isAutoIncrement":true , "defaultValue":0 },
+                           {"columnName":"name" , "dataType":"var"    , "isNeedForInsert":true , "isAutoIncrement":false, "defaultValue":"keyqwe" },
+                           {"columnName":"link" , "dataType":"var"    , "isNeedForInsert":true , "isAutoIncrement":false, "defaultValue":"valueqwe" },
+                           {"columnName":"forum", "dataType":"integer", "isNeedForInsert":false, "isAutoIncrement":false, "defaultValue":0 },
+                           {"columnName":"click", "dataType":"integer", "isNeedForInsert":false, "isAutoIncrement":false, "defaultValue":0 }
+                           ],
+               "primaryKeys":["sn"],
+               "preset":[
+                         {"databaseName":"hacfun", "content":{
+                                                                "COLUMNS":["link", "name", "click"],
+                                                                "VALUES":[
+                                                                            ["%E7%BB%BC%E5%90%88%E7%89%881", "综合版1", 0], 
+                                                                            ["%E6%AC%A2%E4%B9%90%E6%81%B6%E6%90%9E", "欢乐恶搞", 0], 
+                                                                            ["%E6%8E%A8%E7%90%86", "推理", 0], 
+                                                                            ["%E6%8A%80%E6%9C%AF%E5%AE%85", "技术讨论", 0], 
+                                                                            ["%E6%96%99%E7%90%86", "美食(汪版)", 0], 
+                                                                            ["%E8%B2%93%E7%89%88", "喵版", 0], 
+                                                                            ["%E9%9F%B3%E4%B9%90", "音乐", 0], 
+                                                                            ["%E8%80%83%E8%AF%95", "校园(考试)", 0], 
+                                                                            ["%E4%BA%8C%E6%AC%A1%E5%88%9B%E4%BD%9C", "绘画涂鸦(二创)", 0], 
+                                                                            ["%E5%A7%90%E5%A6%B91", "姐妹(淑女)", 0], 
+                                                                            ["%E5%A5%B3%E6%80%A7%E5%90%91", "女性向", 0], 
+                                                                            ["%E5%A5%B3%E8%A3%85", "女装(时尚)", 0], 
+                                                                            ["%E6%97%A5%E8%AE%B0", "日记(树洞)", 0], 
+                                                                            ["WIKI", "WIKI", 0], 
+                                                                            ["%E9%83%BD%E5%B8%82%E6%80%AA%E8%B0%88", "都市怪谈", 0], 
+                                                                            ["%E5%8A%A8%E7%94%BB", "动画", 0], 
+                                                                            ["%E6%BC%AB%E7%94%BB", "漫画", 0], 
+                                                                            ["%E5%9B%BD%E6%BC%AB", "国漫", 0], 
+                                                                            ["%E7%BE%8E%E6%BC%AB", "美漫", 0], 
+                                                                            ["%E8%BD%BB%E5%B0%8F%E8%AF%B4", "轻小说", 0], 
+                                                                            ["%E5%B0%8F%E8%AF%B4", "小说(连载)", 0], 
+                                                                            ["GALGAME", "GALGAME", 0], 
+                                                                            ["VOCALOID", "VOCALOID", 0], 
+                                                                            ["%E4%B8%9C%E6%96%B9Project", "东方Project", 0], 
+                                                                            ["%E8%88%B0%E5%A8%98", "舰娘", 0], 
+                                                                            ["LoveLive", "LoveLive", 0], 
+                                                                            ["%E6%B8%B8%E6%88%8F",  "游戏综合版",  0], 
+                                                                            ["EVE",  "EVE",  0], 
+                                                                            ["DNF",  "DNF",  0], 
+                                                                            ["%E6%88%98%E4%BA%89%E9%9B%B7%E9%9C%86",  "战争雷霆",  0], 
+                                                                            ["LOL",  "LOL",  0], 
+                                                                            ["DOTA",  "DOTA",  0], 
+                                                                            ["GTA5",  "GTA5",  0], 
+                                                                            ["Minecraft",  "Minecraft",  0], 
+                                                                            ["MUG",  "音乐游戏",  0], 
+                                                                            ["WOT",  "WOT坦克世界",  0], 
+                                                                            ["WOW",  "WOW",  0], 
+                                                                            ["D3",  "D3",  0], 
+                                                                            ["%E5%8D%A1%E7%89%8C%E6%A1%8C%E6%B8%B8",  "卡牌桌游",  0], 
+                                                                            ["%E7%82%89%E7%9F%B3%E4%BC%A0%E8%AF%B4",  "炉石传说",  0], 
+                                                                            ["%E6%80%AA%E7%89%A9%E7%8C%8E%E4%BA%BA",  "怪物猎人",  0], 
+                                                                            ["%E5%8F%A3%E8%A2%8B%E5%A6%96%E6%80%AA",  "口袋妖怪",  0], 
+                                                                            ["AC%E5%A4%A7%E9%80%83%E6%9D%80",  "AC大逃杀",  0], 
+                                                                            ["%E7%B4%A2%E5%B0%BC",  "索尼",  0], 
+                                                                            ["%E4%BB%BB%E5%A4%A9%E5%A0%82",  "任天堂",  0], 
+                                                                            ["%E6%97%A5%E9%BA%BB",  "日麻",  0], 
+                                                                            ["AKB",  "AKB48",  0], 
+                                                                            ["SNH48",  "SNH48",  0], 
+                                                                            ["COSPLAY",  "眼科(Cosplay)",  0], 
+                                                                            ["%E5%A3%B0%E4%BC%98",  "声优",  0], 
+                                                                            ["%E6%A8%A1%E5%9E%8B",  "模型(手办)",  0], 
+                                                                            ["%E5%BD%B1%E8%A7%86",  "电影/电视",  0], 
+                                                                            ["%E6%91%84%E5%BD%B1",  "摄影",  0], 
+                                                                            ["%E4%BD%93%E8%82%B2",  "体育",  0], 
+                                                                            ["%E5%86%9B%E6%AD%A6",  "军武",  0], 
+                                                                            ["%E6%95%B0%E7%A0%81",  "数码",  0], 
+                                                                            ["%E5%A4%A9%E5%8F%B0",  "天台(股票)", 0], 
+                                                                            ["%E5%80%BC%E7%8F%AD%E5%AE%A4",  "值班室",  0]
+                                                                          ]
+                                                             }
+                         },
+                                                             
+                         {"databaseName":"kukuku", "content":{
+                                                                "COLUMNS":["link", "name", "click"],
+                                                                "VALUES":[
+                                                                            ["%E7%BB%BC%E5%90%88%E7%89%881", "综合版1", 0], 
+                                                                            ["%E6%AC%A2%E4%B9%90%E6%81%B6%E6%90%9E", "欢乐恶搞", 0], 
+                                                                            ["%E6%8E%A8%E7%90%86", "推理", 0], 
+                                                                            ["%E6%8A%80%E6%9C%AF%E5%AE%85", "技术讨论", 0], 
+                                                                            ["%E6%96%99%E7%90%86", "美食（汪版）", 0], 
+                                                                            ["%E8%B2%93%E7%89%88", "喵版", 0], 
+                                                                            ["%E9%9F%B3%E4%B9%90", "音乐", 0], 
+                                                                            ["%E4%BD%93%E8%82%B2", "体育", 0], 
+                                                                            ["%E5%86%9B%E6%AD%A6", "军武", 0], 
+                                                                            ["%E6%A8%A1%E5%9E%8B", "模型", 0], 
+                                                                            ["%E8%80%83%E8%AF%95", "考试", 0], 
+                                                                            ["%E6%95%B0%E7%A0%81", "数码", 0], 
+                                                                            ["%E6%97%A5%E8%AE%B0", "日记", 0], 
+                                                                            ["%E9%80%9F%E6%8A%A5", "速报 new", 0], 
+                                                                            ["%E5%8A%A8%E7%94%BB", "动画", 0], 
+                                                                            ["%E6%BC%AB%E7%94%BB", "漫画", 0], 
+                                                                            ["%E7%BE%8E%E6%BC%AB", "美漫（小马）", 0], 
+                                                                            ["%E8%BD%BB%E5%B0%8F%E8%AF%B4", "轻小说", 0], 
+                                                                            ["%E5%B0%8F%E8%AF%B4", "小说（连载）", 0], 
+                                                                            ["%E4%BA%8C%E6%AC%A1%E5%88%9B%E4%BD%9C", "二次创作（同人）", 0], 
+                                                                            ["VOCALOID", "VOCALOID", 0], 
+                                                                            ["%E4%B8%9C%E6%96%B9Project", "东方Project", 0], 
+                                                                            ["%E8%BE%A3%E9%B8%A1", "辣鸡", 0],
+                                                                            ["%E6%B8%B8%E6%88%8F", "游戏综合版", 0], 
+                                                                            ["EVE", "EVE", 0], 
+                                                                            ["DNF", "DNF", 0], 
+                                                                            ["%E6%88%98%E4%BA%89%E9%9B%B7%E9%9C%86", "战争雷霆", 0], 
+                                                                            ["%E6%89%A9%E6%95%A3%E6%80%A7%E7%99%BE%E4%B8%87%E4%BA%9A%E7%91%9F%E7%8E%8B", "扩散性百万亚瑟王", 0], 
+                                                                            ["LOL", "LOL", 0], 
+                                                                            ["DOTA", "DOTA", 0], 
+                                                                            ["Minecraft", "Minecraft", 0], 
+                                                                            ["MUG", "MUSIC GAME", 0], 
+                                                                            ["MUGEN", "MUGEN", 0], 
+                                                                            ["WOT", "WOT坦克世界", 0], 
+                                                                            ["WOW", "WOW", 0], 
+                                                                            ["D3", "D3", 0], 
+                                                                            ["%E5%8D%A1%E7%89%8C%E6%A1%8C%E6%B8%B8", "卡牌桌游", 0], 
+                                                                            ["%E7%82%89%E7%9F%B3%E4%BC%A0%E8%AF%B4", "炉石传说", 0], 
+                                                                            ["%E6%80%AA%E7%89%A9%E7%8C%8E%E4%BA%BA", "怪物猎人",  0], 
+                                                                            ["%E5%8F%A3%E8%A2%8B%E5%A6%96%E6%80%AA",  "口袋妖怪",  0], 
+                                                                            ["%E7%B4%A2%E5%B0%BC",  "索尼",  0], 
+                                                                            ["%E4%BB%BB%E5%A4%A9%E5%A0%82",  "任天堂",  0], 
+                                                                            ["%E6%97%A5%E9%BA%BB",  "日麻",  0], 
+                                                                            ["%E8%88%B0%E5%A8%98",  "舰娘",  0], 
+                                                                            ["LoveLive",  "LoveLive  new",  0], 
+                                                                            ["AKB",  "AKB",  0], 
+                                                                            ["COSPLAY",  "眼科(Cosplay)",  0], 
+                                                                            ["%E5%BD%B1%E8%A7%86",  "电影/电视",  0], 
+                                                                            ["%E6%91%84%E5%BD%B1",  "摄影",  0], 
+                                                                            ["%E5%A3%B0%E4%BC%98",  "声优",  0], 
+                                                                            ["%E5%80%BC%E7%8F%AD%E5%AE%A4",  "值班室",  0]
+                                                                          ]
+                                                             }
+                         }
+               ],
+               "comment":"栏目"
+               },
+               
+               {
+               "tableName":"detailhistory",
+               "databaseNames":["kukuku","hacfun"],
+               "columnAttributes": [
+                           {"columnName":"tid"                , "dataType":"integer" , "isNeedForInsert":true, "isAutoIncrement":false, "defaultValue":0 },
+                           {"columnName":"createdAtForDisplay", "dataType":"longlong", "isNeedForInsert":true, "isAutoIncrement":false, "defaultValue":0 },
+                           {"columnName":"createdAtForLoaded" , "dataType":"longlong", "isNeedForInsert":true, "isAutoIncrement":false, "defaultValue":0 }
+                           ],
+               "primaryKeys":["tid"],
+               "preset":[],
+               "comment":"浏览记录"
+               },
+               
+               {
+               "tableName":"record",
+               "databaseNames":["kukuku","hacfun"],
+               "columnAttributes": [
+                           {"columnName":"tid"        , "dataType":"integer" , "isNeedForInsert":true , "isAutoIncrement":false, "defaultValue":0 },
+                           {"columnName":"tidBelongTo", "dataType":"integer" , "isNeedForInsert":true , "isAutoIncrement":false, "defaultValue":0 },
+                           {"columnName":"createdAt"  , "dataType":"longlong", "isNeedForInsert":false, "isAutoIncrement":false, "defaultValue":0 },
+                           {"columnName":"updatedAt"  , "dataType":"longlong", "isNeedForInsert":false, "isAutoIncrement":false, "defaultValue":0 },
+                           {"columnName":"jsonstring" , "dataType":"var"     , "isNeedForInsert":false, "isAutoIncrement":false, "defaultValue":"" }
+                           ],
+               "primaryKeys":["tid"],
+               "preset":[],
+               "comment":"记录"
+               },
+               
+               {
+               "tableName":"collection",
+               "databaseNames":["kukuku","hacfun"],
+               "columnAttributes": [
+                           {"columnName":"tid"        , "dataType":"integer" , "isNeedForInsert":true, "isAutoIncrement":false, "defaultValue":0 },
+                           {"columnName":"collectedAt", "dataType":"longlong", "isNeedForInsert":true, "isAutoIncrement":false, "defaultValue":0 }
+                           ],
+               "primaryKeys":["tid"],
+               "preset":[],
+               "comment":"收藏"
+               },
+               
+               {
+               "tableName":"post",
+               "databaseNames":["kukuku","hacfun"],
+               "columnAttributes": [
+                           {"columnName":"tid"     , "dataType":"integer" , "isNeedForInsert":true, "isAutoIncrement":false, "defaultValue":0 },
+                           {"columnName":"postedAt", "dataType":"longlong", "isNeedForInsert":true, "isAutoIncrement":false, "defaultValue":0 }
+                           ],
+               "primaryKeys":["tid"],
+               "preset":[],
+               "comment":"发帖"
+               },
+               
+               {
+               "tableName":"reply",
+               "databaseNames":["kukuku","hacfun"],
+               "columnAttributes": [
+                           {"columnName":"tid"      , "dataType":"integer" , "isNeedForInsert":true, "isAutoIncrement":false, "defaultValue":0 },
+                           {"columnName":"repliedAt", "dataType":"longlong", "isNeedForInsert":true, "isAutoIncrement":false, "defaultValue":0 }
+                           ],
+               "primaryKeys":["tid"],
+               "preset":[],
+               "comment":"回复"
+               },
+    
+               {
+               "tableName":"notshowuid",
+               "databaseNames":["kukuku", "hacfun"],
+               "columnAttributes": [
+                           {"columnName":"uid"       , "dataType":"longlong", "isNeedForInsert":true , "isAutoIncrement":false, "defaultValue":"uidnotdefine"},
+                           {"columnName":"commitedAt", "dataType":"longlong", "isNeedForInsert":false, "isAutoIncrement":false, "defaultValue":1 },
+                           {"columnName":"comment"   , "dataType":"var"     , "isNeedForInsert":false, "isAutoIncrement":false, "defaultValue":"commentnotdefine" }
+                           ],
+               "primaryKeys":["uid"],
+               "preset":[],
+               "comment":"屏蔽uid"
+               },
+               
+               {
+               "tableName":"notshowtid",
+               "databaseNames":["kukuku", "hacfun"],
+               "columnAttributes": [
+                           {"columnName":"tid"       , "dataType":"integer", "isNeedForInsert":true , "isAutoIncrement":false, "defaultValue":123},
+                           {"columnName":"commitedAt", "dataType":"longlong", "isNeedForInsert":false, "isAutoIncrement":false, "defaultValue":1 },
+                           {"columnName":"comment"   , "dataType":"var"     , "isNeedForInsert":false, "isAutoIncrement":false, "defaultValue":"commentnotdefine" }
+                           ],
+               "primaryKeys":["tid"],
+               "preset":[],
+               "comment":"屏蔽tid"
+               },
+               
+               {
+               "tableName":"attent",
+               "databaseNames":["kukuku", "hacfun"],
+               "columnAttributes": [
+                           {"columnName":"uid"       , "dataType":"longlong", "isNeedForInsert":true , "isAutoIncrement":false, "defaultValue":"uidnotdefine"},
+                           {"columnName":"commitedAt", "dataType":"longlong", "isNeedForInsert":false, "isAutoIncrement":false, "defaultValue":1 },
+                           {"columnName":"comment"   , "dataType":"var"     , "isNeedForInsert":false, "isAutoIncrement":false, "defaultValue":"commentnotdefine" }
+                           ],
+               "primaryKeys":["uid"],
+               "preset":[],
+               "comment":"关注"
+               }
+               ]
+}
