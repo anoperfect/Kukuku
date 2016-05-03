@@ -46,17 +46,22 @@
 //具体的数据库操作尽量通过DBData.
 @property (nonatomic, strong) DBData *dbData;
 
+//host配置缓存.
 @property (strong,nonatomic) NSArray *hosts;
 @property (assign,nonatomic) NSInteger hostIndex ;
 
-
+//config缓存.
 @property (nonatomic, strong)   NSMutableArray *emoticons;
 @property (nonatomic, strong)   NSMutableArray *drafts;
 @property (nonatomic, strong)   NSMutableArray *colors;
 @property (nonatomic, strong)   NSMutableArray *fonts;
 
-@property (nonatomic, strong)   NSMutableArray *settingkvs;
-@property (nonatomic, strong)   NSMutableArray *categories;
+
+
+//host相关缓存.
+@property (nonatomic, strong) NSMutableDictionary *dictSettingKV;
+
+//@property (nonatomic, strong)   NSMutableArray *categories;
 
 
 
@@ -79,6 +84,9 @@
 
 - (id)init {
     if (self = [super init]) {
+        
+        self.dictSettingKV = [[NSMutableDictionary alloc] init];
+        
         self.dbData = [[DBData alloc] init];
         //建立或者升级数据库.
         [self configdbBuildTable];
@@ -333,8 +341,14 @@ else {NSLog(@"#error - obj (%@) is not NSString class.", arrayasd[indexzxc]);var
     BOOL result = YES;
     
     if(hostIndex < self.hosts.count) {
+        //设置sel.hostIndex缓存.
         self.hostIndex = hostIndex;
         
+        //清除所有host相关缓存.
+        self.dictSettingKV = [[NSMutableDictionary alloc] init];
+        
+        
+        //查询数据库.
         NSInteger dbResult = [self.dbData DBDataUpdateDBName:DBNAME_CONFIG
                                                      toTable:TABLENAME_HOSTINDEX
                                               withInfoUpdate:@{@"":[NSNumber numberWithInteger:hostIndex]}
@@ -594,6 +608,10 @@ else {NSLog(@"#error - obj (%@) is not NSString class.", arrayasd[indexzxc]);var
 //settingkv.
 - (NSString*)configDBSettingKVGet:(NSString*)key
 {
+    if([self.dictSettingKV objectForKey:key]) {
+        return [self.dictSettingKV objectForKey:key];
+    }
+    
     NSString *valueString = @"NAN";
     NSDictionary *queryResult = [self.dbData DBDataQueryDBName:DBNAME_HOST
                                                        toTable:TABLENAME_SETTINGKV
@@ -608,6 +626,9 @@ else {NSLog(@"#error - obj (%@) is not NSString class.", arrayasd[indexzxc]);var
         
         if([self.dbData DBDataCheckCountOfArray:@[values] withCount:count]) {
             ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER(valueString, values, 0, @"NAN")
+            if(![valueString isEqualToString:@"NAN"]) {
+                [self.dictSettingKV setObject:valueString forKey:key];
+            }
         }
     }
     else {
@@ -634,8 +655,9 @@ else {NSLog(@"#error - obj (%@) is not NSString class.", arrayasd[indexzxc]);var
         result = NO;
     }
     
+    [self.dictSettingKV setObject:value forKey:key];
+    
     return result;
-
 }
 
 
@@ -745,27 +767,20 @@ else {NSLog(@"#error - obj (%@) is not NSString class.", arrayasd[indexzxc]);var
 {
     BOOL result = YES;
     
-    NSDictionary *infoUpdate = @{
-                                 @"tid":[NSNumber numberWithInteger:detailHistory.tid],
-                                 @"createdAtForDisplay":[NSNumber numberWithLongLong:detailHistory.createdAtForDisplay],
-                                 @"createdAtForLoaded":[NSNumber numberWithLongLong:detailHistory.createdAtForLoaded]
+    //#如果更新的话, 则click会刷新到0.
+    NSDictionary *infoInsert = @{
+                                 DBDATA_STRING_COLUMNS:@[@"tid", @"createdAtForDisplay", @"createdAtForLoaded"],
+                                 DBDATA_STRING_VALUES:@[@[[NSNumber numberWithInteger:detailHistory.tid], [NSNumber numberWithLongLong:detailHistory.createdAtForDisplay], [NSNumber numberWithLongLong:detailHistory.createdAtForLoaded]]]
                                  };
     
-    NSDictionary *infoQuery = @{
-                                 @"tid":[NSNumber numberWithInteger:detailHistory.tid]
-                                 };
-    
-    NSInteger retDBData = [self.dbData DBDataUpdateDBName:DBNAME_HOST toTable:TABLENAME_DETAILHISTORY withInfoUpdate:infoUpdate withInfoQuery:infoQuery];
-    if(retDBData != DB_EXECUTE_OK) {
+    NSInteger retDBData = [self.dbData DBDataInsertDBName:DBNAME_HOST toTable:TABLENAME_DETAILHISTORY withInfo:infoInsert countReplace:YES];
+    if(DB_EXECUTE_OK != retDBData) {
         NSLog(@"#error - ");
         result = NO;
     }
     
     return result;
 }
-
-
-
 
 
 //Collection.
@@ -1077,588 +1092,5 @@ else {NSLog(@"#error - obj (%@) is not NSString class.", arrayasd[indexzxc]);var
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-#if 0
-
-//===========================================================================================================
-//id, collectedAt
-- (NSInteger)configDBCollectionInsert:(NSDictionary*)infoInsert {
-    [self.dbData DBDataInsertDBName:DBNAME_HOST toTable:TABLENAME_COLLECTION withInfo:infoInsert countReplace:NO];
-    
-    return CONFIGDB_EXECUTE_OK;
-}
-
-
-- (BOOL)configDBCollectionDelete:(NSDictionary*)infoDelete {
-    
-    LOG_POSTION
-
-    [self.dbData DBDataDeleteDBName:DBNAME_HOST toTable:TABLENAME_COLLECTION withQuery:infoDelete];
-    
-    return YES;
-}
-
-
-
-
-/*
-  1.  连表查询. 
-      联表查询语句.
-      @"SELECT collection.id, collection.collectedAt, record.jsonstring FROM collection,record WHERE collection.id = record.id ORDER BY collection.collectedAt DESC"
-      @"SELECT collection.id, record.jsonstring FROM collection,record WHERE collection.id = %@ AND collection.id = record.id"
-  2.  分表查询, record单条查询.
-  3.  分表查询, record多条查询. 查询后直接比对匹配.
-  4.  分表查询, record多条查询. 查询后优化算法比对匹配.
-  方法1破坏暂定的结构.
-  使用方法3.
-*/
-
-- (NSDictionary*)configDBCollectionQuery:(NSDictionary*)infoQuery {
-    NSLog(@"#error - not implement.");
-    return nil;
-    
-#if 0
-    if(!infoQuery) {
-        infoQuery = @{@"orderString":@"ORDER BY collection.collectedAt DESC"};
-    }
-    NSArray *arrayCollections = [self.dbData DBDataQueryDBName:DBNAME_HOST toTable:TABLENAME_COLLECTION columnNames:nil withQuery:infoQuery withLimit:@{}];NSMutableArray *idArrayM = [[NSMutableArray alloc] init];
-    for(NSDictionary *dict in arrayCollections) {
-        [idArrayM addObject:[dict objectForKey:@"tid"]];
-    }
-    NSLog(@"qwerty : arrayCollections %@", arrayCollections);
-    
-    if(idArrayM.count <= 0) {
-        return nil;
-    }
-    
-    //正常情况下, record中有此记录. 但是post, reply可能因为网络原因未访问下thread信息然后存储到record. 因此需重新构建数组.
-    NSArray *arrayRecords = [self.dbData DBDataQueryDBName:DBNAME_HOST toTable:TABLENAME_RECORD withInfo:@{@"tid":[NSArray arrayWithArray:idArrayM]}];
-    
-    NSMutableArray *arraymReturn = [[NSMutableArray alloc] init];
-    
-    NSInteger numberFound = 0;
-    for(NSInteger index = 0; index < arrayCollections.count; index++) {
-        BOOL foundInRecord = NO;
-        NSDictionary *dict = arrayCollections[index];
-        NSMutableDictionary* dictm = [NSMutableDictionary dictionaryWithDictionary:dict];
-        
-        NSNumber *tid = [dict objectForKey:@"tid"];
-        
-        for(NSDictionary *dictRecord in arrayRecords) {
-            if([[dictRecord objectForKey:@"tid"] isEqualToNumber:tid]) {
-                numberFound ++;
-                [dictm addEntriesFromDictionary:dictRecord];
-                foundInRecord = YES;
-                break;
-            }
-        }
-        
-        if(!foundInRecord) {
-            NSLog(@"#error tid %@ not find record.", tid);
-        }
-        
-        [arraymReturn addObject:[NSDictionary dictionaryWithDictionary:dictm]];
-    }
-    
-    NSLog(@"qwerty[%zd] : %@\n%@\n%@", numberFound, arrayCollections, arrayRecords, arraymReturn);
-    
-    return [NSArray arrayWithArray:arraymReturn];
-#endif
-}
-
-
-
-//===========================================================================================================
-//id, postedAt
-- (NSInteger)configDBPostInsert:(NSDictionary*)infoInsert {
-    
-    BOOL couldBeReplaced = NO;
-    [self.dbData DBDataInsertDBName:DBNAME_HOST toTable:TABLENAME_POST withInfo:infoInsert countReplace:couldBeReplaced];
-    
-    
-    return CONFIGDB_EXECUTE_OK;
-}
-
-
-- (BOOL)configDBPostDelete:(NSDictionary*)infoDelete {
-    
-    LOG_POSTION
-
-    [self.dbData DBDataDeleteDBName:DBNAME_HOST toTable:TABLENAME_COLLECTION withQuery:infoDelete];
-    
-    return YES;
-}
-
-
-
-- (NSArray*)configDBPostQuery:(NSDictionary*)infoQuery {
-
-    return nil;
-}
-
-
-//===========================================================================================================
-//id, repliedAt
-- (NSInteger)configDBReplyInsert:(NSDictionary*)infoInsert {
-    
-    
-    
-    return CONFIGDB_EXECUTE_OK;
-}
-
-
-- (BOOL)configDBReplyDelete:(NSDictionary*)infoDelete {
-    
-    
-    return YES;
-}
-
-
-
-- (NSArray*)configDBReplyQuery:(NSDictionary*)infoQuery {
-    
-    return nil;
-}
-
-
-
-
-
-
-//===========================================================================================================
-//id, collectedAt
-- (NSInteger)configDBDetailHistoryInsert:(NSDictionary*)infoInsert countBeReplaced:(BOOL)couldBeReplaced{
-    
-    LOG_POSTION
-    
-    [self.dbData DBDataInsertDBName:DBNAME_HOST toTable:TABLENAME_DETAILHISTORY withInfo:infoInsert countReplace:couldBeReplaced];
-    
-    return CONFIGDB_EXECUTE_OK;
-}
-
-
-- (BOOL)configDBDetailHistoryDelete:(NSDictionary*)infoDelete {
-    
-    LOG_POSTION
-
-    [self.dbData DBDataDeleteDBName:DBNAME_HOST toTable:TABLENAME_DETAILHISTORY withQuery:infoDelete];
-    
-    return YES;
-}
-
-
-- (NSDictionary*)configDBDetailHistoryQuery:(NSDictionary*)infoQuery {
-
-    NSDictionary *valueDetailHistory = [self.dbData DBDataQueryDBName:DBNAME_HOST toTable:TABLENAME_DETAILHISTORY columnNames:nil withQuery:infoQuery withLimit:nil];
-    
-    NSLog(@"Result : %@", valueDetailHistory);
-    
-    return valueDetailHistory;
-}
-
-
-
-
-
-
-
-
-
-
-- (BOOL)configDBRecordInsert:(NSDictionary*)infoInsert {
-    
-    [self.dbData DBDataInsertDBName:DBNAME_HOST toTable:TABLENAME_RECORD withInfo:infoInsert countReplace:YES];
-    
-    return YES;
-}
-
-
-- (BOOL)configDBRecordDelete:(NSDictionary*)infoDelete {
-    
-    [self.dbData DBDataDeleteDBName:DBNAME_HOST toTable:TABLENAME_RECORD withQuery:infoDelete];
-    return YES;
-}
-
-
-- (NSDictionary*)configDBRecordQuery:(NSDictionary*)infoQuery {
-    
-    return [self.dbData DBDataQueryDBName:DBNAME_HOST toTable:TABLENAME_RECORD columnNames:nil withQuery:infoQuery withLimit:nil];
-}
-
-
-- (BOOL)configDBRecordUpdate:(NSDictionary*)infoUpdate withInfoQuery:(NSDictionary*)infoQuery
-{
-    
-    [self.dbData DBDataUpdateDBName:DBNAME_HOST toTable:TABLENAME_RECORD withInfoUpdate:infoUpdate withInfoQuery:infoQuery];
-    
-    return YES;
-}
-
-
-- (BOOL)configDBRecordInsertOrReplace:(NSDictionary*)infoInsert {
-    
-    BOOL result = YES;
-    NSLog(@"#error - not implement.");
-    
-    //使用优化方式. 先读出已经存储的. 对比后确认是否需更新.
-    NSArray *columnNamesInsert  = [infoInsert objectForKey:DBDATA_STRING_COLUMNS];
-    NSArray *valuesInsert       = [infoInsert objectForKey:DBDATA_STRING_VALUES];
-    NSInteger indextid          = [columnNamesInsert indexOfObject:@"tid"];
-    NSInteger indexjsonstring   = [columnNamesInsert indexOfObject:@"jsonstring"];
-    NSInteger countInfoInsert   = [self.dbData DBDataCheckRowsInDictionary:infoInsert];
-    
-    NSMutableArray *tidsQueryM = [[NSMutableArray alloc] init];
-    for(NSArray *array in valuesInsert) {
-        [tidsQueryM addObject:array[indextid]];
-    }
-    
-    NSArray *tidsQuery = [NSArray arrayWithArray:tidsQueryM];
-    NSDictionary *queryResult = [self.dbData DBDataQueryDBName:DBNAME_HOST
-                                                       toTable:TABLENAME_RECORD
-                                                   columnNames:@[@"tid", @"jsonstring"]
-                                                     withQuery:@{@"tid":tidsQuery} withLimit:nil];
-    
-    NSInteger countQueryResult  = [self.dbData DBDataCheckRowsInDictionary:queryResult];
-    NSArray *columnNamesQuery   = [queryResult objectForKey:DBDATA_STRING_COLUMNS];
-    NSArray *valuesQuery        = [queryResult objectForKey:DBDATA_STRING_VALUES];
-    NSInteger indextidQuery         = [columnNamesQuery indexOfObject:@"tid"];
-    NSInteger indexjsonstringQuery  = [columnNamesQuery indexOfObject:@"jsonstring"];
-    
-
-    
-    
-#if 0
-    NSArray *tids               = [infoInsert objectForKey:@"tid"];
-    NSArray *tidBelongTos       = [infoInsert objectForKey:@"tidBelongTo"];
-    NSArray *createdAts         = [infoInsert objectForKey:@"createdAt"];
-    NSArray *updatedAts         = [infoInsert objectForKey:@"updatedAt"];
-    NSArray *jsonstrings        = [infoInsert objectForKey:@"jsonstring"];
-    
-    NSInteger countInfoInsert = [self.dbData DBDataCheckRowsInDictionary:infoInsert];
-    
-
-    
-    NSArray *columnNames = [infoInsert objectForKey:DBDATA_STRING_COLUMNS];
-    NSArray *values = [infoInsert objectForKey:DBDATA_STRING_VALUES];
-    
-    NSInteger indextid = [columnNames indexOfObject:@"tid"];
-    NSInteger indexjsonstring = [columnNames indexOfObject:@"jsonstring"];
-#endif
-    
-    NSMutableIndexSet *indexSetRemove = [[NSMutableIndexSet alloc] init];
-    NSMutableIndexSet *indexSetKeep = [[NSMutableIndexSet alloc] init];
-    
-    NSInteger index = 0;
-    for(NSArray *valueInsert in valuesInsert) {
-        BOOL keep = YES;
-        BOOL found = NO;
-        
-        NSNumber *tidNumberInsert       = valueInsert[indextid];
-        NSString *jsonstringInsert      = valueInsert[indexjsonstring];
-        
-        for(NSArray *valueQuery in valuesQuery) {
-            
-            NSNumber *tidNumberQuery    = valueQuery[indextidQuery];
-            NSString *jsonstringQuery   = valueQuery[indexjsonstringQuery];
-            
-            if([tidNumberInsert isEqual:tidNumberQuery]) {
-                found = YES;
-                NSLog(@"%@ find in query.", tidNumberInsert);
-                if([jsonstringInsert isEqual:jsonstringQuery]) {
-                    NSLog(@"%@ jsonstring equal", tidNumberInsert);
-                    [indexSetRemove addIndex:index];
-                    keep = NO;
-                }
-                else {
-                    NSLog(@"%@ jsonstring not equal \n%@\n%@", tidNumberInsert, jsonstringInsert, jsonstringQuery);
-                }
- 
-                break;
-            }
-        }
-        
-        if(!found) {
-            NSLog(@"%@ not in query.", tidNumberInsert);
-        }
-        
-        if(keep) {
-            NSLog(@"%@ would be insert/update .", tidNumberInsert);
-            [indexSetKeep addIndex:index];
-        }
-        else {
-            NSLog(@"%@ not update .", tidNumberInsert);
-        }
-        
-        index ++;
-    }
-    
-    
-    
-    if((indexSetKeep.count + indexSetRemove.count) != countInfoInsert) {
-        NSLog(@"#error - ");
-        sleep(100);
-    }
-    
-    if(indexSetKeep.count == countInfoInsert) {
-        NSLog(@"ALL equal. do not need to update.");
-        return nil;
-    }
-    else if(indexSetKeep.count == countInfoInsert) {
-        NSLog(@"ALL update.");
-        return DB_EXECUTE_OK == [self.dbData DBDataInsertDBName:DBNAME_HOST toTable:TABLENAME_RECORD withInfo:infoInsert countReplace:YES];
-    }
-    else {
-        NSLog(@"update %zd / total %zd", indexSetKeep.count, countInfoInsert);
-        
-        infoInsert = @{
-                       DBDATA_STRING_COLUMNS:columnNamesInsert,
-                       DBDATA_STRING_VALUES:[valuesInsert objectsAtIndexes:indexSetKeep]
-                       };
-        
-        return DB_EXECUTE_OK == [self.dbData DBDataInsertDBName:DBNAME_HOST toTable:TABLENAME_RECORD withInfo:infoInsert countReplace:YES];
-    }
-    
-    
-    
-    
-#if 0
-    NSString *jsonstring = infoInsert[@"jsonstring"];
-    NSNumber *tidNumber = infoInsert[@"tid"];
-    if([jsonstring isKindOfClass:[NSString class]] && [tidNumber isKindOfClass:[NSNumber class]]) {
-        NSLog(@"PostRecord[%@] insert or update", tidNumber);
-    }
-    else {
-        NSLog(@"PostRecord[%@] insert or update infoInsert error.", tidNumber);
-        return NO;
-    }
-    
-    
-    NSDictionary* dictQuery = @{@"tid":tidNumber};
-    NSArray *arrayQuery = [self configDBRecordQuery:dictQuery];
-    if(arrayQuery && [arrayQuery count] > 0) {
-        NSLog(@"PostRecord[%@] insert or update. already added.", tidNumber);
-        NSDictionary *dictQueryResult = (NSDictionary*)[arrayQuery objectAtIndex:0];
-        if([dictQueryResult[@"jsonstring"] isEqual:jsonstring]) {
-            NSLog(@"PostRecord[%@] not need update.", tidNumber);
-        }
-        /*新建主题或者回复后, 选择是否占位. 占位的话则需取消此判断. 
-          关于是否占位, 是指在新建主题或者回复后, 只能获取到id信息. 此id信息需保存到post表活着reply表中. 
-          但是如果之后的对该主题/回复的访问有网络故障的情况. 则导致未获取到详细信息不能添加到record表. 
-          如果执行联表查询, 则此id不会出现在查询结果中.
-          如果占位的话, 则可以解决此问题, 只是查询处的jsonstring为空. 
-          暂时决定使用占位.
-         */
-        else if([jsonstring length] == 0){
-            NSLog(@"#error- PostRecord[%@]. json string null.", tidNumber);
-            result = NO;
-        }
-        else {
-            NSLog(@"PostRecord[%@] need update", tidNumber);
-            NSLog(@"db stored :\n%@", dictQueryResult[@"jsonstring"]);
-            NSLog(@"update to :\n%@", jsonstring);
- 
-            result = [self configDBRecordUpdate:infoInsert withInfoQuery:@{@"tid":tidNumber}];
-        }
-    }
-    else {
-        NSLog(@"PostRecord[%@] insert.", tidNumber);
-        result = [self configDBRecordInsert:infoInsert];
-    }
-#endif
-    return result;
-}
-
-
-
-
-
-
-
-
-
-- (void)configDBTestClearForRebuild
-{
-    LOG_POSTION
-
-}
-
-
-
-- (NSString*)configDBSettingKVGet:(NSString*)key {
-    NSString *value = nil; //@"NANSETTINGKV";
-    
-    NSDictionary *valueQeury = [self.dbData DBDataQueryDBName:DBNAME_HOST toTable:@"settingkv" columnNames:@[@"value"] withQuery:@{@"key":key} withLimit:nil];
-    NSArray *values = [valueQeury objectForKey:@"value"];
-    if([values isKindOfClass:[NSArray class]] && values.count > 0 && [values[0] isKindOfClass:[NSString class]]) {
-        value = values[0];
-        NSLog(@"key [%@] return value : [%@]", key, value);
-    }
-    else {
-        NSLog(@"#error - configDBSettingKVGet read (%@) FAILED.", key);
-    }
-    
-    return value;
-}
-
-
-- (BOOL)configDBSettingKVSet:(NSString*)key withValue:(NSString*)value{
-    return (DB_EXECUTE_OK == [self.dbData DBDataUpdateDBName:DBNAME_HOST toTable:@"settingkv" withInfoUpdate:@{@"value":value} withInfoQuery:@{@"key":key}]);
-}
-
-
-
-
-
-
-
-
-
-
-- (NSDictionary*)configDBGetCategory
-{
-    NSDictionary *valueQuery = [self.dbData DBDataQueryDBName:DBNAME_HOST toTable:TABLENAME_CATEGORY columnNames:nil withQuery:nil withLimit:@{DBDATA_STRING_ORDER:@"ORDER BY click DESC"}];
-    
-    return valueQuery;
-}
-
-
-
-- (void)configDBSetAddCategoryClick:(NSString*)cateogry {
-    [self.dbData DBDataUpdateAdd1DBName:DBNAME_HOST toTable:TABLENAME_CATEGORY withColumnName:@"click" withInfoQuery:@{@"name":cateogry}];
-}
-
-
-
-
-
-
-- (NSArray*)getEmoticonStrings
-{
-    NSArray *emoticonArray = @[@"NAN"];
-    NSDictionary *valuesQuery = [self.dbData DBDataQueryDBName:@"config" toTable:@"emoticon" columnNames:@[@"emoticon"] withQuery:nil withLimit:nil];
-    if(valuesQuery && [[valuesQuery objectForKey:@"emoticon"] isKindOfClass:[NSArray class]]) {
-        emoticonArray = [NSArray arrayWithArray:[valuesQuery objectForKey:@"emoticon"]];
-    }
-    
-    return emoticonArray;
-}
-
-
-
-
-
-
-
-- (NSArray*)configDBGetColors
-{
-    NSArray *keywords = [self.colors objectForKey:@"keyword"];
-    NSArray *colorstrings = [self.colors objectForKey:@"colorstring"];
-    
-    NSMutableArray *colorsM = [[NSMutableArray alloc] init];
-    for(NSInteger index = 0; index < keywords.count; index ++) {
-//    for(NSString *keyword in keywords) {
-        if(index < colorstrings.count) {
-            [colorsM addObject:@{@"keyword":keywords[index], @"colorstring":colorstrings[index]}];
-        }
-        else {
-            break;
-        }
-    }
-
-    return [NSArray arrayWithArray:colorsM];
-}
-
-
-- (NSArray*)configDBGetFonts
-{
-    NSArray *keywords = [self.fonts objectForKey:@"keyword"];
-    NSArray *fontstrings = [self.fonts objectForKey:@"fontstring"];
-    
-    NSMutableArray *fontsM = [[NSMutableArray alloc] init];
-    for(NSInteger index = 0; index < keywords.count; index ++) {
-        //    for(NSString *keyword in keywords) {
-        if(index < fontstrings.count) {
-            [fontsM addObject:@{@"keyword":keywords[index], @"fontstring":fontstrings[index]}];
-        }
-        else {
-            break;
-        }
-    }
-    
-    return [NSArray arrayWithArray:fontsM];
-}
-
-#endif
 @end
-
-
-
-
-
-
-
-
-#if 0
-- (id)configDBGet:(id)key {
-    NS0Log(@"configDBGet key : %@", key);
-    
-    id object = nil;
-    
-    if([key isEqual:@"hostnames"]) {
-        object = [NSArray arrayWithArray:self.hostnames];
-    }
-    
-    if([key isEqual:@"hosts"]) {
-        object = [NSArray arrayWithArray:self.hosts];
-    }
-    
-    if([key isEqual:@"imageHosts"]) {
-        object = [NSArray arrayWithArray:self.imageHosts];
-    }
-    
-    if([key isEqual:@"hostIndex"]) {
-        object = [NSNumber numberWithInteger:self.hostIndex];
-    }
-    
-    if([key isEqual:@"hostname"]) {
-        object = [self.hostnames objectAtIndex:self.hostIndex];
-    }
-    
-    if([key isEqual:@"host"]) {
-        object = [self.hosts objectAtIndex:self.hostIndex];
-    }
-    
-    if([key isEqual:@"imageHost"]) {
-        object = [self.imageHosts objectAtIndex:self.hostIndex];
-    }
-    
-    if([key isEqualToString:@"numberInCategoryPage"]) {
-        if([[self configDBGet:@"hostname"] isEqualToString:@"hacfun"]) {
-            object = [NSNumber numberWithInteger:20];
-        }
-        else if([[self configDBGet:@"hostname"] isEqualToString:@"kukuku"]) {
-            object = [NSNumber numberWithInteger:10];
-        }
-        else {
-            object = [NSNumber numberWithInteger:10];
-        }
-    }
-    
-    return object;
-}
-#endif
-
-
-
-
 

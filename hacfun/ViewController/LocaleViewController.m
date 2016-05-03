@@ -182,12 +182,13 @@
     }
     else if([replies count] <= 0){
         NSLog(@"tid [%zd] no reply", tid);
-        //没有更新则不修改显示.
+        //没有回复则显示无更新.
+        [self updateToCellData:tid withInfo:@{@"message":@"无更新."}];
     }
     else {
         //跟浏览记录对比.
         PostData *tPostData = replies[0];
-        NSLog(@"tid [%zd[]updateAt %lld", tid, tPostData.updatedAt);
+        NSLog(@"tid [%zd] updateAt %lld", tid, tPostData.updatedAt);
         
         //最后一条reply信息跟之前的Loaded记录, Display记录对比.
         PostData *pdLastReply = [replies lastObject];
@@ -201,34 +202,32 @@
             
         }
         else {
+            NSLog(@"#error - tid [%zd] detailHistory not found.", tid);
             detailHistory = [[DetailHistory alloc] init];
             detailHistory.tid = tid;
             detailHistory.createdAtForDisplay = 0;
             detailHistory.createdAtForLoaded  = 0;
         }
         
-        if(!(detailHistory.createdAtForLoaded > 0 && detailHistory.createdAtForDisplay > 0)) {
-            NSLog(@"#error - tid [%zd] read detail history failed.", tid);
-            [self updateToCellData:tid withInfo:@{@"message":@"比较数据出错"}];
+        isComparedOK = YES;
+        
+        if(pdLastReply.createdAt > detailHistory.createdAtForLoaded) {
+            NSLog(@"tid [%zd] atleast newest loaded timestamp updated.", tid);
+            NSString *messge = [NSString stringWithFormat:@"更新于%@",
+                                [NSString stringFromMSecondInterval:pdLastReply.createdAt andTimeZoneAdjustSecondInterval:0]];
+            [self updateToCellData:tid withInfo:@{@"message":messge}];
+        }
+        else if(pdLastReply.createdAt > detailHistory.createdAtForDisplay) {
+            NSLog(@"tid [%zd] latest displayed timestamp updated.", tid);
+            NSString *messge = [NSString stringWithFormat:@"更新于%@",
+                                [NSString stringFromMSecondInterval:pdLastReply.createdAt andTimeZoneAdjustSecondInterval:0]];
+            [self updateToCellData:tid withInfo:@{@"message":messge}];
         }
         else {
-            isComparedOK = YES;
-            
-            if(pdLastReply.createdAt > detailHistory.createdAtForLoaded) {
-                NSString *messge = [NSString stringWithFormat:@"更新于%@",
-                                    [NSString stringFromMSecondInterval:pdLastReply.createdAt andTimeZoneAdjustSecondInterval:0]];
-                [self updateToCellData:tid withInfo:@{@"message":messge}];
-            }
-            else if(pdLastReply.createdAt > detailHistory.createdAtForDisplay) {
-                NSString *messge = [NSString stringWithFormat:@"更新于%@",
-                                    [NSString stringFromMSecondInterval:pdLastReply.createdAt andTimeZoneAdjustSecondInterval:0]];
-                [self updateToCellData:tid withInfo:@{@"message":messge}];
-            }
-            else {
-                //没有更新则不修改显示.
-                NSString *messge = [NSString stringWithFormat:@"无更新."];
-                [self updateToCellData:tid withInfo:@{@"message":messge}];
-            }
+            //没有更新则不修改显示.
+            NSLog(@"tid [%zd] no update.", tid);
+            NSString *messge = [NSString stringWithFormat:@"无更新."];
+            [self updateToCellData:tid withInfo:@{@"message":messge}];
         }
     }
     
@@ -248,6 +247,7 @@
     }
     
     if(isUpdateFinished) {
+        NSLog(@"update finished.");
         [self.postView reloadData];
     }
     else {

@@ -109,7 +109,7 @@
         
         DISPATCH_ONCE_START
         //测试阶段一直删除重建数据库.
-        BOOL rebuildDB = YES;
+        BOOL rebuildDB = NO;
         if(rebuildDB) {
             NSString *documentPath =[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
             NSString *folder = [NSString stringWithFormat:@"%@/%@", documentPath, @"sqlite"];

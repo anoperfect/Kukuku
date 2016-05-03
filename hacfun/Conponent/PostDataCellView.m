@@ -37,7 +37,8 @@
 @property (nonatomic, strong) UILabel *otherInfoLabel;
 @property (nonatomic, strong) RTLabel *contentLabel;
 @property (strong,nonatomic) PostImageView *imageView;
-@property (nonatomic, strong) UISegmentedControl *actionButtons;
+@property (nonatomic, strong) UISegmentedControl *actionButtons1;
+@property (nonatomic, strong) UIToolbar *actionButtons0;
 
 @property (assign,nonatomic) NSInteger row;
 
@@ -139,11 +140,24 @@ static NSInteger kcountObject = 0;
             [self addSubview:self.imageView];
         }
         
+#if 0
         if(!self.actionButtons) {
             self.actionButtons = [[UISegmentedControl alloc] init];
             [self.actionButtons addTarget:self action:@selector(actionPressed:) forControlEvents:UIControlEventValueChanged];
             [self addSubview:self.actionButtons];
         }
+#else
+        if(!self.actionButtons1) {
+            self.actionButtons0 = [[UIToolbar alloc] init];
+            //[self.actionButtons addTarget:self action:@selector(actionPressed:) forControlEvents:UIControlEventValueChanged];
+            [self addSubview:self.actionButtons0];
+        }
+        
+#endif
+        
+        
+        
+        
     }
     
     return self;
@@ -168,7 +182,7 @@ static NSInteger kcountObject = 0;
 
 - (void)setContent
 {
-    NSLog(@"PostDataView data : %@", [NSString stringFromNSDictionary:self.data]);
+    NS0Log(@"PostDataView data : %@", [NSString stringFromNSDictionary:self.data]);
     
     NSString *title = [self.data objectForKey:@"title"];
     title = title?title:@"null";
@@ -241,7 +255,8 @@ static NSInteger kcountObject = 0;
             [self.imageView setDownloadUrlString:[NSString stringWithFormat:@"%@/%@", imageHost, thumb]];
         }
     }
-    
+   
+#if 0
     self.actionButtons.hidden = YES;
     NSNumber *showActions = [self.data objectForKey:@"showAction"];
     if([showActions boolValue]) {
@@ -260,6 +275,59 @@ static NSInteger kcountObject = 0;
                 [self.actionButtons insertSegmentWithTitle:actionStrings[index] atIndex:index animated:YES];
             }
         }
+    }
+#else
+    self.actionButtons0.hidden = YES;
+    NSNumber *showActions = [self.data objectForKey:@"showAction"];
+    if([showActions boolValue]) {
+        NSArray *actionStrings = [self.data objectForKey:@"actionStrings"];
+        NSInteger count = actionStrings.count;
+        if(count > 0) {
+            self.actionButtons0.hidden = NO;
+            NSIndexPath *indexPath = [self.data objectForKey:@"indexPath"];
+            if(!indexPath) {
+                NSLog(@"#error - PostViewData indexPath nil.");
+                indexPath = [NSIndexPath indexPathWithIndex:0];
+            }
+            
+            NSMutableArray *items = [[NSMutableArray alloc] init];
+            
+            for(NSInteger index = 0; index < count; index ++) {
+                
+                if(index > 0) {
+                    UIBarButtonItem *flexibleitem = [[UIBarButtonItem alloc]initWithBarButtonSystemItem:(UIBarButtonSystemItemFlexibleSpace) target:self action:nil];
+                    [items addObject:flexibleitem];
+                }
+                
+                UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithTitle:actionStrings[index]
+                                                                         style:UIBarButtonItemStyleDone
+                                                                        target:self
+                                                                        action:@selector(cellAction:)];
+                
+                //item.image = [UIImage imageNamed:@"edit"];
+                item.style = UIBarButtonItemStyleBordered;
+                
+                [items addObject:item];
+            }
+            
+            [self.actionButtons0 setItems:items animated:NO];
+        }
+    }
+    
+    
+#endif
+}
+
+
+- (void)cellAction:(UIBarButtonItem*)sender
+{
+    NSLog(@"sender : %@ %@", sender, sender.title);
+    
+    NSLog(@"action on row %@ with action %@", self.data[@"row"], sender.title);
+    
+    NSIndexPath *indexPath = [self.data objectForKey:@"indexPath"];
+    if(self.rowAction) {
+        self.rowAction(indexPath, sender.title);
     }
 }
 
@@ -352,13 +420,31 @@ static NSInteger kcountObject = 0;
         [layout setUseBesideMode:@"PaddingActionButtons" besideTo:@"ImageLine" withDirection:FrameLayoutDirectionBelow andSizeValue:6.0];
     }
     
-    if(!self.actionButtons.hidden) {
+#if 0
+    if(!self.actionButtons0.hidden) {
         CGFloat heightActionButtons = 36.0;
         [layout setUseBesideMode:@"ActionButtons" besideTo:@"PaddingActionButtons" withDirection:FrameLayoutDirectionBelow andSizeValue:heightActionButtons];
         frameActionButtons = [layout getCGRect:@"ActionButtons"];
             
         heightAdjust = FRAMELAYOUT_Y_BLOW_FRAME(frameActionButtons) + edge.bottom;
     }
+#else
+    if(!self.actionButtons0.hidden) {
+        CGFloat heightActionButtons = 36.0;
+        [layout setUseBesideMode:@"ActionButtonsTemp" besideTo:@"PaddingActionButtons" withDirection:FrameLayoutDirectionBelow andSizeValue:heightActionButtons];
+        CGRect frameActionButtonsTemp = [layout getCGRect:@"ActionButtonsTemp"];
+        
+        frameActionButtons = frameActionButtonsTemp;
+        frameActionButtons.origin.x = 0;
+        frameActionButtons.size.width = self.frame.size.width;
+        [layout setCGRect:frameActionButtons toName:@"ActionButtons"];
+        
+        heightAdjust = FRAMELAYOUT_Y_BLOW_FRAME(frameActionButtons) + edge.bottom;
+    }
+    
+    
+#endif
+
 
     self.titleLabel.frame           = frameTitleLabel;
     self.infoLabel.frame            = frameInfoLabel;
@@ -366,7 +452,7 @@ static NSInteger kcountObject = 0;
     self.otherInfoLabel.frame       = frameOtherInfo;
     self.contentLabel.frame         = frameContentLabel;
     self.imageView.frame            = frameImageViewContent;
-    self.actionButtons.frame        = frameActionButtons;
+    self.actionButtons0.frame        = frameActionButtons;
     
     FRAMELAYOUT_SET_HEIGHT(self, heightAdjust);
     NSLog(@"adjust height to %f.", heightAdjust);

@@ -103,6 +103,7 @@
     }
     else {
         self.detailHistory = [[DetailHistory alloc] init];
+        self.detailHistory.tid = self.tid;
         self.detailHistory.createdAtForDisplay = 0;
         self.detailHistory.createdAtForLoaded = 0;
     }
