@@ -69,6 +69,12 @@
         
         ButtonData *actionData = nil;
         
+//        actionData = [[ButtonData alloc] init];
+//        actionData.keyword      = @"more";
+//        actionData.imageName    = @"more";
+//        [self actionAddData:actionData];
+        
+        
         actionData = [[ButtonData alloc] init];
         actionData.keyword      = @"reply";
         actionData.imageName    = @"reply";
@@ -157,6 +163,37 @@
 - (void)actionViaString:(NSString*)string
 {
     NSLog(@"action string : %@", string);
+    
+    if([string isEqualToString:@"more"]) {
+        
+        NSInteger number = 6;
+        
+        CGFloat widthButton = 100;
+        CGFloat heightButton = 36;
+        
+        UIView *buttonsContainer = [[UIView alloc] init];
+        buttonsContainer.frame = CGRectMake(self.view.bounds.size.width - widthButton, 0, widthButton, number * heightButton + 10);
+        buttonsContainer.backgroundColor = [UIColor whiteColor];
+        
+        PushButton *button = [[PushButton alloc] init];
+        button.frame = CGRectMake(0, 0, widthButton, heightButton);
+        
+        
+        ButtonData *actionData = [[ButtonData alloc] init];
+        actionData.keyword      = @"收藏";
+        actionData.imageName    = @"collection";
+        [button setActionData:actionData];
+        
+        [buttonsContainer addSubview:button];
+        
+        [self showPopupView:buttonsContainer];
+        
+        return;
+    }
+    
+    
+    
+    
     if([string isEqualToString:@"reply"]) {
         [self createReplyPost];
         return;

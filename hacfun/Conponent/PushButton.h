@@ -7,7 +7,13 @@
 //
 
 #import <UIKit/UIKit.h>
-
+#import "ButtonData.h"
 @interface PushButton : UIButton
+
+
+
+
+@property (nonatomic, strong) ButtonData* actionData;
+
 
 @end

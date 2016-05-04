@@ -16,7 +16,7 @@
 @interface LocaleViewController ()
 @property (nonatomic, strong) NSMutableDictionary *updateResult;
 
-@property (nonatomic, strong) NSArray *allTid;
+
 
 @end
 

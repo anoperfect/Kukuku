@@ -61,7 +61,7 @@ dictm
 
 
 NSMutableString *str = [[NSMutableString alloc] init];\
-[str appendFormat:@"%60s %6d %3.6f: ", __FUNCTION__, __LINE__, [FuncDefine timeIntervalCountWithRecount:false] ];\
+[str appendFormat:@"%90s %6d %3.6f: ", __FUNCTION__, __LINE__, [FuncDefine timeIntervalCountWithRecount:false] ];\
 [str appendFormat:FORMAT, ##__VA_ARGS__];\
 printf("%s\n", [str UTF8String]);\
 [[NSLogn sharedNSLogn] sendLogContent:[NSString stringWithFormat:@"%@\n", str]];\

@@ -803,7 +803,18 @@ else {NSLog(@"#error - obj (%@) is not NSString class.", arrayasd[indexzxc]);var
             return nil;
         }
         
-        arrayReturn = [self configDBRecordGets:tidArray];
+        NSMutableArray *arrayReturnM = [[NSMutableArray alloc] init];
+        
+        for(NSInteger index = 0; index < count; index++) {
+            
+            Collection *collection = [[Collection alloc] init];
+            ASSIGN_INTEGER_VALUE_FROM_ARRAYMEMBER(collection.tid, tidArray, index, 0)
+            ASSIGN_LONGLONG_VALUE_FROM_ARRAYMEMBER(collection.collectedAt, collectedAtArray, index, 0)
+            
+            [arrayReturnM addObject:collection];
+        }
+        
+        arrayReturn = [NSArray arrayWithArray:arrayReturnM];
     }
     
     return arrayReturn;
@@ -1066,7 +1077,7 @@ else {NSLog(@"#error - obj (%@) is not NSString class.", arrayasd[indexzxc]);var
             
             for(NSInteger indexCount = 0; indexCount < count; indexCount ++) {
                 if([tidNumber isEqual:tidArray[indexCount]]) {
-                    NSLog(@"configDBRecordGets tid [%zd] got", tidNumber);
+                    NSLog(@"configDBRecordGets tid [%@] got", tidNumber);
                     
                     PostData *postData = [PostData fromString:jsonstringArray[indexCount] atPage:0];
                     if(postData) {

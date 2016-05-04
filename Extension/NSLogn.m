@@ -359,7 +359,7 @@ void* func_send_log(void *arg)
 {
     double interval = [FuncDefine timeIntervalCountWithRecount:false];
     NSMutableString *str = [[NSMutableString alloc] init];
-    [str appendFormat:@"%60s %6ld %3.6f: %@", function, line, interval, content];
+    [str appendFormat:@"%90s %6ld %3.6f: %@", function, line, interval, content];
     printf("%s\n", [str UTF8String]);
     
     NSMutableDictionary *dictm = [[NSMutableDictionary alloc] init];

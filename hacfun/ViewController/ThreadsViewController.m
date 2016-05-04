@@ -740,7 +740,7 @@
 
     if([string isEqualToString:@"复制"]){
         UIPasteboard *pab = [UIPasteboard generalPasteboard];
-        [pab setString:[postDataRow.content copy]];
+        [pab setString:[NSString decodeWWWEscape:postDataRow.content]];
         [self showStatusText:@"已复制到粘贴板"];
     }
     else if([string isEqualToString:@"举报"]){

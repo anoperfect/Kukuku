@@ -42,8 +42,9 @@
     NSArray *allTid = nil;
     NSMutableArray *allTidM = [[NSMutableArray alloc] init];
     
-    NSArray *collections = [[AppConfig sharedConfigDB] configDBCollectionGets];
-    for(Collection *collection in collections) {
+    self.concreteDatas = [[AppConfig sharedConfigDB] configDBCollectionGets];
+    self.concreteDatasClass = [Collection class];
+    for(Collection *collection in self.concreteDatas) {
         [allTidM addObject:[NSNumber numberWithInteger:collection.tid]];
     }
     

@@ -9,6 +9,11 @@
 #import <UIKit/UIKit.h>
 #import "ThreadsViewController.h"
 @interface LocaleViewController : ThreadsViewController
+@property (nonatomic, strong) NSArray *allTid;
+
+
+@property (nonatomic, strong) NSArray *concreteDatas;
+@property (nonatomic, strong) Class concreteDatasClass;
 
 
 
