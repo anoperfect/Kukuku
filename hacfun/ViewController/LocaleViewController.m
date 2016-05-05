@@ -45,8 +45,6 @@
 - (void)viewDidLoad {
     LOG_POSTION
     [super viewDidLoad];
-    
-    self.allTid = [self getALLRecordTid];
 }
 
 
@@ -59,19 +57,36 @@
 - (void)reloadPostData {
     LOG_POSTION
     
-    if(!self.allTid) {
-        self.allTid = [self getALLRecordTid];
+    [self getLocaleRecords];
+
+    NSArray *postDatas = [[AppConfig sharedConfigDB] configDBRecordGets:self.allTid];
+    NSMutableArray *appendPostDatas = [NSMutableArray arrayWithArray:postDatas];
+    
+    for(NSInteger index = 0; index < appendPostDatas.count; index ++) {
+        NSLog(@"index%zd : %@", index, appendPostDatas[index]);
     }
     
-    NSMutableArray *appendPostDatas = [[NSMutableArray alloc] init];
-    [appendPostDatas addObjectsFromArray:[[AppConfig sharedConfigDB] configDBRecordGets:self.allTid]];
+    
+    NSLog(@"appendPostDatas %@", appendPostDatas);
     
     [self addPostDatas:appendPostDatas onPage:self.pageNumLoading];
+    
+    NSLog(@"appendPostDatas %@", appendPostDatas);
     
     [self showfootViewWithTitle:[NSString stringWithFormat:@"共%zd条, 已加载%zi条", self.allTid.count, [self numberOfPostDatasTotal]]
            andActivityIndicator:NO andDate:NO];
     
     [self postDatasToCellDataSource];
+    
+    NSLog(@"appendPostDatas %@", appendPostDatas);
+}
+
+
+- (void)clearDataAdditional
+{
+    self.allTid             = nil;
+    self.concreteDatas      = nil;
+    self.concreteDatasClass = nil;
 }
 
 
@@ -174,8 +189,6 @@
 //需在主线程执行.
 - (void)checkUpdateTidResult:(NSInteger)tid withReplyPostDatas:(NSArray*)replies andTopic:(PostData*)topic
 {
-    NSNumber *number = [NSNumber numberWithInteger:tid];
-    
     if(nil == topic) {
         NSLog(@"tid [%zd] get page last error:%@", tid, @"no PostData parsed.");
         [self updateToCellData:tid withInfo:@{@"message":@"更新出错"}];
@@ -186,10 +199,6 @@
         [self updateToCellData:tid withInfo:@{@"message":@"无更新."}];
     }
     else {
-        //跟浏览记录对比.
-        PostData *tPostData = replies[0];
-        NSLog(@"tid [%zd] updateAt %lld", tid, tPostData.updatedAt);
-        
         //最后一条reply信息跟之前的Loaded记录, Display记录对比.
         PostData *pdLastReply = [replies lastObject];
         NSLog(@"tid [%zd] last reply createdAt : %lld.", tid, pdLastReply.createdAt);
@@ -231,6 +240,23 @@
         }
     }
     
+    NSIndexPath *indexPath = [self indexPathWithTid:tid];
+    if(indexPath) {
+        
+        if([self.indexPathsDisplaying indexOfObject:indexPath] != NSNotFound) {
+            NSLog(@"update indexPath [%@] for tid [%zd]", [NSString stringFromTableIndexPath:indexPath], tid);
+            [self.postView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];
+        }
+        else {
+            NSLog(@"update indexPath [%@] for tid [%zd], current not update.", [NSString stringFromTableIndexPath:indexPath], tid);
+        }
+    }
+    else {
+        NSLog(@"#error - update indexPath tid [%zd] not found.", tid);
+    }
+    
+#if 0
+    NSNumber *number = [NSNumber numberWithInteger:tid];
     //判断是否已经执行过全部更新.
     BOOL isUpdateFinished = YES;
     [self.updateResult setObject:[NSNumber numberWithBool:YES] forKey:number];
@@ -253,6 +279,7 @@
     else {
         NSLog(@"update not finished. %@", self.updateResult);
     }
+#endif
 }
 
 
@@ -273,10 +300,12 @@
     
     if([string isEqualToString:@"删除"]){
         
+        LOG_POSTION
         [self removeRecordsWithTids:@[[NSNumber numberWithInteger:postDataRow.tid]]];
+        LOG_POSTION
         
         self.allTid = nil;
-        [self reloadPostData];
+        [self refreshPostData];
     }
     else {
         finishAction = NO;
@@ -286,11 +315,15 @@
 }
 
 
+
+
+
+
+
 //override. 获取本地记录数据.
-- (NSArray*)getALLRecordTid
+- (void)getLocaleRecords
 {
     NSLog(@"#error - should be override.");
-    return nil;
 }
 
 

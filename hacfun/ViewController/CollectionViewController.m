@@ -37,9 +37,8 @@
 }
 
 
-- (NSArray*)getALLRecordTid
+- (void)getLocaleRecords
 {
-    NSArray *allTid = nil;
     NSMutableArray *allTidM = [[NSMutableArray alloc] init];
     
     self.concreteDatas = [[AppConfig sharedConfigDB] configDBCollectionGets];
@@ -48,8 +47,7 @@
         [allTidM addObject:[NSNumber numberWithInteger:collection.tid]];
     }
     
-    allTid = [NSArray arrayWithArray:allTidM];
-    return allTid;
+    self.allTid = [NSArray arrayWithArray:allTidM];
 }
 
 

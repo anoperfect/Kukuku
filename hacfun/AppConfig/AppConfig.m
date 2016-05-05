@@ -1074,6 +1074,7 @@ else {NSLog(@"#error - obj (%@) is not NSString class.", arrayasd[indexzxc]);var
         
         NSMutableArray *arrayPostDataM = [[NSMutableArray alloc] init];
         for(NSNumber *tidNumber in tidGets) {
+            PostData *postData = nil;
             
             for(NSInteger indexCount = 0; indexCount < count; indexCount ++) {
                 if([tidNumber isEqual:tidArray[indexCount]]) {
@@ -1087,12 +1088,17 @@ else {NSLog(@"#error - obj (%@) is not NSString class.", arrayasd[indexzxc]);var
                         postData = [PostData fromOnlyTid:[tidNumber integerValue]];
                     }
                     
-                    [arrayPostDataM addObject:postData];
+
                     
                     break;
                 }
             }
             
+            if(!postData) {
+                postData = [PostData fromOnlyTid:[tidNumber integerValue]];
+            }
+            
+            [arrayPostDataM addObject:postData];
         }
         
         arrayReturn = [NSArray arrayWithArray:arrayPostDataM];
@@ -1102,6 +1108,4 @@ else {NSLog(@"#error - obj (%@) is not NSString class.", arrayasd[indexzxc]);var
 }
 
 
-
 @end
-

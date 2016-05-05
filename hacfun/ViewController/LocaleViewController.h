@@ -19,7 +19,7 @@
 
 
 //override. 获取本地记录数据.
-- (NSArray*)getALLRecordTid;
+- (void)getLocaleRecords;
 
 
 //override. 

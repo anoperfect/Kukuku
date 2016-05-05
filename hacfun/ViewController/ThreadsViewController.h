@@ -74,8 +74,12 @@ typedef NS_ENUM(NSInteger, ThreadsStatus) {
 //持续加载下一页.
 @property (nonatomic, assign) BOOL autoRepeatDownload;
 
-
 @property (nonatomic, assign) ThreadsStatus threadsStatus;
+
+@property (nonatomic, strong) NSMutableArray *indexPathsDisplaying;
+
+
+
 
 //UITableView的foot view用于显示状态数据. 使用此接口具体设置.
 - (void)showfootViewWithTitle:(NSString*)title andActivityIndicator:(BOOL)isActive andDate:(BOOL)isShowDate;
@@ -95,7 +99,9 @@ typedef NS_ENUM(NSInteger, ThreadsStatus) {
 
 - (PostData*)postDataOnIndexPath:(NSIndexPath*)indexPath;
 - (NSMutableDictionary*)postViewDataOnIndexPath:(NSIndexPath*)indexPath;
+- (NSIndexPath*)indexPathWithTid:(NSInteger)tid;
 - (NSArray*)generatePostDataArray;
+
 
 //override.
 

@@ -51,7 +51,7 @@ typedef enum {
 @property (nonatomic,assign) PostDataType type;
 
 
-
+- (void)copyFrom:(PostData*)postDataFrom;
 - (BOOL)isIdInArray:(NSArray*)array;
 
 

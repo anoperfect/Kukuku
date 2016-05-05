@@ -41,6 +41,7 @@
         self.numberLoaded = 0;
         self.pageNumLoading = 1; //从page1开始加载.
         self.postDataPages = [[NSMutableArray alloc] init];
+        self.indexPathsDisplaying = [[NSMutableArray alloc] init];
     }
     
     return self;
@@ -284,9 +285,15 @@
 
     NSInteger row = 0;
     for(PostData *postData in postDataPage.postDatas) {
+        NSLog(@"%@", postDataPage.postDatas);
+        NSLog(@"%@", postData);
+        
         NSIndexPath *indexPath = [NSIndexPath indexPathForRow:row inSection:section];
+        LOG_POSTION
         NSMutableDictionary* postViewData = [self cellPresentDataFromPostData:postData onIndexPath:indexPath];
+        LOG_POSTION
         [postViewDataPage.postViewDatas addObject:postViewData];
+        LOG_POSTION
         
         row ++;
     }
@@ -346,6 +353,8 @@
 
 - (NSMutableDictionary*)cellPresentDataFromPostData:(PostData*)postData onIndexPath:(NSIndexPath*)indexPath
 {
+    NSLog(@"---%@", [postData class]);
+    
     NSMutableDictionary *dict = [postData toViewDisplayData:ThreadDataToViewTypeInfoUseReplyCount];
     [dict setObject:indexPath forKey:@"indexPath"];
     
@@ -502,8 +511,30 @@
 }
 
 
+- (void)indexPathsDisplayingDescription
+{
+    NSMutableString *strm = [[NSMutableString alloc] init];
+    for(NSIndexPath *indexPath in self.indexPathsDisplaying) {
+        [strm appendString:[NSString stringFromTableIndexPath:indexPath]];
+        [strm appendString:@" "];
+    }
+    
+    NSLog(@"now displaying [%@]", strm);
+    
+}
+
+
+- (void)tableView:(UITableView *)tableView didEndDisplayingCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    [self.indexPathsDisplaying removeObject:indexPath];
+    [self indexPathsDisplayingDescription];
+}
+
+
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
     NSLog(@"------tableView[%@] willDisplayCell", [NSString stringFromTableIndexPath:indexPath]);
+    [self.indexPathsDisplaying addObject:indexPath];
+    [self indexPathsDisplayingDescription];
     
     //关于优化后台加载数据后的延迟刷新. 未完成合适方案.
 #if UITABLEVIEW_INSERT_OPTUMIZE
@@ -930,6 +961,100 @@
 }
 
 
+- (NSIndexPath*)indexPathWithTid:(NSInteger)tid
+{
+
+    NSInteger section = 0;
+    for(PostDataPage *page in self.postDataPages) {
+        NSInteger row = 0;
+        for(PostData *postData in page.postDatas) {
+            if(postData.tid == tid) {
+                return [NSIndexPath indexPathForRow:row inSection:section];
+            }
+            
+            row ++;
+        }
+        
+        section ++;
+    }
+    
+    return nil;
+}
+
+
+//根据postData的
+- (BOOL)updateDataSourceByPostData:(PostData*)postDataUpdate
+{
+    BOOL updateToNew = NO;
+    
+    BOOL found = NO;
+    NSInteger section = 0;
+    for(PostDataPage *page in self.postDataPages) {
+        NSInteger row = 0;
+        for(PostData *postData in page.postDatas) {
+            if(postData.tid == postDataUpdate.tid) {
+                found = YES;
+                
+                if([postData isEqual:postDataUpdate]) {
+                    NSLog(@"tid [%zd] data is the same.", postDataUpdate.tid);
+                }
+                else {
+                    NSLog(@"tid [%zd] data is NOT the same, update.", postDataUpdate.tid);
+                    updateToNew = YES;
+                    
+                    //更新对应的postData.
+                    [postData copyFrom:postDataUpdate];
+                    
+                    //更新对应的postViewData.
+                    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:row inSection:section];
+                    NSMutableDictionary *postViewDataUpdate =
+                            [self cellPresentDataFromPostData:postData onIndexPath:indexPath];
+                    if(postViewDataUpdate) {
+                        if(indexPath.section >=0 && indexPath.section < self.postViewDataPages.count) {
+                            PostViewDataPage *postViewDataPage = self.postViewDataPages[indexPath.section];
+                            if(indexPath.row >=0 && indexPath.row < postViewDataPage.postViewDatas.count) {
+                                [postViewDataPage.postViewDatas replaceObjectAtIndex:row withObject:postViewDataUpdate];
+                            }
+                            else {
+                                NSLog(@"#error -");
+                            }
+                        }
+                        else {
+                            NSLog(@"#error -");
+                        }
+                    }
+                    else {
+                        NSLog(@"#error -");
+                    }
+                }
+                
+                break;
+            }
+            
+            row ++;
+        }
+        
+        if(updateToNew) {
+            break;
+        }
+        
+        section ++;
+    }
+    
+    NSLog(@"finish.");
+    
+    return updateToNew;
+}
+
+
+
+
+
+
+
+
+
+
 - (NSArray*)generatePostDataArray
 {
     NSMutableArray *postDatasM = [[NSMutableArray alloc] init];
@@ -959,7 +1084,7 @@
     else {
         PostDataPage *postDataPageLast = [self.postDataPages lastObject];
         if(postDataPageLast.page == page) {
-            [postDataPageLast.postDatas addObject:appendPostDatas];
+            [postDataPageLast.postDatas addObjectsFromArray:appendPostDatas];
             section = postDataPageLast.section;
         }
         else {

@@ -294,6 +294,8 @@
 {
     NSMutableString *deletem ;
     BOOL executeResult ;
+    
+#if 0
     if(!infoQuery) {
         deletem = [NSMutableString stringWithFormat:@"DELETE FROM %@", tableAttribute.tableName];
         executeResult = [db executeUpdate:[NSString stringWithString:deletem]];
@@ -308,7 +310,15 @@
             [deletem appendFormat:@" and %@ = ?", infoDeleteKeys[index]];
         }
         executeResult = [db executeUpdate:[NSString stringWithString:deletem] withArgumentsInArray:infoDeleteValues];
+        
+        NSLog(@"%@", deletem);
+        NSLog(@"%@", infoDeleteValues);
     }
+#endif
+    
+    NSMutableArray *arguments = [[NSMutableArray alloc] init];
+    NSString *queryString = [self DBDataGenerateQueryString:infoQuery andArgumentsInArray:arguments];
+    executeResult = [db executeUpdate:[NSString stringWithFormat:@"DELETE FROM %@ %@", tableAttribute.tableName, queryString] withArgumentsInArray:arguments];
     
     if(executeResult) {
         NSLog(@"delete table %@ OK.", tableAttribute.tableName);
@@ -341,6 +351,47 @@
 }
 
 
+- (NSString*)DBDataGenerateQueryString:(NSDictionary*)infoQuery andArgumentsInArray:(NSMutableArray*)argumentsM
+{
+    NSMutableString *strm ;
+    
+    if(0 == infoQuery.count) {
+        strm = [NSMutableString stringWithString:@" "];
+    }
+    else {
+        NSArray *infoQueryKeys = infoQuery.allKeys;
+        NSArray *infoQueryValues = infoQuery.allValues;
+        
+        strm = [NSMutableString stringWithString:@" WHERE"];
+
+        for(NSInteger index = 0; index < infoQueryKeys.count; index++) {
+            if(index > 0) {
+                [strm appendString:@" and"];
+            }
+            
+            if([infoQueryValues[index] isKindOfClass:[NSArray class]]) {
+                NSArray *columnValues = infoQueryValues[index];
+                [strm appendFormat:@" %@ IN (%@)",
+                 infoQueryKeys[index],
+                 [NSString stringPaste:@"?" onTimes:columnValues.count withConnector:@","]];
+                [argumentsM addObjectsFromArray:columnValues];
+            }
+            else {
+                //
+                [strm appendFormat:@" %@ = ?", infoQueryKeys[index]];
+                [argumentsM addObject:infoQueryValues[index]];
+            }
+        }
+    }
+    
+    return [NSString stringWithString:strm];
+}
+
+
+
+
+
+
 //查
 
 /*
@@ -351,15 +402,11 @@
         可为nil
  infoLimit : 支持 DBDATA_STRING_ORDER:"ORDER BY ... DESC"
  */
-
-
-
-
 - (NSDictionary*)DBDataQuery:(FMDatabase*)db
                 toTable:(DBTableAttribute*)tableAttribute
             columnNames:(NSArray*)columnNames
-              withQuery:(NSDictionary*)infoQuery
-              withLimit:(NSDictionary*)infoLimit
+              withQuery:(NSDictionary*)infoQuery1
+              withLimit:(NSDictionary*)infoLimit1
 {
     //获取表信息.
     NSLog(@"table :%@ , name:%@, %zd.", tableAttribute, tableAttribute.tableName, tableAttribute.primaryKeys.count);
@@ -382,57 +429,21 @@
         [queryColumnsNamesM addObjectsFromArray:columnNames];
     }
     
-    FMResultSet *rs ;
-    if(0 == infoQuery.count) {
-        querym = [NSMutableString stringWithFormat:@"SELECT %@ FROM %@",
-                            [NSString combineArray:columnNames withInterval:@", " andPrefix:@"" andSuffix:@""],
-                            tableAttribute.tableName];
-        
-        if([infoLimit objectForKey:DBDATA_STRING_ORDER]) {
-            [querym appendFormat:@" %@", [infoLimit objectForKey:DBDATA_STRING_ORDER]];
-        }
-        
-        NSLog(@"query string : %@", querym);
-        rs = [db executeQuery:[NSString stringWithString:querym]];
+    NSMutableArray *arguments = [[NSMutableArray alloc] init];
+    NSString *queryString = [self DBDataGenerateQueryString:infoQuery1 andArgumentsInArray:arguments];
+    
+    querym = [NSMutableString stringWithFormat:@"SELECT %@ FROM %@ %@",
+              [NSString combineArray:columnNames withInterval:@", " andPrefix:@"" andSuffix:@""],
+              tableAttribute.tableName,
+              queryString];
+    
+    if([infoLimit1 objectForKey:DBDATA_STRING_ORDER]) {
+        [querym appendFormat:@" %@", [infoLimit1 objectForKey:DBDATA_STRING_ORDER]];
     }
-    else {
-        NSArray *infoQueryKeys = infoQuery.allKeys;
-        NSArray *infoQueryValues = infoQuery.allValues;
-        NSMutableArray *infoQueryPrameterm = [[NSMutableArray alloc] init];
-        
-        querym = [NSMutableString stringWithFormat:@"SELECT %@ FROM %@ WHERE",
-                  [NSString combineArray:columnNames withInterval:@", " andPrefix:@"" andSuffix:@""],
-                  tableAttribute.tableName];
-        for(NSInteger index = 0; index < infoQueryKeys.count; index++) {
-            if(index > 0) {
-                [querym appendString:@" and"];
-            }
-            
-            if([infoQueryValues[index] isKindOfClass:[NSArray class]]) {
-                //                [querym appendFormat:@" %@ in (?)", infoQueryKeys[index]];
-                //                [infoQueryPrameterm addObject:@"6624990, 6678673, 6686117, 6688224]"];
-                //[querym appendFormat:@" %@ IN (%@)", infoQueryKeys[index], @"6624990, 6678673, 6686117, 6688224"];
-                NSArray *columnValues = infoQueryValues[index];
-                [querym appendFormat:@" %@ IN (%@)",
-                                                    infoQueryKeys[index],
-                                                    [NSString stringPaste:@"?" onTimes:columnValues.count withConnector:@","]];
-                [infoQueryPrameterm addObjectsFromArray:columnValues];
-            }
-            else {
-                //
-                [querym appendFormat:@" %@ = ?", infoQueryKeys[index]];
-                [infoQueryPrameterm addObject:infoQueryValues[index]];
-            }
-        }
-        
-        if([infoLimit objectForKey:DBDATA_STRING_ORDER]) {
-            [querym appendFormat:@" %@", [infoLimit objectForKey:DBDATA_STRING_ORDER]];
-        }
-        
-        NSLog(@"query string : [%@]", querym);
-        NSLog(@"query parameterm : [%@]", infoQueryPrameterm);
-        rs = [db executeQuery:[NSString stringWithString:querym] withArgumentsInArray:infoQueryPrameterm];
-    }
+    
+    NSLog(@"query string : [%@]", querym);
+    NSLog(@"query parameterm : [%@]", arguments);
+    FMResultSet *rs = [db executeQuery:[NSString stringWithString:querym] withArgumentsInArray:arguments];
     
     for(NSString *columnName in queryColumnsNamesM) {
         [queryResultm setObject:[[NSMutableArray alloc] init] forKey:columnName];
@@ -555,7 +566,8 @@
 {
     NSMutableString *updatem = nil;
     BOOL retFMDB;
-    NSMutableArray *infoUpdatePrameterm = [[NSMutableArray alloc] init];
+
+    NSMutableArray *arguments = [[NSMutableArray alloc] init];
     
     NSArray *infoUpdateKeys = infoUpdate.allKeys;
     NSArray *infoUpdateValues = infoUpdate.allValues;
@@ -568,39 +580,16 @@
         }
         
         [updatem appendFormat:@"%@ = ? ", infoUpdateKeys[index]];
-        [infoUpdatePrameterm addObject:infoUpdateValues[index]];
+        [arguments addObject:infoUpdateValues[index]];
     }
     
-    if(0 == infoQuery.count) {
-        
-    }
-    else {
-        NSArray *infoQueryKeys = infoQuery.allKeys;
-        NSArray *infoQueryValues = infoQuery.allValues;
-        [updatem appendString:@" WHERE "];
-        for(NSInteger index = 0; index < infoQueryKeys.count; index++) {
-            if(index > 0) {
-                [updatem appendString:@" and"];
-            }
-            
-            if([infoQueryValues[index] isKindOfClass:[NSArray class]]) {
-                [updatem appendFormat:@" %@ IN (%@)",
-                 infoQueryKeys[index],
-                 [NSString combineArray:infoQueryValues[index] withInterval:@", " andPrefix:@"" andSuffix:@""]];
-            }
-            else {
-                //
-                [updatem appendFormat:@" %@ = ?", infoQueryKeys[index]];
-                [infoUpdatePrameterm addObject:infoQueryValues[index]];
-            }
-        }
-    }
+    NSString *queryString = [self DBDataGenerateQueryString:infoQuery andArgumentsInArray:arguments];
+    [updatem appendString:queryString];
     
     NSLog(@"query string : [%@]", updatem);
-    NSLog(@"query parameterm : [%@]", infoUpdatePrameterm);
+    NSLog(@"query parameterm : [%@]", arguments);
     
-    retFMDB = [db executeUpdate:updatem withArgumentsInArray:infoUpdatePrameterm];
-    
+    retFMDB = [db executeUpdate:updatem withArgumentsInArray:arguments];
     if(retFMDB) {
         
     }
@@ -640,39 +629,15 @@
     NSMutableString *updatem = nil;
     BOOL retFMDB;
     
-    if(0 == infoQuery.count) {
-        updatem = [NSMutableString stringWithFormat:@"UPDATE %@ SET %@ = %@+1", tableAttribute.tableName, columnName, columnName];
-        retFMDB = [db executeUpdate:updatem];
-    }
-    else {
-        NSArray *infoQueryKeys = infoQuery.allKeys;
-        NSArray *infoQueryValues = infoQuery.allValues;
-        NSMutableArray *infoQueryPrameterm = [[NSMutableArray alloc] init];
-        
-        updatem = [NSMutableString stringWithFormat:@"UPDATE %@ SET %@ = %@+1 WHERE", tableAttribute.tableName, columnName, columnName];
-        for(NSInteger index = 0; index < infoQueryKeys.count; index++) {
-            if(index > 0) {
-                [updatem appendString:@" and"];
-            }
-            
-            if([infoQueryValues[index] isKindOfClass:[NSArray class]]) {
-                [updatem appendFormat:@" %@ IN (%@)",
-                 infoQueryKeys[index],
-                 [NSString combineArray:infoQueryValues[index] withInterval:@", " andPrefix:@"" andSuffix:@""]];
-            }
-            else {
-                //
-                [updatem appendFormat:@" %@ = ?", infoQueryKeys[index]];
-                [infoQueryPrameterm addObject:infoQueryValues[index]];
-            }
-        }
-        
-        NSLog(@"query string : [%@]", updatem);
-        NSLog(@"query parameterm : [%@]", infoQueryPrameterm);
-        
-        retFMDB = [db executeUpdate:updatem withArgumentsInArray:infoQueryPrameterm];
-    }
-
+    updatem = [NSMutableString stringWithFormat:@"UPDATE %@ SET %@ = %@+1 ", tableAttribute.tableName, columnName, columnName];
+    
+    NSMutableArray *arguments = [[NSMutableArray alloc] init];
+    NSString *queryString = [self DBDataGenerateQueryString:infoQuery andArgumentsInArray:arguments];
+    [updatem appendString:queryString];
+    
+    NSLog(@"query string : [%@]", updatem);
+    NSLog(@"query parameterm : [%@]", arguments);
+    retFMDB = [db executeUpdate:updatem withArgumentsInArray:arguments];
     if(retFMDB) {
         
     }
