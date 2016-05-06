@@ -133,7 +133,8 @@
 //    }
     
     if(indexPath.row == 0) {
-        TOWebViewController *vc = [[TOWebViewController alloc] initWithURLString:@"http://kukuku.cc"];
+        Host *host = [[AppConfig sharedConfigDB] configDBHostsGetCurrent];
+        TOWebViewController *vc = [[TOWebViewController alloc] initWithURLString:host.urlString];
         rootVC = vc;
         //rootVC.view.backgroundColor = [UIColor blueColor];
     }

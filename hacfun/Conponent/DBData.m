@@ -109,7 +109,7 @@
         
         DISPATCH_ONCE_START
         //测试阶段一直删除重建数据库.
-        BOOL rebuildDB = NO;
+        BOOL rebuildDB = YES;
         if(rebuildDB) {
             NSString *documentPath =[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
             NSString *folder = [NSString stringWithFormat:@"%@/%@", documentPath, @"sqlite"];
@@ -268,6 +268,9 @@
 //增
 - (NSInteger)DBDataInsertDBName:(NSString*)databaseName toTable:(NSString*)tableName withInfo:(NSDictionary*)infoInsert countReplace:(BOOL)couldReplace
 {
+    if(![NSThread isMainThread]) {NSLog(@"#error - should excute db in MainThread.");}
+    
+    
     FMDatabase *db = [self getDataBaseByName:databaseName];
     if(!db) {
         NSLog(@"#error - not find database <%@>", databaseName);
@@ -335,6 +338,7 @@
 //删
 - (NSInteger)DBDataDeleteDBName:(NSString*)databaseName toTable:(NSString*)tableName withQuery:(NSDictionary*)infoQuery
 {
+    if(![NSThread isMainThread]) {NSLog(@"#error - should excute db in MainThread.");}
     FMDatabase *db = [self getDataBaseByName:databaseName];
     if(!db) {
         NSLog(@"#error - not find database <%@>", databaseName);
@@ -408,6 +412,7 @@
               withQuery:(NSDictionary*)infoQuery1
               withLimit:(NSDictionary*)infoLimit1
 {
+    if(![NSThread isMainThread]) {NSLog(@"#error - should excute db in MainThread.");}
     //获取表信息.
     NSLog(@"table :%@ , name:%@, %zd.", tableAttribute, tableAttribute.tableName, tableAttribute.primaryKeys.count);
     NSMutableString *querym ;
@@ -604,6 +609,7 @@
 
 - (NSInteger)DBDataUpdateDBName:(NSString*)databaseName toTable:(NSString*)tableName withInfoUpdate:(NSDictionary*)infoUpdate withInfoQuery:(NSDictionary*)infoQuery
 {
+    if(![NSThread isMainThread]) {NSLog(@"#error - should excute db in MainThread.");}
     FMDatabase *db = [self getDataBaseByName:databaseName];
     if(!db) {
         NSLog(@"#error - not find database <%@ : %@>", databaseName, tableName);
@@ -787,7 +793,6 @@
         //detect , checked / add / update .
         [self buildTable:tableAttribute];
     }
-    
 }
 
 

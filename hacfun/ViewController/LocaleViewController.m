@@ -189,6 +189,8 @@
 //需在主线程执行.
 - (void)checkUpdateTidResult:(NSInteger)tid withReplyPostDatas:(NSArray*)replies andTopic:(PostData*)topic
 {
+    [self updateDataSourceByPostData:topic];
+    
     if(nil == topic) {
         NSLog(@"tid [%zd] get page last error:%@", tid, @"no PostData parsed.");
         [self updateToCellData:tid withInfo:@{@"message":@"更新出错"}];

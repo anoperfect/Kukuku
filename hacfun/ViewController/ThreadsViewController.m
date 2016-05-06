@@ -91,6 +91,10 @@
         [self startAction];
     });
     
+    //打开浏览器后会设置navigationController的toolbar. 此处消除toolbar.
+    self.navigationController.toolbarItems = nil;
+    self.navigationController.toolbarHidden = YES;
+    
     return;
 }
 
@@ -511,7 +515,7 @@
 }
 
 
-- (void)indexPathsDisplayingDescription
+- (NSString*)indexPathsDisplayingDescription
 {
     NSMutableString *strm = [[NSMutableString alloc] init];
     for(NSIndexPath *indexPath in self.indexPathsDisplaying) {
@@ -519,22 +523,21 @@
         [strm appendString:@" "];
     }
     
-    NSLog(@"now displaying [%@]", strm);
-    
+    return [NSString stringWithString:strm];
 }
 
 
 - (void)tableView:(UITableView *)tableView didEndDisplayingCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
 {
     [self.indexPathsDisplaying removeObject:indexPath];
-    [self indexPathsDisplayingDescription];
+    NSLog(@"remove %@, now displaying %@.", [NSString stringFromTableIndexPath:indexPath], [self indexPathsDisplayingDescription]);
 }
 
 
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
     NSLog(@"------tableView[%@] willDisplayCell", [NSString stringFromTableIndexPath:indexPath]);
     [self.indexPathsDisplaying addObject:indexPath];
-    [self indexPathsDisplayingDescription];
+    NSLog(@"add    %@, now displaying %@.", [NSString stringFromTableIndexPath:indexPath], [self indexPathsDisplayingDescription]);
     
     //关于优化后台加载数据后的延迟刷新. 未完成合适方案.
 #if UITABLEVIEW_INSERT_OPTUMIZE
@@ -1000,6 +1003,8 @@
                 }
                 else {
                     NSLog(@"tid [%zd] data is NOT the same, update.", postDataUpdate.tid);
+                    NSLog(@"%@", postData);
+                    NSLog(@"%@", postDataUpdate);
                     updateToNew = YES;
                     
                     //更新对应的postData.
@@ -1045,14 +1050,6 @@
     
     return updateToNew;
 }
-
-
-
-
-
-
-
-
 
 
 - (NSArray*)generatePostDataArray

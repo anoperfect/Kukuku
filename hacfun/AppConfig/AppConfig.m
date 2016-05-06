@@ -994,7 +994,7 @@ else {NSLog(@"#error - obj (%@) is not NSString class.", arrayasd[indexzxc]);var
                             [indexSetKeep removeIndex:indexPostData];
                         }
                         else {
-                            NSLog(@"---RECORD : [%zd] found xxx not equal. \n%@\n%@", postData.tid, postData.jsonstring, jsonstring);
+                            NSLog(@"---RECORD : [%zd] found xxx not equal. \n[%zd]%@\n[%zd]%@", postData.tid, postData.jsonstring.length, postData.jsonstring, jsonstring.length, jsonstring);
                         }
                         
                         break;
@@ -1080,21 +1080,21 @@ else {NSLog(@"#error - obj (%@) is not NSString class.", arrayasd[indexzxc]);var
                 if([tidNumber isEqual:tidArray[indexCount]]) {
                     NSLog(@"configDBRecordGets tid [%@] got", tidNumber);
                     
-                    PostData *postData = [PostData fromString:jsonstringArray[indexCount] atPage:0];
+                    postData = [PostData fromString:jsonstringArray[indexCount] atPage:0];
                     if(postData) {
                         postData.type = PostDataTypeLocal;
                     }
                     else {
                         postData = [PostData fromOnlyTid:[tidNumber integerValue]];
+                        NSLog(@"jsonstring parsed failed. (%@)", jsonstringArray[indexCount]);
                     }
-                    
-
                     
                     break;
                 }
             }
             
             if(!postData) {
+                NSLog(@"not find the record.");
                 postData = [PostData fromOnlyTid:[tidNumber integerValue]];
             }
             

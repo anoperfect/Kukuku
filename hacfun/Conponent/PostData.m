@@ -22,6 +22,33 @@
 
 @implementation PostData
 
+
+
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+                [self addObserver:self
+                       forKeyPath:@"jsonstring"
+                          options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld
+                          context:nil];
+    }
+    return self;
+}
+
+
+-(void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context{
+    if([keyPath isEqualToString:@"jsonstring"]){//这里只处理balance属性
+        NS0Log(@"keyPath=%@,object=%@,newValue=%@,context=%@",keyPath,object,[change objectForKey:@"new"],context);
+    }
+}
+
+
+- (void)dealloc
+{
+    [self removeObserver:self forKeyPath:@"jsonstring"];
+}
+
 - (id)copy {
     
     PostData *pdCopy = [[PostData alloc] init];
@@ -96,6 +123,7 @@
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:dict options:NSJSONWritingPrettyPrinted error:&parseError];
     if(jsonData) {
         pd.jsonstring = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+        NS0Log(@"form dict to json string : \ndict:\n%@\njsonstring:\n%@\n", dict, pd.jsonstring);
     }
     else {
         NSLog(@"#error - dict to jsonstring error. [dict:%@]", dict);
@@ -203,11 +231,24 @@
         return nil;
     }
     
+    NSLog(@"fromString:%@", jsonstring);
+    
     id obj = [NSJSONSerialization JSONObjectWithData:[jsonstring dataUsingEncoding:NSUTF8StringEncoding] options:NSJSONReadingMutableLeaves error:nil];
     if(obj && [obj isKindOfClass:[NSDictionary class]]) {
-        return [self fromDictData:obj atPage:page];
+        PostData* postData = [self fromDictData:obj atPage:page];
+        if(postData) {
+            //重新由fromDictData产生的jsonstring会因为重新排序的原因, 与参数的jsonstring不同. 在之后的LocaleViewController的Datasource PostData判断中, 判断为不同.
+            //为避免这种问题, 重新设置一次jsonstring.
+            postData.jsonstring = jsonstring;
+            return postData;
+        }
+        else {
+            NSLog(@"#error - fromDictData parse error.");
+            return nil;
+        }
     }
     else {
+        NSLog(@"#error - json parse error.");
         return nil;
     }
 }
@@ -390,6 +431,18 @@ PostDataView 接收的字段字段
 */
 - (NSMutableDictionary*)toVIewDisplayDataUseCustom {
     LOG_POSTION
+    
+    if(self.type == PostDataTypeOnlyTid) {
+        NSMutableDictionary *dictm = [[NSMutableDictionary alloc] init];
+        [dictm setObject:[NSString stringWithFormat:@"NO.%zd", self.tid]    forKey:@"title"];
+        [dictm setObject:@""                                                forKey:@"info"];
+        [dictm setObject:@""                                                forKey:@"manageInfo"];
+        [dictm setObject:@""                                                forKey:@"otherInfo"];
+        [dictm setObject:@""                                                forKey:@"content"];
+        
+        return dictm;
+    }
+    
     NSString *uidRetreat = self.uid;
     
     NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
@@ -475,21 +528,21 @@ PostDataView 接收的字段字段
 
 - (NSMutableDictionary*)toViewDisplayData:(ThreadDataToViewType)type
 {
-    NSMutableDictionary *dictm = [[NSMutableDictionary alloc] init];
+    NSMutableDictionary *dictm = [self toVIewDisplayDataUseCustom];
+    if(self.type == PostDataTypeOnlyTid) {
+        return dictm;
+    }
     
     switch (type) {
         case ThreadDataToViewTypeInfoUseNumber:
-            dictm = [self toVIewDisplayDataUseCustom];
             [dictm setObject:[NSString stringWithFormat:@"No.%zi", self.tid] forKey:@"info"];
             break;
             
         case ThreadDataToViewTypeInfoUseReplyCount:
-            dictm = [self toVIewDisplayDataUseCustom];
             [dictm setObject:[NSString stringWithFormat:@"回应: %zi", self.replyCount] forKey:@"info"];
             break;
             
         case ThreadDataToViewTypeAdditionalInfoUseReplyCount:
-            dictm = [self toVIewDisplayDataUseCustom];
             [dictm setObject:[NSString stringWithFormat:@"No.%zi", self.tid] forKey:@"info"];
             [dictm setObject:[NSString stringWithFormat:@"回应: %zi", self.replyCount] forKey:@"infoAdditional"];
             break;
@@ -499,13 +552,20 @@ PostDataView 接收的字段字段
     }
     
     return dictm;
-    
 }
 
 
 + (void)gotParsedPostDatas:(NSArray*)postDatas
 {
     //将比对优化部分放到AppConfig的接口实现中.
+    if(![NSThread isMainThread]) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self gotParsedPostDatas:postDatas];
+        });
+        
+        return ;
+    }
+
     [[AppConfig sharedConfigDB] configDBRecordAdds:postDatas];
 }
 

@@ -89,6 +89,7 @@ typedef NS_ENUM(NSInteger, ThreadsStatus) {
 
 - (void)refreshPostData;
 - (void)reloadPostData;
+- (BOOL)updateDataSourceByPostData:(PostData*)postDataUpdate;
 - (void)postDatasToCellDataSource ;
 - (PostViewDataPage*)postDataPageToPostViewData:(PostDataPage*)postDataPage onSection:(NSInteger)section andReload:(BOOL)reload;
 - (NSInteger)addPostDatas:(NSMutableArray*)appendPostDatas onPage:(NSInteger)page;

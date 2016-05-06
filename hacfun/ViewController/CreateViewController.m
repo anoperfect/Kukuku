@@ -15,7 +15,7 @@
 #import "CategoryViewController.h"
 #import "EmoticonCharacterView.h"
 #import "FrameLayout.h"
-
+#import "ImageViewController.h"
 
 
 #define TAG_CONTENT_VIEW    1000
@@ -99,6 +99,11 @@
     _imageView = [[UIImageView alloc] init];
     [self.view addSubview:_imageView];
     _imageView.tag = (NSInteger)@"ImageView";
+    
+    _imageView.userInteractionEnabled = YES;
+    UITapGestureRecognizer * tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showImage)];//定义一个手势
+    [tap setNumberOfTouchesRequired:1];//触击次数这里设为1
+    [_imageView addGestureRecognizer:tap];//添加手势到View中
     
     _postImageRemoveButton = [[PushButton alloc] init];
     [self.view addSubview:_postImageRemoveButton];
@@ -287,6 +292,15 @@
     range.location += string.length;
     range.length = 0;
     _textView.selectedRange = range;
+}
+
+
+- (void)showImage
+{
+    LOG_POSTION
+    ImageViewController *vc = [[ImageViewController alloc] init];
+    [vc setDisplayedImage:_imageView.image];
+    [self.navigationController pushViewController:vc animated:YES];
 }
 
 
