@@ -121,7 +121,7 @@
         else {
             //返回更新的section.
             NSInteger section = [self addPostDatas:appendPostDatas onPage:page];
-            [self postDataPageToPostViewData:nil onSection:section andReload:YES];
+            [self reloadSectionViaAppend:section];
             
             self.threadsStatus = ThreadsStatusLoadSuccessful;
             self.pageNumLoaded = self.pageNumLoading;

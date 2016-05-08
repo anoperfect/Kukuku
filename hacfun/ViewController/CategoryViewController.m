@@ -161,8 +161,35 @@
 //重载以定义cell能支持的动作. NSArray成员为 NSString.
 - (NSArray*)actionStringsForRowAtIndexPath:(NSIndexPath*)indexPath
 {
-    return @[@"复制", @"举报", @"加入草稿"];
+    return @[@"复制", @"举报", @"最近回复"];
 }
+
+
+- (BOOL)actionForRowAtIndexPath:(NSIndexPath *)indexPath viaString:(NSString *)string
+{
+    if([super actionForRowAtIndexPath:indexPath viaString:string]) {
+        return YES;
+    }
+    
+    if([string isEqualToString:@"最近回复"]) {
+        PostData *postData = [self postDataOnIndexPath:indexPath];
+        
+        NSLog(@"recentReply : %@", postData.recentReply);
+        NSArray *postDatasRecentReply = [[AppConfig sharedConfigDB] configDBRecordGets:postData.recentReply];
+        
+        PostView *view = [[PostView alloc] init];
+        CGFloat widthPercentage = 0.8;
+        view.frame = CGRectMake(self.view.frame.size.width * (1-widthPercentage), 0, self.view.frame.size.width * widthPercentage, self.view.frame.size.height);
+        [view setPostDatas:postDatasRecentReply belongTo:postData];
+        [self showPopupView:view];
+        
+        return YES;
+    }
+    
+    
+    return NO;
+}
+
 
 
 - (void)didReceiveMemoryWarning {

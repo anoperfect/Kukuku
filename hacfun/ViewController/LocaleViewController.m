@@ -76,7 +76,7 @@
     [self showfootViewWithTitle:[NSString stringWithFormat:@"共%zd条, 已加载%zi条", self.allTid.count, [self numberOfPostDatasTotal]]
            andActivityIndicator:NO andDate:NO];
     
-    [self postDatasToCellDataSource];
+    [self reloadPostView];
     
     NSLog(@"appendPostDatas %@", appendPostDatas);
 }
@@ -92,7 +92,7 @@
 
 - (NSArray*)actionStringsForRowAtIndexPath:(NSIndexPath*)indexPath
 {
-    return @[@"复制", @"加入草稿", @"删除"];
+    return @[@"复制", @"删除"];
 }
 
 
@@ -122,10 +122,9 @@
     self.updateResult = [[NSMutableDictionary alloc] init];
     
     //所有显示更新中提示.
-    for(PostViewDataPage *postViewDataPage in self.postViewDataPages) {
-        for(NSMutableDictionary *dictm in postViewDataPage.postViewDatas) {
-            [dictm setObject:@"更新中" forKey:@"otherInfo"];
-        }
+    NSArray *indexPaths = [self indexPathsPostData];
+    for(NSIndexPath *indexPath in indexPaths) {
+        [self setStatusInfoOnIndexPath:indexPath withInfo:@"更新中" andReload:NO];
     }
     
     [self.postView reloadData];
@@ -162,26 +161,18 @@
 //将数据更新到用于cell显示的data.
 - (void)updateToCellData:(NSInteger)tid withInfo:(NSDictionary*)info
 {
-    BOOL found = NO;
     NSString *message = [info objectForKey:@"message"];
-    
-    for(PostViewDataPage *postViewDataPage in self.postViewDataPages) {
-        for(NSMutableDictionary *dictm in postViewDataPage.postViewDatas) {
-            PostData *postData = [dictm objectForKey:@"postdata"];
-            if(tid == postData.tid) {
-                NSLog(@"find in ");
-                
-                [dictm setObject:message forKey:@"otherInfo"];
-                
-                found = YES;
-                break;
-            }
-        }
+    if(![message isKindOfClass:[NSString class]]) {
+        NSLog(@"#error - message not found.")
+        return;
     }
     
-    if(!found) {
-        //实际页面未全部显示的时候, 可能导致未在self.postViewCellDatas中找到.
-        NSLog(@"#error not found.");
+    NSIndexPath *indexPath = [self indexPathWithTid:tid];
+    if(indexPath) {
+        [self setStatusInfoOnIndexPath:indexPath withInfo:message andReload:NO];
+    }
+    else {
+        [self setStatusInfoOnTid:tid withInfo:message andReload:NO];
     }
 }
 

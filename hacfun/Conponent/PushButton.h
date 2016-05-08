@@ -17,3 +17,11 @@
 
 
 @end
+
+
+
+@interface ViewContainer : UIView
+
+@end
+
+

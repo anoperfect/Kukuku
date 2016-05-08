@@ -36,15 +36,27 @@
 -(instancetype) init {
     
     if(self = [super init]) {
-        self.threadsStatus = ThreadsStatusInit;
-        self.pageNumLoaded = 0;
-        self.numberLoaded = 0;
-        self.pageNumLoading = 1; //从page1开始加载.
-        self.postDataPages = [[NSMutableArray alloc] init];
-        self.indexPathsDisplaying = [[NSMutableArray alloc] init];
+        [self initMemberData];
     }
     
     return self;
+}
+
+
+- (void)initMemberData
+{
+    self.threadsStatus = ThreadsStatusInit;
+    self.pageNumLoaded = 0;
+    self.numberLoaded = 0;
+    self.pageNumLoading = 1; //从page1开始加载.
+    self.postDataPages = [[NSMutableArray alloc] init];
+    
+    self.indexPathsDisplaying = [[NSMutableArray alloc] init];
+    self.dynamicPostViewDataOptimumSizeHeight   = [[NSMutableDictionary alloc] init];
+    self.dynamicPostViewDataShowActionButtons   = [[NSMutableDictionary alloc] init];
+    self.dynamicPostViewDataFold                = [[NSMutableDictionary alloc] init];
+    self.dynamicPostViewDataStatusInfo          = [[NSMutableDictionary alloc] init];
+    self.dynamicTidStatusInfo                   = [[NSMutableDictionary alloc] init];
 }
 
 
@@ -84,6 +96,8 @@
     [self.footView addSubview:activityIndicatorView];
     
     //[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(layoutCellView:) name:@"CellViewFrameChanged" object:nil];
+    
+    [self reloadPostView];
     
     double delayInSeconds = 0.1;
     dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
@@ -211,20 +225,11 @@
 - (void)refreshPostData {
     LOG_POSTION
     
-    self.threadsStatus = ThreadsStatusInit;
-    self.pageNumLoaded = 0;
-    self.numberLoaded = 0;
-    self.pageNumLoading = 1; //从page1开始加载.
-    self.postDataPages = [[NSMutableArray alloc] init];
-    self.postViewDataPages = [[NSMutableArray alloc] init];
+    [self initMemberData];
     
     //could be override.
     [self clearDataAdditional];
     
-    [self postDatasToCellDataSource];
-    
-    NSLog(@"%zd", self.postDataPages.count);
-    NSLog(@"%zd", self.postViewDataPages.count);
     
     [self loadMore];
 }
@@ -257,110 +262,33 @@
 }
 
 
-- (void)postDatasToCellDataSource {
-
-    self.postViewDataPages = [[NSMutableArray alloc] init];
-    
-    NSInteger section = 0;
-    for(PostDataPage *postDataPage in self.postDataPages) {
-        [self postDataPageToPostViewData:postDataPage onSection:section andReload:NO];
-        section ++;
-    }
-
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self.postView reloadData];
-    });
-}
-
-
-- (PostViewDataPage*)postDataPageToPostViewData:(PostDataPage*)postDataPage onSection:(NSInteger)section andReload:(BOOL)reload
-{
-    if(postDataPage == nil) {
-        postDataPage = self.postDataPages[section];
-    }
-    
-    PostViewDataPage *postViewDataPage = [[PostViewDataPage alloc] init];
-    postViewDataPage.page = postDataPage.page;
-    
-    if(section > self.postDataPages.count) {
-        NSLog(@"#error - ");
-        return nil;
-    }
-
-    NSInteger row = 0;
-    for(PostData *postData in postDataPage.postDatas) {
-        NSLog(@"%@", postDataPage.postDatas);
-        NSLog(@"%@", postData);
-        
-        NSIndexPath *indexPath = [NSIndexPath indexPathForRow:row inSection:section];
-        LOG_POSTION
-        NSMutableDictionary* postViewData = [self cellPresentDataFromPostData:postData onIndexPath:indexPath];
-        LOG_POSTION
-        [postViewDataPage.postViewDatas addObject:postViewData];
-        LOG_POSTION
-        
-        row ++;
-    }
-    
-    if(section == self.postViewDataPages.count) {
-        [self.postViewDataPages addObject:postViewDataPage];
-    }
-    else if(section < self.postDataPages.count) {
-        [self.postViewDataPages replaceObjectAtIndex:section withObject:postViewDataPage];
-    }
-    
-    if(reload) {
-        NSLog(@"---reload");
-        if(section < self.postView.numberOfSections) {
-            NSLog(@"---reload typic section : %zd", section);
-            NSIndexSet *indexSet = [NSIndexSet indexSetWithIndex:section];
-            [self.postView reloadSections:indexSet withRowAnimation:UITableViewRowAnimationNone];
-        }
-        else {
-            NSLog(@"---reload all");
-            NSLog(@"---reload footview frame =[ %@", [NSString stringFromCGRect:self.postView.tableFooterView.frame]);
-            NSLog(@"---reload footview frame =[ %f + %f = %f", self.postView.contentOffset.y, self.postView.frame.size.height,
-                  self.postView.contentOffset.y + self.postView.frame.size.height);
-
-            
-            //#用这句仍然有动画效果? 那不用这个. 直接reloadData.
-            //[self.postView insertSections:[NSIndexSet indexSetWithIndex:section] withRowAnimation:UITableViewRowAnimationNone];
-            
-            [self.postView reloadData];
-    
-#if UITABLEVIEW_INSERT_OPTUMIZE
-            /*因为自动刷新时, 重新刷新UITableView造成资源浪费. 设定在footview未显示的时候, 不主动刷新.
-            更新数据源后不主动刷新的话, 需在合适的地方执行刷新. 暂时找到的方案是.
-            1. 在最后一个cell显示的时候判断是否更新到最新数据源, 执行刷新.
-            2. 在移动位置的时候, 判断刷新.
-            3. 在自动刷新停止后, 刷新.
-            这些方案都可能存在问题. 同时发现将UITableView的delegate 和 datasource 的打印清除后, 效果好很多.
-            因此暂时不优化这部分.
-             */
-            if(self.postView.tableFooterView.frame.origin.y >= (self.postView.contentOffset.y + self.postView.frame.size.height)) {
-                NSLog(@"------reload not perform due footview not shown.");
-            }
-            else {
-                [self.postView reloadData];
-            }
-#endif
-            
-            NSLog(@"---reload all finish");
-        }
-        NSLog(@"---reload finish");
-    }
-    
-    return postViewDataPage;
-}
-
-
-
 - (NSMutableDictionary*)cellPresentDataFromPostData:(PostData*)postData onIndexPath:(NSIndexPath*)indexPath
 {
-    NSLog(@"---%@", [postData class]);
+    NSLog(@"ffflod : %@", self.dynamicPostViewDataFold);
     
     NSMutableDictionary *dict = [postData toViewDisplayData:ThreadDataToViewTypeInfoUseReplyCount];
     [dict setObject:indexPath forKey:@"indexPath"];
+    
+    NSNumber *isActionButtonsShow = [self.dynamicPostViewDataShowActionButtons objectForKey:indexPath];
+    if(isActionButtonsShow && [isActionButtonsShow isKindOfClass:[NSNumber class]] && [isActionButtonsShow boolValue]) {
+        [dict setObject:@YES forKey:@"showAction"];
+        [dict setObject:[self actionStringsForRowAtIndexPath:indexPath] forKey:@"actionStrings"];
+    }
+    
+    NSArray *foldInfos = [self.dynamicPostViewDataFold objectForKey:indexPath];
+    if([foldInfos isKindOfClass:[NSArray class]] && foldInfos.count > 0) {
+        [dict setObject:[NSString combineArray:foldInfos withInterval:@", " andPrefix:@"" andSuffix:@""] forKey:@"fold"];
+    }
+    
+    NSString *statusMessage = [self.dynamicPostViewDataStatusInfo objectForKey:indexPath];
+    if([statusMessage isKindOfClass:[NSString class]]) {
+        [dict setObject:statusMessage forKey:@"StatusMessage"];
+    }
+    
+    NSString *statusMessageTid = [self.dynamicTidStatusInfo objectForKey:[NSNumber numberWithInteger:postData.tid]];
+    if([statusMessageTid isKindOfClass:[NSString class]]) {
+        [dict setObject:statusMessage forKey:@"StatusMessage"];
+    }
     
     return dict;
 }
@@ -420,11 +348,9 @@
 
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-
-    NSMutableDictionary *postViewDataRow = [self postViewDataOnIndexPath:indexPath];
     
     CGFloat height = tableView.bounds.size.height;
-    NSNumber *numberHeight = [postViewDataRow objectForKey:@"optimumSizeHeight"];
+    NSNumber *numberHeight = [self.dynamicPostViewDataOptimumSizeHeight objectForKey:indexPath];
     if(numberHeight && [numberHeight isKindOfClass:[NSNumber class]]) {
         height = [numberHeight floatValue];
     }
@@ -442,24 +368,25 @@
 
 
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    PostViewDataPage *postViewDataPage = self.postViewDataPages[section];
-    NSInteger rows = postViewDataPage.postViewDatas.count;
+    PostDataPage *postDataPage = self.postDataPages[section];
+    NSInteger rows = postDataPage.postDatas.count;
+
     //NSLog(@"------tableView numberOfRowsInSection : section:%zd, page:%zd, rows:%zd", section, postViewDataPage.page, rows);
-    
     //PostDataPage *postDataPage = self.postDataPages[section];
-    //NSLog(@"------ section %zd , rows : %zd", section, postDataPage.postDatas.count);
+    NSLog(@"------ section %zd , rows : %zd", section, rows);
     
     return rows;
 }
 
 
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    PostViewDataPage *postViewDataPage = self.postViewDataPages[indexPath.section];
-    NSMutableDictionary *postViewDataRow = postViewDataPage.postViewDatas[indexPath.row];
+    NSLog(@"------tableView cellForRowAtIndexPath : %@", [NSString stringFromTableIndexPath:indexPath]);
     
-    NSLog(@"------tableView cellForRowAtIndexPath : %@ page %zd", [NSString stringFromTableIndexPath:indexPath], postViewDataPage.page);
+    PostData *postData = [self postDataOnIndexPath:indexPath];
+    NSMutableDictionary *postViewDataRow = [self cellPresentDataFromPostData:postData onIndexPath:indexPath];
+    NSLog(@"postViewDataRow : %@", postViewDataRow);
+    
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"cell"];
-    
     if (cell == nil) {
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"cell"];
         CGRect frame = cell.frame;
@@ -482,7 +409,6 @@
     };
 
     PostImageView *viewThumb = [v getThumbImage];
-    PostData *postData = [self postDataOnIndexPath:indexPath];
     NSString *imageHost = self.host.imageHost;
     NSString *downloadString = [NSString stringWithFormat:@"%@/%@", imageHost, postData.image];
     viewThumb.linkImageString = downloadString;
@@ -493,7 +419,7 @@
     contentLabel.delegate = self;
     
     //记录变长高度.
-    [postViewDataRow setObject:[NSNumber numberWithFloat:v.frame.size.height] forKey:@"optimumSizeHeight"];
+    [self.dynamicPostViewDataOptimumSizeHeight setObject:[NSNumber numberWithFloat:v.frame.size.height] forKey:indexPath];
     
     FRAMELAYOUT_SET_HEIGHT(cell, v.frame.size.height);
 
@@ -757,6 +683,122 @@
 }
 
 
+- (void)showCellActionButtonsOnIndexPath:(NSIndexPath*)indexPath andReload:(BOOL)reload
+{
+    [self.dynamicPostViewDataShowActionButtons setObject:@YES forKey:indexPath];
+    
+    if(reload) {
+        //设置后刷新.
+        NSArray *indexArray=[NSArray arrayWithObject:indexPath];
+        [self.postView reloadRowsAtIndexPaths:indexArray withRowAnimation:UITableViewRowAnimationAutomatic];
+    }
+}
+
+
+- (void)hiddenCellActionButtonsOnIndexPath:(NSIndexPath*)indexPath andReload:(BOOL)reload
+{
+    [self.dynamicPostViewDataShowActionButtons setObject:@NO forKey:indexPath];
+    
+    if(reload) {
+        //设置后刷新.
+        NSArray *indexArray=[NSArray arrayWithObject:indexPath];
+        [self.postView reloadRowsAtIndexPaths:indexArray withRowAnimation:UITableViewRowAnimationAutomatic];
+    }
+}
+
+
+
+
+
+- (void)foldCellOnIndexPath:(NSIndexPath*)indexPath withInfo:(NSString*)info andReload:(BOOL)reload
+{
+    NSArray *infos = [self.dynamicPostViewDataFold objectForKey:indexPath];
+    if(infos) {
+        if([infos indexOfObject:info] != NSNotFound) {
+            NSMutableArray *infosM = [NSMutableArray arrayWithArray:infos];
+            [infosM addObject:info];
+            [self.dynamicPostViewDataFold setObject:[NSArray arrayWithArray:infosM] forKey:indexPath];
+        }
+    }
+    else {
+        [self.dynamicPostViewDataFold setObject:@[info] forKey:indexPath];
+    }
+    
+    if(reload) {
+        //设置后刷新.
+        NSArray *indexArray=[NSArray arrayWithObject:indexPath];
+        [self.postView reloadRowsAtIndexPaths:indexArray withRowAnimation:UITableViewRowAnimationAutomatic];
+    }
+}
+
+
+- (void)unfoldCellOnIndexPath:(NSIndexPath*)indexPath withInfo:(NSString*)info andReload:(BOOL)reload
+{
+    NSArray *infos = [self.dynamicPostViewDataFold objectForKey:indexPath];
+    if(infos) {
+        if([infos indexOfObject:info] != NSNotFound) {
+
+        }
+        else {
+            NSMutableArray *infosM = [NSMutableArray arrayWithArray:infos];
+            [infosM removeObject:info];
+            if(infosM.count > 0) {
+                [self.dynamicPostViewDataFold setObject:[NSArray arrayWithArray:infosM] forKey:indexPath];
+            }
+            else {
+                [self.dynamicPostViewDataFold removeObjectForKey:indexPath];
+            }
+        }
+    }
+    else {
+        
+    }
+    
+    if(reload) {
+        //设置后刷新.
+        NSArray *indexArray=[NSArray arrayWithObject:indexPath];
+        [self.postView reloadRowsAtIndexPaths:indexArray withRowAnimation:UITableViewRowAnimationAutomatic];
+    }
+}
+
+
+- (void)setStatusInfoOnIndexPath:(NSIndexPath*)indexPath withInfo:(NSString*)info andReload:(BOOL)reload
+{
+    if(info) {
+        [self.dynamicPostViewDataStatusInfo setObject:info forKey:indexPath];
+    }
+    else {
+        [self.dynamicPostViewDataStatusInfo removeObjectForKey:indexPath];
+    }
+    
+    if(reload) {
+        //设置后刷新.
+        NSArray *indexArray=[NSArray arrayWithObject:indexPath];
+        [self.postView reloadRowsAtIndexPaths:indexArray withRowAnimation:UITableViewRowAnimationAutomatic];
+    }
+}
+
+- (void)setStatusInfoOnTid:(NSInteger)tid withInfo:(NSString*)info andReload:(BOOL)reload
+{
+    if(info) {
+        [self.dynamicTidStatusInfo setObject:info forKey:[NSNumber numberWithInteger:tid]];
+    }
+    else {
+        [self.dynamicTidStatusInfo removeObjectForKey:[NSNumber numberWithInteger:tid]];
+    }
+    
+    if(reload) {
+        //设置后刷新.
+        
+        NSIndexPath *indexPath = [self indexPathWithTid:tid];
+        if(indexPath) {
+            NSArray *indexArray=[NSArray arrayWithObject:indexPath];
+            [self.postView reloadRowsAtIndexPaths:indexArray withRowAnimation:UITableViewRowAnimationAutomatic];
+        }
+    }
+}
+
+
 //重载以定义row行为.
 - (BOOL)actionForRowAtIndexPath:(NSIndexPath*)indexPath viaString:(NSString*)string
 {
@@ -764,14 +806,8 @@
     PostDataPage *postDataPage = self.postDataPages[indexPath.section];
     PostData *postDataRow = postDataPage.postDatas[indexPath.row];
     
-    PostViewDataPage *postViewDataPage = self.postViewDataPages[indexPath.section];
-    NSMutableDictionary *postViewDataRow = postViewDataPage.postViewDatas[indexPath.row];
+    [self hiddenCellActionButtonsOnIndexPath:indexPath andReload:YES];
     
-    [postViewDataRow setObject:@NO forKey:@"showAction"];
-    //NSIndexPath *indexPath_1=[NSIndexPath indexPathForRow:row inSection:0];
-    NSArray *indexArray=[NSArray arrayWithObject:indexPath];
-    [self.postView reloadRowsAtIndexPaths:indexArray withRowAnimation:UITableViewRowAnimationAutomatic];
-
     if([string isEqualToString:@"复制"]){
         UIPasteboard *pab = [UIPasteboard generalPasteboard];
         [pab setString:[NSString decodeWWWEscape:postDataRow.content]];
@@ -857,21 +893,8 @@
     LOG_POSTION
     
     //标记需显示 cell栏的action.
-
-    NSMutableDictionary *postViewDataRow = [self postViewDataOnIndexPath:indexPath];
+    [self showCellActionButtonsOnIndexPath:indexPath andReload:YES];
     
-    NSNumber *numberBOOLShowAction = [postViewDataRow objectForKey:@"showAction"];
-    if(!numberBOOLShowAction || ![numberBOOLShowAction boolValue]) {
-        [postViewDataRow setObject:@YES forKey:@"showAction"];
-        [postViewDataRow setObject:[self actionStringsForRowAtIndexPath:indexPath] forKey:@"actionStrings"];
-    }
-    else {
-        [postViewDataRow setObject:@NO forKey:@"showAction"];
-    }
-    
-    //刷新指定row.
-    NSArray *indexArray=[NSArray arrayWithObject:indexPath];
-    [self.postView reloadRowsAtIndexPaths:indexArray withRowAnimation:UITableViewRowAnimationAutomatic];
     
 #if 0
     UIActionSheet* mySheet = [[UIActionSheet alloc]
@@ -925,43 +948,7 @@
 }
 
 
-- (PostData*)postDataOnIndexPath:(NSIndexPath*)indexPath
-{
-    PostData *postData = nil;
-    
-    if(indexPath.section >=0 && indexPath.section < self.postDataPages.count) {
-        PostDataPage *postDataPage = self.postDataPages[indexPath.section];
-        if(indexPath.row >=0 && indexPath.row < postDataPage.postDatas.count) {
-            postData = postDataPage.postDatas[indexPath.row];
-        }
-    }
-    
-    if(!postData) {
-        NSLog(@"#error - PostData nil on %@", indexPath);
-    }
-    
-    return postData;
-}
 
-
-
-- (NSMutableDictionary*)postViewDataOnIndexPath:(NSIndexPath*)indexPath
-{
-    NSMutableDictionary *postViewData = nil;
-    
-    if(indexPath.section >=0 && indexPath.section < self.postViewDataPages.count) {
-        PostViewDataPage *postViewDataPage = self.postViewDataPages[indexPath.section];
-        if(indexPath.row >=0 && indexPath.row < postViewDataPage.postViewDatas.count) {
-            postViewData = postViewDataPage.postViewDatas[indexPath.row];
-        }
-    }
-    
-    if(!postViewData) {
-        NSLog(@"#error - PostData nil on %@", indexPath);
-    }
-    
-    return postViewData;
-}
 
 
 - (NSIndexPath*)indexPathWithTid:(NSInteger)tid
@@ -1012,25 +999,8 @@
                     
                     //更新对应的postViewData.
                     NSIndexPath *indexPath = [NSIndexPath indexPathForRow:row inSection:section];
-                    NSMutableDictionary *postViewDataUpdate =
-                            [self cellPresentDataFromPostData:postData onIndexPath:indexPath];
-                    if(postViewDataUpdate) {
-                        if(indexPath.section >=0 && indexPath.section < self.postViewDataPages.count) {
-                            PostViewDataPage *postViewDataPage = self.postViewDataPages[indexPath.section];
-                            if(indexPath.row >=0 && indexPath.row < postViewDataPage.postViewDatas.count) {
-                                [postViewDataPage.postViewDatas replaceObjectAtIndex:row withObject:postViewDataUpdate];
-                            }
-                            else {
-                                NSLog(@"#error -");
-                            }
-                        }
-                        else {
-                            NSLog(@"#error -");
-                        }
-                    }
-                    else {
-                        NSLog(@"#error -");
-                    }
+                    NSArray *indexArray=[NSArray arrayWithObject:indexPath];
+                    [self.postView reloadRowsAtIndexPaths:indexArray withRowAnimation:UITableViewRowAnimationAutomatic];
                 }
                 
                 break;
@@ -1100,10 +1070,62 @@
 }
 
 
+- (void)reloadSectionViaAppend:(NSInteger)section
+{
+    NSLog(@"###### UITableView reload.");
+    [self.postView reloadData];
+}
+
+- (void)reloadPostView
+{
+    NSLog(@"###### UITableView reload.");
+    [self.postView reloadData];
+}
+
+
+- (NSArray*)indexPathsPostData
+{
+    NSMutableArray *indexPathsM = [[NSMutableArray alloc] init];
+    
+    NSInteger sectionTotal = self.postDataPages.count;
+    for(NSInteger section = 0; section < sectionTotal; section ++) {
+        PostDataPage *postDataPage = self.postDataPages[section];
+        NSInteger rowTotal = postDataPage.postDatas.count;
+        for(NSInteger row = 0; row < rowTotal; row ++) {
+            [indexPathsM addObject:[NSIndexPath indexPathForRow:row inSection:section]];
+        }
+    }
+
+    return [NSArray arrayWithArray:indexPathsM];
+}
+
+
+- (PostData*)postDataOnIndexPath:(NSIndexPath*)indexPath
+{
+    PostData *postData = nil;
+    
+    if(indexPath.section >=0 && indexPath.section < self.postDataPages.count) {
+        PostDataPage *postDataPage = self.postDataPages[indexPath.section];
+        if(indexPath.row >=0 && indexPath.row < postDataPage.postDatas.count) {
+            postData = postDataPage.postDatas[indexPath.row];
+        }
+    }
+    
+    if(!postData) {
+        NSLog(@"#error - PostData nil on %@", indexPath);
+    }
+    
+    return postData;
+}
+
+
+
+
+
+
+
+
 @end
-
-
-
 
 
 

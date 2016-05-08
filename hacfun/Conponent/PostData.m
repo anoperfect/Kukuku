@@ -170,6 +170,17 @@
             /*break;*/ \
         } \
     }
+        
+#define DICT_PARSE_GET_ARRAY(key, item) { \
+        obj = [dict objectForKey:key]; \
+        if([obj isKindOfClass:[NSArray class]]){ \
+            item = [NSArray arrayWithArray:obj]; \
+        } \
+        else { \
+            NSLog(@"----------------------------------------------%@ not get", key); \
+            /*break;*/ \
+        } \
+    }
     
         DICT_PARSE_GET_NSSTRING(@"content", pd.content)
         DICT_PARSE_GET_LONGLONG(@"createdAt", pd.createdAt)
@@ -180,6 +191,7 @@
         DICT_PARSE_GET_NSINTEGER(@"lock", pd.lock)
         DICT_PARSE_GET_NSSTRING(@"name", pd.name)
         DICT_PARSE_GET_NSINTEGER(@"replyCount", pd.replyCount)
+        DICT_PARSE_GET_ARRAY(@"recentReply", pd.recentReply)
         DICT_PARSE_GET_NSINTEGER(@"sage", pd.sage)
         DICT_PARSE_GET_NSSTRING(@"thumb", pd.thumb)
         DICT_PARSE_GET_NSSTRING(@"title", pd.title)
@@ -187,6 +199,23 @@
         DICT_PARSE_GET_LONGLONG(@"updatedAt", pd.updatedAt)
         
 //        pd.content = [self postDataContentRetreat:pd.content];
+        
+        //recentReply进行判断及由小到大排序.
+        NSArray *recentReply = pd.recentReply;
+        pd.recentReply = nil;
+        NSMutableArray *recentReplyCheck = [[NSMutableArray alloc] init];
+        for(NSNumber *tidNumber in recentReply) {
+            if([tidNumber isKindOfClass:[NSNumber class]]) {
+                [recentReplyCheck addObject:tidNumber];
+            }
+        }
+        pd.recentReply = [NSArray arrayWithArray:recentReplyCheck];
+        pd.recentReply = [pd.recentReply sortedArrayUsingComparator:^NSComparisonResult(id obj1, id obj2) {
+            NSNumber *n1 = obj1;
+            NSNumber *n2 = obj2;
+            
+            return [n1 compare:n2];
+        }];
         
         finished = YES;
         
@@ -656,6 +685,37 @@ PostDataView 接收的字段字段
     //将解析的数据加载到record表中.
     if(postDatasArray.count > 0) {
         [self gotParsedPostDatas:postDatasArray];
+    }
+    
+    //解析replys.
+    key = @"replys";
+    obj = [dict objectForKey:key];
+    if(obj && [obj isKindOfClass:[NSDictionary class]]) {
+        NSDictionary *tReplyDict = obj;
+        
+        NSLog(@"^^^^^^%@", tReplyDict.allKeys);
+        
+        NSMutableArray *replyPostDatas = [[NSMutableArray alloc] init];
+        
+        for(NSString *t in tReplyDict.allKeys) {
+            if([t isKindOfClass:[NSString class]] && [t hasPrefix:@"t"] && [[t substringFromIndex:1] integerValue] > 0 && [[tReplyDict objectForKey:t] isKindOfClass:[NSDictionary class]]) {
+                NSMutableDictionary *dictPostData = [NSMutableDictionary dictionaryWithDictionary:[tReplyDict objectForKey:t]];
+                [dictPostData setObject:[NSNumber numberWithInteger:[[t substringFromIndex:1] integerValue]] forKey:@"id"];
+                
+                PostData *postDataReply = [PostData fromDictData:[NSDictionary dictionaryWithDictionary:dictPostData] atPage:0];
+                if(postDataReply) {
+                    [replyPostDatas addObject:postDataReply];
+                }
+                else {
+                    NSLog(@"#error - parse error.");
+                }
+            }
+        }
+        
+        if(replyPostDatas.count > 0) {
+            NSLog(@"add %zd recent replies to record.", replyPostDatas.count);
+            [PostData gotParsedPostDatas:replyPostDatas];
+        }
     }
     
     return postDatasArray;

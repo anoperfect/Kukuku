@@ -49,3 +49,19 @@ typedef void (^blockRowActionHandle)(NSIndexPath *indexPath, NSString *actionStr
 
 @end
 
+
+
+
+
+
+
+
+
+
+
+@interface PostView : UIView
+
+- (void)setPostDatas:(NSArray *)postDatas belongTo:(PostData*)topic;
+
+
+@end

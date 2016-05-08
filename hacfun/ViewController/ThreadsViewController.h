@@ -43,7 +43,18 @@ typedef NS_ENUM(NSInteger, ThreadsStatus) {
 
 //显示threads的数据源.
 @property (strong,nonatomic) NSMutableArray *postDataPages;
-@property (strong,nonatomic) NSMutableArray *postViewDataPages;
+
+
+
+@property (nonatomic, strong) NSMutableDictionary *dynamicPostViewDataOptimumSizeHeight;
+
+@property (nonatomic, strong) NSMutableDictionary *dynamicPostViewDataShowActionButtons;
+@property (nonatomic, strong) NSMutableDictionary *dynamicPostViewDataFold;
+@property (nonatomic, strong) NSMutableDictionary *dynamicPostViewDataStatusInfo;
+@property (nonatomic, strong) NSMutableDictionary *dynamicTidStatusInfo;
+
+
+
 
 @property (strong,nonatomic) PushButton *footView;
 //@property (assign,nonatomic) ThreadLoadStatus footViewStatus;
@@ -90,18 +101,34 @@ typedef NS_ENUM(NSInteger, ThreadsStatus) {
 - (void)refreshPostData;
 - (void)reloadPostData;
 - (BOOL)updateDataSourceByPostData:(PostData*)postDataUpdate;
-- (void)postDatasToCellDataSource ;
-- (PostViewDataPage*)postDataPageToPostViewData:(PostDataPage*)postDataPage onSection:(NSInteger)section andReload:(BOOL)reload;
+//- (void)postDatasToCellDataSource ;
+//- (PostViewDataPage*)postDataPageToPostViewData:(PostDataPage*)postDataPage onSection:(NSInteger)section andReload:(BOOL)reload;
 - (NSInteger)addPostDatas:(NSMutableArray*)appendPostDatas onPage:(NSInteger)page;
 
 - (NSInteger)numberOfPostDatasTotal;
 - (PostData*)postDataLastObject;
 
 
-- (PostData*)postDataOnIndexPath:(NSIndexPath*)indexPath;
-- (NSMutableDictionary*)postViewDataOnIndexPath:(NSIndexPath*)indexPath;
-- (NSIndexPath*)indexPathWithTid:(NSInteger)tid;
+//- (NSMutableDictionary*)postViewDataOnIndexPath:(NSIndexPath*)indexPath;
+
 - (NSArray*)generatePostDataArray;
+
+//折叠和取消折叠.
+- (void)foldCellOnIndexPath:(NSIndexPath*)indexPath withInfo:(NSString*)info andReload:(BOOL)reload;
+- (void)unfoldCellOnIndexPath:(NSIndexPath*)indexPath withInfo:(NSString*)info andReload:(BOOL)reload;
+
+//设置一些状态信息.
+- (void)setStatusInfoOnIndexPath:(NSIndexPath*)indexPath withInfo:(NSString*)info andReload:(BOOL)reload;
+- (void)setStatusInfoOnTid:(NSInteger)tid withInfo:(NSString*)info andReload:(BOOL)reload;
+
+- (void)reloadSectionViaAppend:(NSInteger)section;
+- (void)reloadPostView;
+
+
+- (NSIndexPath*)indexPathWithTid:(NSInteger)tid;
+- (NSArray*)indexPathsPostData;
+- (PostData*)postDataOnIndexPath:(NSIndexPath*)indexPath;
+
 
 
 //override.

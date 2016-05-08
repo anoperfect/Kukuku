@@ -24,6 +24,7 @@
  @"info"            - 第一行右边的. 显示tid, 或者replycount. 可重写.
  @"manageInfo"      - 第二行左边的. 显示sage.
  @"otherInfo"       - 第二行右边的. 显示一些其他信息. 暂时是显示更新回复信息. 用在CollectionViewController显示新回复状态.
+ @"statusInfo"      - 第三行右边的. 显示一些状态信息.
  @"content"         - 正文.  根据需要已作内容调整.
  @"colorUid"        － 标记uid颜色. 接口返回的<font color>标签解析出的颜色.
  @"colorUidSign"    － 标记uid颜色. 暂时使用uid颜色标记特定thread. 比如Po, //self post , self reply, follow, other cookie.
@@ -279,7 +280,8 @@ static NSInteger kcountObject = 0;
 #else
     self.actionButtons0.hidden = YES;
     NSNumber *showActions = [self.data objectForKey:@"showAction"];
-    if([showActions boolValue]) {
+    if([showActions isKindOfClass:[NSNumber class]] && [showActions boolValue]) {
+        NSLog(@"show actions.")
         NSArray *actionStrings = [self.data objectForKey:@"actionStrings"];
         NSInteger count = actionStrings.count;
         if(count > 0) {
@@ -312,8 +314,14 @@ static NSInteger kcountObject = 0;
             
             [self.actionButtons0 setItems:items animated:NO];
         }
+        else {
+            NSLog(@"#error - no actions string set.");
+        }
+
     }
-    
+    else {
+        NSLog(@"NOT show actions");
+    }
     
 #endif
 }
@@ -353,16 +361,31 @@ static NSInteger kcountObject = 0;
     //UIFont *font = [UIFont systemFontOfSize:12];
     UIFont *font = [UIFont fontWithName:@"PostTitle"];
 //    NSString *text = @"2016-02-03 12:34:56 ABCDEF00";
-    NSString *text = @"2016-02-03 12:34:56 WWWWWWWW";
+    NSString *text = @"2016-02-03 12:34:56 WWWWWWWW ";
     NSMutableDictionary *attrs=[NSMutableDictionary dictionary];
     attrs[NSFontAttributeName]=font;
     CGSize maxSize=CGSizeMake(MAXFLOAT, MAXFLOAT);
     CGSize textSize = [text boundingRectWithSize:maxSize options:NSStringDrawingUsesLineFragmentOrigin attributes:attrs context:nil].size;
     NSLog(@"@@@---%@", NSStringFromCGSize(textSize));
     //Title line布局在最上. title与info的宽度按照比例分配.
+    NSString *textInfo = self.infoLabel.text;
+    NSMutableDictionary *attrsInfo=[NSMutableDictionary dictionary];
+    attrsInfo[NSFontAttributeName]=font;
+    CGSize maxSizeInfo=CGSizeMake(MAXFLOAT, MAXFLOAT);
+    CGSize textSizeInfo = [textInfo boundingRectWithSize:maxSizeInfo options:NSStringDrawingUsesLineFragmentOrigin attributes:attrsInfo context:nil].size;
+    NSLog(@"@@@---%@", NSStringFromCGSize(textSizeInfo));
     
-    [layout divideInVertical:@"TitleLine" to:@"Title" and:@"Info" withPercentage:0.66];
-    [layout divideInVertical:@"TitleLine" to:@"Title" and:@"Info" withWidthValue:textSize.width];
+    CGRect frameTitleLine = [layout getCGRect:@"TitleLine"];
+    if(textSize.width + textSizeInfo.width < frameTitleLine.size.width) {
+        [layout divideInVertical:@"TitleLine" to:@"Title" and:@"Info" withPercentage:0.66];
+        [layout divideInVertical:@"TitleLine" to:@"Title" and:@"Info" withWidthValue:textSize.width];
+    }
+    else {
+        [layout setUseIncludedMode:@"TitleLine" includedTo:@"LayoutAll" withPostion:FrameLayoutPositionTop andSizeValue:40.0];
+        [layout divideInHerizon:@"TitleLine" to:@"Title" and:@"Info" withPercentage:0.5];
+        [self.infoLabel setTextAlignment:NSTextAlignmentLeft];
+    }
+    
     frameTitleLabel     = [layout getCGRect:@"Title"];
     frameInfoLabel      = [layout getCGRect:@"Info"];
     
@@ -435,9 +458,10 @@ static NSInteger kcountObject = 0;
         CGRect frameActionButtonsTemp = [layout getCGRect:@"ActionButtonsTemp"];
         
         frameActionButtons = frameActionButtonsTemp;
-        frameActionButtons.origin.x = 0;
-        frameActionButtons.size.width = self.frame.size.width;
+        frameActionButtons.origin.x = 5;
+        frameActionButtons.size.width = self.frame.size.width - 2 * frameActionButtons.origin.x;
         [layout setCGRect:frameActionButtons toName:@"ActionButtons"];
+        self.actionButtons0.tintColor = [UIColor colorWithName:@"CellActionButtonsText"];
         
         heightAdjust = FRAMELAYOUT_Y_BLOW_FRAME(frameActionButtons) + edge.bottom;
     }
@@ -531,6 +555,162 @@ static NSInteger kcountObject = 0;
 
 
 @end
+
+
+
+@interface PostView () <UITableViewDelegate, UITableViewDataSource>
+
+@property (nonatomic, strong) UITableView *tableView;
+
+@property (nonatomic, strong) NSArray *postDatas;
+@property (nonatomic, strong) PostData *topic;
+@property (nonatomic, strong) NSMutableDictionary *optumizeHeights;
+
+
+@end
+
+@implementation PostView
+
+
+
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        self.tableView = [[UITableView alloc] init];
+        self.tableView.delegate = self;
+        self.tableView.dataSource = self;
+        self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+        self.backgroundColor = [UIColor purpleColor];
+        [self addSubview:self.tableView];
+    }
+    return self;
+}
+
+
+- (void)layoutSubviews
+{
+    self.tableView.frame = self.bounds;
+    [self.tableView reloadData];
+}
+
+
+- (void)setPostDatas:(NSArray *)postDatas belongTo:(PostData*)topic
+{
+    _postDatas = postDatas;
+    _topic = topic;
+    self.optumizeHeights = [[NSMutableDictionary alloc] init];
+    
+    UILabel *label = [[UILabel alloc] init];
+    CGRect frame = self.frame;
+    frame.size.height = 36;
+    label.frame = frame;
+    label.textAlignment = NSTextAlignmentCenter;
+    label.font = [UIFont fontWithName:@"PostContent"];
+    if(topic) {
+        label.text = [NSString stringWithFormat:@"显示最近%zd条回复. 共%zd条.", postDatas.count, topic.replyCount];
+    }
+    else {
+        label.text = [NSString stringWithFormat:@"显示最近%zd条回复.", postDatas.count];
+    }
+    
+    self.tableView.tableHeaderView = label;
+
+    [self.tableView reloadData];
+}
+
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    CGFloat height = tableView.bounds.size.height;
+    if([self.optumizeHeights objectForKey:indexPath]) {
+        height =[[self.optumizeHeights objectForKey:indexPath] floatValue];
+    }
+    
+    NSLog(@"------tableView[%@] heightForRowAtIndexPath return %.1f", [NSString stringFromTableIndexPath:indexPath], height);
+    return height;
+}
+
+
+- (NSInteger) numberOfSectionsInTableView:(UITableView *)tableView {
+    NSInteger sections = 1;
+    NSLog(@"------tableView------ numberOfSectionsInTableView : %zd", sections);
+    return sections;
+}
+
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+
+    NSInteger rows = self.postDatas.count;
+    NSLog(@"------tableView------ numberOfRowsInSection : %zd", rows);
+    return rows;
+}
+
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    NSLog(@"------tableView cellForRowAtIndexPath : %@", [NSString stringFromTableIndexPath:indexPath]);
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"cell"];
+    
+    if (cell == nil) {
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"cell"];
+        CGRect frame = cell.frame;
+        frame.size.width = tableView.frame.size.width;
+        [cell setFrame:frame];
+    }
+    else {
+        [cell.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
+    }
+    cell.tag = indexPath.row;
+    
+    PostData *postData = self.postDatas[indexPath.row];
+    NSMutableDictionary *postViewDataRow = [postData toViewDisplayData:ThreadDataToViewTypeInfoUseNumber];
+    
+    PostDataCellView *v = [PostDataCellView threadCellViewWithData:postViewDataRow
+                                                      andInitFrame:CGRectMake(0, 0, cell.frame.size.width, 100)];
+    [cell addSubview:v];
+    [v setTag:TAG_PostDataCellView];
+    
+    [self.optumizeHeights setObject:[NSNumber numberWithFloat:v.frame.size.height] forKey:indexPath];
+    
+    return cell;
+}
+
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    NS0Log(@"点击的行数是:%@", [NSString stringFromTableIndexPath:indexPath]);
+
+}
+
+
+//增加上拉刷新.
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    
+    CGFloat offsetY = scrollView.contentOffset.y;
+    CGFloat judgeOffsetY = scrollView.contentSize.height
+    + scrollView.contentInset.bottom
+    - scrollView.frame.size.height;
+    //    - self.postView.tableFooterView.frame.size.height;
+    
+    //拉到低栏20及以上才出发上拉刷新.
+    CGFloat heightTrigger = 36.0;
+    if(offsetY >= judgeOffsetY + heightTrigger) {
+        NSLog(@"pull up trigger loadmore.");
+    }
+}
+
+
+
+
+
+
+@end
+
+
+
+
+
+
+
 
 
 //Label显示html相关的code

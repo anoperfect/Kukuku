@@ -115,7 +115,6 @@
     }
     
     NSLog(@"Detail history get : %@", self.detailHistory);
-
 }
 
 
@@ -144,13 +143,18 @@
     self.textTopic =[NSString stringWithFormat:@"No.%zi", self.tid];
     if(postDataTopic) {
         self.topic = [postDataTopic copy];
-        PostDataPage *postDataPage = [[PostDataPage alloc] init];
-        postDataPage.page = 0;
-        postDataPage.section = 0;
-        
-        [self.postDataPages addObject:postDataPage];
-        [self postDataPageToPostViewData:postDataPage onSection:0 andReload:NO];
     }
+    else {
+        self.topic = [PostData fromOnlyTid:tid];
+    }
+    
+    PostDataPage *postDataPage = [[PostDataPage alloc] init];
+    postDataPage.page = 0;
+    postDataPage.section = 0;
+    postDataPage.postDatas = [NSMutableArray arrayWithObject:self.topic];
+    
+    [self.postDataPages addObject:postDataPage];
+    
 }
 
 
@@ -195,7 +199,22 @@
     
     
     if([string isEqualToString:@"reply"]) {
-        [self createReplyPost];
+#if 1
+//        [self createReplyPost];
+        self.navigationController.toolbarHidden = NO;
+#else
+        CGFloat width = 100;
+        CGFloat height = 180;
+        CGRect frame = CGRectMake(0, 0, width, height);
+        frame = CGRectOffset(frame, self.view.frame.size.width - width, 0);
+        
+        ViewContainer *view = [[ViewContainer alloc] initWithFrame:frame];
+        view.backgroundColor = [UIColor clearColor];
+        [self zoomIn1:view andAnimationDuration:0.6];
+        
+        [self showPopupView:view];
+#endif
+        
         return;
     }
     
@@ -378,32 +397,24 @@
     //查看是否需更新主题.
     //确认主题内容是否更新. 更新的话需保存主题的高度. 否则在主题不显示在屏幕的时候导致当前页面显示的原cell移动.
     if(!self.topic) {
+        NSLog(@"previous no topic, then add.")
         self.topic = topic;
         PostDataPage *postDataPage = [[PostDataPage alloc] init];
         postDataPage.page = 0;
         [postDataPage.postDatas addObject:self.topic];
         
         [self.postDataPages insertObject:postDataPage atIndex:0];
-        PostViewDataPage *postViewDataPage = [self postDataPageToPostViewData:postDataPage onSection:0 andReload:YES];
-        postViewDataPage = nil;
         
         NSLog(@"threads added");
     }
     else {
         if([topic isEqual:self.topic]) {
-            NSLog(@"threads not updated.");
+            NSLog(@"topic not updated.");
         }
         else {
+            NSLog(@"topic updated");
             topic.optimumSizeHeight = self.topic.optimumSizeHeight;
-            self.topic = topic;
-            NSLog(@"threads updated");
-            PostDataPage *postDataPage = [[PostDataPage alloc] init];
-            postDataPage.page = 0;
-            [postDataPage.postDatas addObject:self.topic];
-            
-            [self.postDataPages replaceObjectAtIndex:0 withObject:postDataPage];
-            PostViewDataPage *postViewDataPage = [self postDataPageToPostViewData:postDataPage onSection:0 andReload:YES];
-            postViewDataPage = nil;
+            [self updateDataSourceByPostData:topic];
         }
     }
     
@@ -565,7 +576,6 @@
         [postDataPage.postDatas addObject:self.topic];
         
         [self.postDataPages addObject:postDataPage];
-        [self postDataPageToPostViewData:postDataPage onSection:0 andReload:NO];
     }
 }
 
@@ -592,9 +602,15 @@
         }
     }
     else {
-        return @[@"复制", @"举报", @"加入草稿"];
+        return @[@"复制", @"举报", @"链接"];
     }
 }
+
+
+
+
+
+
 
 
 - (BOOL)actionForRowAtIndexPath:(NSIndexPath*)indexPath viaString:(NSString*)string
@@ -609,21 +625,15 @@
     
     if([string isEqualToString:@"开启只看Po"]){
         self.isOnlyShowPo = YES;
-        
-        //给PostDataCellData设置折叠标记.
-        NSInteger sectionTotal = self.postViewDataPages.count;
-        for(NSInteger section = 0; section < sectionTotal; section ++) {
-            PostViewDataPage *postViewDataPage = self.postViewDataPages[section];
-            NSInteger rowTotal = postViewDataPage.postViewDatas.count;
-            for(NSInteger row = 0; row < rowTotal; row ++) {
-                PostData *postData = [self postDataOnIndexPath:[NSIndexPath indexPathForRow:row inSection:section]];
-                if(![postData.uid isEqualToString:self.topic.uid]) {
-                    [postViewDataPage.postViewDatas[row] setObject:@"只看Po" forKey:@"fold"];
-                    NSLog(@"fold...");
-                }
-                else {
-                    NSLog(@"fold... not ");
-                }
+
+        NSArray *indexPaths = [self indexPathsPostData];
+        for(NSIndexPath *indexPath in indexPaths) {
+            PostData *postData = [self postDataOnIndexPath:indexPath];
+            if(postData.uid == self.topic.uid) {
+                [self unfoldCellOnIndexPath:indexPath withInfo:@"只看Po" andReload:NO];
+            }
+            else {
+                [self foldCellOnIndexPath:indexPath withInfo:@"只看Po" andReload:NO];
             }
         }
         
@@ -634,16 +644,12 @@
     }
     else if([string isEqualToString:@"关闭只看Po"]){
         self.isOnlyShowPo = NO;
-        //给PostDataCellData取消 fold.
-        NSInteger sectionTotal = self.postViewDataPages.count;
-        for(NSInteger section = 0; section < sectionTotal; section ++) {
-            PostViewDataPage *postViewDataPage = self.postViewDataPages[section];
-            NSInteger rowTotal = postViewDataPage.postViewDatas.count;
-            for(NSInteger row = 0; row < rowTotal; row ++) {
-                [postViewDataPage.postViewDatas[row] removeObjectForKey:@"fold"];
-            }
+        
+        NSArray *indexPaths = [self indexPathsPostData];
+        for(NSIndexPath *indexPath in indexPaths) {
+            [self unfoldCellOnIndexPath:indexPath withInfo:@"只看Po" andReload:NO];
         }
-
+        
         [self.postView reloadData];
         
         [self showfootViewWithTitle:[NSString stringWithFormat:@"已关闭只看Po模式"]
@@ -677,6 +683,41 @@
  // Pass the selected object to the new view controller.
  }
  */
+
+
+
+- (void)zoomIn: (UIView *)view andAnimationDuration: (float) duration andWait:(BOOL) wait
+{
+    __block BOOL done = wait;
+    view.transform = CGAffineTransformMakeScale(0, 0);
+    [UIView animateWithDuration:duration animations:^{
+        view.transform = CGAffineTransformIdentity;
+        
+    } completion:^(BOOL finished) {
+        done = NO;
+    }];
+    while (done == YES)
+        [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.01]];
+}
+
+
+- (void)zoomIn1: (UIView *)view andAnimationDuration: (float) duration
+{
+    CAKeyframeAnimation * animation;
+    animation = [CAKeyframeAnimation animationWithKeyPath:@"transform"];
+    animation.duration = duration;
+    //animation.delegate = self;
+    animation.removedOnCompletion = NO;
+    animation.fillMode = kCAFillModeForwards;
+    NSMutableArray *values = [NSMutableArray array];
+    [values addObject:[NSValue valueWithCATransform3D:CATransform3DMakeScale(0.1, 0.1, 1.0)]];
+    [values addObject:[NSValue valueWithCATransform3D:CATransform3DMakeScale(1.2, 1.2, 1.0)]];
+    [values addObject:[NSValue valueWithCATransform3D:CATransform3DMakeScale(0.9, 0.9, 0.9)]];
+    [values addObject:[NSValue valueWithCATransform3D:CATransform3DMakeScale(1.0, 1.0, 1.0)]];
+    animation.values = values;
+    animation.timingFunction = [CAMediaTimingFunction functionWithName: @"easeInEaseOut"];
+    [view.layer addAnimation:animation forKey:nil];
+}
 
 
 
