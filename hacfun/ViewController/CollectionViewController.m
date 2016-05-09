@@ -48,6 +48,7 @@
     }
     
     self.allTid = [NSArray arrayWithArray:allTidM];
+    self.postDatasAll = [[AppConfig sharedConfigDB] configDBRecordGets:self.allTid];
 }
 
 

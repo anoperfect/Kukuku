@@ -351,11 +351,18 @@
         if (rangeResult.location == NSNotFound || rangeResult.length == 0) {
             break;
         }
+        
+        //已经添加链接的不添加.
         NSLog(@"zxc %zd %zd", rangeResult.location, rangeResult.length);
-        
-        [aryLocation addObject:[NSNumber numberWithInteger:rangeResult.location]];
-        [aryLength addObject:[NSNumber numberWithInteger:rangeResult.length]];
-        
+        NSString *subString = [searchText substringFromIndex:(rangeResult.location+rangeResult.length)];
+        if([subString hasPrefix:@"</a>"] || [subString hasPrefix:@"\">"]) {
+            NSLog(@"ignore link");
+        }
+        else {
+            [aryLocation addObject:[NSNumber numberWithInteger:rangeResult.location]];
+            [aryLength addObject:[NSNumber numberWithInteger:rangeResult.length]];
+        }
+    
         rangeSearch.location = rangeResult.location + rangeResult.length;
         rangeSearch.length = searchText.length - rangeSearch.location;
     }
@@ -539,7 +546,7 @@ PostDataView 接收的字段字段
     if(self.name.length > 0) {
         content = [NSString stringWithFormat:@"名称: %@\n%@", self.name, content];
     }
-    if(self.email.length > 0) {
+    if(self.email.length > 0 && ![self.email isEqualToString:@"sage"]) {
         content = [NSString stringWithFormat:@"E-mail: %@\n%@", self.email, content];
     }
     if(self.title.length > 0) {

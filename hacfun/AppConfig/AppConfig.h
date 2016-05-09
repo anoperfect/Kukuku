@@ -69,23 +69,28 @@
 - (BOOL)configDBCollectionRemoveByTidArray:(NSArray*)tidArray;
 
 
-#if 1
+
 //Post.
-- (NSArray*)configDBPostGet;
+- (NSArray*)configDBPostGets;
 - (Post*)configDBPostGetByTid:(NSInteger)tid;
 - (BOOL)configDBPostAdd:(Post*)post;
+- (BOOL)configDBPostRemove:(NSInteger)tid;
+- (BOOL)configDBPostRemoveByTidArray:(NSArray*)tidArray;
 
 
 //Reply.
-- (NSArray*)configDBReplyGet;
-- (Reply*)configDBPReplyGetByTid:(NSInteger)tid;
+- (NSArray*)configDBReplyGets;
+- (Reply*)configDBReplyGetByTid:(NSInteger)tid;
 - (BOOL)configDBReplyAdd:(Reply*)reply;
-#endif
+- (BOOL)configDBReplyRemove:(NSInteger)tid;
+- (BOOL)configDBReplyRemoveByTidArray:(NSArray*)tidArray;
+
 
 
 //Record.
 - (BOOL)configDBRecordAdds:(NSArray*)postDatas;
 - (NSArray*)configDBRecordGets:(NSArray*)tidArray;
+
 
 
 @end

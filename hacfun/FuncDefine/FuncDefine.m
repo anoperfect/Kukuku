@@ -168,6 +168,20 @@
     //    [UIColor colorWithPatternImage:[UIImage imageNamed:@"bg.png"]];
 }
 
+
+
+
++ (UIViewController *)viewControllerOfView:(UIView*)view
+{
+    for (UIView* next = [view superview]; next; next = next.superview) {
+        UIResponder *nextResponder = [next nextResponder];
+        if ([nextResponder isKindOfClass:[UIViewController class]]) {
+            return (UIViewController *)nextResponder;
+        }
+    }
+    return nil;
+}
+
 @end
 
 
@@ -217,6 +231,10 @@
 
 
 @implementation Reply
+- (NSString*)description
+{
+    return [NSString stringWithFormat:@"%zd : %zd , repliedAt : %@", self.tidBelongTo, self.tid, [NSString stringFromMSecondInterval:self.repliedAt andTimeZoneAdjustSecondInterval:0]];
+}
 @end
 
 

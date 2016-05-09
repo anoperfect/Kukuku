@@ -76,10 +76,7 @@ static NSInteger kcountObjBannerView = 0;
     
     LOG_REC0(imageBack.frame, @"imageBack");
     LOG_REC0(self.buttonTopic.frame, @"buttonTopic");
-    
-
 }
-
 
 
 - (void)setTopicButton {
@@ -92,8 +89,6 @@ static NSInteger kcountObjBannerView = 0;
     [self addSubview:self.buttonTopic];
     [self.buttonTopic setTitleColor:[UIColor colorWithName:@"BannerTopicText"] forState:UIControlStateNormal];
     [self.buttonTopic.titleLabel setFont:[UIFont fontWithName:@"ButtonTopic"]];
-//    [self.buttonTopic setBackgroundImage:[self createImageWithColor:[UIColor orangeColor]] forState:UIControlStateSelected];
-//    [self.buttonTopic setBackgroundImage:[self createImageWithColor:[UIColor orangeColor]] forState:UIControlStateHighlighted];
     
     UIImageView *imageBack = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"backn"]];
     [self.buttonTopic addSubview:imageBack];
@@ -102,7 +97,6 @@ static NSInteger kcountObjBannerView = 0;
     UIImageView *image = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"AppIconBanner"]];
     [self.buttonTopic addSubview:image];
     [image setTag:TAG_IMAGEICON];
-//    [image setFrame:CGRectMake(imageBack.frame.origin.x+imageBack.frame.size.width, 0, height, height)];
     [self.buttonTopic setTitleEdgeInsets:UIEdgeInsetsMake(0, image.frame.origin.x + image.frame.size.width + 2, 0, 0)];
     [self.buttonTopic setContentHorizontalAlignment:UIControlContentHorizontalAlignmentLeft];
 }
@@ -113,103 +107,8 @@ static NSInteger kcountObjBannerView = 0;
 }
 
 
-- (void)setButtonData:(NSArray*)buttonDataAry {
-    
-    self.buttonDataAry = [NSArray arrayWithArray:buttonDataAry];
-    self.buttons = [[NSMutableArray alloc]init];
-    
-    NSInteger numFirstLevelButton = 0;
-    NSMutableArray *firstLevelButtons = [[NSMutableArray alloc]init];
-    NSMutableArray *firstLevelButtonsData = [[NSMutableArray alloc]init];
-    
-    for(id obj in buttonDataAry) {
-        ButtonData *data = (ButtonData*)obj;
-        PushButton *button = [[PushButton alloc] init];
-        [button.titleLabel setFont:[UIFont fontWithName:@"BannerButtonMenu"]];
-        [button setTitleColor:[UIColor colorWithName:@"BannerButtonMenuText"] forState:UIControlStateNormal];
-        [button addTarget:data.target action:data.sel forControlEvents:UIControlEventTouchDown];
-        [self.buttons addObject:button];
-        
-        if(data.superId == 0) {
-            numFirstLevelButton ++;
-            [firstLevelButtons addObject:button];
-            [firstLevelButtonsData addObject:data];
-        }
-    }
-    
-    CGFloat yBorder = 10;
-    CGFloat height = self.frame.size.height - 2*yBorder;
-    CGRect rect;
-    NSInteger indexBtn = 0;
-    CGFloat widthBtn = height * 1.0;
-    CGFloat x,mx;
-    CGFloat borderRight = 3;
-    CGFloat padding = 10;
-    ButtonData *data ;
-    PushButton *button ;
-    mx = borderRight;
-    
-//    for(NSInteger i = 0; i<numFirstLevelButton ; i++) {
-    for(NSInteger i = numFirstLevelButton-1; i>=0 ; i--) {
-        
-        data = (ButtonData*)[firstLevelButtonsData objectAtIndex:i];
-        button = (PushButton*)[firstLevelButtons objectAtIndex:i];
-        
-        if(data.method == 1) {
-            widthBtn = height * 1.0;
-            [button setImage:[UIImage imageNamed:data.imageName] forState:UIControlStateNormal];
-        }
-        else {
-            widthBtn = 45;
-            [button setTitle:data.title forState:UIControlStateNormal];
-        }
-        
-        if(i == numFirstLevelButton -1) {
-            x = self.frame.size.width - borderRight - widthBtn;
-        }
-        else {
-            PushButton *buttonRight = (PushButton*)[firstLevelButtons objectAtIndex:i+1];
-            x = buttonRight.frame.origin.x - widthBtn - padding;
-        }
-        
-        rect = CGRectMake(x, yBorder, widthBtn, height);
-        [button setFrame:rect];
-        
-        [self addSubview:button];
-        
-        indexBtn ++;
-    }
-}
 
 
-- (PushButton*) getButtonByKeyword: (NSString*)keyword {
-    
-    BOOL isFound = NO;
-    NSInteger index = 0;
-    for(ButtonData *data in self.buttonDataAry) {
-        
-        if([keyword isEqualToString:data.keyword]) {
-            isFound = YES;
-            break;
-        }
-        
-        index ++;
-    }
-    
-    return isFound?[self.buttons objectAtIndex:index]:nil;
-}
-
-
-- (UIViewController *)viewController
-{
-    for (UIView* next = [self superview]; next; next = next.superview) {
-        UIResponder *nextResponder = [next nextResponder];
-        if ([nextResponder isKindOfClass:[UIViewController class]]) {
-            return (UIViewController *)nextResponder;
-        }
-    }
-    return nil;
-}
 
 
 - (void)dealloc {
@@ -218,47 +117,3 @@ static NSInteger kcountObjBannerView = 0;
 }
 
 @end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//CGSize itemSize = CGSizeMake(self.buttonTopic.frame.size.height, self.buttonTopic.frame.size.height);
-//UIGraphicsBeginImageContext(itemSize);
-//CGRect imageRect = CGRectMake(0, 0, 20, 20);
-//[image drawInRect:imageRect];
-//UIGraphicsEndImageContext();
-
-//UIImage *image = [UIImage imageNamed:@"appicon"];
-//NS0Log(@"%lf %lf", image.size.width,image.size.height);
-//
-//CGSize size = CGSizeMake(height, height);
-//UIImage *scaledImage = [self imageScale:image toSize:size];
-//NS0Log(@"%lf %lf", scaledImage.size.width,scaledImage.size.height);
-//
-//[self.buttonTopic setImage:scaledImage forState:UIControlStateNormal];
-//[self.buttonTopic setImageEdgeInsets:UIEdgeInsetsMake(0, 0, 0, 0)];
-//[self.buttonTopic setTitleEdgeInsets:UIEdgeInsetsMake(0, 0, 0, 0)];

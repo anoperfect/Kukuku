@@ -93,14 +93,9 @@ typedef NS_ENUM(NSInteger, DBDataColumnType) {
 - (NSInteger)DBDataUpdateDBName:(NSString*)databaseName toTable:(NSString*)tableName withInfoUpdate:(NSDictionary*)infoUpdate withInfoQuery:(NSDictionary*)infoQuery;
 
 
-
-
 //+1
 - (NSInteger)DBDataUpdateAdd1DBName:(NSString*)databaseName toTable:(NSString*)tableName withColumnName:(NSString*)columnName withInfoQuery:(NSDictionary*)infoQuery;
 
-
-
-//删. 暂时不实现.
 
 
 //对Insert, Update的输入数据, Query的输出数据进行检测. 返回行数. 执行时检测所有key对应的value array的个数相同.
@@ -109,5 +104,25 @@ typedef NS_ENUM(NSInteger, DBDataColumnType) {
 
 //辅助检测. 
 - (BOOL)DBDataCheckCountOfArray:(NSArray*)arrays withCount:(NSInteger)count;
+
+
+
+
+
+//直接的sql语句执行表查询. 暂时只用于测试.
+- (NSDictionary*)DBDataQueryDBName:(NSString*)databaseName
+                           toTable:(NSString*)tableName
+                     withSqlString:(NSString*)sqlString
+               andArgumentsInArray:(NSArray*)arguments;
+
+
+//直接的sql语句执行表增删改. 暂时只用于测试.
+- (NSInteger)DBDataUpdateDBName:(NSString*)databaseName
+                        toTable:(NSString*)tableName
+                  withSqlString:(NSString*)sqlString
+            andArgumentsInArray:(NSArray*)arguments;
+
+
+
 
 @end

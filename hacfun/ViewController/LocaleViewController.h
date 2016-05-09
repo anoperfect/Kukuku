@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "ThreadsViewController.h"
 @interface LocaleViewController : ThreadsViewController
+@property (nonatomic, strong) NSArray *postDatasAll;
 @property (nonatomic, strong) NSArray *allTid;
 
 

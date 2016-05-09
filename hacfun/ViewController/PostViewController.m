@@ -37,21 +37,31 @@
 }
 
 
-//将数据读入arrayAllRecord.
-- (void)getAllRecordData
+- (void)getLocaleRecords
 {
-#if 0
-    NSArray *queryDatas = [[AppConfig sharedConfigDB] configDBPostQuery:nil];
-    NSLog(@"localDatas count : %zd .", [queryDatas count]);
+    NSMutableArray *allTidM = [[NSMutableArray alloc] init];
     
-    for(NSDictionary *dict in queryDatas) {
-        long long timestampMsecAt = [(NSNumber*)(dict[@"postedAt"]) longLongValue];
-        NSLog(@"111 - No.%@ at %@", dict[@"tid"], [NSString stringFromMSecondInterval:timestampMsecAt andTimeZoneAdjustSecondInterval:0]);
+    self.concreteDatas = [[AppConfig sharedConfigDB] configDBPostGets];
+    self.concreteDatasClass = [Post class];
+    for(Post *post in self.concreteDatas) {
+        [allTidM addObject:[NSNumber numberWithInteger:post.tid]];
     }
-
-    self.arrayAllRecord = [NSMutableArray arrayWithArray:queryDatas];
-#endif
+    
+    self.allTid = [NSArray arrayWithArray:allTidM];
+    self.postDatasAll = [[AppConfig sharedConfigDB] configDBRecordGets:self.allTid];
 }
+
+
+- (void)removeRecordsWithTids:(NSArray*)tids
+{
+    [[AppConfig sharedConfigDB] configDBPostRemoveByTidArray:tids];
+}
+
+
+
+
+
+
 
 
 

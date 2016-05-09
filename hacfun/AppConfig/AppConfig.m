@@ -101,6 +101,7 @@
     return self;
 }
 
+
 - (void)configdbBuildTable
 {
     NSString *resPath= [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"db.json"];
@@ -158,8 +159,11 @@
                                                                 @[@"DetailCellTopicBorder",                 @"red"],
                                                                 @[@"DetailCellReplyBorder",                 @"#000011@20"],
                                                                 @[@"EmoticonButtonBorder",                  @"#0000ff@10"],
+                                                                @[@"CellActionButtonsText",                 @"#191970"],
                                                                 @[@"AttachPictureBackground",               @"blue"],
-                                                                @[@"default",                               @"orange"],
+                                                                @[@"Po",                                    @"blue"],
+                                                                @[@"Post",                                  @"purple"],
+                                                                @[@"Reply",                                 @"orange"],
                                                                 @[@"orange",                                @"orange"]
                                            
                                            ]
@@ -219,7 +223,18 @@
 
 - (void)test
 {
-    //current not used.
+    //Post测试数据.
+    NSString *strAddPostTest = @"INSERT INTO Post(tid,postedAt) VALUES(6624990,0)";
+    [self.dbData DBDataUpdateDBName:DBNAME_HOST toTable:TABLENAME_POST withSqlString:strAddPostTest andArgumentsInArray:nil];
+    
+#if 0
+    //Reply测试数据.
+    NSString *strAddReplyTest0 = @"INSERT INTO Reply(tid,repliedAt) VALUES(6627469,0)";
+    [self.dbData DBDataUpdateDBName:DBNAME_HOST toTable:TABLENAME_REPLY withSqlString:strAddReplyTest0 andArgumentsInArray:nil];
+    
+    NSString *strAddReplyTest1 = @"INSERT INTO Reply(tid,repliedAt) VALUES(6628849,0)";
+    [self.dbData DBDataUpdateDBName:DBNAME_HOST toTable:TABLENAME_REPLY withSqlString:strAddReplyTest1 andArgumentsInArray:nil];
+#endif
     
     
 }
@@ -902,53 +917,241 @@ else {NSLog(@"#error - obj (%@) is not NSString class.", arrayasd[indexzxc]);var
 
 
 //Post.
-- (NSArray*)configDBPostGet
+- (NSArray*)configDBPostGets
 {
-    NSLog(@"#error - not implement");
-    return nil;
+    //从数据库查询.
+    NSDictionary *queryResult = [self.dbData DBDataQueryDBName:DBNAME_HOST
+                                                       toTable:TABLENAME_POST
+                                                   columnNames:nil
+                                                     withQuery:nil
+                                                     withLimit:@{DBDATA_STRING_ORDER:@"ORDER BY tid DESC"}];
+    NSInteger count = [self.dbData DBDataCheckRowsInDictionary:queryResult];
+    
+    NSArray *arrayReturn = nil ;
+    if(count > 0) {
+        NSArray *tidArray           = queryResult[@"tid"];
+        NSArray *postedAtArray   = queryResult[@"postedAt"];
+        
+        if(![self.dbData DBDataCheckCountOfArray:@[tidArray, postedAtArray] withCount:count]) {
+            return nil;
+        }
+        
+        NSMutableArray *arrayReturnM = [[NSMutableArray alloc] init];
+        
+        for(NSInteger index = 0; index < count; index++) {
+            
+            Post *post = [[Post alloc] init];
+            ASSIGN_INTEGER_VALUE_FROM_ARRAYMEMBER(post.tid, tidArray, index, 0)
+            ASSIGN_LONGLONG_VALUE_FROM_ARRAYMEMBER(post.postedAt, postedAtArray, index, 0)
+            
+            [arrayReturnM addObject:post];
+        }
+        
+        arrayReturn = [NSArray arrayWithArray:arrayReturnM];
+    }
+    
+    return arrayReturn;
 }
 
 
 - (Post*)configDBPostGetByTid:(NSInteger)tid
 {
-    NSLog(@"#error - not implement");
-    return nil;
+    //从数据库查询.
+    NSDictionary *queryResult = [self.dbData DBDataQueryDBName:DBNAME_HOST
+                                                       toTable:TABLENAME_POST
+                                                   columnNames:nil
+                                                     withQuery:@{@"tid":[NSNumber numberWithInteger:tid]}
+                                                     withLimit:nil];
+    NSInteger count = [self.dbData DBDataCheckRowsInDictionary:queryResult];
+    
+    Post *post = nil;
+    
+    if(count > 0) {
+        NSArray *tidArray           = queryResult[@"tid"];
+        NSArray *postedAtArray   = queryResult[@"postedAt"];
+        
+        if(![self.dbData DBDataCheckCountOfArray:@[tidArray, postedAtArray] withCount:count]) {
+            return nil;
+        }
+        
+        post = [[Post alloc] init];
+        
+        ASSIGN_INTEGER_VALUE_FROM_ARRAYMEMBER(post.tid, tidArray, 0, 0)
+        ASSIGN_LONGLONG_VALUE_FROM_ARRAYMEMBER(post.postedAt, postedAtArray, 0, 0)
+    }
+    
+    return post;
 }
 
 
+//不能添加已存在的tid.
 - (BOOL)configDBPostAdd:(Post*)post
 {
     BOOL result = YES;
-    NSLog(@"#error - not implement");
+    
+    //#如果更新的话, 则click会刷新到0.
+    NSDictionary *infoInsert = @{
+                                 DBDATA_STRING_COLUMNS:@[@"tid", @"postedAt"],
+                                 DBDATA_STRING_VALUES:@[@[[NSNumber numberWithInteger:post.tid], [NSNumber numberWithLongLong:post.postedAt]]]
+                                 };
+    
+    NSInteger retDBData = [self.dbData DBDataInsertDBName:DBNAME_HOST toTable:TABLENAME_POST withInfo:infoInsert countReplace:NO];
+    if(DB_EXECUTE_OK != retDBData) {
+        NSLog(@"#error - ");
+        result = NO;
+    }
+    
     return result;
 }
 
+
+- (BOOL)configDBPostRemove:(NSInteger)tid
+{
+    BOOL result = YES;
+    
+    NSInteger retDBData = [self.dbData DBDataDeleteDBName:DBNAME_HOST toTable:TABLENAME_POST withQuery:@{@"tid":[NSNumber numberWithInteger:tid]}];
+    if(DB_EXECUTE_OK != retDBData) {
+        NSLog(@"#error - ");
+        result = NO;
+    }
+    
+    return result;
+}
+
+
+
+- (BOOL)configDBPostRemoveByTidArray:(NSArray*)tidArray
+{
+    BOOL result = YES;
+    
+    NSInteger retDBData = [self.dbData DBDataDeleteDBName:DBNAME_HOST toTable:TABLENAME_POST withQuery:@{@"tid":tidArray}];
+    if(DB_EXECUTE_OK != retDBData) {
+        NSLog(@"#error - ");
+        result = NO;
+    }
+    
+    return result;
+}
 
 
 
 
 //Reply.
-- (NSArray*)configDBReplyGet
+- (NSArray*)configDBReplyGets
 {
-    NSLog(@"#error - not implement");
-    return nil;
+    //从数据库查询.
+    NSDictionary *queryResult = [self.dbData DBDataQueryDBName:DBNAME_HOST
+                                                       toTable:TABLENAME_REPLY
+                                                   columnNames:nil
+                                                     withQuery:nil
+                                                     withLimit:@{DBDATA_STRING_ORDER:@"ORDER BY tid DESC"}];
+    NSInteger count = [self.dbData DBDataCheckRowsInDictionary:queryResult];
+    
+    NSArray *arrayReturn = nil ;
+    if(count > 0) {
+        NSArray *tidArray           = queryResult[@"tid"];
+        NSArray *repliedAtArray     = queryResult[@"repliedAt"];
+        
+        if(![self.dbData DBDataCheckCountOfArray:@[tidArray, repliedAtArray] withCount:count]) {
+            return nil;
+        }
+        
+        NSMutableArray *arrayReturnM = [[NSMutableArray alloc] init];
+        
+        for(NSInteger index = 0; index < count; index++) {
+            
+            Reply *reply = [[Reply alloc] init];
+            ASSIGN_INTEGER_VALUE_FROM_ARRAYMEMBER(reply.tid, tidArray, index, 0)
+            ASSIGN_LONGLONG_VALUE_FROM_ARRAYMEMBER(reply.repliedAt, repliedAtArray, index, 0)
+            
+            [arrayReturnM addObject:reply];
+        }
+        
+        arrayReturn = [NSArray arrayWithArray:arrayReturnM];
+    }
+    
+    return arrayReturn;
 }
 
 
-- (Reply*)configDBPReplyGetByTid:(NSInteger)tid
+- (Reply*)configDBReplyGetByTid:(NSInteger)tid
 {
-    NSLog(@"#error - not implement");
-    return nil;
+    //从数据库查询.
+    NSDictionary *queryResult = [self.dbData DBDataQueryDBName:DBNAME_HOST
+                                                       toTable:TABLENAME_REPLY
+                                                   columnNames:nil
+                                                     withQuery:@{@"tid":[NSNumber numberWithInteger:tid]}
+                                                     withLimit:nil];
+    NSInteger count = [self.dbData DBDataCheckRowsInDictionary:queryResult];
+    
+    Reply *reply = nil;
+    
+    if(count > 0) {
+        NSArray *tidArray           = queryResult[@"tid"];
+        NSArray *repliedAtArray     = queryResult[@"repliedAt"];
+        
+        if(![self.dbData DBDataCheckCountOfArray:@[tidArray, repliedAtArray] withCount:count]) {
+            return nil;
+        }
+        
+        reply = [[Reply alloc] init];
+        
+        ASSIGN_INTEGER_VALUE_FROM_ARRAYMEMBER(reply.tid, tidArray, 0, 0)
+        ASSIGN_LONGLONG_VALUE_FROM_ARRAYMEMBER(reply.repliedAt, repliedAtArray, 0, 0)
+    }
+    
+    return reply;
 }
 
 
+//不能添加已存在的tid.
 - (BOOL)configDBReplyAdd:(Reply*)reply
 {
     BOOL result = YES;
-    NSLog(@"#error - not implement");
+    
+    //#如果更新的话, 则click会刷新到0.
+    NSDictionary *infoInsert = @{
+                                 DBDATA_STRING_COLUMNS:@[@"tid", @"repliedAt", @"tidBelongTo"],
+                                 DBDATA_STRING_VALUES:@[@[[NSNumber numberWithInteger:reply.tid], [NSNumber numberWithLongLong:reply.repliedAt], [NSNumber numberWithInteger:reply.tidBelongTo]]]
+                                 };
+    
+    NSInteger retDBData = [self.dbData DBDataInsertDBName:DBNAME_HOST toTable:TABLENAME_REPLY withInfo:infoInsert countReplace:NO];
+    if(DB_EXECUTE_OK != retDBData) {
+        NSLog(@"#error - ");
+        result = NO;
+    }
+    
     return result;
 }
 
+
+- (BOOL)configDBReplyRemove:(NSInteger)tid
+{
+    BOOL result = YES;
+    
+    NSInteger retDBData = [self.dbData DBDataDeleteDBName:DBNAME_HOST toTable:TABLENAME_REPLY withQuery:@{@"tid":[NSNumber numberWithInteger:tid]}];
+    if(DB_EXECUTE_OK != retDBData) {
+        NSLog(@"#error - ");
+        result = NO;
+    }
+    
+    return result;
+}
+
+
+
+- (BOOL)configDBReplyRemoveByTidArray:(NSArray*)tidArray
+{
+    BOOL result = YES;
+    
+    NSInteger retDBData = [self.dbData DBDataDeleteDBName:DBNAME_HOST toTable:TABLENAME_REPLY withQuery:@{@"tid":tidArray}];
+    if(DB_EXECUTE_OK != retDBData) {
+        NSLog(@"#error - ");
+        result = NO;
+    }
+    
+    return result;
+}
 
 
 
@@ -1071,38 +1274,41 @@ else {NSLog(@"#error - obj (%@) is not NSString class.", arrayasd[indexzxc]);var
         if(![self.dbData DBDataCheckCountOfArray:@[tidArray, jsonstringArray] withCount:count]) {
             return nil;
         }
+    }
+    
+    NSArray *tidArray           = queryResult[@"tid"];
+    NSArray *jsonstringArray    = queryResult[@"jsonstring"];
+    
+    NSMutableArray *arrayPostDataM = [[NSMutableArray alloc] init];
+    for(NSNumber *tidNumber in tidGets) {
+        PostData *postData = nil;
         
-        NSMutableArray *arrayPostDataM = [[NSMutableArray alloc] init];
-        for(NSNumber *tidNumber in tidGets) {
-            PostData *postData = nil;
-            
-            for(NSInteger indexCount = 0; indexCount < count; indexCount ++) {
-                if([tidNumber isEqual:tidArray[indexCount]]) {
-                    NSLog(@"configDBRecordGets tid [%@] got", tidNumber);
-                    
-                    postData = [PostData fromString:jsonstringArray[indexCount] atPage:0];
-                    if(postData) {
-                        postData.type = PostDataTypeLocal;
-                    }
-                    else {
-                        postData = [PostData fromOnlyTid:[tidNumber integerValue]];
-                        NSLog(@"jsonstring parsed failed. (%@)", jsonstringArray[indexCount]);
-                    }
-                    
-                    break;
+        for(NSInteger indexCount = 0; indexCount < count; indexCount ++) {
+            if([tidNumber isEqual:tidArray[indexCount]]) {
+                NSLog(@"configDBRecordGets tid [%@] got", tidNumber);
+                
+                postData = [PostData fromString:jsonstringArray[indexCount] atPage:0];
+                if(postData) {
+                    postData.type = PostDataTypeLocal;
                 }
+                else {
+                    postData = [PostData fromOnlyTid:[tidNumber integerValue]];
+                    NSLog(@"jsonstring parsed failed. (%@)", jsonstringArray[indexCount]);
+                }
+                
+                break;
             }
-            
-            if(!postData) {
-                NSLog(@"not find the record.");
-                postData = [PostData fromOnlyTid:[tidNumber integerValue]];
-            }
-            
-            [arrayPostDataM addObject:postData];
         }
         
-        arrayReturn = [NSArray arrayWithArray:arrayPostDataM];
+        if(!postData) {
+            NSLog(@"not find the record.");
+            postData = [PostData fromOnlyTid:[tidNumber integerValue]];
+        }
+        
+        [arrayPostDataM addObject:postData];
     }
+    
+    arrayReturn = [NSArray arrayWithArray:arrayPostDataM];
     
     return arrayReturn;
 }

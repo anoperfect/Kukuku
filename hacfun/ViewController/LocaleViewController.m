@@ -59,8 +59,8 @@
     
     [self getLocaleRecords];
 
-    NSArray *postDatas = [[AppConfig sharedConfigDB] configDBRecordGets:self.allTid];
-    NSMutableArray *appendPostDatas = [NSMutableArray arrayWithArray:postDatas];
+
+    NSMutableArray *appendPostDatas = [NSMutableArray arrayWithArray:self.postDatasAll];
     
     for(NSInteger index = 0; index < appendPostDatas.count; index ++) {
         NSLog(@"index%zd : %@", index, appendPostDatas[index]);
@@ -285,12 +285,8 @@
     }
     
     finishAction = YES;
-    PostDataPage *postDataPage = self.postDataPages[indexPath.section];
-    PostData *postDataRow = postDataPage.postDatas[indexPath.row];
-    
-    //PostViewDataPage *postViewDataPage = self.postViewDataPages[indexPath.section];
-    //PostData *postViewDataRow = postViewDataPage.postViewDatas[indexPath.row];
-    
+
+    PostData *postDataRow = [self postDataOnIndexPath:indexPath];
     if([string isEqualToString:@"删除"]){
         
         LOG_POSTION
@@ -306,11 +302,6 @@
     
     return finishAction;
 }
-
-
-
-
-
 
 
 //override. 获取本地记录数据.

@@ -248,7 +248,7 @@
         PostData *postData = [self postDataOnIndexPath:indexPath];
         
         if(indexPath.section == 0 || [postData.uid isEqualToString:topic.uid]) {
-            [dict setObject:[UIColor blueColor] forKey:@"colorUidSign"];
+            [dict setObject:[UIColor colorWithName:@"Po"] forKey:@"colorUidSign"];
         }
         
         //统一显示No.

@@ -61,6 +61,7 @@
 
 
 - (void)viewDidLoad {
+    NSLog(@"/vc\\ %s", __FUNCTION__);
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
     self.host = [[AppConfig sharedConfigDB] configDBHostsGetCurrent];
@@ -114,7 +115,7 @@
 
 
 - (void)viewWillLayoutSubviews {
-    LOG_POSTION
+    NSLog(@"/vc\\ %s", __FUNCTION__);
     [super viewWillLayoutSubviews];
     
     //tableview
@@ -230,6 +231,7 @@
     //could be override.
     [self clearDataAdditional];
     
+    [self.postView reloadData];
     
     [self loadMore];
 }
@@ -282,12 +284,12 @@
     
     NSString *statusMessage = [self.dynamicPostViewDataStatusInfo objectForKey:indexPath];
     if([statusMessage isKindOfClass:[NSString class]]) {
-        [dict setObject:statusMessage forKey:@"StatusMessage"];
+        [dict setObject:statusMessage forKey:@"statusInfo"];
     }
     
     NSString *statusMessageTid = [self.dynamicTidStatusInfo objectForKey:[NSNumber numberWithInteger:postData.tid]];
     if([statusMessageTid isKindOfClass:[NSString class]]) {
-        [dict setObject:statusMessage forKey:@"StatusMessage"];
+        [dict setObject:statusMessage forKey:@"statusInfo"];
     }
     
     return dict;

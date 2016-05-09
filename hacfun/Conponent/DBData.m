@@ -109,7 +109,7 @@
         
         DISPATCH_ONCE_START
         //测试阶段一直删除重建数据库.
-        BOOL rebuildDB = NO;
+        BOOL rebuildDB = YES;
         if(rebuildDB) {
             NSString *documentPath =[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
             NSString *folder = [NSString stringWithFormat:@"%@/%@", documentPath, @"sqlite"];
@@ -1066,6 +1066,100 @@
 
 
 
+
+- (NSDictionary*)DBDataQuery:(FMDatabase*)db
+                     toTable:(DBTableAttribute*)tableAttribute
+               withSqlString:(NSString*)sqlString
+         andArgumentsInArray:(NSArray*)arguments
+{
+    if(![NSThread isMainThread]) {NSLog(@"#error - should excute db in MainThread.");}
+    
+    NSLog(@"sqlString : %@", sqlString);
+    if(arguments.count > 0) {
+        NSLog(@"arguments : %@", arguments);
+    }
+    
+    NSLog(@"executeQuery");
+    FMResultSet *rs = [db executeQuery:sqlString withArgumentsInArray:arguments];
+    
+    //怎么取?
+    
+    [rs close];
+    
+    return nil;
+}
+
+
+//直接的sql语句执行表查询. 暂时只用于测试.
+- (NSDictionary*)DBDataQueryDBName:(NSString*)databaseName
+                           toTable:(NSString*)tableName
+                     withSqlString:(NSString*)sqlString
+               andArgumentsInArray:(NSArray*)arguments
+{
+    FMDatabase *db = [self getDataBaseByName:databaseName];
+    if(!db) {
+        NSLog(@"#error - not find database <%@ : %@>", databaseName, tableName);
+        return nil;
+    }
+    
+    DBTableAttribute *tableAttribute = [self getDBTableAttribute:databaseName withTableName:tableName];
+    if(!tableAttribute) {
+        NSLog(@"#error - not find table <%@ : %@>", databaseName, tableName);
+        return nil;
+    }
+    
+    return [self DBDataQuery:db toTable:tableAttribute withSqlString:sqlString andArgumentsInArray:arguments];
+}
+
+
+- (NSInteger)DBDataUpdate:(FMDatabase*)db
+                      toTable:(DBTableAttribute*)tableAttribute
+                withSqlString:(NSString*)sqlString
+          andArgumentsInArray:(NSArray*)arguments
+{
+    if(![NSThread isMainThread]) {NSLog(@"#error - should excute db in MainThread.");}
+    
+    NSInteger retDBData = DB_EXECUTE_OK;
+    
+    NSLog(@"DBDataUpdate sqlString : %@", sqlString);
+    if(arguments.count > 0) {
+        NSLog(@"arguments : %@", arguments);
+    }
+    
+    NSLog(@"executeUpdate");
+    BOOL fmdbResult = [db executeUpdate:sqlString withArgumentsInArray:arguments];
+    if(fmdbResult) {
+        retDBData = DB_EXECUTE_OK;
+    }
+    else {
+        NSLog(@"#error - executeUpdate failed.")
+        retDBData = DB_EXECUTE_ERROR_SQL;
+    }
+    
+    return retDBData;
+}
+
+
+//直接的sql语句执行表增删改. 暂时只用于测试.
+- (NSInteger)DBDataUpdateDBName:(NSString*)databaseName
+                            toTable:(NSString*)tableName
+                      withSqlString:(NSString*)sqlString
+                andArgumentsInArray:(NSArray*)arguments
+{
+    FMDatabase *db = [self getDataBaseByName:databaseName];
+    if(!db) {
+        NSLog(@"#error - not find database <%@ : %@>", databaseName, tableName);
+        return DB_EXECUTE_ERROR_NOT_FOUND;
+    }
+    
+    DBTableAttribute *tableAttribute = [self getDBTableAttribute:databaseName withTableName:tableName];
+    if(!tableAttribute) {
+        NSLog(@"#error - not find table <%@ : %@>", databaseName, tableName);
+        return DB_EXECUTE_ERROR_NOT_FOUND;
+    }
+    
+    return [self DBDataUpdate:db toTable:tableAttribute withSqlString:sqlString andArgumentsInArray:arguments];
+}
 
 
 

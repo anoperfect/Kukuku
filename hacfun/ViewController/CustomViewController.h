@@ -15,11 +15,12 @@
 
 
 @property (nonatomic, copy)   NSString *textTopic;
-@property (nonatomic, copy)   NSString *titleString;
-@property (nonatomic, copy)   NSString *infoString;
+
 
 @property (nonatomic, assign) CGFloat   yBolowView;
+
 @property (nonatomic, assign) CGFloat   heightWastageByNavigationBar;
+
 @property (nonatomic, assign) CGRect    frameSoftKeyboard;
 @property (nonatomic, assign) BOOL      isShowingSoftKeyboard;
 

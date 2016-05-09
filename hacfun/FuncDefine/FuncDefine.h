@@ -137,6 +137,8 @@
 
 @property (nonatomic, assign) NSInteger     tid;
 @property (nonatomic, assign) long long     repliedAt;
+@property (nonatomic, assign) NSInteger     tidBelongTo;
+
 
 @end
 

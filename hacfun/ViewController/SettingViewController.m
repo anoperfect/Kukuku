@@ -60,10 +60,10 @@
     [self.arraySettingItem addObject:@"自动存图"];
     [self.arraySettingItem addObject:@"版块排序"];
     [self.arraySettingItem addObject:@"清除缓存"];
-    [self.arraySettingItem addObject:@"字号设置"];
-    [self.arraySettingItem addObject:@"饼干管理"];
+    [self.arraySettingItem addObject:@"界面设置"];
+    //[self.arraySettingItem addObject:@"饼干管理"];
     [self.arraySettingItem addObject:@"版本"];
-    [self.arraySettingItem addObject:@"反馈建议"];
+    [self.arraySettingItem addObject:@"反馈建议: Ben.ZhaoBin@qq.com"];
     
     self.cellDict = [[NSMutableDictionary alloc] init];
 }

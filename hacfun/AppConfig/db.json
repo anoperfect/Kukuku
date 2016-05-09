@@ -404,8 +404,9 @@
                "tableName":"reply",
                "databaseNames":["kukuku","hacfun"],
                "columnAttributes": [
-                           {"columnName":"tid"      , "dataType":"integer" , "isNeedForInsert":true, "isAutoIncrement":false, "defaultValue":0 },
-                           {"columnName":"repliedAt", "dataType":"longlong", "isNeedForInsert":true, "isAutoIncrement":false, "defaultValue":0 }
+                           {"columnName":"tid"        , "dataType":"integer" , "isNeedForInsert":true, "isAutoIncrement":false, "defaultValue":0 },
+                           {"columnName":"repliedAt"  , "dataType":"longlong", "isNeedForInsert":true, "isAutoIncrement":false, "defaultValue":0 },
+                           {"columnName":"tidBelongTo", "dataType":"integer" , "isNeedForInsert":true, "isAutoIncrement":false, "defaultValue":0 },
                            ],
                "primaryKeys":["tid"],
                "preset":[],

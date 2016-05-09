@@ -65,6 +65,7 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
 
 
 - (void)viewDidLoad {
+    NSLog(@"/vc\\ %s", __FUNCTION__);
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     
@@ -74,15 +75,13 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
     self.messageIndication.textAlignment = NSTextAlignmentCenter;
     [self.view addSubview:self.messageIndication];
     
-
-    
     self.view.backgroundColor = [UIColor colorWithName:@"ViewControllerBackground"];
     self.view.backgroundColor = [UIColor colorWithPatternImage:[UIImage imageNamed:@"bg"]];
 }
 
 
 - (void)viewWillLayoutSubviews {
-    LOG_POSTION
+    NSLog(@"/vc\\ %s", __FUNCTION__);
     [super viewWillLayoutSubviews];
     
     CGFloat heightViewIndication = 36;
@@ -94,16 +93,19 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
     self.messageIndication.frame = CGRectMake(0, -heightViewIndication, self.view.frame.size.width, heightViewIndication);
      
     [self layoutBannerView];
-    [self layoutActionButtons:self.bannerView];
 }
 
 
+
+
+
+//经过测试发现. 设置bannerView为leftBarButtonItem的时候, 由于rightbutton的数量的不同, 导致leftBarButtonItem的位置有偏移. 因此仍然沿用之前的addSubView的方式.
+//修改右边功能键的布局. 之前是布局到BannerView上. 修改为布局到rightBarButtonItems.
 - (void)viewWillAppear:(BOOL)animated {
-    LOG_POSTION
+    NSLog(@"/vc\\ %s", __FUNCTION__);
     [super viewWillAppear:animated];
     
     [self.navigationItem setHidesBackButton:YES];
-    
     [self.navigationController.navigationBar setBackgroundImage:[UIImage imageNamed:@"bg"] forBarMetrics:UIBarMetricsDefault];
     
     [self.bannerView removeFromSuperview];
@@ -120,20 +122,26 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
     NSLog(@"x %@- %@", self.navigationController.navigationBar, [self.navigationController.navigationBar subviews]);
     DISPATCH_ONCE_FINISH
     
-    // 布局功能键.
-    [self loadActionButtons];
-    [self layoutActionButtons:self.bannerView];
+    [self layoutRightActions];
+    
+    self.navigationController.toolbarHidden = YES;
+    
+    return ;
 }
 
 
 - (void)viewWillDisappear:(BOOL)animated {
+    NSLog(@"/vc\\ %s", __FUNCTION__);
     [self.bannerView removeFromSuperview];
     self.bannerView = nil;
+    
+    self.navigationItem.rightBarButtonItems = nil;
 }
 
 
 - (void)viewDidAppear:(BOOL)animated
 {
+    NSLog(@"/vc\\ %s", __FUNCTION__);
     [super viewDidAppear:animated];
     [self.messageIndication.superview bringSubviewToFront:self.messageIndication];
 }
@@ -148,31 +156,25 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
     if(self.view.frame.size.width < self.view.frame.size.height) {
         yBanner = 4;
     }
-    CGRect bannerViewRect = CGRectMake(0, yBanner, self.view.frame.size.width, heightBanner);
+//    CGRect bannerViewRect = CGRectMake(0, yBanner, self.view.frame.size.width, heightBanner);
+    CGRect bannerViewRect = CGRectMake(0, yBanner, self.view.frame.size.width / 2, heightBanner);
     [self.bannerView setFrame:bannerViewRect];
     LOG_RECT(self.bannerView.frame, @"bannerView")
 }
 
 
-- (void)loadActionButtons
+
+- (void)layoutRightActions
 {
-    UIView *buttonSuperView = self.bannerView;
+    self.navigationItem.rightBarButtonItems = nil;
     
-    NSLog(@"%@", buttonSuperView);
-    
-    //清除上次的所有按钮.
-    for (NSInteger index = 0; index < 100; index ++) {
-        [[self.bannerView viewWithTag:(self.tagButtons+index)] removeFromSuperview];
-    }
-    
-    NSLog(@"%@", buttonSuperView);
+    NSMutableArray *rightItems = [[NSMutableArray alloc] init];
     
     //重新加载按钮.
     NSInteger index = 0;
     for(ButtonData *data in self.actionDatas) {
         PushButton *button = [[PushButton alloc] init];
         button.tag = self.tagButtons + index;
-        [buttonSuperView addSubview:button];
         [button addTarget:self action:@selector(action:) forControlEvents:UIControlEventTouchDown];
         [button setFrame:CGRectMake(0, 0, self.heightBanner, self.heightBanner)];
         if(nil != data.imageName) {
@@ -185,37 +187,12 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
             [button setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
         }
         
+        [rightItems addObject:[[UIBarButtonItem alloc] initWithCustomView:button]];
+        
         index ++;
     }
-}
-
-
-- (void)layoutActionButtons:(UIView*)superView
-{
-    NSInteger count = [self.actionDatas count];
-    NSInteger totalNumberInLine = 3;
     
-    CGPoint center = CGPointMake(self.view.frame.size.width, self.heightBanner / 2);
-    if(count > totalNumberInLine) {
-        center.x -= self.heightBanner;
-    }
-    
-    for(NSInteger index = 0; index < count ; index ++) {
-        ButtonData *data = self.actionDatas[index];
-        UIView *button = [superView viewWithTag:(self.tagButtons + index)];
-        if(nil != data.imageName) {
-            center.x -= self.heightBanner/2;
-            [button setCenter:center];
-            center.x -= self.heightBanner/2;
-        }
-        else {
-            center.x -= self.heightBanner;
-            [button setCenter:center];
-            center.x -= self.heightBanner;
-        }
-        
-        [superView addSubview:button];
-    }
+    self.navigationItem.rightBarButtonItems = [NSArray arrayWithArray:rightItems];
 }
 
 
@@ -259,7 +236,7 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
 
 - (void)actionRefresh
 {
-    [self loadActionButtons];
+    [self layoutRightActions];
 }
 
 
@@ -303,27 +280,10 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
 //        [obj removeObserver:self forKeyPath:@"frame"];
         [obj removeFromSuperview];
     }
-//    [containerView.subviews makeObjectsPerformSelector:@selector(removeObserver:) withObject:self];
-//    [containerView.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
     
     [containerView removeFromSuperview];
     containerView = nil;
 }
-
-
-#if 0
--(void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context{
-    LOG_POSTION
-    if([keyPath isEqualToString:@"frame"]){//这里只处理balance属性
-        LOG_POSTION
-//        NSLog(@"keyPath=%@,object=%@,newValue=%.2f,context=%@",keyPath,object,[[change objectForKey:@"new"] floatValue],context);
-        NSLog(@"%@", object);
-        NSLog(@"%@", change);
-        UIView *view = object;
-        view.center = view.superview.center;
-    }
-}
-#endif
 
 
 - (void)dealloc
@@ -355,7 +315,6 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
 - (void)showIndicationText:(NSString*)text
 {
     NSLog(@"---xxx0 : >>>>>>IndicationText : %@", text);
-    
     //[self.view bringSubviewToFront:self.messageIndication];
     
     NSLog(@"%@", self.messageIndication);
@@ -401,17 +360,5 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
-
-
-/*
-#pragma mark - Navigation
-
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
-}
-*/
-
 
 @end

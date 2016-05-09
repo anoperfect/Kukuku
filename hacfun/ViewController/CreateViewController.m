@@ -785,8 +785,9 @@
             }
             else { // 回复帖.
                 Reply *reply = [[Reply alloc] init];
-                reply.tid       = newCommitedTid;
-                reply.repliedAt = self.editedAt;
+                reply.tid           = newCommitedTid;
+                reply.repliedAt     = self.editedAt;
+                reply.tidBelongTo   = self.topicTid;
                 
                 [[AppConfig sharedConfigDB] configDBReplyAdd:reply];
             }

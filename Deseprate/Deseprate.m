@@ -2512,3 +2512,241 @@ frame = (0 -36; 320 36); text = '111111'; userInteractionEnabled = NO; layer = <
     
 }
 #endif
+
+
+#if BannerView
+- (void)setButtonData1:(NSArray*)buttonDataAry {
+    
+    self.buttonDataAry = [NSArray arrayWithArray:buttonDataAry];
+    self.buttons = [[NSMutableArray alloc]init];
+    
+    NSInteger numFirstLevelButton = 0;
+    NSMutableArray *firstLevelButtons = [[NSMutableArray alloc]init];
+    NSMutableArray *firstLevelButtonsData = [[NSMutableArray alloc]init];
+    
+    for(id obj in buttonDataAry) {
+        ButtonData *data = (ButtonData*)obj;
+        PushButton *button = [[PushButton alloc] init];
+        [button.titleLabel setFont:[UIFont fontWithName:@"BannerButtonMenu"]];
+        [button setTitleColor:[UIColor colorWithName:@"BannerButtonMenuText"] forState:UIControlStateNormal];
+        [button addTarget:data.target action:data.sel forControlEvents:UIControlEventTouchDown];
+        [self.buttons addObject:button];
+        
+        if(data.superId == 0) {
+            numFirstLevelButton ++;
+            [firstLevelButtons addObject:button];
+            [firstLevelButtonsData addObject:data];
+        }
+    }
+    
+    CGFloat yBorder = 10;
+    CGFloat height = self.frame.size.height - 2*yBorder;
+    CGRect rect;
+    NSInteger indexBtn = 0;
+    CGFloat widthBtn = height * 1.0;
+    CGFloat x,mx;
+    CGFloat borderRight = 3;
+    CGFloat padding = 10;
+    ButtonData *data ;
+    PushButton *button ;
+    mx = borderRight;
+    
+    //    for(NSInteger i = 0; i<numFirstLevelButton ; i++) {
+    for(NSInteger i = numFirstLevelButton-1; i>=0 ; i--) {
+        
+        data = (ButtonData*)[firstLevelButtonsData objectAtIndex:i];
+        button = (PushButton*)[firstLevelButtons objectAtIndex:i];
+        
+        if(data.method == 1) {
+            widthBtn = height * 1.0;
+            [button setImage:[UIImage imageNamed:data.imageName] forState:UIControlStateNormal];
+        }
+        else {
+            widthBtn = 45;
+            [button setTitle:data.title forState:UIControlStateNormal];
+        }
+        
+        if(i == numFirstLevelButton -1) {
+            x = self.frame.size.width - borderRight - widthBtn;
+        }
+        else {
+            PushButton *buttonRight = (PushButton*)[firstLevelButtons objectAtIndex:i+1];
+            x = buttonRight.frame.origin.x - widthBtn - padding;
+        }
+        
+        rect = CGRectMake(x, yBorder, widthBtn, height);
+        [button setFrame:rect];
+        
+        [self addSubview:button];
+        
+        indexBtn ++;
+    }
+}
+
+
+- (PushButton*) getButtonByKeyword: (NSString*)keyword {
+    
+    BOOL isFound = NO;
+    NSInteger index = 0;
+    for(ButtonData *data in self.buttonDataAry) {
+        
+        if([keyword isEqualToString:data.keyword]) {
+            isFound = YES;
+            break;
+        }
+        
+        index ++;
+    }
+    
+    return isFound?[self.buttons objectAtIndex:index]:nil;
+}
+#endif
+
+
+
+#if 0 //Banner的布局.
+- (void)viewWillAppear1:(BOOL)animated {
+    NSLog(@"/vc\\ %s", __FUNCTION__);
+    [super viewWillAppear:animated];
+    
+    [self.navigationController.navigationBar setBackgroundImage:[UIImage imageNamed:@"bg"] forBarMetrics:UIBarMetricsDefault];
+    [self.navigationController.navigationBar setTintColor:[UIColor blackColor]];
+    
+    //右.
+    [self layoutRightActions];
+    
+    //左
+    [self.navigationItem setHidesBackButton:YES];
+    
+    self.bannerView = nil;
+    self.bannerView = [[BannerView alloc] init];
+    [self.bannerView setTag:(NSInteger)@"BannerView"];
+    [self.bannerView.buttonTopic addTarget:self action:@selector(clickButtonTopic) forControlEvents:UIControlEventTouchDown];
+    [self.bannerView setTextTopic:self.textTopic];
+    [self layoutBannerView];
+    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:self.bannerView];
+    [self.navigationItem setHidesBackButton:NO];
+    
+    //标题. 标题放置在左边.
+    //[self.navigationItem setTitle:self.textTopic];
+    
+#if 0
+    CGFloat height = self.navigationController.navigationBar.frame.size.height;
+    UIButton *backView = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 100, height)];
+    [backView addTarget:self action:@selector(clickButtonTopic) forControlEvents:UIControlEventTouchDown];
+    UIImageView *backImageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 12, 10, height - 24)];
+    backImageView.image = [UIImage imageNamed:@"backn"];
+    UIImageView *iconImageView = [[UIImageView alloc] initWithFrame:CGRectMake(10, 6, height - 12, height - 12)];
+    iconImageView.image = [UIImage imageNamed:@"appicon1"];
+    [backView addSubview:backImageView];
+    [backView addSubview:iconImageView];
+    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:backView];
+    
+    //标题.
+    [self.navigationItem setTitle:self.textTopic];
+#endif
+    
+    
+#if 0
+    NSMutableArray *rightItems = [[NSMutableArray alloc] init];
+    for(ButtonData *buttonData in self.actionDatas) {
+        PushButton *button = [[PushButton alloc] initWithFrame:CGRectMake(0, 0, height, height)];
+        button.actionData = buttonData;
+        
+        UIBarButtonItem *barItem = [[UIBarButtonItem alloc] initWithCustomView:button];
+        [rightItems addObject:barItem];
+    }
+    self.navigationItem.rightBarButtonItems = rightItems;
+#endif
+    
+    
+#if 0
+    
+    UIBarButtonItem  *leftBarButton = [[UIBarButtonItem alloc]initWithImage:[UIImage imageNamed:@"reply"] style:UIBarButtonItemStyleBordered target:self action:@selector(clickButtonTopic)];
+    [leftBarButton setTintColor:[UIColor colorWithWhite:0 alpha:1]];
+    self.navigationItem.leftBarButtonItem=leftBarButton;
+    
+    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:self.bannerView];
+    
+    
+    
+    UIBarButtonItem *firstItem=[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemReply target:self action:nil];
+    UIBarButtonItem *secondItem=[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemTrash target:self action:nil];
+    UIBarButtonItem *secondItem1=[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemEdit target:self action:nil];
+    UIBarButtonItem *secondItem2=[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemRewind target:self action:nil];
+    NSArray *rightItems=@[firstItem, secondItem, secondItem1, secondItem2];
+    self.navigationItem.rightBarButtonItems=nil;
+#endif
+    
+    
+}
+
+
+- (void)loadActionButtons
+{
+    UIView *buttonSuperView = self.bannerView;
+    
+    NSLog(@"%@", buttonSuperView);
+    
+    //清除上次的所有按钮.
+    for (NSInteger index = 0; index < 100; index ++) {
+        [[self.bannerView viewWithTag:(self.tagButtons+index)] removeFromSuperview];
+    }
+    
+    NSLog(@"%@", buttonSuperView);
+    
+    //重新加载按钮.
+    NSInteger index = 0;
+    for(ButtonData *data in self.actionDatas) {
+        PushButton *button = [[PushButton alloc] init];
+        button.tag = self.tagButtons + index;
+        [buttonSuperView addSubview:button];
+        [button addTarget:self action:@selector(action:) forControlEvents:UIControlEventTouchDown];
+        [button setFrame:CGRectMake(0, 0, self.heightBanner, self.heightBanner)];
+        if(nil != data.imageName) {
+            UIImage *image = [UIImage imageNamed:data.imageName];
+            button.imageEdgeInsets = UIEdgeInsetsMake(6, 6, 6, 6);
+            [button setImage:image forState:UIControlStateNormal];
+        }
+        else {
+            [button setTitle:data.keyword forState:UIControlStateNormal];
+            [button setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+        }
+        
+        index ++;
+    }
+}
+
+
+- (void)layoutActionButtons:(UIView*)superView
+{
+    NSInteger count = [self.actionDatas count];
+    NSInteger totalNumberInLine = 3;
+    
+    CGPoint center = CGPointMake(self.view.frame.size.width, self.heightBanner / 2);
+    if(count > totalNumberInLine) {
+        center.x -= self.heightBanner;
+    }
+    
+    for(NSInteger index = 0; index < count ; index ++) {
+        ButtonData *data = self.actionDatas[index];
+        UIView *button = [superView viewWithTag:(self.tagButtons + index)];
+        if(nil != data.imageName) {
+            center.x -= self.heightBanner/2;
+            [button setCenter:center];
+            center.x -= self.heightBanner/2;
+        }
+        else {
+            center.x -= self.heightBanner;
+            [button setCenter:center];
+            center.x -= self.heightBanner;
+        }
+        
+        [superView addSubview:button];
+    }
+}
+
+
+
+
+#endif

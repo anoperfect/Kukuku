@@ -30,16 +30,18 @@
  @"colorUidSign"    － 标记uid颜色. 暂时使用uid颜色标记特定thread. 比如Po, //self post , self reply, follow, other cookie.
  @"postdata"        -   copy的PostData.
                         id, thumb replycount直接从raw postdata中读取.
+ @"replies"         - 需显示的回应. 类型为NSArray, 数组成员为PostData.
  @"showAction"      - 是否显示postdata中的操作菜单.
  */
-@property (strong,nonatomic) UILabel *titleLabel;
-@property (strong,nonatomic) UILabel *infoLabel;
-@property (nonatomic, strong) UILabel *manageInfoLabel;
-@property (nonatomic, strong) UILabel *otherInfoLabel;
-@property (nonatomic, strong) RTLabel *contentLabel;
-@property (strong,nonatomic) PostImageView *imageView;
-@property (nonatomic, strong) UISegmentedControl *actionButtons1;
-@property (nonatomic, strong) UIToolbar *actionButtons0;
+@property (strong,nonatomic) UILabel        *titleLabel;
+@property (strong,nonatomic) UILabel        *infoLabel;
+@property (nonatomic, strong) UILabel       *manageInfoLabel;
+@property (nonatomic, strong) UILabel       *otherInfoLabel;
+@property (nonatomic, strong) UILabel       *statusInfoLabel;
+@property (nonatomic, strong) RTLabel       *contentLabel;
+@property (nonatomic, strong) PostView      *repliesView;
+@property (strong,nonatomic) PostImageView  *imageView;
+@property (nonatomic, strong) UIToolbar     *actionButtons0;
 
 @property (assign,nonatomic) NSInteger row;
 
@@ -124,6 +126,16 @@ static NSInteger kcountObject = 0;
             [self addSubview:self.otherInfoLabel];
         }
         
+        if(!self.statusInfoLabel) {
+            self.statusInfoLabel = [[UILabel alloc] init];
+            self.statusInfoLabel.text = @"";
+            self.statusInfoLabel.font = [UIFont fontWithName:@"PostTitle"];
+            self.statusInfoLabel.textColor = [UIColor colorWithName:@"otherInfoText"];
+            self.statusInfoLabel.textAlignment = NSTextAlignmentRight;
+            
+            [self addSubview:self.statusInfoLabel];
+        }
+        
         if(!self.contentLabel) {
             self.contentLabel = [[RTLabel alloc] init];
             [self addSubview:self.contentLabel];
@@ -134,6 +146,11 @@ static NSInteger kcountObject = 0;
             self.contentLabel.font = [UIFont fontWithName:@"PostContent"];
             self.contentLabel.textColor = [UIColor colorWithName:@"ThreadContentText"];
             self.contentLabel.textColor = [UIColor blackColor];
+        }
+        
+        if(!self.repliesView) {
+            self.repliesView = [[PostView alloc] init];
+            [self addSubview:self.repliesView];
         }
         
         if(!self.imageView) {
@@ -148,7 +165,7 @@ static NSInteger kcountObject = 0;
             [self addSubview:self.actionButtons];
         }
 #else
-        if(!self.actionButtons1) {
+        if(!self.actionButtons0) {
             self.actionButtons0 = [[UIToolbar alloc] init];
             //[self.actionButtons addTarget:self action:@selector(actionPressed:) forControlEvents:UIControlEventValueChanged];
             [self addSubview:self.actionButtons0];
@@ -233,10 +250,21 @@ static NSInteger kcountObject = 0;
         [self.otherInfoLabel setText:otherInfoString];
         self.otherInfoLabel.hidden = NO;
         
+        NSString *statusInfoString = [self.data objectForKey:@"statusInfo"];
+        [self.statusInfoLabel setText:statusInfoString?statusInfoString:@""];
+        self.statusInfoLabel.hidden = NO;
+        
         NSString *content = [self.data objectForKey:@"content"];
         content = content?content:@"null\n111";
         [self.contentLabel setText:content];
         self.contentLabel.hidden = NO;
+        
+        self.repliesView.hidden = YES;
+        NSArray *postDataReplies = [self.data objectForKey:@"replies"];
+        if(postDataReplies.count > 0) {
+            self.repliesView.frame = CGRectMake(self.frame.size.width * 0.1, 0, self.frame.size.width * 0.9, 360);
+            [self.repliesView setPostDatas:postDataReplies belongTo:nil];
+        }
         
         PostData *postData = [self.data objectForKey:@"postdata"];
         
@@ -346,9 +374,12 @@ static NSInteger kcountObject = 0;
     CGRect frameInfoLabel           = CGRectZero;
     CGRect frameManageInfo          = CGRectZero;
     CGRect frameOtherInfo           = CGRectZero;
+    CGRect frameStatusInfo          = CGRectZero;
     CGRect frameContentLabel        = CGRectZero;
+    CGRect frameRepliesView         = CGRectZero;
     CGRect frameImageViewContent    = CGRectZero;
     CGRect frameActionButtons       = CGRectZero;
+    
     UIEdgeInsets edge = UIEdgeInsetsMake(10, 10, 10, 10);
     
     FrameLayout *layout = [[FrameLayout alloc] initWithSize:CGSizeMake(self.frame.size.width, 10000)];
@@ -411,9 +442,19 @@ static NSInteger kcountObject = 0;
             [layout setUseBesideMode:@"InfoAdditional" besideTo:@"TitleLine" withDirection:FrameLayoutDirectionBelow andSizeValue:0.0];
         }
         
-        //Title和正文间设置间距.
-        [layout setUseBesideMode:@"PaddingTitleContent" besideTo:@"InfoAdditional" withDirection:FrameLayoutDirectionBelow andSizeValue:heightPaddingTitleContent];
-        
+        if(self.statusInfoLabel.text.length > 0) {
+            [layout setUseBesideMode:@"statusInfo" besideTo:@"TitleLine" withDirection:FrameLayoutDirectionBelow andSizeValue:10.0];
+            frameStatusInfo = [layout getCGRect:@"statusInfo"];
+            
+            //Title和正文间设置间距.
+            [layout setUseBesideMode:@"PaddingTitleContent" besideTo:@"statusInfo" withDirection:FrameLayoutDirectionBelow andSizeValue:heightPaddingTitleContent];
+            
+        }
+        else {
+            //Title和正文间设置间距.
+            [layout setUseBesideMode:@"PaddingTitleContent" besideTo:@"InfoAdditional" withDirection:FrameLayoutDirectionBelow andSizeValue:heightPaddingTitleContent];
+        }
+    
         //设置正文.
         [layout setUseLeftMode:@"Content" standardTo:@"PaddingTitleContent" withDirection:FrameLayoutDirectionBelow];
         //contentLabel需自调整高度.
@@ -424,9 +465,19 @@ static NSInteger kcountObject = 0;
         //重新设置
         [layout setCGRect:frameContentLabel toName:@"Content"];
         
+        if(!self.repliesView.hidden) {
+            frameRepliesView = self.repliesView.frame;
+            [layout setUseBesideMode:@"RepliesViewAll" besideTo:@"Content" withDirection:FrameLayoutDirectionBelow andSizeValue:frameRepliesView.size.height];
+            [layout divideInHerizon:@"RepliesViewAll" to:@"RepliesViewPadding" and:@"RepliesView" withPercentage:0.1];
+            frameRepliesView = [layout getCGRect:@"RepliesView"];
+            
+            [layout setUseBesideMode:@"PaddingContentImage" besideTo:@"RepliesViewAll" withDirection:FrameLayoutDirectionBelow andSizeValue:10.0];
+        }
+        else {
         //Content和image之间的间距.
-        [layout setUseBesideMode:@"PaddingContentImage" besideTo:@"Content" withDirection:FrameLayoutDirectionBelow andSizeValue:10.0];
-        
+            [layout setUseBesideMode:@"PaddingContentImage" besideTo:@"Content" withDirection:FrameLayoutDirectionBelow andSizeValue:10.0];
+        }
+            
         if(self.imageView.hidden) {
             heightAdjust = FRAMELAYOUT_Y_BLOW_FRAME(frameContentLabel) + edge.bottom;
             [layout setUseBesideMode:@"ImageLine" besideTo:@"PaddingContentImage" withDirection:FrameLayoutDirectionBelow andSizeValue:1.0];
@@ -474,9 +525,10 @@ static NSInteger kcountObject = 0;
     self.infoLabel.frame            = frameInfoLabel;
     self.manageInfoLabel.frame      = frameManageInfo;
     self.otherInfoLabel.frame       = frameOtherInfo;
+    self.statusInfoLabel.frame      = frameStatusInfo;
     self.contentLabel.frame         = frameContentLabel;
     self.imageView.frame            = frameImageViewContent;
-    self.actionButtons0.frame        = frameActionButtons;
+    self.actionButtons0.frame       = frameActionButtons;
     
     FRAMELAYOUT_SET_HEIGHT(self, heightAdjust);
     NSLog(@"adjust height to %f.", heightAdjust);
@@ -617,6 +669,14 @@ static NSInteger kcountObject = 0;
     self.tableView.tableHeaderView = label;
 
     [self.tableView reloadData];
+    NSLog(@"optumizeHeight : %lf", [self optumizeHeight]);
+}
+
+
+- (CGFloat)optumizeHeight
+{
+    CGSize sizeTableView = self.tableView.contentSize;
+    return sizeTableView.height;
 }
 
 
