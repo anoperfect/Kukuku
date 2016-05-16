@@ -54,29 +54,28 @@
 }
 
 
-- (void)reloadPostData {
+- (void)startAction
+{
+    [self loadPage:1];
+}
+
+
+- (void)loadPage:(NSInteger)page
+{
     LOG_POSTION
     
     [self getLocaleRecords];
-
-
+    
     NSMutableArray *appendPostDatas = [NSMutableArray arrayWithArray:self.postDatasAll];
     
     for(NSInteger index = 0; index < appendPostDatas.count; index ++) {
         NSLog(@"index%zd : %@", index, appendPostDatas[index]);
     }
     
-    
-    NSLog(@"appendPostDatas %@", appendPostDatas);
-    
-    [self addPostDatas:appendPostDatas onPage:self.pageNumLoading];
-    
-    NSLog(@"appendPostDatas %@", appendPostDatas);
-    
+
+    [self appendDataOnPage:self.pageNumLoading with:appendPostDatas removeDuplicate:NO andReload:YES];
     [self showfootViewWithTitle:[NSString stringWithFormat:@"共%zd条, 已加载%zi条", self.allTid.count, [self numberOfPostDatasTotal]]
            andActivityIndicator:NO andDate:NO];
-    
-    [self reloadPostView];
     
     NSLog(@"appendPostDatas %@", appendPostDatas);
 }
@@ -308,6 +307,19 @@
 - (void)getLocaleRecords
 {
     NSLog(@"#error - should be override.");
+}
+
+
+//定制PostView显示的时候的类型.
+- (ThreadDataToViewType)postViewPresendTypeOnIndexPath:(NSIndexPath*)indexPath withPostData:(PostData*)postData
+{
+    return ThreadDataToViewTypeInfoUseReplyCount;
+}
+
+//显示之前的特殊定制.
+- (void)retreatPostViewDataAdditional:(PostData*)postData onIndexPath:(NSIndexPath*)indexPath
+{
+    
 }
 
 

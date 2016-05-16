@@ -24,5 +24,7 @@
 
 + (void)deleteCaches;
 
++ (void)deleteCachesAsyncWithProgressHandle:(void (^)(NSInteger total, NSInteger idx))handle;
+
 
 @end

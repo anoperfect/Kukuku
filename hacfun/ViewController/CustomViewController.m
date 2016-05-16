@@ -174,20 +174,22 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
     NSInteger index = 0;
     for(ButtonData *data in self.actionDatas) {
         PushButton *button = [[PushButton alloc] init];
-        button.tag = self.tagButtons + index;
+        button.actionData = data;
         [button addTarget:self action:@selector(action:) forControlEvents:UIControlEventTouchDown];
         [button setFrame:CGRectMake(0, 0, self.heightBanner, self.heightBanner)];
         if(nil != data.imageName) {
             UIImage *image = [UIImage imageNamed:data.imageName];
             button.imageEdgeInsets = UIEdgeInsetsMake(6, 6, 6, 6);
             [button setImage:image forState:UIControlStateNormal];
+            [rightItems addObject:[[UIBarButtonItem alloc] initWithCustomView:button]];
         }
         else {
-            [button setTitle:data.keyword forState:UIControlStateNormal];
-            [button setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+            UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithTitle:data.keyword
+                                                                     style:UIBarButtonItemStyleDone
+                                                                    target:self
+                                                                    action:@selector(toolBarAction:)];
+            [rightItems addObject:item];
         }
-        
-        [rightItems addObject:[[UIBarButtonItem alloc] initWithCustomView:button]];
         
         index ++;
     }
@@ -199,8 +201,7 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
 - (void)action:(PushButton*)button
 {
     NSLog(@"action %@", button);
-    NSInteger index = button.tag - self.tagButtons;
-    ButtonData *data = self.actionDatas[index];
+    ButtonData *data = button.actionData;
     [self actionViaString:data.keyword];
 }
 
@@ -354,6 +355,75 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
                          
                      }];
 }
+
+
+
+- (NSArray*)toolData
+{
+    LOG_POSTION
+    return nil;
+}
+
+
+- (void)showToolBar
+{
+    LOG_POSTION
+    NSMutableArray *toolBarItems = [[NSMutableArray alloc] init];
+    NSArray *toolDatas = [self toolData];
+    NSLog(@"toolbar items : %zd", toolDatas.count);
+    
+    //重新加载按钮.
+    NSInteger index = 0;
+    for(ButtonData *data in toolDatas) {
+        
+        if(index > 0) {
+            UIBarButtonItem *flexibleitem = [[UIBarButtonItem alloc]initWithBarButtonSystemItem:(UIBarButtonSystemItemFlexibleSpace) target:self action:nil];
+            [toolBarItems addObject:flexibleitem];
+        }
+        
+        NSLog(@"index : %zd, %@ %@", index, data.keyword, data.imageName);
+        
+        PushButton *button = [[PushButton alloc] init];
+        button.actionData = data;
+        [button addTarget:self action:@selector(action:) forControlEvents:UIControlEventTouchDown];
+        [button setFrame:CGRectMake(0, 0, self.heightBanner, self.heightBanner)];
+        if(nil != data.imageName) {
+            UIImage *image = [UIImage imageNamed:data.imageName];
+            button.imageEdgeInsets = UIEdgeInsetsMake(6, 6, 6, 6);
+            [button setImage:image forState:UIControlStateNormal];
+            [toolBarItems addObject:[[UIBarButtonItem alloc] initWithCustomView:button]];
+        }
+        else {
+            //[button setTitle:data.keyword forState:UIControlStateNormal];
+            //[button setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+            UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithTitle:data.keyword
+                                                                     style:UIBarButtonItemStyleDone
+                                                                    target:self
+                                                                    action:@selector(toolBarAction:)];
+            [toolBarItems addObject:item];
+        }
+        
+        
+        
+        index ++;
+    }
+    
+    self.navigationController.toolbarHidden = NO;
+    self.toolbarItems = [NSArray arrayWithArray:toolBarItems];
+}
+
+
+- (void)hiddenToolBar
+{
+    self.navigationController.toolbarHidden = YES;
+}
+
+
+- (void)toolBarAction:(UIBarButtonItem *)sender
+{
+    [self actionViaString:sender.title];
+}
+
 
 
 - (void)didReceiveMemoryWarning {

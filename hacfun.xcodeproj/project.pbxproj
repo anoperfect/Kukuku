@@ -98,6 +98,13 @@
 		B5DAFF3D1CC2918E000551B2 /* NSString+Category.m in Sources */ = {isa = PBXBuildFile; fileRef = B5DAFF3C1CC2918E000551B2 /* NSString+Category.m */; };
 		B5DAFF481CC29650000551B2 /* NSObject+Util.m in Sources */ = {isa = PBXBuildFile; fileRef = B5DAFF451CC29650000551B2 /* NSObject+Util.m */; };
 		B5DAFF491CC29650000551B2 /* NSThread+Util.m in Sources */ = {isa = PBXBuildFile; fileRef = B5DAFF471CC29650000551B2 /* NSThread+Util.m */; };
+		B5DD9A891CE2148F00C762AF /* PostView.m in Sources */ = {isa = PBXBuildFile; fileRef = B5DD9A881CE2148F00C762AF /* PostView.m */; };
+		B5DD9A8F1CE214BC00C762AF /* DeveloperViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B5DD9A8E1CE214BC00C762AF /* DeveloperViewController.m */; };
+		B5DD9A921CE2151500C762AF /* SearchViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B5DD9A911CE2151500C762AF /* SearchViewController.m */; };
+		B5DD9A951CE2152000C762AF /* TestViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B5DD9A941CE2152000C762AF /* TestViewController.m */; };
+		B5DD9A981CE2154400C762AF /* UICustmizeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B5DD9A971CE2154400C762AF /* UICustmizeViewController.m */; };
+		B5DD9A9B1CE215C000C762AF /* PostGroupView.m in Sources */ = {isa = PBXBuildFile; fileRef = B5DD9A9A1CE215C000C762AF /* PostGroupView.m */; };
+		B5DD9A9E1CE217FB00C762AF /* ModelAndViewInc.m in Sources */ = {isa = PBXBuildFile; fileRef = B5DD9A9D1CE217FB00C762AF /* ModelAndViewInc.m */; };
 		B5E1378B1B7CDB76002B5979 /* CollectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B5E1378A1B7CDB76002B5979 /* CollectionViewController.m */; };
 		B5E137941B7D92E1002B5979 /* ImageViewCache.m in Sources */ = {isa = PBXBuildFile; fileRef = B5E137931B7D92E1002B5979 /* ImageViewCache.m */; };
 		B5F24BB21C49EBF70027DAB2 /* LocaleViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B5F24BB11C49EBF70027DAB2 /* LocaleViewController.m */; };
@@ -261,6 +268,20 @@
 		B5DAFF451CC29650000551B2 /* NSObject+Util.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSObject+Util.m"; path = "Category/NSObject+Util.m"; sourceTree = "<group>"; };
 		B5DAFF461CC29650000551B2 /* NSThread+Util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSThread+Util.h"; path = "Category/NSThread+Util.h"; sourceTree = "<group>"; };
 		B5DAFF471CC29650000551B2 /* NSThread+Util.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSThread+Util.m"; path = "Category/NSThread+Util.m"; sourceTree = "<group>"; };
+		B5DD9A871CE2148F00C762AF /* PostView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PostView.h; path = hacfun/Conponent/PostView.h; sourceTree = SOURCE_ROOT; };
+		B5DD9A881CE2148F00C762AF /* PostView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PostView.m; path = hacfun/Conponent/PostView.m; sourceTree = SOURCE_ROOT; };
+		B5DD9A8D1CE214BC00C762AF /* DeveloperViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DeveloperViewController.h; sourceTree = "<group>"; };
+		B5DD9A8E1CE214BC00C762AF /* DeveloperViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DeveloperViewController.m; sourceTree = "<group>"; };
+		B5DD9A901CE2151500C762AF /* SearchViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SearchViewController.h; sourceTree = "<group>"; };
+		B5DD9A911CE2151500C762AF /* SearchViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SearchViewController.m; sourceTree = "<group>"; };
+		B5DD9A931CE2152000C762AF /* TestViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestViewController.h; sourceTree = "<group>"; };
+		B5DD9A941CE2152000C762AF /* TestViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestViewController.m; sourceTree = "<group>"; };
+		B5DD9A961CE2154400C762AF /* UICustmizeViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UICustmizeViewController.h; sourceTree = "<group>"; };
+		B5DD9A971CE2154400C762AF /* UICustmizeViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UICustmizeViewController.m; sourceTree = "<group>"; };
+		B5DD9A991CE215C000C762AF /* PostGroupView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PostGroupView.h; sourceTree = "<group>"; };
+		B5DD9A9A1CE215C000C762AF /* PostGroupView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PostGroupView.m; sourceTree = "<group>"; };
+		B5DD9A9C1CE217FB00C762AF /* ModelAndViewInc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ModelAndViewInc.h; sourceTree = "<group>"; };
+		B5DD9A9D1CE217FB00C762AF /* ModelAndViewInc.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ModelAndViewInc.m; sourceTree = "<group>"; };
 		B5E137891B7CDB76002B5979 /* CollectionViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CollectionViewController.h; sourceTree = "<group>"; };
 		B5E1378A1B7CDB76002B5979 /* CollectionViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CollectionViewController.m; sourceTree = "<group>"; };
 		B5E137921B7D92E1002B5979 /* ImageViewCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageViewCache.h; sourceTree = "<group>"; };
@@ -339,6 +360,14 @@
 				B523C9C11B78FAB500944004 /* ImageViewController.m */,
 				B56E53511CB4014700998F74 /* GalleryViewController.h */,
 				B56E53521CB4014700998F74 /* GalleryViewController.m */,
+				B5DD9A8D1CE214BC00C762AF /* DeveloperViewController.h */,
+				B5DD9A8E1CE214BC00C762AF /* DeveloperViewController.m */,
+				B5DD9A901CE2151500C762AF /* SearchViewController.h */,
+				B5DD9A911CE2151500C762AF /* SearchViewController.m */,
+				B5DD9A931CE2152000C762AF /* TestViewController.h */,
+				B5DD9A941CE2152000C762AF /* TestViewController.m */,
+				B5DD9A961CE2154400C762AF /* UICustmizeViewController.h */,
+				B5DD9A971CE2154400C762AF /* UICustmizeViewController.m */,
 			);
 			path = ViewController;
 			sourceTree = "<group>";
@@ -368,6 +397,12 @@
 				B50F99821C12815700240C9D /* GridView.m */,
 				B5B6662F1CACCEA10038A3EF /* PushButton.h */,
 				B5B666301CACCEA10038A3EF /* PushButton.m */,
+				B5DD9A871CE2148F00C762AF /* PostView.h */,
+				B5DD9A881CE2148F00C762AF /* PostView.m */,
+				B5DD9A991CE215C000C762AF /* PostGroupView.h */,
+				B5DD9A9A1CE215C000C762AF /* PostGroupView.m */,
+				B5DD9A9C1CE217FB00C762AF /* ModelAndViewInc.h */,
+				B5DD9A9D1CE217FB00C762AF /* ModelAndViewInc.m */,
 			);
 			path = Conponent;
 			sourceTree = "<group>";
@@ -802,6 +837,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B523C9D31B78FAB500944004 /* CreateViewController.m in Sources */,
+				B5DD9A8F1CE214BC00C762AF /* DeveloperViewController.m in Sources */,
 				B50D38B91B7F4BE10024E464 /* SettingViewController.m in Sources */,
 				B5B666311CACCEA10038A3EF /* PushButton.m in Sources */,
 				B5F24BB51C49F0C40027DAB2 /* DBData.m in Sources */,
@@ -823,18 +859,24 @@
 				B5E1378B1B7CDB76002B5979 /* CollectionViewController.m in Sources */,
 				B5DAFF281CC1D9B8000551B2 /* UIViewController+AMSlideMenu.m in Sources */,
 				B5DAFF211CC1D9B8000551B2 /* AMSlideMenuRightMenuSegue.m in Sources */,
+				B5DD9A9E1CE217FB00C762AF /* ModelAndViewInc.m in Sources */,
 				B523C9D21B78FAB500944004 /* CategoryViewController.m in Sources */,
+				B5DD9A951CE2152000C762AF /* TestViewController.m in Sources */,
 				B58D87341B81F2AC00B9A1BA /* CustomViewController.m in Sources */,
 				B5D8D4791B52060C0091DA20 /* AppDelegate.m in Sources */,
 				B5DAFF341CC1D9B8000551B2 /* VIPhotoView.m in Sources */,
+				B5DD9A981CE2154400C762AF /* UICustmizeViewController.m in Sources */,
 				B55E9D771C9B091400F581F5 /* FrameLayout.m in Sources */,
+				B5DD9A9B1CE215C000C762AF /* PostGroupView.m in Sources */,
 				B50F99831C12815700240C9D /* GridView.m in Sources */,
 				B5A8036A1CAA808F00F88EC7 /* NSLogn.m in Sources */,
 				B5A0585A1B9DE87A00370557 /* ReplyViewController.m in Sources */,
 				B523C9ED1B78FADC00944004 /* PostDataCellView.m in Sources */,
+				B5DD9A921CE2151500C762AF /* SearchViewController.m in Sources */,
 				B5DAFF1E1CC1D9B8000551B2 /* AMSlideMenuLeftMenuSegue.m in Sources */,
 				B523C9F51B78FAFD00944004 /* AppConfig.m in Sources */,
 				B5D8D4761B52060C0091DA20 /* main.m in Sources */,
+				B5DD9A891CE2148F00C762AF /* PostView.m in Sources */,
 				B5DAFF3D1CC2918E000551B2 /* NSString+Category.m in Sources */,
 				B56E53561CB4017D00998F74 /* ImagesDisplay.m in Sources */,
 				B5DAFF221CC1D9B8000551B2 /* AMSlideMenuRightTableViewController.m in Sources */,

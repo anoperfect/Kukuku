@@ -10,6 +10,11 @@
 #import "FuncDefine.h"
 #import "AppConfig.h"
 @interface NetworkThreadViewController ()
+
+
+
+
+
 @end
 
 
@@ -24,18 +29,65 @@
 }
 
 
-- (void)reloadPostData{
+- (void)startAction
+{
+    //显示Loading.
+    self.threadsStatus = ThreadsStatusLoading;
+    [self showfootViewWithTitle:[self getFooterViewTitleOnStatus:self.threadsStatus] andActivityIndicator:YES andDate:NO];
+    [self loadPage:1];
+}
+
+
+- (void)loadPage:(NSInteger)page
+{
+    [self setBackgroundDownloadPage:page];
+}
+
+
+- (void)actionLoadMore
+{
     LOG_POSTION
     
     //显示Loading.
     self.threadsStatus = ThreadsStatusLoading;
     [self showfootViewWithTitle:[self getFooterViewTitleOnStatus:self.threadsStatus] andActivityIndicator:YES andDate:NO];
-    [self setBackgroundDownload];
+    [self setBackgroundDownloadPageMore];
 }
 
 
 - (NSString*)getDownloadUrlString {
     return @"need to be re-defined.";
+}
+
+//开始下载第page.
+- (void)setBackgroundDownloadPage:(NSInteger)page
+{
+    self.pageNumLoading = page;
+    self.numberLoaded = 0;
+    
+    [self setBackgroundDownload];
+}
+
+
+//根据当前记录,
+- (void)setBackgroundDownloadPageMore
+{
+    PostDataPage *postDataPage = [self.postDataPages lastObject];
+    if(postDataPage) {
+        if(postDataPage.postDatas.count == [self numberExpectedInPage:self.pageNumLoading]) {
+            self.pageNumLoading = postDataPage.page + 1;
+            self.numberLoaded = 0;
+        }
+        else {
+            self.pageNumLoading = postDataPage.page;
+            self.numberLoaded = postDataPage.postDatas.count;
+        }
+    }
+    else {
+        self.pageNumLoading = 1;
+    }
+    
+    [self setBackgroundDownload];
 }
 
 
@@ -110,6 +162,10 @@
         [self showfootViewWithTitle:[self getFooterViewTitleOnStatus:self.threadsStatus] andActivityIndicator:NO andDate:NO];
     }
     else {
+        if(-1 == page) {
+            page = self.pageSize;
+        }
+        
         appendPostDatas = [self parsedPostDatasRetreat:parsedPostDatas onPage:page];
         NSLog(@"parsed : %zd, after retreated append : %zd.", parsedPostDatas.count, appendPostDatas.count);
         
@@ -119,14 +175,9 @@
             [self showfootViewWithTitle:[self getFooterViewTitleOnStatus:self.threadsStatus] andActivityIndicator:NO andDate:NO];
         }
         else {
-            //返回更新的section.
-            NSInteger section = [self addPostDatas:appendPostDatas onPage:page];
-            [self reloadSectionViaAppend:section];
-            
+            [self appendDataOnPage:page with:appendPostDatas removeDuplicate:NO andReload:YES];
             self.threadsStatus = ThreadsStatusLoadSuccessful;
             self.pageNumLoaded = self.pageNumLoading;
-            
-            [self.postView setHidden:NO];
             [self showfootViewWithTitle:[self getFooterViewTitleOnStatus:self.threadsStatus] andActivityIndicator:NO andDate:YES];
         }
     }

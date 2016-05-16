@@ -8,7 +8,13 @@
 #import <UIKit/UIKit.h>
 #import "BannerView.h"
 #import "ButtonData.h"
-#import "FuncDefine.h"
+#import "AppConfig.h"
+
+
+
+
+
+
 @interface CustomViewController : UIViewController
 
 
@@ -30,6 +36,11 @@
 - (void)actionAddData:(ButtonData*)actionData;
 - (void)actionRemoveDataByKeyString:(NSString*)string;
 - (void)actionRefresh;
+
+//Override.
+- (NSArray*)toolData;
+- (void)showToolBar;
+- (void)hiddenToolBar;
 
 
 //显示一个提示信息.

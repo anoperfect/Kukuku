@@ -9,9 +9,8 @@
 #import "FuncDefine.h"
 #import "CreateViewController.h"
 #import "DetailViewController.h"
-#import "AppConfig.h"
 #import "PopupView.h"
-#import "PostDataCellView.h"
+
 
 
 @interface DetailViewController ()
@@ -41,6 +40,12 @@
 
 @property (nonatomic, assign) BOOL isOnlyShowPo;
 
+@property (nonatomic, assign) BOOL pageDescMode;
+
+
+
+
+
 @end
 
 @implementation DetailViewController
@@ -69,10 +74,10 @@
         
         ButtonData *actionData = nil;
         
-//        actionData = [[ButtonData alloc] init];
-//        actionData.keyword      = @"more";
-//        actionData.imageName    = @"more";
-//        [self actionAddData:actionData];
+        actionData = [[ButtonData alloc] init];
+        actionData.keyword      = @"more";
+        actionData.imageName    = @"more";
+        [self actionAddData:actionData];
         
         
         actionData = [[ButtonData alloc] init];
@@ -80,15 +85,10 @@
         actionData.imageName    = @"reply";
         [self actionAddData:actionData];
         
-        actionData = [[ButtonData alloc] init];
-        actionData.keyword      = @"收藏";
-        actionData.imageName    = @"collection";
-        [self actionAddData:actionData];
-        
-        actionData = [[ButtonData alloc] init];
-        actionData.keyword      = @"加载全部";
-        actionData.imageName    = @"loadall";
-        [self actionAddData:actionData];
+//        actionData = [[ButtonData alloc] init];
+//        actionData.keyword      = @"收藏";
+//        actionData.imageName    = @"collection";
+//        [self actionAddData:actionData];
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reloadFromCreateReplyFinish:) name:@"CreateReplyFinish" object:nil];
         self.isDatailHistoryUpdated = NO;
@@ -169,40 +169,20 @@
     NSLog(@"action string : %@", string);
     
     if([string isEqualToString:@"more"]) {
-        
-        NSInteger number = 6;
-        
-        CGFloat widthButton = 100;
-        CGFloat heightButton = 36;
-        
-        UIView *buttonsContainer = [[UIView alloc] init];
-        buttonsContainer.frame = CGRectMake(self.view.bounds.size.width - widthButton, 0, widthButton, number * heightButton + 10);
-        buttonsContainer.backgroundColor = [UIColor whiteColor];
-        
-        PushButton *button = [[PushButton alloc] init];
-        button.frame = CGRectMake(0, 0, widthButton, heightButton);
-        
-        
-        ButtonData *actionData = [[ButtonData alloc] init];
-        actionData.keyword      = @"收藏";
-        actionData.imageName    = @"collection";
-        [button setActionData:actionData];
-        
-        [buttonsContainer addSubview:button];
-        
-        [self showPopupView:buttonsContainer];
-        
+        if(self.navigationController.toolbarHidden) {
+            [self showToolBar];
+        }
+        else {
+            [self hiddenToolBar];
+        }
+
         return;
     }
     
-    
-    
-    
     if([string isEqualToString:@"reply"]) {
-#if 1
-//        [self createReplyPost];
-        self.navigationController.toolbarHidden = NO;
-#else
+        [self createReplyPost];
+
+#if 0
         CGFloat width = 100;
         CGFloat height = 180;
         CGRect frame = CGRectMake(0, 0, width, height);
@@ -220,6 +200,7 @@
     
     if([string isEqualToString:@"收藏"]) {
         [self collection];
+        [self hiddenToolBar];
         return;
     }
     
@@ -233,38 +214,136 @@
         
         [self showIndicationText:[NSString stringWithFormat:@"开始加载全部回复"]];
         [self downloadAllDetail];
+        [self hiddenToolBar];
         return;
+    }
+    
+    if([string isEqualToString:@"停止加载全部"]) {
+        [self showIndicationText:[NSString stringWithFormat:@"停止自动加载全部回复"]];
+        [self stopDownloadAllDetail];
+        [self hiddenToolBar];
+    }
+    
+    
+    
+    if([string isEqualToString:@"开启只看Po"]){
+        self.isOnlyShowPo = YES;
+        
+        NSArray *indexPaths = [self indexPathsPostData];
+        for(NSIndexPath *indexPath in indexPaths) {
+            PostData *postData = [self postDataOnIndexPath:indexPath];
+            if(postData.uid == self.topic.uid) {
+                [self unfoldCellOnIndexPath:indexPath withInfo:@"只看Po" andReload:NO];
+            }
+            else {
+                [self foldCellOnIndexPath:indexPath withInfo:@"只看Po" andReload:NO];
+            }
+        }
+        
+        [self.postView reloadData];
+        
+        [self showfootViewWithTitle:[NSString stringWithFormat:@"当前为只看Po模式"]
+               andActivityIndicator:NO andDate:NO];
+        
+        [self hiddenToolBar];
+        
+        return ;
+    }
+    
+    if([string isEqualToString:@"关闭只看Po"]){
+        self.isOnlyShowPo = NO;
+        
+        NSArray *indexPaths = [self indexPathsPostData];
+        for(NSIndexPath *indexPath in indexPaths) {
+            [self unfoldCellOnIndexPath:indexPath withInfo:@"只看Po" andReload:NO];
+        }
+        
+        [self.postView reloadData];
+        
+        [self showfootViewWithTitle:[NSString stringWithFormat:@"已关闭只看Po模式"]
+               andActivityIndicator:NO andDate:NO];
+        
+        [self hiddenToolBar];
+        return ;
+    }
+    
+    if([string isEqualToString:@"jumppage"]) {
+        self.pageDescMode = YES;
+        [self clearData];
+        [self reloadPostView];
+        [self loadPage:-1];
     }
 }
 
 
-- (NSMutableDictionary*)cellPresentDataFromPostData:(PostData*)postData onIndexPath:(NSIndexPath*)indexPath
+- (NSArray*)toolData
 {
-    NSLog(@"-=-=-= %zd-%zd", indexPath.section, indexPath.row);
+    LOG_POSTION
+    NSMutableArray *toolDatas = [[NSMutableArray alloc] init];
     
-    NSMutableDictionary *dict = [super cellPresentDataFromPostData:postData onIndexPath:indexPath];
-    if([self numberOfPostDatasTotal] >= 1) {
-        PostData *topic = self.topic;
-        PostData *postData = [self postDataOnIndexPath:indexPath];
-        
-        if(indexPath.section == 0 || [postData.uid isEqualToString:topic.uid]) {
-            [dict setObject:[UIColor colorWithName:@"Po"] forKey:@"colorUidSign"];
-        }
-        
-        //统一显示No.
-        [dict setObject:[NSString stringWithFormat:@"No.%zd", postData.tid] forKey:@"info"];
-        //信息部分显示NO. 主题显示回复数+NO.
-        if(indexPath.section == 0 && indexPath.row == 0) {
-            //主题增加附加显示信息.
-            [dict setObject:[NSString stringWithFormat:@"回应 : %zd", postData.replyCount] forKey:@"otherInfo"];
-        }
-        
+    ButtonData *actionData = nil;
+    
+    actionData = [[ButtonData alloc] init];
+    actionData.keyword      = @"收藏";
+    actionData.imageName    = @"collection";
+    [toolDatas addObject:actionData];
+    
+    actionData = [[ButtonData alloc] init];
+    actionData.keyword      = @"jumppage";
+    actionData.imageName    = @"jumppage";
+    [toolDatas addObject:actionData];
+    
+    if(!self.autoRepeatDownload) {
+        actionData = [[ButtonData alloc] init];
+        actionData.keyword      = @"加载全部";
+        actionData.imageName    = @"loadall";
+        [toolDatas addObject:actionData];
     }
     else {
-        NSLog(@"no post data.");
+        actionData = [[ButtonData alloc] init];
+        actionData.keyword      = @"停止加载全部";
+//        actionData.imageName    = @"stoploadall";
+        [toolDatas addObject:actionData];
     }
     
-    return dict;
+    if(!self.isOnlyShowPo) {
+        actionData = [[ButtonData alloc] init];
+        actionData.keyword      = @"开启只看Po";
+//        actionData.imageName    = @"loadall";
+        [toolDatas addObject:actionData];
+    }
+    else {
+        actionData = [[ButtonData alloc] init];
+        actionData.keyword      = @"关闭只看Po";
+        //        actionData.imageName    = @"loadall";
+        [toolDatas addObject:actionData];
+    }
+    
+    NSLog(@"---%zd", toolDatas.count);
+    
+    return [NSArray arrayWithArray:toolDatas];
+}
+
+
+//定制PostView显示的时候的类型.
+- (ThreadDataToViewType)postViewPresendTypeOnIndexPath:(NSIndexPath*)indexPath withPostData:(PostData*)postData
+{
+    if(indexPath.section == 0 && indexPath.row == 0) {
+        return ThreadDataToViewTypeAdditionalInfoUseReplyCount;
+    }
+    else {
+        return ThreadDataToViewTypeInfoUseNumber;
+    }
+}
+
+
+//显示之前的特殊定制.
+- (void)retreatPostViewDataAdditional:(PostData*)postData onIndexPath:(NSIndexPath*)indexPath
+{
+    if(indexPath.section == 0 || [postData.uid isEqualToString:self.topic.uid]) {
+        [postData.postViewData setObject:@YES forKey:@"uidUnderLine"];
+        [postData.postViewData setObject:@YES forKey:@"uidBold"];
+    }
 }
 
 
@@ -340,8 +419,15 @@
 - (void)downloadAllDetail
 {
     self.autoRepeatDownload = YES;
-    [self reloadPostData];
+    [self actionLoadMore];
 }
+
+
+- (void)stopDownloadAllDetail
+{
+    self.autoRepeatDownload = NO;
+}
+
 
 
 - (void)presentCreateViewControllerWithReferenceId:(NSInteger)referenceId {
@@ -366,12 +452,26 @@
 
 
 - (NSString*)getDownloadUrlString {
+    NSLog(@"numberLoaded : %zd", self.numberLoaded);
+    NSLog(@"pageNumLoading : %zd", self.pageNumLoading);
+    
+    
+    
     //上一次加载满一个page的话, 才可以加载下一个page.
     if(self.numberLoaded == [self numberExpectedInPage:self.pageNumLoading]) {
         self.pageNumLoading ++;
     }
     
-    return [NSString stringWithFormat:@"%@/t/%zi?page=%zi", self.host.host, self.tid, self.pageNumLoading];
+    if(self.pageNumLoading != -1) {
+        NSString *urlString = [NSString stringWithFormat:@"%@/t/%zi?page=%zi", self.host.host, self.tid, self.pageNumLoading];
+        NSLog(@"urlString : %@", urlString);
+        return urlString;
+    }
+    else {
+        NSString *urlString = [NSString stringWithFormat:@"%@/t/%zi?page=last", self.host.host, self.tid];
+        NSLog(@"urlString : %@", urlString);
+        return urlString;
+    }
 }
 
 
@@ -392,6 +492,47 @@
     PostData *topic = [PostData parseFromDetailedJsonData:data atPage:self.pageNumLoading repliesTo:replies storeAdditional:addtional];
     if(!topic) {
         return nil;
+    }
+    
+    //更新下附加信息.
+    NS0Log(@"Detail Additonal : %@", addtional);
+    NSString *key = @"page";
+    NSLog(@"Detail Additonal : parse item %@", key);
+    if([[addtional objectForKey:key] isKindOfClass:[NSDictionary class]]) {
+        NSDictionary *pageInfo = [addtional objectForKey:@"page"];
+        NSNumber *sizeNumber = [pageInfo objectForKey:@"size"];
+        if([sizeNumber isKindOfClass:[NSNumber class]]) {
+            self.pageSize = [sizeNumber integerValue];
+            NSLog(@"Detail Additonal : update pageSize to %zd.", self.pageSize);
+        }
+        else {
+            NSLog(@"#errror - Detail Additonal : update pageSize not found.");
+        }
+        
+        id page = [pageInfo objectForKey:@"page"];
+        if(self.pageNumLoading == -1) {
+            if([page isEqual:@"last"]) {
+                self.pageNumLoading = self.pageSize;
+                NSLog(@"Detail Additonal : page (last) checked.");
+            }
+            else {
+                NSLog(@"#errror - Detail Additonal : page (last) checked error.");
+            }
+            
+            self.pageNumLoading = self.pageSize;
+            NSLog(@"Detail Additonal : update pageNumLoading to %zd.", self.pageNumLoading);
+        }
+        else {
+            if([page isEqual:[NSNumber numberWithInteger:self.pageNumLoading]]) {
+                NSLog(@"Detail Additonal : page (%zd) checked.", self.pageNumLoading);
+            }
+            else {
+                NSLog(@"#errror - Detail Additonal : page (%zd) checked error.", self.pageNumLoading);
+            }
+        }
+    }
+    else {
+        NSLog(@"#errror - Detail Additonal : item %@ not found", key);
     }
     
     //查看是否需更新主题.
@@ -416,16 +557,6 @@
             topic.optimumSizeHeight = self.topic.optimumSizeHeight;
             [self updateDataSourceByPostData:topic];
         }
-    }
-    
-    //检查附属信息是否更新.
-    NSString *key = @"threads";
-    if([addtional[key] isEqual:self.threadsInfo]) {
-        NSLog(@"%@ info not change.", key)
-    }
-    else {
-        self.threadsInfo = addtional[key];
-        NSLog(@"%@ info updated.", key);
     }
     
     return replies;
@@ -478,35 +609,33 @@
 
 - (void)layoutCell: (UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath*)indexPath withPostData:(PostData *)postData
 {
-
-    
 //    [cell.layer removeAllAnimations];
     NSLog(@"row at : %@", indexPath);
-    PostDataCellView *cellView = (PostDataCellView*)[cell viewWithTag:TAG_PostDataCellView];
-//    cell.backgroundColor = cellView.backgroundColor;
-    [cellView setBackgroundColor:[UIColor whiteColor]];
+    PostView *postView = (PostView*)[cell viewWithTag:TAG_PostView];
+//    cell.backgroundColor = postView.backgroundColor;
+    [postView setBackgroundColor:[UIColor whiteColor]];
     
-    [cellView.layer removeAllAnimations];
+    [postView.layer removeAllAnimations];
     
     CALayer *border = [CALayer layer];
     if(0 == indexPath.section && 0 == indexPath.row) {
         border.backgroundColor = [[UIColor colorWithName:@"DetailCellTopicBorder"] CGColor];
         float borderHeight = 1.0;
         border.frame = CGRectMake(0.0f,
-                                  cellView.frame.size.height-borderHeight,
-                                  cellView.frame.size.width,
+                                  postView.frame.size.height-borderHeight,
+                                  postView.frame.size.width,
                                   borderHeight);
     }
     else {
         border.backgroundColor = [[UIColor colorWithName:@"DetailCellReplyBorder"] CGColor];
         float borderHeight = 1.0;
         border.frame = CGRectMake(0.0f,
-                                  cellView.frame.size.height-borderHeight,
-                                  cellView.frame.size.width,
+                                  postView.frame.size.height-borderHeight,
+                                  postView.frame.size.width,
                                   borderHeight);
     }
     
-    [cellView.layer addSublayer:border];
+    [postView.layer addSublayer:border];
 }
 
 
@@ -537,7 +666,7 @@
         if(![self isLastPage]) {
             [self showIndicationText:[NSString stringWithFormat:@"已加载第%zd页, 共%zd条.", self.pageNumLoaded, [self numberOfPostDatasTotal] - 1]];
             dispatch_async(dispatch_get_main_queue(), ^{
-                [self reloadPostData];
+                [self actionLoadMore];
             });
         }
     }
@@ -576,6 +705,8 @@
         [postDataPage.postDatas addObject:self.topic];
         
         [self.postDataPages addObject:postDataPage];
+        
+        self.pageSize = 0;
     }
 }
 
@@ -595,10 +726,10 @@
 {
     if(0 == indexPath.section) {
         if(!self.isOnlyShowPo) {
-            return @[@"复制", @"举报", @"开启只看Po", @"链接"];
+            return @[@"复制", @"举报", @"链接"];
         }
         else {
-            return @[@"复制", @"举报", @"关闭只看Po", @"链接"];
+            return @[@"复制", @"举报", @"链接"];
         }
     }
     else {
@@ -660,6 +791,43 @@
     }
     
     return finishAction;
+}
+
+
+- (NSString*)headerStringOnSection:(NSInteger)section
+{
+    LOG_POSTION
+    NSString *headerString = nil;
+    
+    if(self.pageDescMode) {
+        PostDataPage *postDataPage = self.postDataPages[section];
+        
+        if(postDataPage.page == -1) {
+            headerString = [NSString stringWithFormat:@"最后一页, 共%zd页.", self.pageSize];
+        }
+        else if(postDataPage.page == 0) {
+            //不显示.
+        }
+        else {
+            headerString = [NSString stringWithFormat:@"第%zd页, 共%zd页.", postDataPage.page, self.pageSize];
+        }
+    }
+    else {
+        //不显示.
+    }
+    
+    return headerString;
+}
+
+
+- (void)headerActionOnSection:(NSInteger)section
+{
+    PostDataPage *postDataPage = self.postDataPages[section];
+    NSInteger page = postDataPage.page;
+    if(page > 1) {
+        self.numberLoaded = 0;
+        [self loadPage:page-1];
+    }
 }
 
 

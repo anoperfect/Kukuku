@@ -26,10 +26,11 @@
  @"otherInfo"       - 第二行右边的. 显示一些其他信息. 暂时是显示更新回复信息. 用在CollectionViewController显示新回复状态.
  @"statusInfo"      - 第三行右边的. 显示一些状态信息.
  @"content"         - 正文.  根据需要已作内容调整.
- @"colorUid"        － 标记uid颜色. 接口返回的<font color>标签解析出的颜色.
- @"colorUidSign"    － 标记uid颜色. 暂时使用uid颜色标记特定thread. 比如Po, //self post , self reply, follow, other cookie.
- @"postdata"        -   copy的PostData.
-                        id, thumb replycount直接从raw postdata中读取.
+ @"contentLineLimit"- 正文限制的行数.
+ @"colorUid"        - 标记uid颜色. 接口返回的<font color>标签解析出的颜色.
+ @"colorUidSign"    - 标记uid颜色. 暂时使用uid颜色标记特定thread. 比如Po, //self post , self reply, follow, other cookie.
+ @"uidUnderLine"    - 标记uid下划线.
+ @"thumb"           - 图片显示的地址.
  @"replies"         - 需显示的回应. 类型为NSArray, 数组成员为PostData.
  @"showAction"      - 是否显示postdata中的操作菜单.
  */
@@ -39,7 +40,7 @@
 @property (nonatomic, strong) UILabel       *otherInfoLabel;
 @property (nonatomic, strong) UILabel       *statusInfoLabel;
 @property (nonatomic, strong) RTLabel       *contentLabel;
-@property (nonatomic, strong) PostView      *repliesView;
+@property (nonatomic, strong) PostViewSet      *repliesView;
 @property (strong,nonatomic) PostImageView  *imageView;
 @property (nonatomic, strong) UIToolbar     *actionButtons0;
 
@@ -84,7 +85,7 @@ static NSInteger kcountObject = 0;
         
         kcountObject ++;
         self.row = -1;
-        self.backgroundColor = [UIColor colorWithName:@"PostDataCellViewBackground"];
+        self.backgroundColor = [UIColor colorWithName:@"PostViewBackground"];
         
         if(!self.titleLabel) {
             self.titleLabel = [[UILabel alloc] init];
@@ -149,8 +150,9 @@ static NSInteger kcountObject = 0;
         }
         
         if(!self.repliesView) {
-            self.repliesView = [[PostView alloc] init];
+            self.repliesView = [[PostViewSet alloc] init];
             [self addSubview:self.repliesView];
+            self.repliesView.userInteractionEnabled = NO;
         }
         
         if(!self.imageView) {
@@ -169,6 +171,7 @@ static NSInteger kcountObject = 0;
             self.actionButtons0 = [[UIToolbar alloc] init];
             //[self.actionButtons addTarget:self action:@selector(actionPressed:) forControlEvents:UIControlEventValueChanged];
             [self addSubview:self.actionButtons0];
+            self.actionButtons0.tintColor = [UIColor colorWithName:@"CellActionButtonsText"];
         }
         
 #endif
@@ -205,26 +208,39 @@ static NSInteger kcountObject = 0;
     NSString *title = [self.data objectForKey:@"title"];
     title = title?title:@"null";
     
-    NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:title];
-    UIColor *colorUid = [self.data objectForKey:@"colorUid"];
-    UIColor *colorUidSign = [self.data objectForKey:@"colorUidSign"];
-    if(colorUid) {
-        if(title.length > 21) {
-            [attributedString addAttribute:NSForegroundColorAttributeName value:colorUid range:NSMakeRange(21, title.length-21)];
-            NSLog(@"colorUid %@ to [%@]", colorUid, [title substringWithRange:NSMakeRange(21, title.length-21)]);
+    //一些加下划线和颜色相关的.
+    if(title.length > 21) {
+        NSRange uidRange = NSMakeRange(21, title.length-21);
+        
+        NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:title];
+        UIColor *colorUid = [self.data objectForKey:@"colorUid"];
+        UIColor *colorUidSign = [self.data objectForKey:@"colorUidSign"];
+        if(colorUid) {
+            [attributedString addAttribute:NSForegroundColorAttributeName value:colorUid range:uidRange];
         }
-    }
-    else if(colorUidSign) {
-        if(title.length > 21) {
-            [attributedString addAttribute:NSForegroundColorAttributeName value:colorUidSign range:NSMakeRange(21, title.length-21)];
+        else if(colorUidSign) {
+            [attributedString addAttribute:NSForegroundColorAttributeName value:colorUidSign range:uidRange];
         }
+        
+        NSNumber *uidUnderLineNumber = [self.data objectForKey:@"uidUnderLine"];
+        if([uidUnderLineNumber isKindOfClass:[NSNumber class]] && [uidUnderLineNumber boolValue]) {
+            [attributedString addAttribute:NSUnderlineStyleAttributeName value:[NSNumber numberWithInteger:NSUnderlineStyleSingle] range:uidRange];
+        }
+        
+        NSNumber *uidBoldNumber = [self.data objectForKey:@"uidBold"];
+        if([uidBoldNumber isKindOfClass:[NSNumber class]] && [uidBoldNumber boolValue]) {
+//            [attributedString addAttribute:NSUnderlineStyleAttributeName value:[NSNumber numberWithInteger:NSUnderlineStyleThick] range:uidRange];
+
+            
+            UIFont *font = self.titleLabel.font;
+            font = [UIFont boldSystemFontOfSize:font.pointSize];
+            [attributedString addAttribute:NSFontAttributeName value:font range:uidRange];
+        }
+        
+        
+        
+        self.titleLabel.attributedText = attributedString;
     }
-    
-    //    [attributedString addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:10.0] range:NSMakeRange(0, [textTitle length])];
-    //[str addAttribute:NSForegroundColorAttributeName value:[UIColor greenColor] range:NSMakeRange(19,6)];
-    //    self.titleView.font = [UIFont systemFontOfSize:10.0];
-    self.titleLabel.attributedText = attributedString;
-//    [self.titleLabel setText:title];
     
     NSString *info = [self.data objectForKey:@"info"];
     info = info?info:@"null";
@@ -255,34 +271,29 @@ static NSInteger kcountObject = 0;
         self.statusInfoLabel.hidden = NO;
         
         NSString *content = [self.data objectForKey:@"content"];
-        content = content?content:@"null\n111";
+        content = content?content:@"无正文...";
         [self.contentLabel setText:content];
         self.contentLabel.hidden = NO;
         
+        self.imageView.hidden = YES;
+        NSString *thumb = [self.data objectForKey:@"thumb"];
+        if([thumb isKindOfClass:[NSString class]] && thumb.length > 0) {
+            self.imageView.hidden = NO;
+            [self.imageView setDownloadUrlString:thumb];
+        }
+        
         self.repliesView.hidden = YES;
         NSArray *postDataReplies = [self.data objectForKey:@"replies"];
+        LOG_POSTION
         if(postDataReplies.count > 0) {
-            self.repliesView.frame = CGRectMake(self.frame.size.width * 0.1, 0, self.frame.size.width * 0.9, 360);
+            LOG_POSTION
+            self.repliesView.frame = CGRectMake(self.frame.size.width * 0.2, 0, self.frame.size.width * 0.8, 360);
             [self.repliesView setPostDatas:postDataReplies belongTo:nil];
+            self.repliesView.hidden = NO;
+            self.repliesView.backgroundColor = [UIColor colorWithName:@"repliesInPostView"];
         }
-        
-        PostData *postData = [self.data objectForKey:@"postdata"];
-        
-        //UIViewImage
-        NSString *thumb = postData.thumb;
-        
-        //判断是否设置无图模式.
-        NSString *value = [[AppConfig sharedConfigDB] configDBSettingKVGet:@"disableimageshow"] ;
-        BOOL b = [value boolValue];
-        if(nil == thumb || [thumb isEqualToString:@""] || b) {
-            self.imageView.hidden = YES;
-        }
-        else {
-            self.imageView.hidden = NO;
-            Host *host = [[AppConfig sharedConfigDB] configDBHostsGetCurrent];
-            NSString *imageHost = host.imageHost;
-            [self.imageView setDownloadUrlString:[NSString stringWithFormat:@"%@/%@", imageHost, thumb]];
-        }
+        LOG_POSTION
+
     }
    
 #if 0
@@ -370,6 +381,11 @@ static NSInteger kcountObject = 0;
 
 - (void)layoutContent
 {
+    NSLog(@"PostDataView layoutContent . width = %f", self.frame.size.width);
+    
+    //标记自适应高度.
+    CGFloat heightAdjust = 0.0;
+    
     CGRect frameTitleLabel          = CGRectZero;
     CGRect frameInfoLabel           = CGRectZero;
     CGRect frameManageInfo          = CGRectZero;
@@ -380,147 +396,165 @@ static NSInteger kcountObject = 0;
     CGRect frameImageViewContent    = CGRectZero;
     CGRect frameActionButtons       = CGRectZero;
     
+    CGFloat heightPaddingLineTitle = 0;
+    CGFloat heightPaddingLineOther = 0;
+    CGFloat heightPaddingLineStatus = 10;
+    CGFloat heightPaddingLineContent = 10;
+    CGFloat heightPaddingLineImage = 10;
+    CGFloat heightPaddingLineReply = 10;
+    CGFloat heightPaddingLineAction = 0;
+    
     UIEdgeInsets edge = UIEdgeInsetsMake(10, 10, 10, 10);
     
     FrameLayout *layout = [[FrameLayout alloc] initWithSize:CGSizeMake(self.frame.size.width, 10000)];
     //设置外边框.
     [layout setUseEdge:@"LayoutAll" in:FRAMELAYOUT_NAME_MAIN withEdgeValue:edge];
+    [layout setUseIncludedMode:@"LineTitle" includedTo:@"LayoutAll" withPostion:FrameLayoutPositionTop andSizeValue:20.0];
     
-    //Title line布局在最上. title与info的宽度按照比例分配.
-    [layout setUseIncludedMode:@"TitleLine" includedTo:@"LayoutAll" withPostion:FrameLayoutPositionTop andSizeValue:20.0];
-    
-    //UIFont *font = [UIFont systemFontOfSize:12];
-    UIFont *font = [UIFont fontWithName:@"PostTitle"];
-//    NSString *text = @"2016-02-03 12:34:56 ABCDEF00";
-    NSString *text = @"2016-02-03 12:34:56 WWWWWWWW ";
-    NSMutableDictionary *attrs=[NSMutableDictionary dictionary];
-    attrs[NSFontAttributeName]=font;
-    CGSize maxSize=CGSizeMake(MAXFLOAT, MAXFLOAT);
-    CGSize textSize = [text boundingRectWithSize:maxSize options:NSStringDrawingUsesLineFragmentOrigin attributes:attrs context:nil].size;
-    NSLog(@"@@@---%@", NSStringFromCGSize(textSize));
-    //Title line布局在最上. title与info的宽度按照比例分配.
-    NSString *textInfo = self.infoLabel.text;
-    NSMutableDictionary *attrsInfo=[NSMutableDictionary dictionary];
-    attrsInfo[NSFontAttributeName]=font;
-    CGSize maxSizeInfo=CGSizeMake(MAXFLOAT, MAXFLOAT);
-    CGSize textSizeInfo = [textInfo boundingRectWithSize:maxSizeInfo options:NSStringDrawingUsesLineFragmentOrigin attributes:attrsInfo context:nil].size;
-    NSLog(@"@@@---%@", NSStringFromCGSize(textSizeInfo));
-    
-    CGRect frameTitleLine = [layout getCGRect:@"TitleLine"];
-    if(textSize.width + textSizeInfo.width < frameTitleLine.size.width) {
-        [layout divideInVertical:@"TitleLine" to:@"Title" and:@"Info" withPercentage:0.66];
-        [layout divideInVertical:@"TitleLine" to:@"Title" and:@"Info" withWidthValue:textSize.width];
+    if(self.titleLabel.text.length > 0 || self.infoLabel.text.length > 0) {
+        //UIFont *font = [UIFont systemFontOfSize:12];
+        UIFont *font = [UIFont fontWithName:@"PostTitle"];
+        //    NSString *text = @"2016-02-03 12:34:56 ABCDEF00";
+        NSString *text = @"2016-02-03 12:34:56 WWWWWWWW ";
+        NSMutableDictionary *attrs=[NSMutableDictionary dictionary];
+        attrs[NSFontAttributeName]=font;
+        CGSize maxSize=CGSizeMake(MAXFLOAT, MAXFLOAT);
+        CGSize textSize = [text boundingRectWithSize:maxSize options:NSStringDrawingUsesLineFragmentOrigin attributes:attrs context:nil].size;
+        NSLog(@"@@@---%@", NSStringFromCGSize(textSize));
+        //Title line布局在最上. title与info的宽度按照比例分配.
+        NSString *textInfo = self.infoLabel.text;
+        NSMutableDictionary *attrsInfo=[NSMutableDictionary dictionary];
+        attrsInfo[NSFontAttributeName]=font;
+        CGSize maxSizeInfo=CGSizeMake(MAXFLOAT, MAXFLOAT);
+        CGSize textSizeInfo = [textInfo boundingRectWithSize:maxSizeInfo options:NSStringDrawingUsesLineFragmentOrigin attributes:attrsInfo context:nil].size;
+        NSLog(@"@@@---%@", NSStringFromCGSize(textSizeInfo));
+        
+        CGRect frameTitleLine = [layout getCGRect:@"LineTitle"];
+        if(textSize.width + textSizeInfo.width < frameTitleLine.size.width) {
+            //Title line布局在最上. title与info的宽度按照比例分配.
+            [layout setUseIncludedMode:@"LineTitle" includedTo:@"LayoutAll" withPostion:FrameLayoutPositionTop andSizeValue:20.0];
+            [layout divideInVertical:@"LineTitle" to:@"Title" and:@"Info" withPercentage:0.66];
+            [layout divideInVertical:@"LineTitle" to:@"Title" and:@"Info" withWidthValue:textSize.width];
+            [self.infoLabel setTextAlignment:NSTextAlignmentRight];
+        }
+        else {
+            [layout setUseIncludedMode:@"LineTitle" includedTo:@"LayoutAll" withPostion:FrameLayoutPositionTop andSizeValue:40.0];
+            [layout divideInHerizon:@"LineTitle" to:@"Title" and:@"Info" withPercentage:0.5];
+            [self.infoLabel setTextAlignment:NSTextAlignmentLeft];
+        }
+        
+        frameTitleLabel     = [layout getCGRect:@"Title"];
+        frameInfoLabel      = [layout getCGRect:@"Info"];
+        [layout setUseBesideMode:@"PaddingLineTitle" besideTo:@"LineTitle" withDirection:FrameLayoutDirectionBelow andSizeValue:heightPaddingLineTitle];
     }
     else {
-        [layout setUseIncludedMode:@"TitleLine" includedTo:@"LayoutAll" withPostion:FrameLayoutPositionTop andSizeValue:40.0];
-        [layout divideInHerizon:@"TitleLine" to:@"Title" and:@"Info" withPercentage:0.5];
-        [self.infoLabel setTextAlignment:NSTextAlignmentLeft];
+        [layout setUseIncludedMode:@"LineTitle" includedTo:@"LayoutAll" withPostion:FrameLayoutPositionTop andSizeValue:0.0];
+        [layout setUseBesideMode:@"PaddingLineTitle" besideTo:@"LineTitle" withDirection:FrameLayoutDirectionBelow andSizeValue:0.0];
     }
-    
-    frameTitleLabel     = [layout getCGRect:@"Title"];
-    frameInfoLabel      = [layout getCGRect:@"Info"];
-    
-    //标记自适应高度.
-    CGFloat heightAdjust = 0.0;
+
     
     if(self.fold) {
-        heightAdjust = frameTitleLabel.origin.y + frameTitleLabel.size.height;
-        LOG_RECT(frameTitleLabel, @"xcv");
-        [layout setUseBesideMode:@"PaddingActionButtons" besideTo:@"TitleLine" withDirection:FrameLayoutDirectionBelow andSizeValue:6.0];
+        [layout setUseBesideMode:@"LineOther" besideTo:@"PaddingLineTitle" withDirection:FrameLayoutDirectionBelow andSizeValue:0.0];
+        [layout setUseBesideMode:@"PaddingLineOther" besideTo:@"LineOther" withDirection:FrameLayoutDirectionBelow andSizeValue:heightPaddingLineOther];
+        
+        [layout setUseBesideMode:@"LineStatus" besideTo:@"PaddingLineOther" withDirection:FrameLayoutDirectionBelow andSizeValue:0.0];
+        [layout setUseBesideMode:@"PaddingLineStatus" besideTo:@"LineStatus" withDirection:FrameLayoutDirectionBelow andSizeValue:heightPaddingLineStatus];
+        
+        [layout setUseBesideMode:@"LineContent" besideTo:@"PaddingLineStatus" withDirection:FrameLayoutDirectionBelow andSizeValue:0.0];
+        [layout setUseBesideMode:@"PaddingLineContent" besideTo:@"LineContent" withDirection:FrameLayoutDirectionBelow andSizeValue:heightPaddingLineContent];
+        
+        [layout setUseBesideMode:@"LineImage" besideTo:@"PaddingLineContent" withDirection:FrameLayoutDirectionBelow andSizeValue:0.0];
+        [layout setUseBesideMode:@"PaddingLineImage" besideTo:@"LineImage" withDirection:FrameLayoutDirectionBelow andSizeValue:heightPaddingLineImage];
+        
+        [layout setUseBesideMode:@"LineReply" besideTo:@"PaddingLineImage" withDirection:FrameLayoutDirectionBelow andSizeValue:0.0];
+        [layout setUseBesideMode:@"PaddingLineReply" besideTo:@"LineReply" withDirection:FrameLayoutDirectionBelow andSizeValue:heightPaddingLineReply];
+        
+        [layout setUseBesideMode:@"LineAction" besideTo:@"PaddingLineReply" withDirection:FrameLayoutDirectionBelow andSizeValue:0.0];
+        [layout setUseBesideMode:@"PaddingLineAction" besideTo:@"LineAction" withDirection:FrameLayoutDirectionBelow andSizeValue:heightPaddingLineAction];
+        
     }
     else {
-        CGFloat heightPaddingTitleContent = 10.0;
         if([self.manageInfoLabel.text length] > 0 || [self.otherInfoLabel.text length] > 0) {
-            [layout setUseBesideMode:@"InfoAdditional" besideTo:@"TitleLine" withDirection:FrameLayoutDirectionBelow andSizeValue:20.0];
-            [layout divideInVertical:@"InfoAdditional" to:@"manageInfo" and:@"otherInfo" withWidthValue:60.0];
+            [layout setUseBesideMode:@"LineOther" besideTo:@"PaddingLineTitle" withDirection:FrameLayoutDirectionBelow andSizeValue:20.0];
+            [layout divideInVertical:@"LineOther" to:@"manageInfo" and:@"otherInfo" withWidthValue:60.0];
             frameManageInfo = [layout getCGRect:@"manageInfo"];
             frameOtherInfo  = [layout getCGRect:@"otherInfo"];
             
-            heightPaddingTitleContent = 0.0;
+            [layout setUseBesideMode:@"PaddingLineOther" besideTo:@"LineOther" withDirection:FrameLayoutDirectionBelow andSizeValue:heightPaddingLineOther];
         }
         else {
-            [layout setUseBesideMode:@"InfoAdditional" besideTo:@"TitleLine" withDirection:FrameLayoutDirectionBelow andSizeValue:0.0];
+            [layout setUseBesideMode:@"LineOther" besideTo:@"PaddingLineTitle" withDirection:FrameLayoutDirectionBelow andSizeValue:0.0];
+            [layout setUseBesideMode:@"PaddingLineOther" besideTo:@"LineOther" withDirection:FrameLayoutDirectionBelow andSizeValue:0.0];
         }
         
         if(self.statusInfoLabel.text.length > 0) {
-            [layout setUseBesideMode:@"statusInfo" besideTo:@"TitleLine" withDirection:FrameLayoutDirectionBelow andSizeValue:10.0];
-            frameStatusInfo = [layout getCGRect:@"statusInfo"];
+            [layout setUseBesideMode:@"LineStatus" besideTo:@"PaddingLineOther" withDirection:FrameLayoutDirectionBelow andSizeValue:10.0];
+            frameStatusInfo = [layout getCGRect:@"LineStatus"];
             
-            //Title和正文间设置间距.
-            [layout setUseBesideMode:@"PaddingTitleContent" besideTo:@"statusInfo" withDirection:FrameLayoutDirectionBelow andSizeValue:heightPaddingTitleContent];
-            
+            [layout setUseBesideMode:@"PaddingLineStatus" besideTo:@"LineStatus" withDirection:FrameLayoutDirectionBelow andSizeValue:heightPaddingLineStatus];
         }
         else {
-            //Title和正文间设置间距.
-            [layout setUseBesideMode:@"PaddingTitleContent" besideTo:@"InfoAdditional" withDirection:FrameLayoutDirectionBelow andSizeValue:heightPaddingTitleContent];
+            [layout setUseBesideMode:@"LineStatus" besideTo:@"PaddingLineOther" withDirection:FrameLayoutDirectionBelow andSizeValue:0.0];
+            [layout setUseBesideMode:@"PaddingLineStatus" besideTo:@"LineStatus" withDirection:FrameLayoutDirectionBelow andSizeValue:0.0];
         }
-    
+        //正文和title之间有间隔.
+        [layout setUseBesideMode:@"PaddingLineStatus" besideTo:@"LineStatus" withDirection:FrameLayoutDirectionBelow andSizeValue:heightPaddingLineStatus];
+        
         //设置正文.
-        [layout setUseLeftMode:@"Content" standardTo:@"PaddingTitleContent" withDirection:FrameLayoutDirectionBelow];
+        [layout setUseBesideMode:@"LineContent" besideTo:@"PaddingLineStatus" withDirection:FrameLayoutDirectionBelow andSizeValue:20.0];
         //contentLabel需自调整高度.
-        frameContentLabel = [layout getCGRect:@"Content"];
+        frameContentLabel = [layout getCGRect:@"LineContent"];
         self.contentLabel.frame = frameContentLabel;
         CGSize size = [self.contentLabel optimumSize];
         frameContentLabel.size.height = size.height;
         //重新设置
-        [layout setCGRect:frameContentLabel toName:@"Content"];
+        [layout setCGRect:frameContentLabel toName:@"LineContent"];
+        [layout setUseBesideMode:@"PaddingLineContent" besideTo:@"LineContent" withDirection:FrameLayoutDirectionBelow andSizeValue:heightPaddingLineContent];
         
-        if(!self.repliesView.hidden) {
-            frameRepliesView = self.repliesView.frame;
-            [layout setUseBesideMode:@"RepliesViewAll" besideTo:@"Content" withDirection:FrameLayoutDirectionBelow andSizeValue:frameRepliesView.size.height];
-            [layout divideInHerizon:@"RepliesViewAll" to:@"RepliesViewPadding" and:@"RepliesView" withPercentage:0.1];
-            frameRepliesView = [layout getCGRect:@"RepliesView"];
-            
-            [layout setUseBesideMode:@"PaddingContentImage" besideTo:@"RepliesViewAll" withDirection:FrameLayoutDirectionBelow andSizeValue:10.0];
-        }
-        else {
-        //Content和image之间的间距.
-            [layout setUseBesideMode:@"PaddingContentImage" besideTo:@"Content" withDirection:FrameLayoutDirectionBelow andSizeValue:10.0];
-        }
-            
+        //Image.
         if(self.imageView.hidden) {
-            heightAdjust = FRAMELAYOUT_Y_BLOW_FRAME(frameContentLabel) + edge.bottom;
-            [layout setUseBesideMode:@"ImageLine" besideTo:@"PaddingContentImage" withDirection:FrameLayoutDirectionBelow andSizeValue:1.0];
+            [layout setUseBesideMode:@"LineImage" besideTo:@"PaddingLineContent" withDirection:FrameLayoutDirectionBelow andSizeValue:0.0];
+            [layout setUseBesideMode:@"PaddingLineImage" besideTo:@"LineImage" withDirection:FrameLayoutDirectionBelow andSizeValue:0.0];
         }
         else {
             CGFloat heightImage = 68.0;
-            [layout setUseBesideMode:@"ImageLine" besideTo:@"PaddingContentImage" withDirection:FrameLayoutDirectionBelow andSizeValue:heightImage];
-            [layout divideInVertical:@"ImageLine" to:@"Image" and:@"ImageLeft" withWidthValue:100.0];
+            [layout setUseBesideMode:@"LineImage" besideTo:@"PaddingLineContent" withDirection:FrameLayoutDirectionBelow andSizeValue:heightImage];
+            [layout divideInVertical:@"LineImage" to:@"Image" and:@"ImageLeft" withWidthValue:100.0];
             frameImageViewContent = [layout getCGRect:@"Image"];
             
-            heightAdjust = FRAMELAYOUT_Y_BLOW_FRAME(frameImageViewContent) + edge.bottom;
+            [layout setUseBesideMode:@"PaddingLineImage" besideTo:@"LineImage" withDirection:FrameLayoutDirectionBelow andSizeValue:heightPaddingLineImage];
         }
         
-        [layout setUseBesideMode:@"PaddingActionButtons" besideTo:@"ImageLine" withDirection:FrameLayoutDirectionBelow andSizeValue:6.0];
+        //Reply.
+        if(self.repliesView.hidden) {
+            LOG_POSTION
+            [layout setUseBesideMode:@"LineReply" besideTo:@"PaddingLineImage" withDirection:FrameLayoutDirectionBelow andSizeValue:0.0];
+            [layout setUseBesideMode:@"PaddingLineReply" besideTo:@"LineReply" withDirection:FrameLayoutDirectionBelow andSizeValue:0.0];
+        }
+        else {
+            LOG_POSTION
+            frameRepliesView = self.repliesView.frame;
+            [layout setUseBesideMode:@"LineReply" besideTo:@"PaddingLineImage" withDirection:FrameLayoutDirectionBelow andSizeValue:frameRepliesView.size.height];
+            [layout divideInVertical:@"LineReply" to:@"RepliesViewLeft" and:@"RepliesView" withPercentage:0.2];
+            frameRepliesView = [layout getCGRect:@"RepliesView"];
+            [layout setUseBesideMode:@"PaddingLineReply" besideTo:@"LineReply" withDirection:FrameLayoutDirectionBelow andSizeValue:heightPaddingLineReply];
+        }
     }
     
-#if 0
-    if(!self.actionButtons0.hidden) {
+    
+    if(self.actionButtons0.hidden) {
+        [layout setUseBesideMode:@"LineAction" besideTo:@"PaddingLineReply" withDirection:FrameLayoutDirectionBelow andSizeValue:0.0];
+        [layout setUseBesideMode:@"PaddingLineAction" besideTo:@"LineAction" withDirection:FrameLayoutDirectionBelow andSizeValue:0.0];
+    }
+    else {
         CGFloat heightActionButtons = 36.0;
-        [layout setUseBesideMode:@"ActionButtons" besideTo:@"PaddingActionButtons" withDirection:FrameLayoutDirectionBelow andSizeValue:heightActionButtons];
+        [layout setUseBesideMode:@"LineAction" besideTo:@"PaddingLineReply" withDirection:FrameLayoutDirectionBelow andSizeValue:heightActionButtons];
+        [layout setUseEdge:@"ActionButtons" in:@"LineAction" withEdgeValue:UIEdgeInsetsMake(0, 0, 0, 0)];
         frameActionButtons = [layout getCGRect:@"ActionButtons"];
-            
-        heightAdjust = FRAMELAYOUT_Y_BLOW_FRAME(frameActionButtons) + edge.bottom;
-    }
-#else
-    if(!self.actionButtons0.hidden) {
-        CGFloat heightActionButtons = 36.0;
-        [layout setUseBesideMode:@"ActionButtonsTemp" besideTo:@"PaddingActionButtons" withDirection:FrameLayoutDirectionBelow andSizeValue:heightActionButtons];
-        CGRect frameActionButtonsTemp = [layout getCGRect:@"ActionButtonsTemp"];
-        
-        frameActionButtons = frameActionButtonsTemp;
-        frameActionButtons.origin.x = 5;
-        frameActionButtons.size.width = self.frame.size.width - 2 * frameActionButtons.origin.x;
-        [layout setCGRect:frameActionButtons toName:@"ActionButtons"];
-        self.actionButtons0.tintColor = [UIColor colorWithName:@"CellActionButtonsText"];
-        
-        heightAdjust = FRAMELAYOUT_Y_BLOW_FRAME(frameActionButtons) + edge.bottom;
+        [layout setUseBesideMode:@"PaddingLineAction" besideTo:@"LineAction" withDirection:FrameLayoutDirectionBelow andSizeValue:heightPaddingLineAction];
     }
     
     
-#endif
-
-
     self.titleLabel.frame           = frameTitleLabel;
     self.infoLabel.frame            = frameInfoLabel;
     self.manageInfoLabel.frame      = frameManageInfo;
@@ -528,7 +562,13 @@ static NSInteger kcountObject = 0;
     self.statusInfoLabel.frame      = frameStatusInfo;
     self.contentLabel.frame         = frameContentLabel;
     self.imageView.frame            = frameImageViewContent;
+    self.repliesView.frame          = frameRepliesView;
     self.actionButtons0.frame       = frameActionButtons;
+
+    NSLog(@"rty : %@", layout);
+    
+    heightAdjust = FRAMELAYOUT_Y_BLOW_FRAME([layout getCGRect:@"PaddingLineAction"]) + edge.bottom;
+    //heightAdjust = 500;
     
     FRAMELAYOUT_SET_HEIGHT(self, heightAdjust);
     NSLog(@"adjust height to %f.", heightAdjust);
@@ -610,7 +650,7 @@ static NSInteger kcountObject = 0;
 
 
 
-@interface PostView () <UITableViewDelegate, UITableViewDataSource>
+@interface PostViewSet () <UITableViewDelegate, UITableViewDataSource>
 
 @property (nonatomic, strong) UITableView *tableView;
 
@@ -621,7 +661,7 @@ static NSInteger kcountObject = 0;
 
 @end
 
-@implementation PostView
+@implementation PostViewSet
 
 
 
@@ -727,7 +767,7 @@ static NSInteger kcountObject = 0;
     PostDataCellView *v = [PostDataCellView threadCellViewWithData:postViewDataRow
                                                       andInitFrame:CGRectMake(0, 0, cell.frame.size.width, 100)];
     [cell addSubview:v];
-    [v setTag:TAG_PostDataCellView];
+    [v setTag:TAG_PostView];
     
     [self.optumizeHeights setObject:[NSNumber numberWithFloat:v.frame.size.height] forKey:indexPath];
     

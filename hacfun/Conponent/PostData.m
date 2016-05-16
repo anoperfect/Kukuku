@@ -85,6 +85,7 @@
     self.optimumSizeHeight  = postDataFrom.optimumSizeHeight;
     self.type               = postDataFrom.type;
     self.jsonstring         = [postDataFrom.jsonstring copy];
+    self.postViewData       = postDataFrom.postViewData.count>0 ? [NSMutableDictionary dictionaryWithDictionary:postDataFrom.postViewData] : nil;
 }
 
 
@@ -462,22 +463,13 @@
 
 
 /*
-PostDataView 接收的字段字段
-按照PostDataCellView中的说明.
+PostView 接收的字段字段
+按照PostView中的说明.
 */
 - (NSMutableDictionary*)toVIewDisplayDataUseCustom {
     LOG_POSTION
     
-    if(self.type == PostDataTypeOnlyTid) {
-        NSMutableDictionary *dictm = [[NSMutableDictionary alloc] init];
-        [dictm setObject:[NSString stringWithFormat:@"NO.%zd", self.tid]    forKey:@"title"];
-        [dictm setObject:@""                                                forKey:@"info"];
-        [dictm setObject:@""                                                forKey:@"manageInfo"];
-        [dictm setObject:@""                                                forKey:@"otherInfo"];
-        [dictm setObject:@""                                                forKey:@"content"];
-        
-        return dictm;
-    }
+
     
     NSString *uidRetreat = self.uid;
     
@@ -529,7 +521,6 @@ PostDataView 接收的字段字段
     
     NSMutableString *titleText = [NSMutableString stringWithFormat:@"%@  %@ ", stringCreatedAt, uidRetreat];
     [dict setObject:titleText forKey:@"title"];
-    [dict setObject:@"" forKey:@"info"];
     
     NSString *content = nil;
     if(self.sage) {
@@ -546,7 +537,7 @@ PostDataView 接收的字段字段
     if(self.name.length > 0) {
         content = [NSString stringWithFormat:@"名称: %@\n%@", self.name, content];
     }
-    if(self.email.length > 0 && ![self.email isEqualToString:@"sage"]) {
+    if(self.email.length > 0 && ![self.email isEqualToString:@"sage"]) { //email的sage表示世嘉. 不用显示.
         content = [NSString stringWithFormat:@"E-mail: %@\n%@", self.email, content];
     }
     if(self.title.length > 0) {
@@ -556,7 +547,17 @@ PostDataView 接收的字段字段
     content = [PostData postDataContentRetreat:content];
     [dict setObject:content?content:@"无正文" forKey:@"content"];
     
-    [dict setObject:[self copy] forKey:@"postdata"];
+    //判断是否设置无图模式.
+    NSString *value = [[AppConfig sharedConfigDB] configDBSettingKVGet:@"disableimageshow"] ;
+    BOOL b = [value boolValue];
+    if(nil == self.thumb || [self.thumb isEqualToString:@""] || b) {
+        
+    }
+    else {
+        Host *host = [[AppConfig sharedConfigDB] configDBHostsGetCurrent];
+        NSString *imageHost = host.imageHost;
+        [dict setObject:[NSString stringWithFormat:@"%@/%@", imageHost, self.thumb] forKey:@"thumb"];
+    }
     
     return dict;
 }
@@ -564,12 +565,17 @@ PostDataView 接收的字段字段
 
 - (NSMutableDictionary*)toViewDisplayData:(ThreadDataToViewType)type
 {
-    NSMutableDictionary *dictm = [self toVIewDisplayDataUseCustom];
     if(self.type == PostDataTypeOnlyTid) {
+        NSMutableDictionary *dictm = [[NSMutableDictionary alloc] init];
+        [dictm setObject:[NSString stringWithFormat:@"NO.%zd", self.tid]    forKey:@"title"];
         return dictm;
     }
     
+    NSMutableDictionary *dictm = [self toVIewDisplayDataUseCustom];
     switch (type) {
+        case ThreadDataToViewTypeCustom:
+            break;
+
         case ThreadDataToViewTypeInfoUseNumber:
             [dictm setObject:[NSString stringWithFormat:@"No.%zi", self.tid] forKey:@"info"];
             break;
@@ -580,7 +586,16 @@ PostDataView 接收的字段字段
             
         case ThreadDataToViewTypeAdditionalInfoUseReplyCount:
             [dictm setObject:[NSString stringWithFormat:@"No.%zi", self.tid] forKey:@"info"];
-            [dictm setObject:[NSString stringWithFormat:@"回应: %zi", self.replyCount] forKey:@"infoAdditional"];
+            [dictm setObject:[NSString stringWithFormat:@"回应: %zi", self.replyCount] forKey:@"otherInfo"];
+            break;
+            
+        case ThreadDataToViewTypeFold:
+            [dictm removeObjectsForKeys:@[@"manageInfo", @"otherInfo", @"statusInfo", @"content", @"colorUid", @"colorUidSign", @"thumb", @"replies"]];
+            break;
+            
+        case ThreadDataToViewTypeSimple:
+            [dictm removeObjectsForKeys:@[@"manageInfo", @"otherInfo", @"statusInfo", @"colorUid", @"colorUidSign", @"thumb", @"replies"]];
+            [dictm setObject:@2 forKey:@"contentLineLimit"];
             break;
             
         default:
@@ -588,6 +603,12 @@ PostDataView 接收的字段字段
     }
     
     return dictm;
+}
+
+
+- (void)generatePostViewData:(ThreadDataToViewType)type
+{
+    self.postViewData = [self toViewDisplayData:type];
 }
 
 
@@ -741,11 +762,10 @@ PostDataView 接收的字段字段
     NSString *jsonstring = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
     NSLog(@"json data string : \n%@", jsonstring);
     
-    NSObject *obj;
+    //NSObject *obj;
     NSDictionary *dict;
-    NSMutableArray *arr;
-    obj = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableLeaves error:nil];
-    if(obj) {
+    NSDictionary * dom = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableLeaves error:nil];
+    if([dom isKindOfClass:[NSDictionary class]]) {
         NS0Log(@"obj class NSArray     : %d", [obj isKindOfClass:[NSArray class]]);
         NS0Log(@"obj class NSDictionary: %d", [obj isKindOfClass:[NSDictionary class]]);
     }
@@ -756,36 +776,35 @@ PostDataView 接收的字段字段
     
     PostData *topic = nil;
     
-    dict = (NSDictionary*)obj;
+    dict = dom;
     NS0Log(@"%@", dict);
     
     NSString *key = @"threads";
-    obj = [dict objectForKey:key];
-    if(obj) {
-        if(![obj isKindOfClass:[NSDictionary class]]) {
-            NSLog(@"obj [%@] nil or not NSMutableArray class", key);
+    NSDictionary *threads = [dict objectForKey:key];
+    if(threads) {
+        if(![threads isKindOfClass:[NSDictionary class]]) {
+            NSLog(@"obj [%@] nil or not NSDictionary class", key);
             return nil;
         }
         
-        [additonal setObject:obj forKey:key];
-        
-        topic = [PostData fromDictData:(NSDictionary*)obj atPage:page];
+        topic = [PostData fromDictData:threads atPage:page];
         if(nil == topic) {
-            NSLog(@"error- : PostData formDictData with content %@", obj);
+            NSLog(@"error- : PostData formDictData with content %@", threads);
             return nil;
         }
         
         topic.tidBelongTo = 0;
+        [self gotParsedPostDatas:@[topic]];
     }
     else {
-        NSLog(@"error - key threads nil.");
+        NSLog(@"#error - key threads nil.");
         return nil;
     }
     
     key = @"replys";
     PostData *pd = nil;
-    obj = [dict objectForKey:key];
-    if(obj && [obj isKindOfClass:[NSMutableArray class]]) {
+    NSArray *replyArray = [dom objectForKey:key];
+    if(replyArray && [replyArray isKindOfClass:[NSArray class]]) {
         
     }
     else {
@@ -793,18 +812,14 @@ PostDataView 接收的字段字段
         return topic;
     }
     
-    arr = (NSMutableArray*)obj;
-    for(obj in arr) {
+    for(NSDictionary* replyDict in replyArray) {
         
-        if(![obj isKindOfClass:[NSDictionary class]]) {
+        if(![replyDict isKindOfClass:[NSDictionary class]]) {
             NSLog(@"%@ not dictionary", @"parsing obj");
             continue;
         }
         
-        dict = (NSDictionary*)obj;
-        NS0Log(@"%@", dict);
-        
-        pd = [PostData fromDictData:(NSDictionary*)obj atPage:page];
+        pd = [PostData fromDictData:replyDict atPage:page];
         if(nil == pd) {
             break;
         }
@@ -827,6 +842,26 @@ PostDataView 接收的字段字段
     
     if(parsedPostDatas.count > 0) {
         [self gotParsedPostDatas:parsedPostDatas];
+    }
+    
+    key = @"forum";
+    if([dom objectForKey:key]) {
+        [additonal setObject:[dom objectForKey:key] forKey:key];
+    }
+    
+    key = @"page";
+    if([dom objectForKey:key]) {
+        [additonal setObject:[dom objectForKey:key] forKey:key];
+    }
+    
+    key = @"code";
+    if([dom objectForKey:key]) {
+        [additonal setObject:[dom objectForKey:key] forKey:key];
+    }
+    
+    key = @"success";
+    if([dom objectForKey:key]) {
+        [additonal setObject:[dom objectForKey:key] forKey:key];
     }
     
     return topic;

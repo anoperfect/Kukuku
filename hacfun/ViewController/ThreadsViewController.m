@@ -14,12 +14,12 @@
 #import "ImageViewController.h"
 #import "AppConfig.h"
 #import "PopupView.h"
+#import "ModelAndViewInc.h"
 
 
 
 
-
-@interface ThreadsViewController () <UITableViewDataSource, UITableViewDelegate, RTLabelDelegate, UIActionSheetDelegate>
+@interface ThreadsViewController () <UITableViewDataSource, UITableViewDelegate, UIActionSheetDelegate, PostViewDelegate>
 
 
 
@@ -49,6 +49,10 @@
     self.pageNumLoaded = 0;
     self.numberLoaded = 0;
     self.pageNumLoading = 1; //从page1开始加载.
+    
+    
+    
+    //###
     self.postDataPages = [[NSMutableArray alloc] init];
     
     self.indexPathsDisplaying = [[NSMutableArray alloc] init];
@@ -110,6 +114,11 @@
     self.navigationController.toolbarItems = nil;
     self.navigationController.toolbarHidden = YES;
     
+    [self addObserver:self
+           forKeyPath:@"pageNumLoading"
+              options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld
+              context:nil];
+    
     return;
 }
 
@@ -144,8 +153,7 @@
 
 
 - (void)startAction {
-    LOG_POSTION
-    [self refreshPostData];
+    NSLog(@"#error - need to be override.");
 }
 
 
@@ -161,7 +169,7 @@
     //判断一下状态.如果是正在reload的状态则进行reload.
     if(self.threadsStatus != ThreadsStatusLoading) {
         self.threadsStatus = ThreadsStatusLoading;
-        [self reloadPostData];
+        [self actionLoadMore];
     }
     else {
         NSLog(@"in loading.");
@@ -237,12 +245,38 @@
 }
 
 
-- (void)clearDataAdditional {
-    
+- (void)refreshPostDataToPage:(NSInteger)page
+{
+    LOG_POSTION
+
+    [self clearData];
+    [self reloadPostView];
+    [self loadPage:page];
 }
 
 
-- (void)reloadPostData{
+- (void)clearData
+{
+    [self initMemberData];
+    [self clearDataAdditional];
+}
+
+
+- (void)loadPage:(NSInteger)page
+{
+    NSLog(@"#error - need to be override.");
+}
+
+
+
+
+- (void)clearDataAdditional {
+    NSLog(@"#error - need to be override.");
+}
+
+
+- (void)actionLoadMore
+{
     LOG_POSTION
     NSLog(@"override for locale or network.");
 }
@@ -264,12 +298,12 @@
 }
 
 
-- (NSMutableDictionary*)cellPresentDataFromPostData:(PostData*)postData onIndexPath:(NSIndexPath*)indexPath
+//增加折叠,cell功能栏,状态信息等.
+- (void)retreatPostViewData:(PostData*)postData onIndexPath:(NSIndexPath*)indexPath
 {
     NSLog(@"ffflod : %@", self.dynamicPostViewDataFold);
     
-    NSMutableDictionary *dict = [postData toViewDisplayData:ThreadDataToViewTypeInfoUseReplyCount];
-    [dict setObject:indexPath forKey:@"indexPath"];
+    NSMutableDictionary *dict = postData.postViewData;
     
     NSNumber *isActionButtonsShow = [self.dynamicPostViewDataShowActionButtons objectForKey:indexPath];
     if(isActionButtonsShow && [isActionButtonsShow isKindOfClass:[NSNumber class]] && [isActionButtonsShow boolValue]) {
@@ -291,43 +325,23 @@
     if([statusMessageTid isKindOfClass:[NSString class]]) {
         [dict setObject:statusMessage forKey:@"statusInfo"];
     }
-    
-    return dict;
 }
 
 
 
-- (void)clickViewThumb: (PushButton*)button {
-    
-#if 0
-    NSIndexPath *indexPath = [button valueForKey:@"indexPath"];
-    
-    NSLog(@"clickViewThumb on %@", indexPath);
-    
-    PostData *pdata = [self postDataOnIndexPath:indexPath];
-    if(!(pdata.image && ![pdata.image isEqualToString:@""])) {
-        NSLog(@"#error - postData image not found.");
-        return;
-    }
 
-    NSString *imageHost = [[AppConfig sharedConfigDB] configDBGet:@"imageHost"];
-    NSString *downloadString = [NSString stringWithFormat:@"%@/%@", imageHost, pdata.image];
-#endif
-    
-    PostImageView *postImageView = (PostImageView*)button;
-    NSString *downloadString = postImageView.linkImageString;
 
-    ImageViewController *vc = [[ImageViewController alloc] init];
-    NSURL *url=[[NSURL alloc] initWithString:[downloadString stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+
+//定制PostView显示的时候的类型.
+- (ThreadDataToViewType)postViewPresendTypeOnIndexPath:(NSIndexPath*)indexPath withPostData:(PostData*)postData
+{
+    return ThreadDataToViewTypeCustom;
+}
+
+
+- (void)retreatPostViewDataAdditional:(PostData*)postData onIndexPath:(NSIndexPath*)indexPath
+{
     
-    UIImage *placeholdImage = nil;
-    if([button isKindOfClass:[PostImageView class]]) {
-        placeholdImage = [(PostImageView*)button getDisplayingImage];
-    }
-    
-    [vc sd_setImageWithURL:url placeholderImage:placeholdImage];
-//    [self presentViewController:vc animated:NO completion:^(void){ }];
-    [self.navigationController pushViewController:vc animated:YES];
 }
 
 
@@ -385,8 +399,12 @@
     NSLog(@"------tableView cellForRowAtIndexPath : %@", [NSString stringFromTableIndexPath:indexPath]);
     
     PostData *postData = [self postDataOnIndexPath:indexPath];
-    NSMutableDictionary *postViewDataRow = [self cellPresentDataFromPostData:postData onIndexPath:indexPath];
-    NSLog(@"postViewDataRow : %@", postViewDataRow);
+    ThreadDataToViewType type = [self postViewPresendTypeOnIndexPath:indexPath withPostData:postData]; //override.
+    [postData generatePostViewData:type];
+    [self retreatPostViewData:postData onIndexPath:indexPath];
+    [self retreatPostViewDataAdditional:postData onIndexPath:indexPath];//override.
+    
+    NSLog(@"tid [%zd] postViewDataRow : %@", postData.tid, postData.postViewData);
     
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"cell"];
     if (cell == nil) {
@@ -400,33 +418,22 @@
     }
     cell.tag = indexPath.row;
     
-    PostDataCellView *v = [PostDataCellView threadCellViewWithData:postViewDataRow
-                                                      andInitFrame:CGRectMake(0, 0, cell.frame.size.width, 100)];
+    PostView *v = [PostView PostViewWith:postData andFrame:CGRectMake(0, 0, cell.frame.size.width, 100)];
     [cell addSubview:v];
-    [v setTag:TAG_PostDataCellView];
+    [v setTag:TAG_PostView];
     
-    v.rowAction = ^(NSIndexPath *indexPath, NSString *actionString) {
-        NSLog(@"--- row %@, actionString %@", indexPath, actionString);
-        [self actionForRowAtIndexPath:indexPath viaString:actionString];
-    };
-
-    PostImageView *viewThumb = [v getThumbImage];
-    NSString *imageHost = self.host.imageHost;
-    NSString *downloadString = [NSString stringWithFormat:@"%@/%@", imageHost, postData.image];
-    viewThumb.linkImageString = downloadString;
-    
-    [(PushButton*)viewThumb addTarget:self action:@selector(clickViewThumb:) forControlEvents:UIControlEventTouchDown];
-    
-    RTLabel *contentLabel = (RTLabel*)[v getContentLabel];
-    contentLabel.delegate = self;
+    v.delegate = self;
+    v.indexPath = indexPath;
     
     //记录变长高度.
     [self.dynamicPostViewDataOptimumSizeHeight setObject:[NSNumber numberWithFloat:v.frame.size.height] forKey:indexPath];
     
     FRAMELAYOUT_SET_HEIGHT(cell, v.frame.size.height);
-
+    
     return cell;
 }
+
+
 
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -503,7 +510,7 @@
 
 - (void)layoutCell: (UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath*)indexPath withPostData:(PostData*)postData
 {
-    PostDataCellView * v = [cell viewWithTag:TAG_PostDataCellView];
+    UIView * v = [cell viewWithTag:TAG_PostView];
     if(v) {
         v.layer.backgroundColor = [UIColor whiteColor].CGColor;
         v.layer.borderWidth = 5;
@@ -522,19 +529,83 @@
 
 //增加上拉刷新.
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
-    
-    CGFloat offsetY = scrollView.contentOffset.y;
-    CGFloat judgeOffsetY = scrollView.contentSize.height
-                            + scrollView.contentInset.bottom
-                            - scrollView.frame.size.height;
-                            //    - self.postView.tableFooterView.frame.size.height;
-    
-    //拉到低栏20及以上才出发上拉刷新.
+
     CGFloat heightTrigger = 36.0;
-    if(offsetY >= judgeOffsetY + heightTrigger) {
+    NS0Log(@"000000s  %f %f %f", scrollView.contentOffset.y + scrollView.frame.size.height, scrollView.contentSize.height, (scrollView.contentOffset.y + scrollView.frame.size.height) - scrollView.contentSize.height);
+    
+    BOOL trigger = NO;
+    if(scrollView.contentSize.height <= scrollView.frame.size.height) {
+        if(scrollView.contentOffset.y + scrollView.frame.size.height >= scrollView.contentSize.height + (scrollView.frame.size.height - scrollView.contentSize.height) + heightTrigger) {
+            trigger = YES;
+        }
+    }
+    else {
+        if (scrollView.contentOffset.y + scrollView.frame.size.height >= scrollView.contentSize.height + heightTrigger) {
+            trigger = YES;
+        }
+        
+    }
+    
+    NS0Log(@"000000trigger : %zd", trigger);
+    
+    if(trigger) {
         NSLog(@"pull up trigger loadmore.");
         [self clickFootView];
     }
+}
+
+
+- (NSString*)headerStringOnSection:(NSInteger)section
+{
+    return nil;
+}
+
+
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
+{
+    NSString * headerString = [self headerStringOnSection:section];
+    return headerString.length > 0 ? 36 : 0;
+}
+
+
+- (UIView*)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
+{
+    NSString * headerString = [self headerStringOnSection:section];
+    if(headerString.length == 0) {
+        return nil;
+    }
+    
+    UIView* sectionHeaderView = [[UIView alloc] init];
+    sectionHeaderView.backgroundColor = [UIColor colorWithName:@"SectionHeaderBackground"];
+    PushButton *sectionHeaderButton = [[PushButton alloc] initWithFrame:CGRectMake(36, 0, tableView.frame.size.width - 36 * 2, 36)];
+    [sectionHeaderButton setTitle:headerString forState:UIControlStateNormal];
+    [sectionHeaderButton setTitleColor:[UIColor colorWithName:@"SectionHeaderButtonText"] forState:UIControlStateNormal];
+    sectionHeaderButton.backgroundColor = [UIColor colorWithName:@"SectionHeaderButtonBackground"];
+    
+    [sectionHeaderButton addTarget:self action:@selector(sectionHeaderAction:) forControlEvents:UIControlEventTouchDown];
+    sectionHeaderButton.tag = section;
+    
+    
+    [sectionHeaderView addSubview:sectionHeaderButton];
+    return sectionHeaderView;
+}
+
+
+- (void)sectionHeaderAction:(id)sender
+{
+    LOG_POSTION
+    
+    PushButton *sectionHeaderButton = sender;
+    NSInteger section = sectionHeaderButton.tag;
+    NSLog(@"section %zd header action.", section);
+    
+    [self headerActionOnSection:section];
+}
+
+
+- (void)headerActionOnSection:(NSInteger)section
+{
+    
 }
 
 
@@ -592,14 +663,14 @@
     NSString *str = [NSString stringWithFormat:@"%@", url];
     if([str hasPrefix:@"No."]) {
         NSInteger tid = [str substringWithRange:NSMakeRange(3, str.length-3)].integerValue;
-        [self showReferencePostDataView:tid];
+        [self showReferencePostView:tid];
         return;
     }
     
     NSString *khttpUrlString = @"http://h.koukuko.com/t/";
     if([str hasPrefix:khttpUrlString]) {
         NSInteger tid = [str substringWithRange:NSMakeRange(khttpUrlString.length, str.length-khttpUrlString.length)].integerValue;
-        [self showReferencePostDataView:tid];
+        [self showReferencePostView:tid];
         return;
     }
         
@@ -623,62 +694,62 @@
 }
 
 
-- (void)showReferencePostDataView:(NSInteger)tid
+- (void)showReferencePostView:(NSInteger)tid
 {
-    PostDataCellView *postDataView = nil;
+    PostView *postViewPopup = nil;
     
     //检查是否在当前列表中.
     PostData *postDataInList = [self findInSelfPostDatas:tid];
     if(postDataInList) {
+        [postDataInList generatePostViewData:ThreadDataToViewTypeInfoUseNumber];
+        
         NSLog(@"use data in list.");
-        postDataView = [PostDataCellView threadCellViewWithData:[postDataInList toViewDisplayData:ThreadDataToViewTypeInfoUseNumber]
-                                                   andInitFrame:self.view.bounds
-                        ];
+        postViewPopup = [PostView PostViewWith:postDataInList andFrame:self.view.bounds];
     }
     else {
         //不是在列表中的则实时获取.
         NSLog(@"use data from read download.");
-        postDataView = [PostDataCellView PostDatalViewWithTid:tid
-                                                 andInitFrame:self.view.bounds
-                                             completionHandle:^(PostDataCellView *postDataView, NSError *error) {
-                                                 postDataView.center = postDataView.superview.center;
-                                                [self adjustPopupView:postDataView];
+        postViewPopup = [PostView PostDatalViewWithTid:tid
+                                              andFrame:self.view.bounds
+                                               useType:ThreadDataToViewTypeInfoUseNumber
+                                             completionHandle:^(PostView *postView, NSError *error) {
+                                                 postView.center = postView.superview.center;
+                                                [self adjustPopupView:postView];
                                              }
                         ];
     }
     
-    LOG_POSTION
-    [self showPopupView:postDataView];
+    postViewPopup.backgroundColor = [UIColor colorWithName:@"PostViewPopupBackground"];
     
-    LOG_POSTION
-    [self adjustPopupView:postDataView];
+    [self showPopupView:postViewPopup];
+    [self adjustPopupView:postViewPopup];
 }
 
 
-//居中显示. 当弹出的PostDataCellView比superView高的时候, 需使用UIScrollView. 接口可移入CustomViewController中.
-- (void)adjustPopupView:(UIView*)postDataView
+//居中显示. 当弹出的PostView比superView高的时候, 需使用UIScrollView. 接口可移入CustomViewController中.
+- (void)adjustPopupView:(UIView*)postView
 {
-    postDataView.center = postDataView.superview.center;
+    postView.center = postView.superview.center;
     
     LOG_POSTION
-    //当PostDataCellView的高度比superView的高度的一定比例高的时候, 加入UIScrollView.
-    if(postDataView.frame.size.height > (postDataView.superview.frame.size.height * 0.8)) {
-        UIView *superView = postDataView.superview;
+    //当PostView的高度比superView的高度的一定比例高的时候, 加入UIScrollView.
+    if(postView.frame.size.height > (postView.superview.frame.size.height * 0.8)) {
+        UIView *superView = postView.superview;
         
         LOG_POSTION
-        CGRect frameScrollView = postDataView.superview.bounds;
+        CGRect frameScrollView = postView.superview.bounds;
         frameScrollView.size.height = frameScrollView.size.height * 0.8;
         UIScrollView *scrollView = [[UIScrollView alloc] initWithFrame:frameScrollView];
-        [postDataView.superview addSubview:scrollView];
-        scrollView.contentSize = postDataView.frame.size;
-        scrollView.center = postDataView.superview.center;
-        [postDataView removeFromSuperview];
+        [postView.superview addSubview:scrollView];
+        scrollView.contentSize = postView.frame.size;
+        scrollView.center = postView.superview.center;
+        [postView removeFromSuperview];
         
-        CGRect framePostDataView = postDataView.frame;
-        framePostDataView.origin.x = 0;
-        framePostDataView.origin.y = 0;
-        postDataView.frame = framePostDataView;
-        [scrollView addSubview:postDataView];
+        CGRect framePostView = postView.frame;
+        framePostView.origin.x = 0;
+        framePostView.origin.y = 0;
+        postView.frame = framePostView;
+        [scrollView addSubview:postView];
         
         NSLog(@"qaz %@", superView.subviews);
     }
@@ -933,6 +1004,9 @@
         number += page.postDatas.count;
     }
     
+    NSLog(@"self.postDataPages count : %zd", self.postDataPages.count);
+    NSLog(@"numberOfPostDatasTotal : %zd", number);
+    
     return number;
 }
 
@@ -950,12 +1024,8 @@
 }
 
 
-
-
-
 - (NSIndexPath*)indexPathWithTid:(NSInteger)tid
 {
-
     NSInteger section = 0;
     for(PostDataPage *page in self.postDataPages) {
         NSInteger row = 0;
@@ -1037,38 +1107,60 @@
 }
 
 
-- (NSInteger)addPostDatas:(NSMutableArray*)appendPostDatas onPage:(NSInteger)page
+- (void)appendDataOnPage:(NSInteger)page with:(NSArray<PostData*>*)postDatas removeDuplicate:(BOOL)remove andReload:(BOOL)reload
 {
-    NSInteger section = NSNotFound;
-    if(self.postDataPages.count == 0) {
-        PostDataPage *postDataPage = [[PostDataPage alloc] init];
-        postDataPage.page = page;
-        postDataPage.section = 0;
-        [postDataPage.postDatas addObjectsFromArray:appendPostDatas];
+    
+    NSInteger indexInsert = NSNotFound;
+    BOOL finished = NO;
+    NSInteger section = 0;
+    for(; section < self.postDataPages.count; section ++) {
+        PostDataPage *postDataPage = self.postDataPages[section];
+        if(postDataPage.page < page) {
+            continue;
+        }
         
-        [self.postDataPages addObject:postDataPage];
-        
-        section = 0;
-    }
-    else {
-        PostDataPage *postDataPageLast = [self.postDataPages lastObject];
-        if(postDataPageLast.page == page) {
-            [postDataPageLast.postDatas addObjectsFromArray:appendPostDatas];
-            section = postDataPageLast.section;
+        if(postDataPage.page == page) {
+            NSLog(@"Append on section : %zd.", section);
+            
+            if(!remove) {
+                [postDataPage.postDatas addObjectsFromArray:postDatas];
+            }
+            else {
+                NSLog(@"#error - not implenent remove duplicate.")
+                [postDataPage.postDatas addObjectsFromArray:postDatas];
+            }
+            
+            finished = YES;
+            indexInsert = NSNotFound;
+            
+            break;
         }
         else {
-            PostDataPage *postDataPage = [[PostDataPage alloc] init];
-            postDataPage.page = page;
-            postDataPage.section = postDataPageLast.section + 1;
-            [postDataPage.postDatas addObjectsFromArray:appendPostDatas];
-            
-            [self.postDataPages addObject:postDataPage];
-            
-            section = postDataPage.section;
+            indexInsert = section;
+            break;
         }
     }
     
-    return section;
+    if(finished) {
+        //已经完成Append.
+    }
+    else {
+        if(indexInsert == NSNotFound) {
+            indexInsert = section;
+        }
+        
+        PostDataPage *postDataPage = [[PostDataPage alloc] init];
+        postDataPage.page = page;
+        postDataPage.postDatas = [NSMutableArray arrayWithArray:postDatas];
+        
+        NSLog(@"insert at section : %zd.", indexInsert);
+        [self.postDataPages insertObject:postDataPage atIndex:indexInsert];
+        NSLog(@"insert at section : %zd.", indexInsert);
+    }
+    
+    if(reload) {
+        [self reloadPostView];
+    }
 }
 
 
@@ -1121,9 +1213,63 @@
 }
 
 
+- (void)PostView:(PostView *)postView actionString:(NSString *)string
+{
+    NSLog(@"------ [%@] %@", [NSString stringFromTableIndexPath:postView.indexPath], string);
+    
+    [self actionForRowAtIndexPath:postView.indexPath viaString:string];
+}
 
 
+- (void)PostView:(PostView*)postView didSelectLinkWithURL:(NSURL*)url
+{
+    NSLog(@"url = %@", url);
+    
+    NSString *str = [NSString stringWithFormat:@"%@", url];
+    if([str hasPrefix:@"No."]) {
+        NSInteger tid = [str substringWithRange:NSMakeRange(3, str.length-3)].integerValue;
+        [self showReferencePostView:tid];
+        return;
+    }
+    
+    NSString *khttpUrlString = @"http://h.koukuko.com/t/";
+    if([str hasPrefix:khttpUrlString]) {
+        NSInteger tid = [str substringWithRange:NSMakeRange(khttpUrlString.length, str.length-khttpUrlString.length)].integerValue;
+        [self showReferencePostView:tid];
+        return;
+    }
+    
+    if([str hasPrefix:@"http://"] || [str hasPrefix:@"https://"]) {
+        [[ UIApplication sharedApplication] openURL:url];
+    }
+}
 
+
+- (void)PostView:(PostView*)postView didSelectThumb:(UIImage*)imageThumb withImageLink:(NSString*)imageString
+{
+    ImageViewController *vc = [[ImageViewController alloc] init];
+    NSURL *url=[[NSURL alloc] initWithString:[imageString stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+    [vc sd_setImageWithURL:url placeholderImage:imageThumb];
+    [self.navigationController pushViewController:vc animated:YES];
+    
+}
+
+
+-(void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
+{
+    if([keyPath isEqualToString:@"pageNumLoading"]){//这里只处理balance属性
+        NSLog(@"keyPath=%@,object=%@,newValue=%@,context=%@",keyPath,object,[change objectForKey:@"new"],context);
+    }
+    else {
+        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
+    }
+}
+
+
+-(void)dealloc
+{
+    [self removeObserver:self forKeyPath:@"pageNumLoading"];
+}
 
 
 

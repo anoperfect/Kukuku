@@ -7,8 +7,12 @@
 //
 #import <UIKit/UIKit.h>
 #import "PostData.h"
-#import "PostDataCellView.h"
+#import "ModelAndViewInc.h"
 #import "CustomViewController.h"
+#import "PostGroupView.h"
+
+
+
 @interface ThreadsViewController : CustomViewController
 
 #define KNSSTRING_CLICK_TO_LOADING   @"点击加载."
@@ -29,7 +33,7 @@ typedef NS_ENUM(NSInteger, ThreadsStatus) {
 };
 
 
-#define TAG_PostDataCellView    (4500000 + 1)
+#define TAG_PostView    (4500000 + 1)
 
 @property (assign,nonatomic) NSInteger  numberOfAll;
 @property (assign,nonatomic) NSInteger  numberOfLoaded;
@@ -89,27 +93,28 @@ typedef NS_ENUM(NSInteger, ThreadsStatus) {
 
 @property (nonatomic, strong) NSMutableArray *indexPathsDisplaying;
 
+//总的page数量. 可在解析中根据解析的数据更新.
+@property (nonatomic, assign) NSInteger pageSize;
 
 
 
 //UITableView的foot view用于显示状态数据. 使用此接口具体设置.
-- (void)showfootViewWithTitle:(NSString*)title andActivityIndicator:(BOOL)isActive andDate:(BOOL)isShowDate;
+- (void)showfootViewWithTitle:(NSString*)title andActivityIndicator:(BOOL)isActive andDate:(BOOL)isShowDate;//###
 
 //显示状态信息.
 - (void)showStatusText:(NSString*)text;
 
 - (void)refreshPostData;
-- (void)reloadPostData;
+- (void)refreshPostDataToPage:(NSInteger)page;
+
+
 - (BOOL)updateDataSourceByPostData:(PostData*)postDataUpdate;
-//- (void)postDatasToCellDataSource ;
-//- (PostViewDataPage*)postDataPageToPostViewData:(PostDataPage*)postDataPage onSection:(NSInteger)section andReload:(BOOL)reload;
-- (NSInteger)addPostDatas:(NSMutableArray*)appendPostDatas onPage:(NSInteger)page;
+//- (NSInteger)addPostDatas:(NSMutableArray*)appendPostDatas onPage:(NSInteger)page;
+- (void)appendDataOnPage:(NSInteger)page with:(NSArray<PostData*>*)postDatas removeDuplicate:(BOOL)remove andReload:(BOOL)reload;
 
 - (NSInteger)numberOfPostDatasTotal;
 - (PostData*)postDataLastObject;
 
-
-//- (NSMutableDictionary*)postViewDataOnIndexPath:(NSIndexPath*)indexPath;
 
 - (NSArray*)generatePostDataArray;
 
@@ -127,12 +132,19 @@ typedef NS_ENUM(NSInteger, ThreadsStatus) {
 
 - (NSIndexPath*)indexPathWithTid:(NSInteger)tid;
 - (NSArray*)indexPathsPostData;
-- (PostData*)postDataOnIndexPath:(NSIndexPath*)indexPath;
+- (PostData*)postDataOnIndexPath:(NSIndexPath*)indexPath;//###
+
+
+
+- (void)clearData;
 
 
 
 //override.
 
+- (void)loadPage:(NSInteger)page;
+- (void)startAction ;
+- (void)actionLoadMore;
 
 //一个满的page是多少. 用于判断是否进入下一个page的加载.
 - (NSInteger)numberExpectedInPage:(NSInteger)page;
@@ -141,8 +153,10 @@ typedef NS_ENUM(NSInteger, ThreadsStatus) {
 - (NSMutableArray*)parsedPostDatasRetreat:(NSMutableArray*)parsedPostDatas onPage:(NSInteger)page;
 
 
-//可重写以修改PostData显示到PostDataView时的数据行为.
-- (NSMutableDictionary*)cellPresentDataFromPostData:(PostData*)postData onIndexPath:(NSIndexPath*)indexPath;
+//定制PostView显示的时候的类型.
+- (ThreadDataToViewType)postViewPresendTypeOnIndexPath:(NSIndexPath*)indexPath withPostData:(PostData*)postData;
+- (void)retreatPostViewDataAdditional:(PostData*)postData onIndexPath:(NSIndexPath*)indexPath;
+
 
 
 //可重写以修改cell显示样式.
@@ -173,5 +187,8 @@ typedef NS_ENUM(NSInteger, ThreadsStatus) {
 //重载以定义cell能支持的动作. NSArray成员为 NSString.
 - (NSArray*)actionStringsForRowAtIndexPath:(NSIndexPath*)indexPath;
 
+
+- (NSString*)headerStringOnSection:(NSInteger)section;
+- (void)headerActionOnSection:(NSInteger)section;
 
 @end

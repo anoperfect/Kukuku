@@ -127,6 +127,7 @@
                                    @"blue"      :[UIColor blueColor],
                                    @"cyan"      :[UIColor cyanColor],
                                    @"lightGray" :[UIColor lightGrayColor],
+                                   @"clear"     :[UIColor clearColor],
                                    
                                    };
     

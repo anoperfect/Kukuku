@@ -77,6 +77,7 @@
                                        self.yBolowView,
                                        self.view.frame.size.width - 16*2,
                                        self.view.frame.size.height - self.yBolowView - 20);
+//    frameTableView = self.view.bounds;
     [self.tableView setFrame:frameTableView];
     
     
@@ -239,6 +240,7 @@
     }
     [cell.textLabel setText:[self.arraySettingItem objectAtIndex:indexPath.row]];
     
+    cell.backgroundColor = [UIColor clearColor];
     return cell;
 }
 
@@ -257,7 +259,9 @@
     }
     
     if([[self.arraySettingItem objectAtIndex:indexPath.row] isEqualToString:@"清除缓存"]) {
-        [ImageViewCache deleteCaches];
+        [ImageViewCache deleteCachesAsyncWithProgressHandle:^(NSInteger total, NSInteger index){
+            [self showIndicationText:[NSString stringWithFormat:@"已删除%zd, 共%zd张.", index+1, total]];
+        }];
     }
 }
 

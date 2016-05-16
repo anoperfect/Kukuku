@@ -18,10 +18,12 @@
 
 
 @property (nonatomic, strong) ImagesDisplay *imageDisplay;
-@property (nonatomic, strong) UIView        *muiltActions;
-@property (nonatomic, strong) PushButton    *buttonShare;
-@property (nonatomic, strong) PushButton    *buttonSave;
-@property (nonatomic, strong) PushButton    *buttonDelete;
+//@property (nonatomic, strong) UIView        *muiltActions;
+//@property (nonatomic, strong) PushButton    *buttonShare;
+//@property (nonatomic, strong) PushButton    *buttonSave;
+//@property (nonatomic, strong) PushButton    *buttonDelete;
+
+@property (nonatomic, assign) BOOL muiltSelectMode;
 
 
 @property (nonatomic, strong) NSArray *images;
@@ -65,7 +67,8 @@
     [self.imageDisplay setDidSelectHandle:^(NSInteger row) {
         [selfBlock displayImageInRow:row];
     }];
-    
+
+#if 0
     self.muiltActions = [[UIView alloc] init];
     self.muiltActions.backgroundColor = [UIColor whiteColor];
     self.muiltActions.hidden = YES;
@@ -77,6 +80,7 @@
     
     UITabBarItem *item0 = [[UITabBarItem alloc] initWithTitle:@"保存" image:nil selectedImage:nil];
 #endif
+
     
     self.buttonShare = [[PushButton alloc] init];
     [self.buttonShare setImage:[UIImage imageNamed:@"buttonshare"] forState:UIControlStateNormal];
@@ -93,6 +97,16 @@
     [self.buttonDelete addTarget:self action:@selector(imagesDelete) forControlEvents:UIControlEventTouchDown];
     [self.muiltActions addSubview:self.buttonDelete];
     
+    self.toolbarItems = @[
+                          [UITabBarItem ]
+                          
+                          
+                          
+                          
+                          ];
+    
+ #endif
+    
     dispatch_async(dispatch_get_main_queue(), ^{
         [self reloadDownloadedImage];
     });
@@ -104,6 +118,11 @@
 - (void)viewWillLayoutSubviews
 {
     [super viewWillLayoutSubviews];
+    
+    self.imageDisplay.frame     = self.view.bounds;
+    
+    
+#if 0
     
     FrameLayout *layout = [[FrameLayout alloc] initWithSize:self.view.bounds.size];
     
@@ -140,6 +159,7 @@
     
     NSLog(@"%@", [NSValue valueWithCGRect:self.buttonDelete.frame]);
     NSLog(@"%@", [NSValue valueWithUIEdgeInsets:self.buttonDelete.imageEdgeInsets]);
+#endif
 }
 
 
@@ -232,8 +252,10 @@
 {
     if([string isEqualToString:@"选择"]) {
         [self.imageDisplay setMuiltSelectMode:YES];
-        self.muiltActions.hidden = NO;
-        [self.view setNeedsLayout];
+        //self.muiltActions.hidden = NO;
+        self.muiltSelectMode = YES;
+        [self showToolBar];
+//        [self.view setNeedsLayout];
         
         //修改选择为取消.
         [self actionRemoveDataByKeyString:@"选择"];
@@ -252,7 +274,9 @@
     
     if([string isEqualToString:@"取消"]) {
         [self.imageDisplay setMuiltSelectMode:NO];
-        self.muiltActions.hidden = YES;
+//        self.muiltActions.hidden = YES;
+        self.muiltSelectMode = NO;
+        [self hiddenToolBar];
         [self.view setNeedsLayout];
         
         //修改取消为选择.
@@ -268,7 +292,53 @@
         
         return ;
     }
+    
+    if([string isEqualToString:@"imagesShare"]) {
+        [self imagesShare];
+        return ;
+    }
+    
+    if([string isEqualToString:@"imagesSave"]) {
+        [self imagesSave];
+        return ;
+    }
+    
+    if([string isEqualToString:@"imagesDelete"]) {
+        [self imagesDelete];
+        return ;
+    }
+    
 }
+
+
+- (NSArray*)toolData
+{
+    LOG_POSTION
+    NSMutableArray *toolDatas = [[NSMutableArray alloc] init];
+    
+    ButtonData *actionData = nil;
+    
+    actionData = [[ButtonData alloc] init];
+    actionData.keyword      = @"imagesShare";
+    actionData.imageName    = @"buttonshare";
+    [toolDatas addObject:actionData];
+    
+    actionData = [[ButtonData alloc] init];
+    actionData.keyword      = @"imagesSave";
+    actionData.imageName    = @"buttonsave";
+    [toolDatas addObject:actionData];
+    
+    actionData = [[ButtonData alloc] init];
+    actionData.keyword      = @"imagesDelete";
+    actionData.imageName    = @"buttondelete";
+    [toolDatas addObject:actionData];
+    
+    return [NSArray arrayWithArray:toolDatas];
+}
+
+
+
+
 
 
 - (void)imagesShare

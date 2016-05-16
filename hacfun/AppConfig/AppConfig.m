@@ -37,9 +37,6 @@
 #define TABLENAME_ATTENT        @"attent"
 
 
-
-
-
 @interface AppConfig ()
 
 
@@ -120,23 +117,23 @@
 //输入预定数据. 一些数据(数据量小,修改可能性小的)直接加入内存, 读的时候不操作数据库.
 - (void)configDBInitData
 {
-
+    
     //增加或更新预置值.
     //color 加入一些预置.
     NSDictionary *infoInsertColors = @{
                                        DBDATA_STRING_COLUMNS:@[@"keyword", @"colorstring"],
                                        DBDATA_STRING_VALUES :@[
                                                                 @[@"PostViewCellBackground",                @"#d0d0d0"],
-                                                                @[@"PostViewCellBackground",                @"#d0d0d0"],
+                                                                @[@"PostViewBackground",                    @"#d0d0d0"],
                                                                 @[@"ThreadsViewControllerBackground",       @"purple"],
                                                                 @[@"ViewControllerBackground",              @"#808080@60"],
                                                                 @[@"BannerViewBackground",                  @"#a0a0a0@00"],
-                                                                @[@"PostViewBackground",                    @"lightGray"],
+                                                                @[@"PostViewPopupBackground",               @"white"],
                                                                 @[@"PostTableViewBackground",               @"#ffffff@60"],
                                                                 @[@"MenuActionBackground",                  @"blue"],
                                                                 @[@"CreateViewControllerBackground",        @"white"],
                                                                 @[@"ImageViewControllerBackground",         @"white"],
-                                                                @[@"PostDataCellViewBackground",            @"white"],
+                                                                @[@"PostBackground",                        @"white"],
                                                                 @[@"ReplyCellBorderMainBackground",         @"red"],
                                                                 @[@"ReplyCellBorder",                       @"#cccccc"],
                                                                 @[@"LoadingViewBackground",                 @"black"],
@@ -151,7 +148,7 @@
                                                                 @[@"BannerTopicText",                       @"black"],
                                                                 @[@"BannerButtonMenuText",                  @"black"],
                                                                 @[@"FootViewText",                          @"#000000@80"],
-                                                                @[@"SettingTableViewBackground",            @"white"],
+                                                                @[@"SettingTableViewBackground",            @"clear"],
                                                                 @[@"draftCellText",                         @"#000000@80"],
                                                                 @[@"messageIndicationBackground",           @"#aaaaaa@60"],
                                                                 @[@"messageIndicationText",                 @"#000000@60"],
@@ -163,6 +160,9 @@
                                                                 @[@"AttachPictureBackground",               @"blue"],
                                                                 @[@"Po",                                    @"blue"],
                                                                 @[@"Post",                                  @"purple"],
+                                                                @[@"SectionHeaderBackground",               @"#d0d0d0"],
+                                                                @[@"SectionHeaderButtonText",               @"#000000@80"],
+                                                                @[@"SectionHeaderButtonBackground",         @"clear"],
                                                                 @[@"Reply",                                 @"orange"],
                                                                 @[@"orange",                                @"orange"]
                                            
@@ -216,8 +216,6 @@
 - (void)configDBInitReadHost
 {
     //current not used.
-    
-    
 }
 
 
@@ -226,17 +224,6 @@
     //Post测试数据.
     NSString *strAddPostTest = @"INSERT INTO Post(tid,postedAt) VALUES(6624990,0)";
     [self.dbData DBDataUpdateDBName:DBNAME_HOST toTable:TABLENAME_POST withSqlString:strAddPostTest andArgumentsInArray:nil];
-    
-#if 0
-    //Reply测试数据.
-    NSString *strAddReplyTest0 = @"INSERT INTO Reply(tid,repliedAt) VALUES(6627469,0)";
-    [self.dbData DBDataUpdateDBName:DBNAME_HOST toTable:TABLENAME_REPLY withSqlString:strAddReplyTest0 andArgumentsInArray:nil];
-    
-    NSString *strAddReplyTest1 = @"INSERT INTO Reply(tid,repliedAt) VALUES(6628849,0)";
-    [self.dbData DBDataUpdateDBName:DBNAME_HOST toTable:TABLENAME_REPLY withSqlString:strAddReplyTest1 andArgumentsInArray:nil];
-#endif
-    
-    
 }
 
 
@@ -347,7 +334,6 @@ else {NSLog(@"#error - obj (%@) is not NSString class.", arrayasd[indexzxc]);var
     self.hostIndex = hostIndex;
     
     return hostIndex;
-    
 }
 
 
@@ -505,7 +491,6 @@ else {NSLog(@"#error - obj (%@) is not NSString class.", arrayasd[indexzxc]);var
                                  DBDATA_STRING_COLUMNS:@[@"content", @"click"],
                                  DBDATA_STRING_VALUES:@[@[content, @0]]
                                  };
-    
     NSInteger retDBData = [self.dbData DBDataInsertDBName:DBNAME_CONFIG toTable:TABLENAME_DRAFT withInfo:infoInsert countReplace:YES];
     if(DB_EXECUTE_OK != retDBData) {
         NSLog(@"#error - ");
@@ -741,8 +726,6 @@ else {NSLog(@"#error - obj (%@) is not NSString class.", arrayasd[indexzxc]);var
 
 
 
-
-
 //DetailHistory
 - (DetailHistory*)configDBDetailHistoryGetByTid:(NSInteger)tid
 {
@@ -901,7 +884,6 @@ else {NSLog(@"#error - obj (%@) is not NSString class.", arrayasd[indexzxc]);var
 }
 
 
-
 - (BOOL)configDBCollectionRemoveByTidArray:(NSArray*)tidArray
 {
     BOOL result = YES;
@@ -937,7 +919,6 @@ else {NSLog(@"#error - obj (%@) is not NSString class.", arrayasd[indexzxc]);var
         }
         
         NSMutableArray *arrayReturnM = [[NSMutableArray alloc] init];
-        
         for(NSInteger index = 0; index < count; index++) {
             
             Post *post = [[Post alloc] init];
@@ -965,7 +946,6 @@ else {NSLog(@"#error - obj (%@) is not NSString class.", arrayasd[indexzxc]);var
     NSInteger count = [self.dbData DBDataCheckRowsInDictionary:queryResult];
     
     Post *post = nil;
-    
     if(count > 0) {
         NSArray *tidArray           = queryResult[@"tid"];
         NSArray *postedAtArray   = queryResult[@"postedAt"];
@@ -1019,7 +999,6 @@ else {NSLog(@"#error - obj (%@) is not NSString class.", arrayasd[indexzxc]);var
 }
 
 
-
 - (BOOL)configDBPostRemoveByTidArray:(NSArray*)tidArray
 {
     BOOL result = YES;
@@ -1051,8 +1030,9 @@ else {NSLog(@"#error - obj (%@) is not NSString class.", arrayasd[indexzxc]);var
     if(count > 0) {
         NSArray *tidArray           = queryResult[@"tid"];
         NSArray *repliedAtArray     = queryResult[@"repliedAt"];
+        NSArray *tidBelongToArray   = queryResult[@"tidBelongTo"];
         
-        if(![self.dbData DBDataCheckCountOfArray:@[tidArray, repliedAtArray] withCount:count]) {
+        if(![self.dbData DBDataCheckCountOfArray:@[tidArray, repliedAtArray, tidBelongToArray] withCount:count]) {
             return nil;
         }
         
@@ -1063,6 +1043,7 @@ else {NSLog(@"#error - obj (%@) is not NSString class.", arrayasd[indexzxc]);var
             Reply *reply = [[Reply alloc] init];
             ASSIGN_INTEGER_VALUE_FROM_ARRAYMEMBER(reply.tid, tidArray, index, 0)
             ASSIGN_LONGLONG_VALUE_FROM_ARRAYMEMBER(reply.repliedAt, repliedAtArray, index, 0)
+            ASSIGN_INTEGER_VALUE_FROM_ARRAYMEMBER(reply.tidBelongTo, tidBelongToArray, index, 0)
             
             [arrayReturnM addObject:reply];
         }
@@ -1089,6 +1070,7 @@ else {NSLog(@"#error - obj (%@) is not NSString class.", arrayasd[indexzxc]);var
     if(count > 0) {
         NSArray *tidArray           = queryResult[@"tid"];
         NSArray *repliedAtArray     = queryResult[@"repliedAt"];
+        NSArray *tidBelongToArray   = queryResult[@"tidBelongTo"];
         
         if(![self.dbData DBDataCheckCountOfArray:@[tidArray, repliedAtArray] withCount:count]) {
             return nil;
@@ -1098,6 +1080,7 @@ else {NSLog(@"#error - obj (%@) is not NSString class.", arrayasd[indexzxc]);var
         
         ASSIGN_INTEGER_VALUE_FROM_ARRAYMEMBER(reply.tid, tidArray, 0, 0)
         ASSIGN_LONGLONG_VALUE_FROM_ARRAYMEMBER(reply.repliedAt, repliedAtArray, 0, 0)
+        ASSIGN_INTEGER_VALUE_FROM_ARRAYMEMBER(reply.tidBelongTo, tidBelongToArray, 0, 0)
     }
     
     return reply;
@@ -1109,11 +1092,16 @@ else {NSLog(@"#error - obj (%@) is not NSString class.", arrayasd[indexzxc]);var
 {
     BOOL result = YES;
     
+    NSLog(@"vbn %@", reply);
+    
     //#如果更新的话, 则click会刷新到0.
     NSDictionary *infoInsert = @{
                                  DBDATA_STRING_COLUMNS:@[@"tid", @"repliedAt", @"tidBelongTo"],
                                  DBDATA_STRING_VALUES:@[@[[NSNumber numberWithInteger:reply.tid], [NSNumber numberWithLongLong:reply.repliedAt], [NSNumber numberWithInteger:reply.tidBelongTo]]]
                                  };
+    
+    
+    NSLog(@"vbn %@", infoInsert);
     
     NSInteger retDBData = [self.dbData DBDataInsertDBName:DBNAME_HOST toTable:TABLENAME_REPLY withInfo:infoInsert countReplace:NO];
     if(DB_EXECUTE_OK != retDBData) {
@@ -1139,7 +1127,6 @@ else {NSLog(@"#error - obj (%@) is not NSString class.", arrayasd[indexzxc]);var
 }
 
 
-
 - (BOOL)configDBReplyRemoveByTidArray:(NSArray*)tidArray
 {
     BOOL result = YES;
@@ -1152,8 +1139,6 @@ else {NSLog(@"#error - obj (%@) is not NSString class.", arrayasd[indexzxc]);var
     
     return result;
 }
-
-
 
 
 - (BOOL)configDBRecordAdds:(NSArray*)postDatas
@@ -1206,8 +1191,6 @@ else {NSLog(@"#error - obj (%@) is not NSString class.", arrayasd[indexzxc]);var
                 
                 indexPostData ++;
             }
-            
-
         }
     }
     

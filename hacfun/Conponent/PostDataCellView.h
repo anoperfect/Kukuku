@@ -59,7 +59,7 @@ typedef void (^blockRowActionHandle)(NSIndexPath *indexPath, NSString *actionStr
 
 
 
-@interface PostView : UIView
+@interface PostViewSet : UIView
 
 - (void)setPostDatas:(NSArray *)postDatas belongTo:(PostData*)topic;
 - (CGFloat)optumizeHeight;

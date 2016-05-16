@@ -13,6 +13,12 @@
 #import "AppConfig.h"
 
 
+@interface ReplyViewController ()
+
+@property (nonatomic, strong) NSArray *repliesTidNumbers;
+
+@end
+
 
 @implementation ReplyViewController
 
@@ -40,7 +46,7 @@
 - (void)getLocaleRecords
 {
     NSMutableArray *allTidM = [[NSMutableArray alloc] init];
-    //NSMutableArray *topicsM = [[NSMutableArray alloc] init];
+    NSMutableArray *topicsM = [[NSMutableArray alloc] init];
     
     self.concreteDatas = [[AppConfig sharedConfigDB] configDBReplyGets];
     self.concreteDatasClass = [Reply class];
@@ -49,23 +55,17 @@
         
         NSLog(@"%@", reply);
         
-        
-        
-        
-        
-        
+        if([topicsM indexOfObject:[NSNumber numberWithInteger:reply.tidBelongTo]] == NSNotFound) {
+            [topicsM addObject:[NSNumber numberWithInteger:reply.tidBelongTo]];
+        }
     }
     
-    
-    
-    
-    
-    
-    
-    
-    
-    self.allTid = [NSArray arrayWithArray:allTidM];
+    NSArray *postDatasTopic = [[AppConfig sharedConfigDB] configDBRecordGets:[NSArray arrayWithArray:topicsM]];
+
+    self.repliesTidNumbers = [NSArray arrayWithArray:allTidM];
+    self.allTid = [NSArray arrayWithArray:topicsM];
     self.postDatasAll = [[AppConfig sharedConfigDB] configDBRecordGets:self.allTid];
+    self.postDatasAll = postDatasTopic;
 }
 
 
@@ -75,6 +75,25 @@
 }
 
 
+- (void)retreatPostViewDataAdditional:(PostData *)postData onIndexPath:(NSIndexPath *)indexPath
+{
+    NSMutableDictionary *postViewData = postData.postViewData;
+    NSMutableArray *replyTids = [[NSMutableArray alloc] init];
+    for(Reply *reply in self.concreteDatas) {
+        if(reply.tidBelongTo == postData.tid) {
+            [replyTids addObject:[NSNumber numberWithInteger:reply.tid]];
+        }
+    }
+    
+    NSArray *postDatasReply = [[AppConfig sharedConfigDB] configDBRecordGets:replyTids];
+    if(postDatasReply.count > 0) {
+        NSLog(@"topoc [%zd] with replies [%@]", postData.tid, replyTids);
+        [postViewData setObject:postDatasReply forKey:@"replies"];
+    }
+    else {
+        NSLog(@"#error ")
+    }
+}
 
 
 

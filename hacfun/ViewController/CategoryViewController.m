@@ -40,7 +40,7 @@
         actionData.imageName    = @"edit";
         [self actionAddData:actionData];
         
-        NSLog(@"kcountObject %@ : %zd", @"PostDataCellView", [PostDataCellView countObject]);
+        NSLog(@"kcountObject %@ : %zd", @"PostView", [PostView countObject]);
     }
     
     return self;
@@ -177,10 +177,10 @@
         NSLog(@"recentReply : %@", postData.recentReply);
         NSArray *postDatasRecentReply = [[AppConfig sharedConfigDB] configDBRecordGets:postData.recentReply];
         
-        PostView *view = [[PostView alloc] init];
+        PostGroupView *view = [[PostGroupView alloc] init];
         CGFloat widthPercentage = 0.8;
         view.frame = CGRectMake(self.view.frame.size.width * (1-widthPercentage), 0, self.view.frame.size.width * widthPercentage, self.view.frame.size.height);
-        [view setPostDatas:postDatasRecentReply belongTo:postData];
+        [view appendDataOnPage:0 with:postDatasRecentReply removeDuplicate:NO andReload:YES];
         [self showPopupView:view];
         
         return YES;
@@ -190,6 +190,19 @@
     return NO;
 }
 
+
+//定制PostView显示的时候的类型.
+- (ThreadDataToViewType)postViewPresendTypeOnIndexPath:(NSIndexPath*)indexPath withPostData:(PostData*)postData
+{
+    return ThreadDataToViewTypeInfoUseReplyCount;
+}
+
+
+//显示之前的特殊定制.
+- (void)retreatPostViewDataAdditional:(PostData*)postData onIndexPath:(NSIndexPath*)indexPath
+{
+    
+}
 
 
 - (void)didReceiveMemoryWarning {

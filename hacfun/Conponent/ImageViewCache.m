@@ -102,8 +102,7 @@
 {
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSError *error = nil;
-    NSArray *fileList = nil; //[[NSArray alloc] init];
-    //fileList便是包含有该文件夹下所有文件的文件名及文件夹名的数组
+    NSArray *fileList = nil;
     
     NSString* imageCacheFolder = [ImageViewCache getImageCacheFolder];
     fileList = [fileManager contentsOfDirectoryAtPath:imageCacheFolder error:&error];
@@ -114,6 +113,35 @@
     }
     
     NSLog(@"路径==%@,fileList%@", imageCacheFolder, fileList);
+}
+
+
++ (void)deleteCachesAsyncWithProgressHandle:(void (^)(NSInteger total, NSInteger idx))handle
+{
+    dispatch_queue_t concurrentQueue = dispatch_queue_create("my.deleteImageCache.queue", DISPATCH_QUEUE_CONCURRENT);
+    dispatch_async(concurrentQueue, ^(void){
+        NSFileManager *fileManager = [NSFileManager defaultManager];
+        NSError *error = nil;
+        NSArray *fileList = nil;
+        
+        NSString* imageCacheFolder = [ImageViewCache getImageCacheFolder];
+        fileList = [fileManager contentsOfDirectoryAtPath:imageCacheFolder error:&error];
+        NSInteger index = 0;
+        NSInteger total = fileList.count;
+        for(NSString *name in fileList) {
+            NSString *fullName = [NSString stringWithFormat:@"%@/%@", imageCacheFolder, name];
+            [fileManager removeItemAtPath:fullName error:&error];
+            NSLog(@"remove %@", fullName);
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                handle(total, index);
+            });
+            
+            index ++;
+        }
+        
+        NSLog(@"路径==%@,fileList%@", imageCacheFolder, fileList);
+    });
 }
 
 

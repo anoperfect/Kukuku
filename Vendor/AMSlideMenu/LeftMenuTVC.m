@@ -17,6 +17,7 @@
 #import "AMSlideMenuMainViewController.h"
 #import "GalleryViewController.h"
 #import "TOWebViewController.h"
+#import "PostGroupView.h"
 @interface LeftMenuTVC ()
 @property (strong, nonatomic) NSMutableArray *tableData;
 @end
@@ -146,7 +147,8 @@
 //        popupView.numofTapToClose = 0;
 //        [popupView popupInSuperView:self.view];
         
-        DetailViewController *vc = [[DetailViewController alloc]init];
+//        DetailViewController *vc = [[DetailViewController alloc]init];
+        DetailViewControllerTest *vc = [[DetailViewControllerTest alloc]init];
         [vc setPostTid:6670627 withData:nil];
         [vc setPostTid:6477099 withData:nil];
         [vc setPostTid:6468268 withData:nil];

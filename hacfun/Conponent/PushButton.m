@@ -159,8 +159,59 @@
 
 @implementation ViewContainer
 
+
+
+
+
+- (void)horizonLayoutViews:(NSArray<UIView *> *)subviews
+                  withEdge:(UIEdgeInsets)edge
+            andSubViewEdge:(UIEdgeInsets)subviewEdge
+{
+    
+    
+    
+    
+}
+
+
+
+- (void)verticalLayoutViews:(NSArray<UIView*>*) subviews
+                   withEdge:(UIEdgeInsets)edge
+             andSubViewEdge:(UIEdgeInsets)subviewEdge
+{
+    [self.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
+    
+    CGFloat width = 0;
+    CGFloat height = 0;
+    
+    height += edge.top;
+    
+    CGFloat xSubview = 0.0;
+    CGFloat ySubview = 0.0;
+    CGFloat ySubviewSum = edge.top;
+    
+    for(UIView *view in subviews) {
+        width = MAX(view.bounds.size.width + subviewEdge.left + subviewEdge.right + edge.left + edge.right, width);
+        height += subviewEdge.top + subviewEdge.bottom + view.bounds.size.height;
+        
+        xSubview = edge.left + subviewEdge.left;
+        ySubview = ySubviewSum + subviewEdge.top;
+        ySubviewSum += subviewEdge.top + subviewEdge.bottom + view.bounds.size.height;
+        
+        view.frame = CGRectMake(xSubview, ySubview, view.bounds.size.width, view.bounds.size.height);
+        [self addSubview:view];
+    }
+    
+    height += edge.bottom;
+    
+    self.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y, width, height);
+}
+
+
+#if 0
 - (void)drawRect:(CGRect)rect
 {
+
     NSLog(@"---drawRect");
     
 #if 0
@@ -234,7 +285,7 @@
     [path fill];
 #endif
 }
-
+#endif
 
 
 

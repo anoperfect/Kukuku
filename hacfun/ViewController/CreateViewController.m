@@ -789,6 +789,8 @@
                 reply.repliedAt     = self.editedAt;
                 reply.tidBelongTo   = self.topicTid;
                 
+                NSLog(@"vbn %@", reply);
+                
                 [[AppConfig sharedConfigDB] configDBReplyAdd:reply];
             }
             

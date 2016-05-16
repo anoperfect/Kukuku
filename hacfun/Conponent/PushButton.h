@@ -29,6 +29,18 @@
 
 @interface ViewContainer : UIView
 
+- (void)horizonLayoutViews:(NSArray<UIView*>*) subviews
+                  withEdge:(UIEdgeInsets)edge
+            andSubViewEdge:(UIEdgeInsets)subviewEdge;
+
+- (void)verticalLayoutViews:(NSArray<UIView*>*) subviews
+                   withEdge:(UIEdgeInsets)edge
+             andSubViewEdge:(UIEdgeInsets)subviewEdge;
+
+
+
+
+
 @end
 
 

@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
+
 @interface PostData : NSObject <NSCoding>
 
 
@@ -50,6 +51,8 @@ typedef enum {
 
 @property (nonatomic,assign) PostDataType type;
 
+@property (nonatomic,strong) NSMutableDictionary *postViewData;
+
 
 - (void)copyFrom:(PostData*)postDataFrom;
 - (BOOL)isIdInArray:(NSArray*)array;
@@ -59,14 +62,18 @@ typedef enum {
 
 
 typedef NS_ENUM(NSInteger, ThreadDataToViewType) {
-    ThreadDataToViewTypeInfoUseNumber = 0,      //info栏显示No. 用于DetailViewControler.
-    ThreadDataToViewTypeInfoUseReplyCount,  //info栏显示
-    ThreadDataToViewTypeAdditionalInfoUseReplyCount
+    ThreadDataToViewTypeCustom = 0,
+    ThreadDataToViewTypeInfoUseNumber,                  //info栏显示No. 用于DetailViewControler.
+    ThreadDataToViewTypeInfoUseReplyCount,              //info栏显示回复数.
+    ThreadDataToViewTypeAdditionalInfoUseReplyCount,    //nfo栏显示No. other显示回复数.
+    ThreadDataToViewTypeFold,                           //折叠.
+    ThreadDataToViewTypeSimple,                         //只显示Title和省略的content.
 };
 
 
 //PostData显示在View上的时候, 先转为一个ui元素显示内容的dictionary. 使用mutable时因为方便具体ui显示时的微调.
 - (NSMutableDictionary*)toViewDisplayData:(ThreadDataToViewType)type;
+- (void)generatePostViewData:(ThreadDataToViewType)type;
 
 
 //从栏目请求响应api中获取的内容中解出PostData数组. forum的信息以key=forum, obj=dict的形式存入additional.
