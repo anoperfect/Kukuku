@@ -40,6 +40,8 @@
 
 - (void)loadPage:(NSInteger)page
 {
+    self.threadsStatus = ThreadsStatusLoading;
+    [self showfootViewWithTitle:[self getFooterViewTitleOnStatus:self.threadsStatus] andActivityIndicator:YES andDate:NO];
     [self setBackgroundDownloadPage:page];
 }
 
@@ -62,6 +64,7 @@
 //开始下载第page.
 - (void)setBackgroundDownloadPage:(NSInteger)page
 {
+    NSLog(@"setBackgroundDownloadPage : %zd", page);
     self.pageNumLoading = page;
     self.numberLoaded = 0;
     
@@ -92,7 +95,6 @@
 
 
 - (void)setBackgroundDownload {
-    
     NSString *str = [self getDownloadUrlString];
     NSLog(@"threads download str=%@", str);
     

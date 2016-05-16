@@ -234,13 +234,10 @@
 - (void)refreshPostData {
     LOG_POSTION
     
-    [self initMemberData];
+    [self clearPostData];
     
-    //could be override.
-    [self clearDataAdditional];
-    
-    [self.postView reloadData];
-    
+    [self resetPostViewData];
+    [self reloadPostView];
     [self loadMore];
 }
 
@@ -248,17 +245,31 @@
 - (void)refreshPostDataToPage:(NSInteger)page
 {
     LOG_POSTION
-
-    [self clearData];
+    
+    [self clearPostData];
+    [self showfootViewWithTitle:@"" andActivityIndicator:NO andDate:NO];
+    
+    [self resetPostViewData];
     [self reloadPostView];
+    
+    [self showfootViewWithTitle:@"" andActivityIndicator:NO andDate:NO];
     [self loadPage:page];
 }
 
 
-- (void)clearData
+- (void)clearPostData
+{
+    self.postDataPages = [[NSMutableArray alloc] init];
+    [self reloadPostView];
+}
+
+
+
+
+- (void)resetPostViewData
 {
     [self initMemberData];
-    [self clearDataAdditional];
+    [self resetPostViewDataAdditional];
 }
 
 
@@ -270,7 +281,7 @@
 
 
 
-- (void)clearDataAdditional {
+- (void)resetPostViewDataAdditional {
     NSLog(@"#error - need to be override.");
 }
 
@@ -404,7 +415,7 @@
     [self retreatPostViewData:postData onIndexPath:indexPath];
     [self retreatPostViewDataAdditional:postData onIndexPath:indexPath];//override.
     
-    NSLog(@"tid [%zd] postViewDataRow : %@", postData.tid, postData.postViewData);
+    NSLog(@"tid [%zd] postViewDataRow : %@", postData.tid, [NSString stringFromNSDictionary:postData.postViewData]);
     
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"cell"];
     if (cell == nil) {
@@ -531,11 +542,16 @@
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
 
     CGFloat heightTrigger = 36.0;
-    NS0Log(@"000000s  %f %f %f", scrollView.contentOffset.y + scrollView.frame.size.height, scrollView.contentSize.height, (scrollView.contentOffset.y + scrollView.frame.size.height) - scrollView.contentSize.height);
+
+#if 0
+    NSLog(@"%@ : %f", @"scrollView.contentSize.height", scrollView.contentSize.height);
+    NSLog(@"%@ : %f", @"scrollView.frame.size.height", scrollView.frame.size.height);
+    NSLog(@"%@ : %f", @"scrollView.contentOffset.y", scrollView.contentOffset.y);
+#endif
     
     BOOL trigger = NO;
     if(scrollView.contentSize.height <= scrollView.frame.size.height) {
-        if(scrollView.contentOffset.y + scrollView.frame.size.height >= scrollView.contentSize.height + (scrollView.frame.size.height - scrollView.contentSize.height) + heightTrigger) {
+        if(scrollView.contentOffset.y  >= heightTrigger) {
             trigger = YES;
         }
     }
@@ -785,6 +801,8 @@
 
 - (void)foldCellOnIndexPath:(NSIndexPath*)indexPath withInfo:(NSString*)info andReload:(BOOL)reload
 {
+    NSLog(@"fold %@ with info : %@", [NSString stringFromTableIndexPath:indexPath], info);
+    NSLog(@"before : %@", [self indexPathsFoldingDescription]);
     NSArray *infos = [self.dynamicPostViewDataFold objectForKey:indexPath];
     if(infos) {
         if([infos indexOfObject:info] != NSNotFound) {
@@ -796,6 +814,7 @@
     else {
         [self.dynamicPostViewDataFold setObject:@[info] forKey:indexPath];
     }
+    NSLog(@"after  : %@", [self indexPathsFoldingDescription]);
     
     if(reload) {
         //设置后刷新.
@@ -805,33 +824,55 @@
 }
 
 
+
+- (NSString*)indexPathsFoldingDescription
+{
+    NSMutableString *strm = [[NSMutableString alloc] init];
+    for(NSIndexPath *indexPath in self.dynamicPostViewDataFold.allKeys) {
+        [strm appendString:[NSString stringFromTableIndexPath:indexPath]];
+        [strm appendFormat:@" : %@\n", [NSString combineArray:[self.dynamicPostViewDataFold objectForKey:indexPath] withInterval:@"," andPrefix:@"[" andSuffix:@"]"]];
+    }
+    
+    return [NSString stringWithString:strm];
+}
+
+
+
 - (void)unfoldCellOnIndexPath:(NSIndexPath*)indexPath withInfo:(NSString*)info andReload:(BOOL)reload
 {
+    NSLog(@"unfold %@ with info : %@", [NSString stringFromTableIndexPath:indexPath], info);
+    NSLog(@"before : %@", [self indexPathsFoldingDescription]);
+    
     NSArray *infos = [self.dynamicPostViewDataFold objectForKey:indexPath];
     if(infos) {
-        if([infos indexOfObject:info] != NSNotFound) {
-
+        if([infos indexOfObject:info] == NSNotFound) {
+            LOG_POSTION
         }
         else {
             NSMutableArray *infosM = [NSMutableArray arrayWithArray:infos];
             [infosM removeObject:info];
             if(infosM.count > 0) {
+                LOG_POSTION
                 [self.dynamicPostViewDataFold setObject:[NSArray arrayWithArray:infosM] forKey:indexPath];
             }
             else {
+                LOG_POSTION
                 [self.dynamicPostViewDataFold removeObjectForKey:indexPath];
             }
         }
     }
     else {
-        
+        LOG_POSTION
     }
+    NSLog(@"after  : %@", [self indexPathsFoldingDescription]);
     
     if(reload) {
         //设置后刷新.
         NSArray *indexArray=[NSArray arrayWithObject:indexPath];
         [self.postView reloadRowsAtIndexPaths:indexArray withRowAnimation:UITableViewRowAnimationAutomatic];
     }
+    
+    
 }
 
 

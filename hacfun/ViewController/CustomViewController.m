@@ -387,21 +387,25 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
         button.actionData = data;
         [button addTarget:self action:@selector(action:) forControlEvents:UIControlEventTouchDown];
         [button setFrame:CGRectMake(0, 0, self.heightBanner, self.heightBanner)];
+        UIBarButtonItem *item = nil;
         if(nil != data.imageName) {
             UIImage *image = [UIImage imageNamed:data.imageName];
             button.imageEdgeInsets = UIEdgeInsetsMake(6, 6, 6, 6);
             [button setImage:image forState:UIControlStateNormal];
-            [toolBarItems addObject:[[UIBarButtonItem alloc] initWithCustomView:button]];
+            item = [[UIBarButtonItem alloc] initWithCustomView:button];
         }
         else {
             //[button setTitle:data.keyword forState:UIControlStateNormal];
             //[button setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-            UIBarButtonItem *item = [[UIBarButtonItem alloc] initWithTitle:data.keyword
+            item = [[UIBarButtonItem alloc] initWithTitle:data.keyword
                                                                      style:UIBarButtonItemStyleDone
                                                                     target:self
                                                                     action:@selector(toolBarAction:)];
-            [toolBarItems addObject:item];
+
         }
+        
+        item.tintColor = [UIColor yellowColor];
+        [toolBarItems addObject:item];
         
         
         

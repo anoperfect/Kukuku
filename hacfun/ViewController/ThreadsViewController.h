@@ -136,7 +136,7 @@ typedef NS_ENUM(NSInteger, ThreadsStatus) {
 
 
 
-- (void)clearData;
+- (void)resetPostViewData;
 
 
 
@@ -163,7 +163,7 @@ typedef NS_ENUM(NSInteger, ThreadsStatus) {
 - (void)layoutCell: (UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath*)indexPath withPostData:(PostData*)postData;
 
 //可重写以修改refresh时的数据清楚行为.
-- (void)clearDataAdditional ;
+- (void)resetPostViewDataAdditional ;
 
 //可重写以修改cell显示时的行为.
 //目前使用:

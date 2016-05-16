@@ -60,6 +60,10 @@
 		B564D0F71C9189C400E903B6 /* bg.png in Resources */ = {isa = PBXBuildFile; fileRef = B564D0F61C9189C400E903B6 /* bg.png */; };
 		B56E53531CB4014700998F74 /* GalleryViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B56E53521CB4014700998F74 /* GalleryViewController.m */; };
 		B56E53561CB4017D00998F74 /* ImagesDisplay.m in Sources */ = {isa = PBXBuildFile; fileRef = B56E53551CB4017D00998F74 /* ImagesDisplay.m */; };
+		B57780D71CE9FBB900F60B6F /* draft.png in Resources */ = {isa = PBXBuildFile; fileRef = B57780D31CE9FBB900F60B6F /* draft.png */; };
+		B57780D81CE9FBB900F60B6F /* folding.png in Resources */ = {isa = PBXBuildFile; fileRef = B57780D41CE9FBB900F60B6F /* folding.png */; };
+		B57780D91CE9FBB900F60B6F /* lastpage.png in Resources */ = {isa = PBXBuildFile; fileRef = B57780D51CE9FBB900F60B6F /* lastpage.png */; };
+		B57780DA1CE9FBB900F60B6F /* send.png in Resources */ = {isa = PBXBuildFile; fileRef = B57780D61CE9FBB900F60B6F /* send.png */; };
 		B58D87341B81F2AC00B9A1BA /* CustomViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B58D87331B81F2AC00B9A1BA /* CustomViewController.m */; };
 		B58D88201B85621500B9A1BA /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B58D881F1B85621500B9A1BA /* libsqlite3.dylib */; };
 		B5A058571B9DE86200370557 /* PostViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B5A058561B9DE86200370557 /* PostViewController.m */; };
@@ -201,6 +205,10 @@
 		B56E53521CB4014700998F74 /* GalleryViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GalleryViewController.m; sourceTree = "<group>"; };
 		B56E53541CB4017D00998F74 /* ImagesDisplay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImagesDisplay.h; sourceTree = "<group>"; };
 		B56E53551CB4017D00998F74 /* ImagesDisplay.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImagesDisplay.m; sourceTree = "<group>"; };
+		B57780D31CE9FBB900F60B6F /* draft.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = draft.png; sourceTree = "<group>"; };
+		B57780D41CE9FBB900F60B6F /* folding.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = folding.png; sourceTree = "<group>"; };
+		B57780D51CE9FBB900F60B6F /* lastpage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = lastpage.png; sourceTree = "<group>"; };
+		B57780D61CE9FBB900F60B6F /* send.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = send.png; sourceTree = "<group>"; };
 		B58D87321B81F2AC00B9A1BA /* CustomViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomViewController.h; sourceTree = "<group>"; };
 		B58D87331B81F2AC00B9A1BA /* CustomViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CustomViewController.m; sourceTree = "<group>"; };
 		B58D881F1B85621500B9A1BA /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
@@ -439,6 +447,10 @@
 		B523C9FE1B78FDB100944004 /* images */ = {
 			isa = PBXGroup;
 			children = (
+				B57780D31CE9FBB900F60B6F /* draft.png */,
+				B57780D41CE9FBB900F60B6F /* folding.png */,
+				B57780D51CE9FBB900F60B6F /* lastpage.png */,
+				B57780D61CE9FBB900F60B6F /* send.png */,
 				B5DAFF381CC1E4AF000551B2 /* Default-568h@2x.png */,
 				B5039B261CBA5C1100C7865F /* airdrop1.png */,
 				B5039B271CBA5C1100C7865F /* album.png */,
@@ -727,6 +739,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B523CA161B78FDB100944004 /* back1.png in Resources */,
+				B57780D71CE9FBB900F60B6F /* draft.png in Resources */,
 				B5DAFF391CC1E4AF000551B2 /* Default-568h@2x.png in Resources */,
 				B523CA1F1B78FDB100944004 /* reply.png in Resources */,
 				B523CA1D1B78FDB100944004 /* new1.png in Resources */,
@@ -741,6 +754,7 @@
 				B523CA151B78FDB100944004 /* back.png in Resources */,
 				B523CA111B78FDB100944004 /* 1.gif in Resources */,
 				B5039B1F1CB7FF1E00C7865F /* buttondelete.png in Resources */,
+				B57780D91CE9FBB900F60B6F /* lastpage.png in Resources */,
 				B55E9D7F1C9CFD7D00F581F5 /* photolibrary.png in Resources */,
 				B523CA121B78FDB100944004 /* appicon1.png in Resources */,
 				B5039B381CBA5C1100C7865F /* airdrop1.png in Resources */,
@@ -755,9 +769,11 @@
 				B5AFCA0E1C9FFE5A00D9DDB5 /* bgleft.png in Resources */,
 				B5039B461CBA5C1100C7865F /* gallery.png in Resources */,
 				B5039B451CBA5C1100C7865F /* delete.png in Resources */,
+				B57780DA1CE9FBB900F60B6F /* send.png in Resources */,
 				B5039B201CB7FF1E00C7865F /* buttonsave.png in Resources */,
 				B5A803411CA6A7C500F88EC7 /* loadall.png in Resources */,
 				B523CA211B78FDB100944004 /* reply2.png in Resources */,
+				B57780D81CE9FBB900F60B6F /* folding.png in Resources */,
 				B5039B391CBA5C1100C7865F /* album.png in Resources */,
 				B523CA141B78FDB100944004 /* appicont.png in Resources */,
 				B5039B251CB8BB8700C7865F /* unselected.png in Resources */,

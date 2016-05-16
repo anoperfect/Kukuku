@@ -199,40 +199,39 @@
     }
     
     if([string isEqualToString:@"收藏"]) {
-        [self collection];
         [self hiddenToolBar];
+        [self collection];
+        
         return;
     }
     
     if([string isEqualToString:@"加载全部"]) {
-        
-#if 0
-        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"将加载全部回复信息" message:@"将加载全部信息" delegate:self
-    cancelButtonTitle:@"取消" otherButtonTitles:nil];
-        [alertView show];
-#endif
-        
-        [self showIndicationText:[NSString stringWithFormat:@"开始加载全部回复"]];
-        [self downloadAllDetail];
         [self hiddenToolBar];
+        [self showIndicationText:[NSString stringWithFormat:@"开始加载全部回复"]];
+        
+        [self downloadAllDetail];
+        
         return;
     }
     
     if([string isEqualToString:@"停止加载全部"]) {
+        [self hiddenToolBar];
         [self showIndicationText:[NSString stringWithFormat:@"停止自动加载全部回复"]];
         [self stopDownloadAllDetail];
-        [self hiddenToolBar];
+        
+        return ;
     }
     
-    
-    
-    if([string isEqualToString:@"开启只看Po"]){
+    if([string isEqualToString:@"folding"] && !self.isOnlyShowPo){
+        [self hiddenToolBar];
+        [self showIndicationText:@"当前为只看Po模式"];
+        
         self.isOnlyShowPo = YES;
         
         NSArray *indexPaths = [self indexPathsPostData];
         for(NSIndexPath *indexPath in indexPaths) {
             PostData *postData = [self postDataOnIndexPath:indexPath];
-            if(postData.uid == self.topic.uid) {
+            if([postData.uid isEqualToString:self.topic.uid]) {
                 [self unfoldCellOnIndexPath:indexPath withInfo:@"只看Po" andReload:NO];
             }
             else {
@@ -242,15 +241,13 @@
         
         [self.postView reloadData];
         
-        [self showfootViewWithTitle:[NSString stringWithFormat:@"当前为只看Po模式"]
-               andActivityIndicator:NO andDate:NO];
-        
-        [self hiddenToolBar];
-        
         return ;
     }
     
-    if([string isEqualToString:@"关闭只看Po"]){
+    if([string isEqualToString:@"folding"] && self.isOnlyShowPo){
+        [self hiddenToolBar];
+        [self showIndicationText:@"已关闭只看Po模式"];
+        
         self.isOnlyShowPo = NO;
         
         NSArray *indexPaths = [self indexPathsPostData];
@@ -260,18 +257,17 @@
         
         [self.postView reloadData];
         
-        [self showfootViewWithTitle:[NSString stringWithFormat:@"已关闭只看Po模式"]
-               andActivityIndicator:NO andDate:NO];
-        
-        [self hiddenToolBar];
         return ;
     }
     
-    if([string isEqualToString:@"jumppage"]) {
+    if([string isEqualToString:@"lastpage"]) {
+        [self hiddenToolBar];
+        [self showIndicationText:@"加载最后一页"];
+        
         self.pageDescMode = YES;
-        [self clearData];
-        [self reloadPostView];
-        [self loadPage:-1];
+        [self refreshPostDataToPage:-1];
+        
+        return ;
     }
 }
 
@@ -289,8 +285,8 @@
     [toolDatas addObject:actionData];
     
     actionData = [[ButtonData alloc] init];
-    actionData.keyword      = @"jumppage";
-    actionData.imageName    = @"jumppage";
+    actionData.keyword      = @"lastpage";
+    actionData.imageName    = @"lastpage";
     [toolDatas addObject:actionData];
     
     if(!self.autoRepeatDownload) {
@@ -302,20 +298,20 @@
     else {
         actionData = [[ButtonData alloc] init];
         actionData.keyword      = @"停止加载全部";
-//        actionData.imageName    = @"stoploadall";
+        actionData.imageName    = @"loadall";
         [toolDatas addObject:actionData];
     }
     
     if(!self.isOnlyShowPo) {
         actionData = [[ButtonData alloc] init];
-        actionData.keyword      = @"开启只看Po";
-//        actionData.imageName    = @"loadall";
+        actionData.keyword      = @"folding";
+        actionData.imageName    = @"folding";
         [toolDatas addObject:actionData];
     }
     else {
         actionData = [[ButtonData alloc] init];
-        actionData.keyword      = @"关闭只看Po";
-        //        actionData.imageName    = @"loadall";
+        actionData.keyword      = @"folding";
+        actionData.imageName    = @"folding";
         [toolDatas addObject:actionData];
     }
     
@@ -696,7 +692,7 @@
 }
 
 
-- (void)clearDataAdditional {
+- (void)resetPostViewDataAdditional {
     //refresh的时候, 一直显示已有的topic.
     if(self.topic) {
         PostDataPage *postDataPage = [[PostDataPage alloc] init];

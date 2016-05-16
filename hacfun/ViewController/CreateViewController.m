@@ -75,8 +75,8 @@
         ButtonData *actionData = nil;
         
         actionData = [[ButtonData alloc] init];
-        actionData.keyword  = @"草稿";
-//        actionData.image    = @"refresh";
+        actionData.keyword      = @"草稿";
+        actionData.imageName    = @"draft";
         [self actionAddData:actionData];
     }
     return self;
@@ -612,7 +612,7 @@
     //参数的集合的所有key的集合
     NSMutableDictionary *dic = [NSMutableDictionary dictionaryWithCapacity:30];
     [dic setObject:@"" forKey:@"name"];
-    [dic setObject:@"sega." forKey:@"email"]; //莫拉岛民的平均值.
+    [dic setObject:@"sage" forKey:@"email"]; //莫拉岛民的平均值.
     [dic setObject:@"" forKey:@"title"];
     NSString *contentInput = [NSString stringWithFormat:@"客户端测试.[%@]沉的快...", self.nameCategory];
     contentInput = _textView.text;

@@ -81,7 +81,7 @@
 }
 
 
-- (void)clearDataAdditional
+- (void)resetPostViewDataAdditional
 {
     self.allTid             = nil;
     self.concreteDatas      = nil;

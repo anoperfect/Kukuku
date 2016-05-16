@@ -13,25 +13,25 @@
     {
       "size" : "40x40",
       "idiom" : "iphone",
-      "filename" : "appicono-80x80.png",
+      "filename" : "appicon80x80.png",
       "scale" : "2x"
     },
     {
       "size" : "40x40",
       "idiom" : "iphone",
-      "filename" : "appicono-120x120.png",
+      "filename" : "appicon120x120.png",
       "scale" : "3x"
     },
     {
       "size" : "60x60",
       "idiom" : "iphone",
-      "filename" : "appicono-120x120-1.png",
+      "filename" : "appicon120x120-1.png",
       "scale" : "2x"
     },
     {
       "size" : "60x60",
       "idiom" : "iphone",
-      "filename" : "appicono-180x180.png",
+      "filename" : "appicon180x180.png",
       "scale" : "3x"
     }
   ],
