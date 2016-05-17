@@ -18,6 +18,7 @@
 #import "GalleryViewController.h"
 #import "TOWebViewController.h"
 #import "PostGroupView.h"
+#import "ModelAndViewInc.h"
 @interface LeftMenuTVC ()
 @property (strong, nonatomic) NSMutableArray *tableData;
 @end
@@ -148,15 +149,20 @@
 //        [popupView popupInSuperView:self.view];
         
 //        DetailViewController *vc = [[DetailViewController alloc]init];
-        DetailViewControllerTest *vc = [[DetailViewControllerTest alloc]init];
-        [vc setPostTid:6670627 withData:nil];
-        [vc setPostTid:6477099 withData:nil];
-        [vc setPostTid:6468268 withData:nil];
-        [vc setPostTid:6468276 withData:nil];
-        [vc setPostTid:6624990 withData:nil];
+        //DetailViewControllerTest *vc = [[DetailViewControllerTest alloc]init];
+//        [vc setPostTid:6670627 withData:nil];
+//        [vc setPostTid:6477099 withData:nil];
+//        [vc setPostTid:6468268 withData:nil];
+//        [vc setPostTid:6468276 withData:nil];
+//        [vc setPostTid:6624990 withData:nil];
 //        [vc setPostTid:6708309 withData:nil];
         
+        //rootVC = vc;
+        
+        
+        SearchViewController *vc = [[SearchViewController alloc] init];
         rootVC = vc;
+        
     }
     
     if([strItem isEqualToString:@"测试"]) {

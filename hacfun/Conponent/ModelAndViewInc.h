@@ -27,6 +27,7 @@
 
 //viewcontroller
 #import "ThreadsViewController.h"
+#import "SearchViewController.h"
 
 @interface ModelAndViewInc : NSObject
 

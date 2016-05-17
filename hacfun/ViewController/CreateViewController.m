@@ -613,6 +613,7 @@
     NSMutableDictionary *dic = [NSMutableDictionary dictionaryWithCapacity:30];
     [dic setObject:@"" forKey:@"name"];
     [dic setObject:@"sage" forKey:@"email"]; //莫拉岛民的平均值.
+    [dic setObject:@"" forKey:@"email"];
     [dic setObject:@"" forKey:@"title"];
     NSString *contentInput = [NSString stringWithFormat:@"客户端测试.[%@]沉的快...", self.nameCategory];
     contentInput = _textView.text;
