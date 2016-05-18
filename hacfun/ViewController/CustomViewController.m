@@ -108,6 +108,8 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
     [self.navigationItem setHidesBackButton:YES];
     [self.navigationController.navigationBar setBackgroundImage:[UIImage imageNamed:@"bg"] forBarMetrics:UIBarMetricsDefault];
     
+//    [self.navigationController.navigationBar setBackgroundColor:[UIColor colorFromString:@"#e1eeee@11"]];
+    
     [self.bannerView removeFromSuperview];
     self.bannerView = nil;
     self.bannerView = [[BannerView alloc] init];

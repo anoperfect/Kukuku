@@ -215,6 +215,7 @@
     if(bAutoSaveImageToAlbum) {
         UIImage *image = [UIImage imageWithData:imageDataDownload];
         UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil);
+        [self showIndicationText:@"自动存图到相册"];
     }
     
     [ImageViewCache setImageViewCache:self.stringUrl withData:imageDataDownload];

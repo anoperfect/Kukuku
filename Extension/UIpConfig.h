@@ -21,6 +21,14 @@
 @end
 
 
+@interface BackgoundImageItem : NSObject
+@property (nonatomic, strong) NSString *name;
+@property (nonatomic, assign) BOOL  enabled;
+@property (nonatomic, strong) NSString *title;
+@property (nonatomic, strong) NSString *imageName;
+
+@end
+
 
 @interface UIColor (Util)
 

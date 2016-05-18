@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5D116CE07B302735E467ADA7 /* Pods_hacfun.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 35EC275D60C6828CB8827836 /* Pods_hacfun.framework */; };
 		B5039B1F1CB7FF1E00C7865F /* buttondelete.png in Resources */ = {isa = PBXBuildFile; fileRef = B5039B1C1CB7FF1E00C7865F /* buttondelete.png */; };
 		B5039B201CB7FF1E00C7865F /* buttonsave.png in Resources */ = {isa = PBXBuildFile; fileRef = B5039B1D1CB7FF1E00C7865F /* buttonsave.png */; };
 		B5039B211CB7FF1E00C7865F /* buttonshare.png in Resources */ = {isa = PBXBuildFile; fileRef = B5039B1E1CB7FF1E00C7865F /* buttonshare.png */; };
@@ -64,12 +65,9 @@
 		B57780D81CE9FBB900F60B6F /* folding.png in Resources */ = {isa = PBXBuildFile; fileRef = B57780D41CE9FBB900F60B6F /* folding.png */; };
 		B57780D91CE9FBB900F60B6F /* lastpage.png in Resources */ = {isa = PBXBuildFile; fileRef = B57780D51CE9FBB900F60B6F /* lastpage.png */; };
 		B57780DA1CE9FBB900F60B6F /* send.png in Resources */ = {isa = PBXBuildFile; fileRef = B57780D61CE9FBB900F60B6F /* send.png */; };
-		B58D87341B81F2AC00B9A1BA /* CustomViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B58D87331B81F2AC00B9A1BA /* CustomViewController.m */; };
 		B58D88201B85621500B9A1BA /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B58D881F1B85621500B9A1BA /* libsqlite3.dylib */; };
 		B5A058571B9DE86200370557 /* PostViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B5A058561B9DE86200370557 /* PostViewController.m */; };
 		B5A0585A1B9DE87A00370557 /* ReplyViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B5A058591B9DE87A00370557 /* ReplyViewController.m */; };
-		B5A5F8CD1CEAE015009A61AC /* TidResultViewController.h in Resources */ = {isa = PBXBuildFile; fileRef = B5A5F8CB1CEAE015009A61AC /* TidResultViewController.h */; };
-		B5A5F8CE1CEAE015009A61AC /* TidResultViewController.m in Resources */ = {isa = PBXBuildFile; fileRef = B5A5F8CC1CEAE015009A61AC /* TidResultViewController.m */; };
 		B5A803401CA6A7C500F88EC7 /* collection.png in Resources */ = {isa = PBXBuildFile; fileRef = B5A8033D1CA6A7C500F88EC7 /* collection.png */; };
 		B5A803411CA6A7C500F88EC7 /* loadall.png in Resources */ = {isa = PBXBuildFile; fileRef = B5A8033E1CA6A7C500F88EC7 /* loadall.png */; };
 		B5A803421CA6A7C500F88EC7 /* tip-off.png in Resources */ = {isa = PBXBuildFile; fileRef = B5A8033F1CA6A7C500F88EC7 /* tip-off.png */; };
@@ -80,6 +78,10 @@
 		B5B077201CC626DE00CF50A2 /* db.json in Resources */ = {isa = PBXBuildFile; fileRef = B5B0771F1CC626DE00CF50A2 /* db.json */; };
 		B5B666311CACCEA10038A3EF /* PushButton.m in Sources */ = {isa = PBXBuildFile; fileRef = B5B666301CACCEA10038A3EF /* PushButton.m */; };
 		B5BC10541B8988EE0006EDD4 /* emoticon.png in Resources */ = {isa = PBXBuildFile; fileRef = B5BC10531B8988EE0006EDD4 /* emoticon.png */; };
+		B5C3E4291CEC2EA4005181A2 /* CustomViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B5C3E4281CEC2EA4005181A2 /* CustomViewController.m */; };
+		B5C3E42C1CEC2EC1005181A2 /* TidResultViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B5C3E42B1CEC2EC1005181A2 /* TidResultViewController.m */; };
+		B5C3E42F1CEC4A23005181A2 /* IntroductionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B5C3E42E1CEC4A23005181A2 /* IntroductionViewController.m */; };
+		B5C3E4321CEC56EA005181A2 /* AlignTopLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = B5C3E4311CEC56EA005181A2 /* AlignTopLabel.m */; };
 		B5D8D4761B52060C0091DA20 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = B5D8D4751B52060C0091DA20 /* main.m */; };
 		B5D8D4791B52060C0091DA20 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = B5D8D4781B52060C0091DA20 /* AppDelegate.m */; };
 		B5D8D4811B52060C0091DA20 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B5D8D4801B52060C0091DA20 /* Images.xcassets */; };
@@ -116,7 +118,6 @@
 		B5F24BB21C49EBF70027DAB2 /* LocaleViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B5F24BB11C49EBF70027DAB2 /* LocaleViewController.m */; };
 		B5F24BB51C49F0C40027DAB2 /* DBData.m in Sources */ = {isa = PBXBuildFile; fileRef = B5F24BB41C49F0C40027DAB2 /* DBData.m */; };
 		B5F24BB81C49F27E0027DAB2 /* NetworkThreadViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B5F24BB71C49F27E0027DAB2 /* NetworkThreadViewController.m */; };
-		F2BE53211B4A355678A70BF5 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 338BA2420EBCE9402F13ED98 /* libPods.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -130,9 +131,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		1B2B07837930733F6B985C6A /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
-		338BA2420EBCE9402F13ED98 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		AADBBF3ED2F206120C64FEE5 /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
+		35EC275D60C6828CB8827836 /* Pods_hacfun.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_hacfun.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		87BFC3AADD62AA5E2C26FF64 /* Pods-hacfun.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-hacfun.release.xcconfig"; path = "Pods/Target Support Files/Pods-hacfun/Pods-hacfun.release.xcconfig"; sourceTree = "<group>"; };
 		B5039B1C1CB7FF1E00C7865F /* buttondelete.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = buttondelete.png; sourceTree = "<group>"; };
 		B5039B1D1CB7FF1E00C7865F /* buttonsave.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = buttonsave.png; sourceTree = "<group>"; };
 		B5039B1E1CB7FF1E00C7865F /* buttonshare.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = buttonshare.png; sourceTree = "<group>"; };
@@ -212,14 +212,11 @@
 		B57780D51CE9FBB900F60B6F /* lastpage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = lastpage.png; sourceTree = "<group>"; };
 		B57780D61CE9FBB900F60B6F /* send.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = send.png; sourceTree = "<group>"; };
 		B58D87321B81F2AC00B9A1BA /* CustomViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomViewController.h; sourceTree = "<group>"; };
-		B58D87331B81F2AC00B9A1BA /* CustomViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CustomViewController.m; sourceTree = "<group>"; };
 		B58D881F1B85621500B9A1BA /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
 		B5A058551B9DE86200370557 /* PostViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PostViewController.h; sourceTree = "<group>"; };
 		B5A058561B9DE86200370557 /* PostViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PostViewController.m; sourceTree = "<group>"; };
 		B5A058581B9DE87A00370557 /* ReplyViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReplyViewController.h; sourceTree = "<group>"; };
 		B5A058591B9DE87A00370557 /* ReplyViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReplyViewController.m; sourceTree = "<group>"; };
-		B5A5F8CB1CEAE015009A61AC /* TidResultViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TidResultViewController.h; sourceTree = "<group>"; };
-		B5A5F8CC1CEAE015009A61AC /* TidResultViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TidResultViewController.m; sourceTree = "<group>"; };
 		B5A8033D1CA6A7C500F88EC7 /* collection.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = collection.png; sourceTree = "<group>"; };
 		B5A8033E1CA6A7C500F88EC7 /* loadall.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = loadall.png; sourceTree = "<group>"; };
 		B5A8033F1CA6A7C500F88EC7 /* tip-off.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "tip-off.png"; sourceTree = "<group>"; };
@@ -233,6 +230,13 @@
 		B5B6662F1CACCEA10038A3EF /* PushButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PushButton.h; sourceTree = "<group>"; };
 		B5B666301CACCEA10038A3EF /* PushButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PushButton.m; sourceTree = "<group>"; };
 		B5BC10531B8988EE0006EDD4 /* emoticon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = emoticon.png; sourceTree = "<group>"; };
+		B5C3E4281CEC2EA4005181A2 /* CustomViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CustomViewController.m; sourceTree = "<group>"; };
+		B5C3E42A1CEC2EC1005181A2 /* TidResultViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TidResultViewController.h; sourceTree = "<group>"; };
+		B5C3E42B1CEC2EC1005181A2 /* TidResultViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TidResultViewController.m; sourceTree = "<group>"; };
+		B5C3E42D1CEC4A23005181A2 /* IntroductionViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IntroductionViewController.h; sourceTree = "<group>"; };
+		B5C3E42E1CEC4A23005181A2 /* IntroductionViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IntroductionViewController.m; sourceTree = "<group>"; };
+		B5C3E4301CEC56EA005181A2 /* AlignTopLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AlignTopLabel.h; path = hacfun/Conponent/AlignTopLabel.h; sourceTree = SOURCE_ROOT; };
+		B5C3E4311CEC56EA005181A2 /* AlignTopLabel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AlignTopLabel.m; path = hacfun/Conponent/AlignTopLabel.m; sourceTree = SOURCE_ROOT; };
 		B5D8D4701B52060C0091DA20 /* hacfun.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = hacfun.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B5D8D4741B52060C0091DA20 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B5D8D4751B52060C0091DA20 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -304,6 +308,7 @@
 		B5F24BB41C49F0C40027DAB2 /* DBData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DBData.m; path = ../hacfun/Conponent/DBData.m; sourceTree = "<group>"; };
 		B5F24BB61C49F27E0027DAB2 /* NetworkThreadViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NetworkThreadViewController.h; sourceTree = "<group>"; };
 		B5F24BB71C49F27E0027DAB2 /* NetworkThreadViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NetworkThreadViewController.m; sourceTree = "<group>"; };
+		F658D84C95E2C19EE9037065 /* Pods-hacfun.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-hacfun.debug.xcconfig"; path = "Pods/Target Support Files/Pods-hacfun/Pods-hacfun.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -312,7 +317,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B58D88201B85621500B9A1BA /* libsqlite3.dylib in Frameworks */,
-				F2BE53211B4A355678A70BF5 /* libPods.a in Frameworks */,
+				5D116CE07B302735E467ADA7 /* Pods_hacfun.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -329,7 +334,7 @@
 		15A9D44EB4021D7ED16A2CCF /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				338BA2420EBCE9402F13ED98 /* libPods.a */,
+				35EC275D60C6828CB8827836 /* Pods_hacfun.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -337,8 +342,8 @@
 		8C726A920C6B5E19A4949F62 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				1B2B07837930733F6B985C6A /* Pods.debug.xcconfig */,
-				AADBBF3ED2F206120C64FEE5 /* Pods.release.xcconfig */,
+				F658D84C95E2C19EE9037065 /* Pods-hacfun.debug.xcconfig */,
+				87BFC3AADD62AA5E2C26FF64 /* Pods-hacfun.release.xcconfig */,
 			);
 			name = Pods;
 			sourceTree = "<group>";
@@ -346,10 +351,12 @@
 		B523C9B91B78FAB500944004 /* ViewController */ = {
 			isa = PBXGroup;
 			children = (
-				B5A5F8CB1CEAE015009A61AC /* TidResultViewController.h */,
-				B5A5F8CC1CEAE015009A61AC /* TidResultViewController.m */,
+				B5C3E42A1CEC2EC1005181A2 /* TidResultViewController.h */,
+				B5C3E42B1CEC2EC1005181A2 /* TidResultViewController.m */,
 				B58D87321B81F2AC00B9A1BA /* CustomViewController.h */,
-				B58D87331B81F2AC00B9A1BA /* CustomViewController.m */,
+				B5C3E4281CEC2EA4005181A2 /* CustomViewController.m */,
+				B5C3E42D1CEC4A23005181A2 /* IntroductionViewController.h */,
+				B5C3E42E1CEC4A23005181A2 /* IntroductionViewController.m */,
 				B523C9CF1B78FAB500944004 /* ThreadsViewController.h */,
 				B523C9D01B78FAB500944004 /* ThreadsViewController.m */,
 				B5F24BB61C49F27E0027DAB2 /* NetworkThreadViewController.h */,
@@ -415,6 +422,8 @@
 				B5DD9A881CE2148F00C762AF /* PostView.m */,
 				B5DD9A991CE215C000C762AF /* PostGroupView.h */,
 				B5DD9A9A1CE215C000C762AF /* PostGroupView.m */,
+				B5C3E4301CEC56EA005181A2 /* AlignTopLabel.h */,
+				B5C3E4311CEC56EA005181A2 /* AlignTopLabel.m */,
 				B5DD9A9C1CE217FB00C762AF /* ModelAndViewInc.h */,
 				B5DD9A9D1CE217FB00C762AF /* ModelAndViewInc.m */,
 			);
@@ -668,12 +677,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = B5D8D4931B52060C0091DA20 /* Build configuration list for PBXNativeTarget "hacfun" */;
 			buildPhases = (
-				8B20144018185F2F13896B6B /* Check Pods Manifest.lock */,
+				8B20144018185F2F13896B6B /* 📦 Check Pods Manifest.lock */,
 				B5D8D46C1B52060C0091DA20 /* Sources */,
 				B5D8D46D1B52060C0091DA20 /* Frameworks */,
 				B5D8D46E1B52060C0091DA20 /* Resources */,
-				84D1F55173D692AADBAD6521 /* Embed Pods Frameworks */,
-				1330428717D8FC89E37293C0 /* Copy Pods Resources */,
+				84D1F55173D692AADBAD6521 /* 📦 Embed Pods Frameworks */,
+				1330428717D8FC89E37293C0 /* 📦 Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -749,13 +758,11 @@
 				B5DAFF391CC1E4AF000551B2 /* Default-568h@2x.png in Resources */,
 				B523CA1F1B78FDB100944004 /* reply.png in Resources */,
 				B523CA1D1B78FDB100944004 /* new1.png in Resources */,
-				B5A5F8CD1CEAE015009A61AC /* TidResultViewController.h in Resources */,
 				B55E9D7E1C9CFD7D00F581F5 /* capture.png in Resources */,
 				B523CA181B78FDB100944004 /* edit.png in Resources */,
 				B5039B241CB8BB8700C7865F /* selected.png in Resources */,
 				B523CA1A1B78FDB100944004 /* jumppage.png in Resources */,
 				B523CA221B78FDB100944004 /* zheshiluwei.jpg in Resources */,
-				B5A5F8CE1CEAE015009A61AC /* TidResultViewController.m in Resources */,
 				B523CA191B78FDB100944004 /* edit1.png in Resources */,
 				B5DAFF231CC1D9B8000551B2 /* icon-menu.png in Resources */,
 				B5A803401CA6A7C500F88EC7 /* collection.png in Resources */,
@@ -808,44 +815,44 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		1330428717D8FC89E37293C0 /* Copy Pods Resources */ = {
+		1330428717D8FC89E37293C0 /* 📦 Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Copy Pods Resources";
+			name = "📦 Copy Pods Resources";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods/Pods-resources.sh\"\n";
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-hacfun/Pods-hacfun-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		84D1F55173D692AADBAD6521 /* Embed Pods Frameworks */ = {
+		84D1F55173D692AADBAD6521 /* 📦 Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Embed Pods Frameworks";
+			name = "📦 Embed Pods Frameworks";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods/Pods-frameworks.sh\"\n";
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-hacfun/Pods-hacfun-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		8B20144018185F2F13896B6B /* Check Pods Manifest.lock */ = {
+		8B20144018185F2F13896B6B /* 📦 Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Check Pods Manifest.lock";
+			name = "📦 Check Pods Manifest.lock";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -886,7 +893,6 @@
 				B5DD9A9E1CE217FB00C762AF /* ModelAndViewInc.m in Sources */,
 				B523C9D21B78FAB500944004 /* CategoryViewController.m in Sources */,
 				B5DD9A951CE2152000C762AF /* TestViewController.m in Sources */,
-				B58D87341B81F2AC00B9A1BA /* CustomViewController.m in Sources */,
 				B5D8D4791B52060C0091DA20 /* AppDelegate.m in Sources */,
 				B5DAFF341CC1D9B8000551B2 /* VIPhotoView.m in Sources */,
 				B5DD9A981CE2154400C762AF /* UICustmizeViewController.m in Sources */,
@@ -908,11 +914,15 @@
 				B5DAFF331CC1D9B8000551B2 /* RTLabel.m in Sources */,
 				B5DAFF491CC29650000551B2 /* NSThread+Util.m in Sources */,
 				B5F24BB21C49EBF70027DAB2 /* LocaleViewController.m in Sources */,
+				B5C3E42C1CEC2EC1005181A2 /* TidResultViewController.m in Sources */,
 				B5DAFF1D1CC1D9B8000551B2 /* AMSlideMenuContentSegue.m in Sources */,
 				B523C9EC1B78FADC00944004 /* PostData.m in Sources */,
+				B5C3E4321CEC56EA005181A2 /* AlignTopLabel.m in Sources */,
 				B5DAFF371CC1E3E4000551B2 /* Deseprate.m in Sources */,
 				B5DAFF481CC29650000551B2 /* NSObject+Util.m in Sources */,
+				B5C3E4291CEC2EA4005181A2 /* CustomViewController.m in Sources */,
 				B523C9E91B78FADC00944004 /* ButtonData.m in Sources */,
+				B5C3E42F1CEC4A23005181A2 /* IntroductionViewController.m in Sources */,
 				B5DAFF251CC1D9B8000551B2 /* LeftMenuTVC.m in Sources */,
 				B523C9EB1B78FADC00944004 /* PopupView.m in Sources */,
 				B5DAFF201CC1D9B8000551B2 /* AMSlideMenuMainViewController.m in Sources */,
@@ -984,7 +994,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -1019,7 +1029,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
@@ -1028,7 +1038,7 @@
 		};
 		B5D8D4941B52060C0091DA20 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 1B2B07837930733F6B985C6A /* Pods.debug.xcconfig */;
+			baseConfigurationReference = F658D84C95E2C19EE9037065 /* Pods-hacfun.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -1049,7 +1059,7 @@
 		};
 		B5D8D4951B52060C0091DA20 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = AADBBF3ED2F206120C64FEE5 /* Pods.release.xcconfig */;
+			baseConfigurationReference = 87BFC3AADD62AA5E2C26FF64 /* Pods-hacfun.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";

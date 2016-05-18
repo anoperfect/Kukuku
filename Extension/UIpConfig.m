@@ -21,6 +21,10 @@
 @end
 
 
+@implementation BackgoundImageItem
+@end
+
+
 @interface UIpConfig ()
 
 @property (nonatomic, strong) NSMutableArray *colorItems;

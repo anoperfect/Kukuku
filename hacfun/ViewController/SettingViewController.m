@@ -13,6 +13,8 @@
 
 
 
+#import "UICustmizeViewController.h"
+
 @interface SettingViewController () <UITableViewDataSource, UITableViewDelegate/*, UIPickerViewDataSource, UIPickerViewDelegate*/>
 
 
@@ -30,14 +32,7 @@
 {
     self = [super init];
     if(nil != self) {
-        self.textTopic = @"设置";
-        
-        UIView *viewa = [[UIView alloc] init];
-        UIView *viewb = [[UIView alloc] init];
-        NSLog(@"viewa init : %zd", viewa.init);
-        NSLog(@"viewb init : %zd", viewb.init);
-        
-        
+        self.textTopic = @"设置"; 
     }
     
     return self;
@@ -263,6 +258,13 @@
             [self showIndicationText:[NSString stringWithFormat:@"已删除%zd, 共%zd张.", index+1, total]];
         }];
     }
+    
+    if([[self.arraySettingItem objectAtIndex:indexPath.row] isEqualToString:@"界面设置"]) {
+        UICustmizeViewController *vc = [[UICustmizeViewController alloc] init];
+        [self.navigationController pushViewController:vc animated:YES];
+    }
+    
+    
 }
 
 

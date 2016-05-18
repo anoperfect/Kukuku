@@ -40,13 +40,22 @@
     if (self) {
         UICollectionViewFlowLayout *flowLayout= [[UICollectionViewFlowLayout alloc] init];
         self.imagesView = [[UICollectionView alloc] initWithFrame:CGRectMake(20, 20, 250, 350) collectionViewLayout:flowLayout];
-        self.imagesView.backgroundColor = [UIColor grayColor];
+        
+        
+        
+        self.imagesView.backgroundColor = [UIColor colorWithName:@"GalleryImageViewBackground"];
         [self.imagesView registerClass:[UICollectionViewCell class] forCellWithReuseIdentifier:@"myCell"];
         self.imagesView.delegate = self;
         self.imagesView.dataSource = self;
         [self addSubview:self.imagesView];
         
         self.inMuiltSelectMode = NO;
+        
+//        self.imagesView.backgroundColor = [UIColor whiteColor];
+        
+        
+        
+        
     }
     return self;
 }

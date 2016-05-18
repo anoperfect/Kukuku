@@ -1,20 +1,15 @@
 platform :ios, '7.0'
-inhibit_all_warnings!
-source 'https://github.com/CocoaPods/Specs.git'
+use_frameworks!
 
-pod 'AFOnoResponseSerializer'
+target 'hacfun' do
 pod 'SDWebImage'
-pod 'SSKeychain'
+pod 'AFNetworking'
 pod 'ReactiveCocoa'
 pod 'GPUImage'
 pod 'MBProgressHUD'
 pod 'RESideMenu'
 pod 'Reachability'
-pod 'TTTAttributedLabel'
-pod 'GRMustache'
 pod 'TOWebViewController'
-pod 'MJRefresh'
-pod 'TBXML'
-pod 'DateTools'
 pod 'FMDB'
 pod 'CocoaAsyncSocket'
+end

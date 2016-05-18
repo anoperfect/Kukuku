@@ -127,12 +127,18 @@
     NSLog(@"/vc\\ %s", __FUNCTION__);
     [super viewWillLayoutSubviews];
     
-    //tableview
-    CGFloat yTableViewBorder = 0;
-    CGFloat yTableView = self.yBolowView + yTableViewBorder;
+//    //tableview
+//    CGFloat yTableViewBorder = 0;
+//    CGFloat yTableView = self.yBolowView + yTableViewBorder;
+//    
+//    CGFloat xTableViewBorder = 0;
+//    CGRect framePostView = CGRectMake(xTableViewBorder, yTableView, self.view.frame.size.width - 2*xTableViewBorder, self.view.frame.size.height - yTableView);
     
-    CGFloat xTableViewBorder = 0;
-    CGRect framePostView = CGRectMake(xTableViewBorder, yTableView, self.view.frame.size.width - 2*xTableViewBorder, self.view.frame.size.height - yTableView);
+    CGRect framePostView = self.view.bounds;
+    
+    NSLog(@"xyu : %@", [NSString stringFromCGRect:framePostView]);
+    
+    
     if(FRAMELAYOUT_IS_EQUAL(framePostView, self.postView.frame)) {
         NSLog(@"postView frame not changed.");
     }

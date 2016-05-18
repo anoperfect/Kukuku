@@ -60,7 +60,7 @@
     
     self.imageDisplay = [[ImagesDisplay alloc] init];
     [self.view addSubview:self.imageDisplay];
-    self.imageDisplay.backgroundColor = [UIColor whiteColor];
+    self.imageDisplay.backgroundColor = [UIColor clearColor];
     [self.imageDisplay setDisplayedImages:self.images];
     
     __weak GalleryViewController *selfBlock = self;
@@ -68,50 +68,14 @@
         [selfBlock displayImageInRow:row];
     }];
 
-#if 0
-    self.muiltActions = [[UIView alloc] init];
-    self.muiltActions.backgroundColor = [UIColor whiteColor];
-    self.muiltActions.hidden = YES;
-    [self.view addSubview:self.muiltActions];
-#if 0
-    self.muiltActions = [[UITabBar alloc] init];
-    [self.view addSubview:self.muiltActions];
-    [self.muiltActions insertSubview:nil atIndex:0];
-    
-    UITabBarItem *item0 = [[UITabBarItem alloc] initWithTitle:@"保存" image:nil selectedImage:nil];
-#endif
-
-    
-    self.buttonShare = [[PushButton alloc] init];
-    [self.buttonShare setImage:[UIImage imageNamed:@"buttonshare"] forState:UIControlStateNormal];
-    [self.buttonShare addTarget:self action:@selector(imagesShare) forControlEvents:UIControlEventTouchDown];
-    [self.muiltActions addSubview:self.buttonShare];
-    
-    self.buttonSave = [[PushButton alloc] init];
-    [self.buttonSave setImage:[UIImage imageNamed:@"buttonsave"] forState:UIControlStateNormal];
-    [self.buttonSave addTarget:self action:@selector(imagesSave) forControlEvents:UIControlEventTouchDown];
-    [self.muiltActions addSubview:self.buttonSave];
-    
-    self.buttonDelete = [[PushButton alloc] init];
-    [self.buttonDelete setImage:[UIImage imageNamed:@"buttondelete"] forState:UIControlStateNormal];
-    [self.buttonDelete addTarget:self action:@selector(imagesDelete) forControlEvents:UIControlEventTouchDown];
-    [self.muiltActions addSubview:self.buttonDelete];
-    
-    self.toolbarItems = @[
-                          [UITabBarItem ]
-                          
-                          
-                          
-                          
-                          ];
-    
- #endif
     
     dispatch_async(dispatch_get_main_queue(), ^{
         [self reloadDownloadedImage];
     });
     
     [self showImagesNumberAfterDelay:1];
+    
+    self.view.backgroundColor = [UIColor whiteColor];
 }
 
 
@@ -427,3 +391,49 @@
 */
 
 @end
+
+
+
+
+
+
+
+
+#if 0
+self.muiltActions = [[UIView alloc] init];
+self.muiltActions.backgroundColor = [UIColor whiteColor];
+self.muiltActions.hidden = YES;
+[self.view addSubview:self.muiltActions];
+#if 0
+self.muiltActions = [[UITabBar alloc] init];
+[self.view addSubview:self.muiltActions];
+[self.muiltActions insertSubview:nil atIndex:0];
+
+UITabBarItem *item0 = [[UITabBarItem alloc] initWithTitle:@"保存" image:nil selectedImage:nil];
+#endif
+
+
+self.buttonShare = [[PushButton alloc] init];
+[self.buttonShare setImage:[UIImage imageNamed:@"buttonshare"] forState:UIControlStateNormal];
+[self.buttonShare addTarget:self action:@selector(imagesShare) forControlEvents:UIControlEventTouchDown];
+[self.muiltActions addSubview:self.buttonShare];
+
+self.buttonSave = [[PushButton alloc] init];
+[self.buttonSave setImage:[UIImage imageNamed:@"buttonsave"] forState:UIControlStateNormal];
+[self.buttonSave addTarget:self action:@selector(imagesSave) forControlEvents:UIControlEventTouchDown];
+[self.muiltActions addSubview:self.buttonSave];
+
+self.buttonDelete = [[PushButton alloc] init];
+[self.buttonDelete setImage:[UIImage imageNamed:@"buttondelete"] forState:UIControlStateNormal];
+[self.buttonDelete addTarget:self action:@selector(imagesDelete) forControlEvents:UIControlEventTouchDown];
+[self.muiltActions addSubview:self.buttonDelete];
+
+self.toolbarItems = @[
+                      [UITabBarItem ]
+                      
+                      
+                      
+                      
+                      ];
+
+#endif

@@ -22,8 +22,9 @@
 @property (nonatomic, strong) UITextView    *textView;
 @property (nonatomic, strong) PushButton    *buttonSearch;
 @property (nonatomic, strong) PushButton    *buttonGo;
-@property (nonatomic, strong) UILabel       *labelInfo;
-@property (nonatomic, strong) UITextView       *labelInfo1;
+//@property (nonatomic, strong) UILabel       *labelInfo;
+//@property (nonatomic, strong) UITextView       *labelInfo1;
+@property (nonatomic, strong) AlignTopLabel       *labelInfo;
 
 @property (nonatomic, strong) NSMutableArray *tidResult;
 
@@ -82,21 +83,34 @@
     [self.buttonGo setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
     
     
-    self.labelInfo = [[UILabel alloc] init];
-    self.labelInfo.text = @"搜索串号请以No.开头. 关键字搜索结果来自so.com";
-    self.labelInfo.backgroundColor = [UIColor whiteColor];
-    self.labelInfo.numberOfLines = 0;
-    self.labelInfo.font = [UIFont systemFontOfSize:[UIFont smallSystemFontSize]];
-//    [self.view addSubview:self.labelInfo];
+//    self.labelInfo = [[UILabel alloc] init];
+//    self.labelInfo.text = @"搜索串号请以No.开头. 关键字搜索结果来自so.com";
+//    self.labelInfo.backgroundColor = [UIColor whiteColor];
+//    self.labelInfo.numberOfLines = 0;
+//    self.labelInfo.font = [UIFont systemFontOfSize:[UIFont smallSystemFontSize]];
+////    [self.view addSubview:self.labelInfo];
+//    
+//    self.labelInfo1 = [[UITextView alloc] init];
+//    self.labelInfo1.text = @"搜索串号请以No.开头. 关键字搜索结果来自so.com";
+////    [self.view addSubview:self.labelInfo1];
+//    self.labelInfo1.editable = NO;
+//    self.labelInfo1.backgroundColor = [UIColor clearColor];
+//    self.labelInfo1.layer.borderWidth = 1;
+//    self.labelInfo1.layer.borderColor = [UIColor blueColor].CGColor;
+//    self.labelInfo1.layer.cornerRadius = 2.7;
     
-    self.labelInfo1 = [[UITextView alloc] init];
-    self.labelInfo1.text = @"搜索串号请以No.开头. 关键字搜索结果来自so.com";
-    [self.view addSubview:self.labelInfo1];
-    self.labelInfo1.editable = NO;
-    self.labelInfo1.backgroundColor = [UIColor clearColor];
-    self.labelInfo1.layer.borderWidth = 1;
-    self.labelInfo1.layer.borderColor = [UIColor blueColor].CGColor;
-    self.labelInfo1.layer.cornerRadius = 2.7;
+    
+    self.labelInfo = [[AlignTopLabel alloc] init];
+    self.labelInfo.text = @"搜索串号请以No.开头. 关键字搜索结果来自so.com";
+    [self.view addSubview:self.labelInfo];
+//    self.labelInfo0.editable = NO;
+    self.labelInfo.backgroundColor = [UIColor clearColor];
+    self.labelInfo.layer.borderWidth = 1;
+    self.labelInfo.layer.borderColor = [UIColor blueColor].CGColor;
+    self.labelInfo.layer.cornerRadius = 2.7;
+    self.labelInfo.font = [UIFont systemFontOfSize:[UIFont smallSystemFontSize]];
+    self.labelInfo.numberOfLines = 0;
+    
 }
 
 
@@ -122,7 +136,6 @@
     self.buttonSearch.frame     = [layout getCGRect:@"buttonSearch"];
     self.buttonGo.frame         = [layout getCGRect:@"buttonGo"];
     self.labelInfo.frame        = [layout getCGRect:@"labelInfo"];
-    self.labelInfo1.frame        = [layout getCGRect:@"labelInfo"];
     
     LOG_RECT(self.labelInfo.frame, @"labelInfo");
 }
@@ -137,7 +150,7 @@
 - (void)appendInfo:(NSString*)info
 {
     dispatch_async(dispatch_get_main_queue(), ^{
-        self.labelInfo1.text = [NSString stringWithFormat:@"%@%@", self.labelInfo1.text, info];
+        self.labelInfo.text = [NSString stringWithFormat:@"%@%@", self.labelInfo.text, info];
     });
 }
 
@@ -153,7 +166,7 @@
     }
     else {
         self.tidResult = [[NSMutableArray alloc] init];
-        self.labelInfo1.text = @"搜索串号请以No.开头. 关键字搜索结果来自so.com";
+        self.labelInfo.text = @"搜索串号请以No.开头. 关键字搜索结果来自so.com";
         [self.textView resignFirstResponder];
         
         dispatch_queue_t concurrentQueue = dispatch_queue_create("search.concurrent.queue", DISPATCH_QUEUE_CONCURRENT);
@@ -263,7 +276,7 @@
 - (void)enterSearchResult:(id)sender
 {
     NSLog(@"%@", self.tidResult);
-    
+
     TidResultViewController *vc = [[TidResultViewController alloc] init];
     NSArray<NSNumber*> *tidResult = self.tidResult;
     [vc assignTidResult:tidResult];
@@ -288,62 +301,3 @@
 
 @end
 
-
-
-//
-//  TidResultViewController.m
-//
-//
-//  Created by Ben on 16/5/17.
-//
-//
-
-#import "TidResultViewController.h"
-
-@interface TidResultViewController ()
-
-
-
-
-@property (nonatomic, strong) NSArray<NSNumber*> *tidResult;
-
-
-@end
-
-@implementation TidResultViewController
-
-- (instancetype)init {
-    
-    self = [super init];
-    if(self) {
-        self.textTopic = @"发帖";
-        
-        
-    }
-    
-    return self;
-}
-
-
-- (void)getLocaleRecords
-{
-    NSMutableArray *allTidM = [[NSMutableArray alloc] init];
-    
-    self.concreteDatas = [self.tidResult copy];
-    self.concreteDatasClass = [NSNumber class];
-    for(NSNumber *tidNumber in self.concreteDatas) {
-        [allTidM addObject:tidNumber];
-    }
-    
-    self.allTid = [NSArray arrayWithArray:allTidM];
-    self.postDatasAll = [[AppConfig sharedConfigDB] configDBRecordGets:self.allTid];
-}
-
-
-- (void)assignTidResult:(NSArray<NSNumber*> *)tidResult
-{
-    _tidResult = [tidResult copy];
-}
-
-
-@end

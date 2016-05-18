@@ -23,7 +23,7 @@
 #import "RTLabel.h"
 #import "PostImageView.h"
 #import "PostView.h"
-
+#import "AlignTopLabel.h"
 
 //viewcontroller
 #import "ThreadsViewController.h"

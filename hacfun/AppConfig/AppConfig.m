@@ -163,6 +163,8 @@
                                                                 @[@"SectionHeaderBackground",               @"#d0d0d0"],
                                                                 @[@"SectionHeaderButtonText",               @"#000000@80"],
                                                                 @[@"SectionHeaderButtonBackground",         @"clear"],
+                                                                @[@"GalleryImageViewBackground",            @"#000030@60"],
+                                                                @[@"UICustmizeTableViewBackground",         @"clear"],
                                                                 @[@"Reply",                                 @"orange"],
                                                                 @[@"orange",                                @"orange"]
                                            

@@ -17,6 +17,7 @@
 #import "AMSlideMenuMainViewController.h"
 #import "GalleryViewController.h"
 #import "TOWebViewController.h"
+#import "IntroductionViewController.h"
 #import "PostGroupView.h"
 #import "ModelAndViewInc.h"
 @interface LeftMenuTVC ()
@@ -136,10 +137,14 @@
 //    }
     
     if(indexPath.row == 0) {
-        Host *host = [[AppConfig sharedConfigDB] configDBHostsGetCurrent];
-        TOWebViewController *vc = [[TOWebViewController alloc] initWithURLString:host.urlString];
-        rootVC = vc;
+//        Host *host = [[AppConfig sharedConfigDB] configDBHostsGetCurrent];
+//        TOWebViewController *vc = [[TOWebViewController alloc] initWithURLString:host.urlString];
+//        rootVC = vc;
         //rootVC.view.backgroundColor = [UIColor blueColor];
+        
+        IntroductionViewController *vc = [[IntroductionViewController alloc] init];
+        rootVC = vc;
+
     }
     
     NSString *strItem = [self.tableData objectAtIndex:indexPath.row];
