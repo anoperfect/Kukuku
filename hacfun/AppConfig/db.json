@@ -185,7 +185,7 @@
                "preset":[],
                "comment":"字体"
                },
-    
+               
                {
                "tableName":"settingkv",
                "databaseNames":["kukuku","hacfun"],
@@ -202,7 +202,10 @@
                                     "COLUMNS":["key", "value"],
                                     "VALUES":[
                                               ["disableimageshow", "0"],
-                                              ["autosaveimagetoalbum", "0"]
+                                              ["autosaveimagetoalbum", "0"],
+                                              
+                                              
+                                              
                                     ]
                                 }
                          }

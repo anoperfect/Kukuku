@@ -41,7 +41,9 @@
 //    [self.view setBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:@"bg"]]];
     self.tableView.contentInset = UIEdgeInsetsMake(100,0,0,0);
     
-    self.tableView.backgroundView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"bgleft"]];
+//    self.tableView.backgroundView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"bgleft"]];
+    self.tableView.backgroundColor = [UIColor colorWithName:@"LeftMenuBackground"];
+    
 }
 
 

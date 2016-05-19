@@ -136,8 +136,8 @@
     
     CGRect framePostView = self.view.bounds;
     
-    NSLog(@"xyu : %@", [NSString stringFromCGRect:framePostView]);
-    
+    NSLog(@"mnb - %@", [NSString stringFromCGRect:self.view.frame]);
+    NSLog(@"mnb - %@", [NSString stringFromCGRect:self.view.bounds]);
     
     if(FRAMELAYOUT_IS_EQUAL(framePostView, self.postView.frame)) {
         NSLog(@"postView frame not changed.");

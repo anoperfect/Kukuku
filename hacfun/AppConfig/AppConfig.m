@@ -123,10 +123,30 @@
     NSDictionary *infoInsertColors = @{
                                        DBDATA_STRING_COLUMNS:@[@"keyword", @"colorstring"],
                                        DBDATA_STRING_VALUES :@[
+                                                                @[@"NavigationBarBackground",               @"#e1eaeb"],
+                                                                @[@"ContentBackground",                     @"#e1eaeb"],
+                                                                @[@"ToolBarBackground",                     @"#e1eaeb"],
+                                                                @[@"LeftMenuBackground",                    @"#e1eaeb"],
+                                                                @[@"RightMenuBackground",                   @"#e1eaeb"],
+                                                                @[@"PupopContainerBackground",              @"#e1eaeb"],
+                                                                
+                                                                @[@"SearchInputViewBackground",             @"clear"],
+                                                                @[@"SearchInputViewBorder",                 @"#000090"],
+                                                                @[@"SearchInputViewText",                   @"#000090"],
+                                                                @[@"SearchSearchButtonBackground",          @"clear"],
+                                                                @[@"SearchSearchButtonBorder",              @"#000090"],
+                                                                @[@"SearchSearchButtonText",                @"#000090"],
+                                                                @[@"SearchGoButtonBackground",              @"clear"],
+                                                                @[@"SearchGoButtonBorder",                  @"#000090"],
+                                                                @[@"SearchGoButtonText",                    @"#000090"],
+                                                                @[@"SearchInfoLabelBackground",             @"clear"],
+                                                                @[@"SearchInfoLabelBorder",                 @"#000090"],
+                                                                @[@"SearchInfoLabelText",                   @"#000090"],
+                                                                
                                                                 @[@"PostViewCellBackground",                @"#d0d0d0"],
                                                                 @[@"PostViewBackground",                    @"#d0d0d0"],
                                                                 @[@"ThreadsViewControllerBackground",       @"purple"],
-                                                                @[@"ViewControllerBackground",              @"#808080@60"],
+                                                                @[@"ViewControllerBackground",              @"#e1eeee"],
                                                                 @[@"BannerViewBackground",                  @"#a0a0a0@00"],
                                                                 @[@"PostViewPopupBackground",               @"white"],
                                                                 @[@"PostTableViewBackground",               @"#ffffff@60"],
@@ -198,6 +218,12 @@
     if(retInsert != DB_EXECUTE_OK) {
         NSLog(@"#error - insert %@ values FAILED.", TABLENAME_FONT);
     }
+    
+    //
+    
+    
+    
+    
     
     //读取一些配置. 之后read的时候不用操作数据库.
     [self configDBInitReadConfig];

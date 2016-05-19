@@ -25,7 +25,12 @@
     self.tableView.dataSource = self;
     [self.view addSubview:self.tableView];
     
-    
+    BackgoundImageItem *backgroundImageNavigationBar = [[BackgoundImageItem alloc] init];
+    backgroundImageNavigationBar.name = @"backgroundImageNavigationBar";
+    backgroundImageNavigationBar.enabled = NO;
+    backgroundImageNavigationBar.title = @"导航栏";
+    backgroundImageNavigationBar.imageName = @"backgroundImageNavigationBar";
+        
     self.cellTitle = @[
                        @{@"背景图":@[
                                     @[@"导航栏", @"EnableBackgroundImageNavigationBar"],

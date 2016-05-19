@@ -52,35 +52,34 @@
     
     self.textView = [[UITextView alloc] init];
     [self.view addSubview:self.textView];
-    self.textView.text = @"测试";
-    self.textView.backgroundColor = [UIColor clearColor];
+    self.textView.text = @"No.";
+    self.textView.backgroundColor = [UIColor colorWithName:@"SearchInputViewBackground"];
     self.textView.layer.borderWidth = 1;
-    self.textView.layer.borderColor = [UIColor blueColor].CGColor;
+    self.textView.layer.borderColor = [UIColor colorWithName:@"SearchInputViewBorder"].CGColor;
     self.textView.layer.cornerRadius = 2.7;
     self.textView.font = [UIFont systemFontOfSize:[UIFont systemFontSize]];
+    self.textView.textColor = [UIColor colorWithName:@"SearchInputViewText"];
     
     self.buttonSearch = [[PushButton alloc] init];
     [self.view addSubview:self.buttonSearch];
-    self.buttonSearch.backgroundColor = [UIColor purpleColor];
     [self.buttonSearch setTitle:@"搜索" forState:UIControlStateNormal];
     [self.buttonSearch addTarget:self action:@selector(search:) forControlEvents:UIControlEventTouchDown];
-    self.buttonSearch.backgroundColor = [UIColor clearColor];
+    self.buttonSearch.backgroundColor = [UIColor colorWithName:@"SearchSearchButtonBackground"];
     self.buttonSearch.layer.borderWidth = 1;
-    self.buttonSearch.layer.borderColor = [UIColor blueColor].CGColor;
+    self.buttonSearch.layer.borderColor = [UIColor colorWithName:@"SearchSearchButtonBorder"].CGColor;
     self.buttonSearch.layer.cornerRadius = 2.7;
-    [self.buttonSearch setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
+    [self.buttonSearch setTitleColor:[UIColor colorWithName:@"SearchSearchButtonText"] forState:UIControlStateNormal];
     
     
     self.buttonGo = [[PushButton alloc] init];
     [self.view addSubview:self.buttonGo];
-    self.buttonGo.backgroundColor = [UIColor purpleColor];
     [self.buttonGo setTitle:@"前往搜索结果" forState:UIControlStateNormal];
     [self.buttonGo addTarget:self action:@selector(enterSearchResult:) forControlEvents:UIControlEventTouchDown];
-    self.buttonGo.backgroundColor = [UIColor clearColor];
+    self.buttonGo.backgroundColor = [UIColor colorWithName:@"SearchGoButtonBackground"];
     self.buttonGo.layer.borderWidth = 1;
-    self.buttonGo.layer.borderColor = [UIColor blueColor].CGColor;
+    self.buttonGo.layer.borderColor = [UIColor colorWithName:@"SearchGoButtonBorder"].CGColor;
     self.buttonGo.layer.cornerRadius = 2.7;
-    [self.buttonGo setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
+    [self.buttonGo setTitleColor:[UIColor colorWithName:@"SearchGoButtonText"] forState:UIControlStateNormal];
     
     
 //    self.labelInfo = [[UILabel alloc] init];
@@ -104,12 +103,13 @@
     self.labelInfo.text = @"搜索串号请以No.开头. 关键字搜索结果来自so.com";
     [self.view addSubview:self.labelInfo];
 //    self.labelInfo0.editable = NO;
-    self.labelInfo.backgroundColor = [UIColor clearColor];
+    self.labelInfo.backgroundColor = [UIColor colorWithName:@"SearchInfoLabelBackground"];
     self.labelInfo.layer.borderWidth = 1;
-    self.labelInfo.layer.borderColor = [UIColor blueColor].CGColor;
+    self.labelInfo.layer.borderColor = [UIColor colorWithName:@"SearchInfoLabelBorder"].CGColor;
     self.labelInfo.layer.cornerRadius = 2.7;
     self.labelInfo.font = [UIFont systemFontOfSize:[UIFont smallSystemFontSize]];
     self.labelInfo.numberOfLines = 0;
+    self.labelInfo.textColor = [UIColor colorWithName:@"SearchInfoLabelText"];
     
 }
 

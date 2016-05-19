@@ -22,7 +22,9 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
     
-    self.tableView.backgroundView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"bgleft"]];
+//    self.tableView.backgroundView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"bgleft"]];
+    self.tableView.backgroundColor =  [UIColor colorWithName:@"RightMenuBackground"];
+    
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateCategories) name:@"UpdateCategories" object:nil];
     
     [self updateCategories];

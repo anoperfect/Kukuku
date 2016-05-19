@@ -223,7 +223,7 @@
         [cell addSubview:view];
         
         UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapHandler:)];
-        tapGestureRecognizer.numberOfTapsRequired = 3;
+        tapGestureRecognizer.numberOfTapsRequired = 10;
         [cell addGestureRecognizer:tapGestureRecognizer];
         [self.cellDict setObject:cell forKey:[NSNumber numberWithInteger:(NSInteger)tapGestureRecognizer]];
         

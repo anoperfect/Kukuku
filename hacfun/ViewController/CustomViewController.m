@@ -75,8 +75,8 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
     self.messageIndication.textAlignment = NSTextAlignmentCenter;
     [self.view addSubview:self.messageIndication];
     
-    self.view.backgroundColor = [UIColor colorWithName:@"ViewControllerBackground"];
-    self.view.backgroundColor = [UIColor colorWithPatternImage:[UIImage imageNamed:@"bg"]];
+    self.view.backgroundColor = [UIColor colorWithName:@"ContentBackground"];
+//    self.view.backgroundColor = [UIColor colorWithPatternImage:[UIImage imageNamed:@"bg"]];
 }
 
 
@@ -93,6 +93,9 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
     self.messageIndication.frame = CGRectMake(0, -heightViewIndication, self.view.frame.size.width, heightViewIndication);
      
     [self layoutBannerView];
+    
+    NSLog(@"mnb - %@", [NSString stringFromCGRect:self.view.frame]);
+    NSLog(@"mnb - %@", [NSString stringFromCGRect:self.view.bounds]);
 }
 
 
@@ -105,10 +108,12 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
     NSLog(@"/vc\\ %s", __FUNCTION__);
     [super viewWillAppear:animated];
     
-    [self.navigationItem setHidesBackButton:YES];
-    [self.navigationController.navigationBar setBackgroundImage:[UIImage imageNamed:@"bg"] forBarMetrics:UIBarMetricsDefault];
+    [self.navigationController setNavigationBarHidden:NO animated:YES];
     
-//    [self.navigationController.navigationBar setBackgroundColor:[UIColor colorFromString:@"#e1eeee@11"]];
+    
+//    [self.navigationController.navigationBar setBackgroundImage:[UIImage imageNamed:@"bg"] forBarMetrics:UIBarMetricsDefault];
+    
+
     
     [self.bannerView removeFromSuperview];
     self.bannerView = nil;
@@ -127,6 +132,15 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
     [self layoutRightActions];
     
     self.navigationController.toolbarHidden = YES;
+    
+
+    self.navigationController.navigationBar.barTintColor = [UIColor colorWithName:@"NavigationBarBackground"];
+    self.navigationController.navigationBar.translucent = NO;
+
+    self.navigationController.toolbar.backgroundColor = [UIColor colorWithName:@"ToolBarBackground"];
+    
+    
+    [self.navigationItem setHidesBackButton:YES];
     
     return ;
 }
@@ -262,7 +276,7 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
 - (void)showPopupView:(UIView*)view
 {
     UIView *containerView = [[UIView alloc] initWithFrame:self.view.bounds];
-    containerView.backgroundColor = [UIColor grayColor];
+    containerView.backgroundColor = [UIColor colorWithName:@"PupopContainerBackground"];
     containerView.alpha = 0.9;
     containerView.tag = TAG_popupView_container;
     [self.view addSubview:containerView];
@@ -272,6 +286,21 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
     [containerView addGestureRecognizer:tapGestureRecognizer];
     
     [containerView addSubview:view];
+    
+    
+//    CustomViewController *pvc = [[CustomViewController alloc] init];
+//    [pvc.view addSubview:view];
+//    pvc.view.backgroundColor = [UIColor colorWithName:@"PupopContainerBackground"];
+//    UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:pvc action:@selector(dismissPopupView)];
+//    tapGestureRecognizer.numberOfTapsRequired = 1;
+//    [pvc.view addGestureRecognizer:tapGestureRecognizer];
+//    
+//    [self presentViewController:pvc animated:NO completion:^{
+//        [pvc.navigationController setNavigationBarHidden:YES];
+//    }];
+////    [self.navigationController pushViewController:pvc animated:NO];
+    
+    
 }
 
 
