@@ -10,23 +10,29 @@
 
 @interface ColorItem : NSObject
 @property (nonatomic, strong) NSString *name;
+@property (nonatomic, strong) NSString *title;
+@property (nonatomic, assign) BOOL      enableCustmize;
 @property (nonatomic, strong) NSString *colorstring;
 @property (nonatomic, strong) UIColor  *color;
 @end
 
+
 @interface FontItem : NSObject
 @property (nonatomic, strong) NSString *name;
+@property (nonatomic, strong) NSString *title;
+@property (nonatomic, assign) BOOL      enableCustmize;
 @property (nonatomic, strong) NSString *fontstring;
 @property (nonatomic, strong) UIFont   *font;
 @end
 
 
-@interface BackgoundImageItem : NSObject
+@interface BackgroundViewItem : NSObject
 @property (nonatomic, strong) NSString *name;
-@property (nonatomic, assign) BOOL  enabled;
 @property (nonatomic, strong) NSString *title;
+@property (nonatomic, assign) BOOL      enableCustmize;
+@property (nonatomic, assign) BOOL      onUse;
 @property (nonatomic, strong) NSString *imageName;
-
+@property (nonatomic, strong) NSData   *imageData;
 @end
 
 
@@ -54,7 +60,17 @@
 
 + (UIpConfig*)sharedUIpConfig;
 - (NSMutableArray*)getUIpConfigColors;
+- (BOOL)updateUIpConfigColor:(ColorItem*)color;
+
+
+
 - (NSMutableArray*)getUIpConfigFonts;
+- (BOOL)updateUIpConfigFont:(FontItem*)font;
+
+
+
+- (NSMutableArray*)getUIpConfigBackgroundViews;
+- (BOOL)updateUIpConfigBackgroundView:(BackgroundViewItem *)backgroundview;
 
 
 @end

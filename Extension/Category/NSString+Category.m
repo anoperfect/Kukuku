@@ -145,7 +145,12 @@
             [str appendString:intetval?intetval:@""];
         }
         
-        [str appendFormat:@"%@", array[index]];
+        if([array[index] isKindOfClass:[NSData class]]) {
+            [str appendFormat:@"NSData-%zd", ((NSData*)(array[index])).length];
+        }
+        else {
+            [str appendFormat:@"%@", array[index]];
+        }
     }
     
     [str appendString:suffix?suffix:@""];

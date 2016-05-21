@@ -65,12 +65,12 @@ static NSInteger kcountObjBannerView = 0;
     [self.buttonTopic setFrame:CGRectMake(0, yBorder, width, height)];
     
     UIImageView *imageBack = (UIImageView*)[self viewWithTag:TAG_IMAGEBACK];
-    [imageBack setFrame:CGRectMake(0, 0, 10, 0)];
+    [imageBack setFrame:CGRectMake(2, 0, 10, 0)];
     #define Y_CENTER(v, my) { CGRect frameOriginal = v.frame; CGFloat height = v.superview.frame.size.height - 2.0 * my ; height = height > 0 ? height : 0; [v setFrame: CGRectMake(frameOriginal.origin.x, my, frameOriginal.size.width, height)]; }
     Y_CENTER(imageBack, 6);
     
     UIImageView *image =(UIImageView*)[self viewWithTag:TAG_IMAGEICON];
-    [image setFrame:CGRectMake(imageBack.frame.origin.x+imageBack.frame.size.width, 0, height, height)];
+    [image setFrame:CGRectMake(imageBack.frame.origin.x+imageBack.frame.size.width + 2, 0, height, height)];
     [self.buttonTopic setTitleEdgeInsets:UIEdgeInsetsMake(0, image.frame.origin.x + image.frame.size.width + 2, 0, 0)];
     [self.buttonTopic setContentHorizontalAlignment:UIControlContentHorizontalAlignmentLeft];
     
@@ -95,7 +95,9 @@ static NSInteger kcountObjBannerView = 0;
     [imageBack setTag:TAG_IMAGEBACK];
     
     UIImageView *image = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"AppIconBanner"]];
+    image.layer.cornerRadius = 6;
     [self.buttonTopic addSubview:image];
+    
     [image setTag:TAG_IMAGEICON];
     [self.buttonTopic setTitleEdgeInsets:UIEdgeInsetsMake(0, image.frame.origin.x + image.frame.size.width + 2, 0, 0)];
     [self.buttonTopic setContentHorizontalAlignment:UIControlContentHorizontalAlignmentLeft];

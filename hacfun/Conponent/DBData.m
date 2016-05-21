@@ -111,16 +111,22 @@
         //测试阶段一直删除重建数据库.
         BOOL rebuildDB = NO;
         if(rebuildDB) {
-            NSString *documentPath =[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
-            NSString *folder = [NSString stringWithFormat:@"%@/%@", documentPath, @"sqlite"];
-            NSLog(@"#error - delete database folder.");
-            [[NSFileManager defaultManager] removeItemAtPath:folder error:nil];
+            [self removeAll];
         }
         DISPATCH_ONCE_FINISH
     }
     return self;
 }
 
+
+//清除数据库. 需仅适用于开发者环境.
+- (void)removeAll
+{
+    NSString *documentPath =[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
+    NSString *folder = [NSString stringWithFormat:@"%@/%@", documentPath, @"sqlite"];
+    NSLog(@"#error - delete database folder.");
+    [[NSFileManager defaultManager] removeItemAtPath:folder error:nil];
+}
 
 
 
@@ -253,6 +259,7 @@
     }
     
     BOOL executeResult = [db executeUpdate:insert withArgumentsInArray:infoInsertValuesM];
+    NSLog(@"INSERT executeUpdate [%@] with arguments [%@].", insert, [NSString combineArray:infoInsertValuesM withInterval:@"," andPrefix:@"" andSuffix:@""]);
     if(executeResult) {
         NSLog(@"insert table %@ [%zd] OK.", tableAttribute.tableName, countOfValues);
     }
@@ -412,6 +419,13 @@
               withQuery:(NSDictionary*)infoQuery1
               withLimit:(NSDictionary*)infoLimit1
 {
+    NSLog(@"DBDataQuery : table:%@, columnNames:%@, infoQuery:%@, infoLimit:%@",
+          tableAttribute.tableName,
+          [NSString combineArray:columnNames withInterval:@"," andPrefix:@"[" andSuffix:@"]"],
+          [NSString stringFromNSDictionary:infoQuery1],
+          [NSString stringFromNSDictionary:infoLimit1]
+          );
+    
     if(![NSThread isMainThread]) {NSLog(@"#error - should excute db in MainThread.");}
     //获取表信息.
     NSLog(@"table :%@ , name:%@, %zd.", tableAttribute, tableAttribute.tableName, tableAttribute.primaryKeys.count);
@@ -453,12 +467,11 @@
     for(NSString *columnName in queryColumnsNamesM) {
         [queryResultm setObject:[[NSMutableArray alloc] init] forKey:columnName];
     }
-    
+
     NSInteger rsRows = 0;
     BOOL parseOK = YES;
     while ([rs next]) {
         BOOL parseOK = YES;
-        
         for(NSString *columnName in queryColumnsNamesM) {
             if(!parseOK) {
                 break;
@@ -475,26 +488,54 @@
                     return nil;
                 }
                 
+                NSNumber *objNumber = nil;
+                NSString *objString = nil;
+                NSData *objData = nil;
+                
                 switch (columnAttribute.dataType) {
                     case DBDataColumnTypeNumberInteger:
-                        [columnValues addObject:[NSNumber numberWithInteger:[rs intForColumn:columnAttribute.columnName]]];
-                        break;
-                        
                     case DBDataColumnTypeNumberLongLong:
-                        [columnValues addObject:[NSNumber numberWithLongLong:[rs longLongIntForColumn:columnAttribute.columnName]]];
+                        objNumber = [rs objectForColumnName:columnAttribute.columnName];
+                        if([objNumber isKindOfClass:[NSNumber class]]) {
+                            [columnValues addObject:objNumber];
+                        }
+                        else {
+                            NSLog(@"#error - rs column %@ parse error.", columnAttribute.columnName);
+                            [columnValues addObject:@0];
+                        }
                         break;
-                        
+   
                     case DBDataColumnTypeString:
-                        [columnValues addObject:[rs stringForColumn:columnAttribute.columnName]];
+                        objString = [rs objectForColumnName:columnAttribute.columnName];
+                        if([objString isKindOfClass:[NSString class]]) {
+                            [columnValues addObject:objString];
+                        }
+                        else {
+                            NSLog(@"#error - rs column %@ parse error.", columnAttribute.columnName);
+                            [columnValues addObject:@"NAN-parseerror"];
+                        }
                         break;
-                        
+                    
+                    case DBDataColumnTypeBlob:
+                        objData = [rs objectForColumnName:columnAttribute.columnName];
+                        if([objData isKindOfClass:[NSData class]]) {
+                            [columnValues addObject:objData];
+                        }
+                        else if([objData isKindOfClass:[NSNull class]]){
+                            [columnValues addObject:objData];
+                        }
+                        else {
+                            NSLog(@"#error - rs column %@ parse error.", columnAttribute.columnName);
+                            [columnValues addObject:[NSNull null]];
+                        }
+                        break;
+                    
                     default:
                         NSLog(@"#error - not expected default value(%zd)", columnAttribute.dataType);
                         parseOK = NO;
                         break;
                 }
             }
-            
         }
         
         if(!parseOK) {
@@ -503,7 +544,7 @@
         
         rsRows ++;
     }
-    
+
     [rs close];
     
     if(!parseOK) {
@@ -516,7 +557,7 @@
     }
     
     NSInteger countValues = 0;
-    
+
     for(NSString *columnName in queryColumnsNamesM) {
         NSMutableArray *columnValues = [queryResultm objectForKey:columnName];
         [queryResultm setObject:[NSArray arrayWithArray:columnValues] forKey:columnName];
@@ -531,14 +572,14 @@
             }
         }
     }
-    
+
     //查询结果为0时, 返回nil.
     NSLog(@"query result count : %zd", countValues);
     if(countValues == 0) {
         NSLog(@"query result count 0, return nil");
         return nil;
     }
-    
+
     return [NSDictionary dictionaryWithDictionary:queryResultm];
 }
 
@@ -591,9 +632,7 @@
     NSString *queryString = [self DBDataGenerateQueryString:infoQuery andArgumentsInArray:arguments];
     [updatem appendString:queryString];
     
-    NSLog(@"query string : [%@]", updatem);
-    NSLog(@"query parameterm : [%@]", arguments);
-    
+    NSLog(@"UPDATE executeUpdate [%@] with arguments [%@].", updatem, [NSString combineArray:arguments withInterval:@"," andPrefix:@"" andSuffix:@""]);
     retFMDB = [db executeUpdate:updatem withArgumentsInArray:arguments];
     if(retFMDB) {
         
@@ -697,6 +736,10 @@
         case DBDataColumnTypeString:
             return @"var";
             break;
+          
+        case DBDataColumnTypeBlob:
+            return @"blob";
+            break;
             
         default:
             return @"var";
@@ -720,11 +763,12 @@
     else if([typeString isEqualToString:@"var"]) {
         type = DBDataColumnTypeString;
     }
+    else {
+        type = DBDataColumnTypeBlob;
+    }
     
     return type;
 }
-
-
 
 
 

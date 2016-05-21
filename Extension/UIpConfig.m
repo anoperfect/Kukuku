@@ -21,7 +21,19 @@
 @end
 
 
-@implementation BackgoundImageItem
+@implementation BackgroundViewItem
+
+- (NSString*)description
+{
+    NSString *descriptionString = nil;
+    
+    UIImage *image = self.imageData?[UIImage imageWithData:self.imageData]:nil;
+    
+    descriptionString = [NSString stringWithFormat:@"%@ : %@ enableCustmize-%zd   onUse-%d  imageName-%@  imageData-%@", self.name, self.title, self.enableCustmize, self.onUse, self.imageName, image];
+    
+    return descriptionString;
+}
+
 @end
 
 
@@ -29,7 +41,7 @@
 
 @property (nonatomic, strong) NSMutableArray *colorItems;
 @property (nonatomic, strong) NSMutableArray *fontItems;
-
+@property (nonatomic, strong) NSMutableArray *backgroundviewItems;
 
 
 @end
@@ -81,6 +93,11 @@
     }
     
     self.fontItems = [NSMutableArray arrayWithArray:fonts];
+    
+    self.colorItems = [NSMutableArray arrayWithArray:colors];
+    
+    NSArray *backgroundviews = [[AppConfig sharedConfigDB] configDBBackgroundViewGet];
+    self.backgroundviewItems = [NSMutableArray arrayWithArray:backgroundviews];
 }
 
 
@@ -101,10 +118,96 @@
 }
 
 
+- (BOOL)updateUIpConfigColor:(ColorItem*)color
+{
+    //根据colorstring更新color.
+    color.color = [UIColor colorFromString:color.colorstring];
+    if(!color.color) {
+        NSLog(@"#error - color null from [%@]", color.colorstring);
+        color.color = [UIColor orangeColor];
+    }
+    
+    BOOL result = [[AppConfig sharedConfigDB] configDBColorUpdate:color];
+    if(result) {
+        for(NSInteger index = 0; index < self.colorItems.count; index ++) {
+            ColorItem* colorUpdate = self.colorItems[index];
+            if([color.name isEqualToString:colorUpdate.name]) {
+                [self.colorItems replaceObjectAtIndex:index withObject:color];
+            }
+        }
+    }
+    else {
+        NSLog(@"#error - ");
+    }
+    
+    return result;
+}
+
+
+
+
+
 - (NSMutableArray*)getUIpConfigFonts
 {
     return self.fontItems;
 }
+
+
+- (BOOL)updateUIpConfigFont:(FontItem*)font
+{
+    //根据fontstring更新font.
+    font.font = [UIFont fontFromString:font.fontstring];
+    if(!font.font) {
+        NSLog(@"#error - font null from [%@]", font.fontstring);
+        font.font = [UIFont systemFontOfSize:[UIFont smallSystemFontSize]];
+    }
+    
+    BOOL result = [[AppConfig sharedConfigDB] configDBFontUpdate:font];
+    if(result) {
+        for(NSInteger index = 0; index < self.fontItems.count; index ++) {
+            FontItem* fontUpdate = self.fontItems[index];
+            if([font.name isEqualToString:fontUpdate.name]) {
+                [self.fontItems replaceObjectAtIndex:index withObject:font];
+            }
+        }
+    }
+    else {
+        NSLog(@"#error - ");
+    }
+    
+    return result;
+}
+
+
+
+- (NSMutableArray*)getUIpConfigBackgroundViews
+{
+    return self.backgroundviewItems;
+}
+
+
+- (BOOL)updateUIpConfigBackgroundView:(BackgroundViewItem *)backgroundview
+{
+    //根据标记值更新imageData.
+    //imageData直接存数据库. 不用更新.
+    
+    BOOL result = [[AppConfig sharedConfigDB] configDBBackgroundViewUpdate:backgroundview];
+    if(result) {
+        for(NSInteger index = 0; index < self.backgroundviewItems.count; index ++) {
+            BackgroundViewItem* backgroundviewUpdate = self.backgroundviewItems[index];
+            if([backgroundview.name isEqualToString:backgroundviewUpdate.name]) {
+                [self.backgroundviewItems replaceObjectAtIndex:index withObject:backgroundview];
+            }
+        }
+    }
+    else {
+        NSLog(@"#error - ");
+    }
+    
+    return result;
+}
+
+
 
 
 

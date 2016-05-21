@@ -7,13 +7,43 @@
 //
 
 #import "UICustmizeViewController.h"
-
-@interface UICustmizeViewController () <UITableViewDelegate, UITableViewDataSource>
+#import "ModelAndViewInc.h"
+@interface UICustmizeViewController () <UITableViewDelegate, UITableViewDataSource, UIImagePickerControllerDelegate, UINavigationControllerDelegate>
 @property (nonatomic, strong) UITableView *tableView;
+@property (nonatomic, strong) NSMutableArray<UISwitch*> *backgroundviewSwitchViews;
+
+
 @property (nonatomic, strong) NSArray *cellTitle;
+@property (nonatomic, strong) NSMutableArray *colorItems;
+@property (nonatomic, strong) NSMutableArray *fontItems;
+
+
+
+@property (nonatomic, strong) NSMutableArray *backgroundviews;
+@property (nonatomic, assign) NSInteger backgroundviewRowOnSelected;
+
+
 @end
 
 @implementation UICustmizeViewController
+
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        if(!self.textTopic) {
+            self.textTopic = @"界面设置";
+        }
+        
+//        ButtonData *actionData = nil;
+//        
+//        actionData = [[ButtonData alloc] init];
+//        actionData.keyword  = @"";
+//        [self actionAddData:actionData];
+    }
+    return self;
+}
+
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -25,55 +55,44 @@
     self.tableView.dataSource = self;
     [self.view addSubview:self.tableView];
     
-    BackgoundImageItem *backgroundImageNavigationBar = [[BackgoundImageItem alloc] init];
-    backgroundImageNavigationBar.name = @"backgroundImageNavigationBar";
-    backgroundImageNavigationBar.enabled = NO;
-    backgroundImageNavigationBar.title = @"导航栏";
-    backgroundImageNavigationBar.imageName = @"backgroundImageNavigationBar";
-        
-    self.cellTitle = @[
-                       @{@"背景图":@[
-                                    @[@"导航栏", @"EnableBackgroundImageNavigationBar"],
-                                    @[@"内容区", @"EnableBackgroundImageContent"],
-                                    @[@"工具栏", @"EnableBackgroundImageToolBar"],
-                                    @[@"左设置", @"EnableBackgroundImageLeftMenu"],
-                                    @[@"右栏目", @"EnableBackgroundImageRightMenu"],
-                                    @[@"弹出区", @"EnableBackgroundImagePupop"]
-                                 ]
-                         
-                         }
-                       
-                       
-
-                       ];
+    self.cellTitle = @[@"背景图"];
+//    self.cellTitle = @[@"背景图", @"颜色", @"字体"];
     
+    self.backgroundviews = [[UIpConfig sharedUIpConfig] getUIpConfigBackgroundViews];
+
+    NSInteger count = self.backgroundviews.count;
+    self.backgroundviewSwitchViews = [NSMutableArray arrayWithCapacity:count];
+    for(NSInteger index = 0; index < count; index ++) {
+        [self.backgroundviewSwitchViews addObject:[[UISwitch alloc] init]];
+    }
 }
 
 
 - (void)viewWillLayoutSubviews
 {
+    [super viewWillLayoutSubviews];
+    
     CGRect frameAll = self.view.bounds;
-    CGRect frameTableView = UIEdgeInsetsInsetRect(frameAll, UIEdgeInsetsMake(0, 2, 0, 2));
+    CGRect frameTableView = UIEdgeInsetsInsetRect(frameAll, UIEdgeInsetsMake(0, 16, 0, 16));
     self.tableView.frame = frameTableView;
 }
 
 
-
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    NSDictionary *sectionDict = self.cellTitle[section];
-    NSString *sectionString = sectionDict.allKeys[0];
-    NSArray *rowStrings = [sectionDict objectForKey:sectionString];
-    NSInteger rows = rowStrings.count;
+    NSInteger rows = 0;
+    
+    NSString *sectionString = self.cellTitle[section];
+    if([sectionString isEqualToString:@"背景图"]) {
+        rows = self.backgroundviews.count;
+    }
+    
     return rows;
 }
 
-
 - (NSString*)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
 {
-    NSDictionary *sectionDict = self.cellTitle[section];
-    NSString *sectionString = sectionDict.allKeys[0];
-    
+    NSString *sectionString = self.cellTitle[section];
     return sectionString;
 }
 
@@ -94,42 +113,119 @@
 -(UITableViewCell*)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     UITableViewCell *cell = nil;
+    cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
+    cell.textLabel.text = @"NAN";
+    cell.backgroundColor = [UIColor clearColor];
     
     NSInteger section = indexPath.section;
     NSInteger row = indexPath.row;
     
-    NSDictionary *sectionDict   = self.cellTitle[section];
-    NSString *sectionString     = sectionDict.allKeys[0];
-    NSArray *rowAttributes      = [sectionDict objectForKey:sectionString];
-    NSArray *rowAttribute       = rowAttributes[row];
-    NSString *title             = rowAttribute[0];
-    NSString *settingItem       = rowAttribute[1];
-    
-    cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
-    cell.textLabel.text = title;
-    
-    UISwitch *sw = [[UISwitch alloc] init];
-    NSString *value = [[AppConfig sharedConfigDB] configDBSettingKVGet:settingItem] ;
-    NSLog(@"kv %@: %@", settingItem, value);
-    BOOL b = [value boolValue];
-    NSLog(@"BOOL : %d", b);
-    [sw setOn:[value boolValue]];
-    
-    [sw addTarget:self action:@selector(switchValueChange:) forControlEvents:UIControlEventValueChanged];
-    cell.accessoryView = sw;
+    NSString *sectionString = self.cellTitle[section];
+    if([sectionString isEqualToString:@"背景图"]) {
+        
+        BackgroundViewItem* item = self.backgroundviews[row];
+        
+        cell.textLabel.text = item.title;
+        
+        UISwitch *switchView = self.backgroundviewSwitchViews[row];
+        switchView.tag = row;
+        [switchView setOn:item.onUse];
+        [switchView addTarget:self action:@selector(backgroundviewsValueChange:) forControlEvents:UIControlEventValueChanged];
+        cell.accessoryView = switchView;
+        
+        cell.imageView.image = [UIImage imageWithData:item.imageData];
+    }
 
     return cell;
 }
 
 
-- (void)switchValueChange:(id)sender
+- (void)backgroundviewsValueChange:(UISwitch *)switchView
 {
+    NSInteger row = switchView.tag;
+    BackgroundViewItem* item = self.backgroundviews[row];
     
+    if(switchView.on) {
+        NSLog(@"backgroundviewsValueChange : %@ on", item.name);
+        
+        if(!item.imageData) {
+            switchView.on = NO;
+            [self showIndicationText:@"请先点击设置图片"];
+        }
+        else {
+            item.onUse = YES;
+            BOOL updateResult = [[UIpConfig sharedUIpConfig] updateUIpConfigBackgroundView:item];
+            if(updateResult) {
+                
+            }
+            else {
+                switchView.on = NO;
+                [self showIndicationText:@"启动背景图片出错"];
+                NSLog(@"#error - ");
+            }
+        }
+    }
+    else {
+        item.onUse = NO;
+        BOOL updateResult = [[UIpConfig sharedUIpConfig] updateUIpConfigBackgroundView:item];
+        if(updateResult) {
+            self.backgroundviewSwitchViews[row].on = NO;
+        }
+        else {
+            NSLog(@"#error - ");
+        }
+    }
+}
+
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    NSInteger section = indexPath.section;
+    NSInteger row = indexPath.row;
     
+    if(0 == section) {
+        self.backgroundviewRowOnSelected = row;
+        UIImagePickerController *picker = [[UIImagePickerController alloc] init];
+        picker.delegate = self;
+        picker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+        //    picker.sourceType = UIImagePickerControllerSourceTypeSavedPhotosAlbum;
+        [self presentViewController:picker animated:YES completion:^{}];
+    }
 }
 
 
 
+
+
+- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
+    
+    [picker dismissViewControllerAnimated:YES completion:^{}];
+    
+#if 1
+    UIImage *image = [info objectForKey:UIImagePickerControllerOriginalImage];
+    
+    NSInteger row = self.backgroundviewRowOnSelected;
+    
+    //设置指定BackgroundView为on.
+    BackgroundViewItem* item = self.backgroundviews[row];
+    NSLog(@"before update : %@", item);
+    item.imageData = UIImagePNGRepresentation(image);
+    
+    NSLog(@"would  update : %@", item);
+    
+    BOOL updateResult = [[UIpConfig sharedUIpConfig] updateUIpConfigBackgroundView:item];
+    if(updateResult) {
+        BackgroundViewItem *itemNew = [[AppConfig sharedConfigDB] configDBBackgroundViewGetByName:item.name];
+        NSLog(@"after update : %@", itemNew);
+        
+        [self.backgroundviews replaceObjectAtIndex:row withObject:itemNew];
+        [self.tableView reloadData];
+    }
+    else {
+        NSLog(@"#error - ");
+    }
+#endif
+}
 
 
 

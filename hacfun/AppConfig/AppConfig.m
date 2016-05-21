@@ -18,23 +18,24 @@
 
 
 
-#define TABLENAME_HOSTS         @"hosts"
-#define TABLENAME_HOSTINDEX     @"hostindex"
-#define TABLENAME_EMOTICON      @"emoticon"
-#define TABLENAME_DRAFT         @"draft"
-#define TABLENAME_COLOR         @"color"
-#define TABLENAME_FONT          @"font"
+#define TABLENAME_HOSTS                     @"hosts"
+#define TABLENAME_HOSTINDEX                 @"hostindex"
+#define TABLENAME_EMOTICON                  @"emoticon"
+#define TABLENAME_DRAFT                     @"draft"
+#define TABLENAME_COLOR                     @"color"
+#define TABLENAME_FONT                      @"font"
+#define TABLENAME_BACKGROUNDVIEW            @"backgroundview"
 
-#define TABLENAME_SETTINGKV     @"settingkv"
-#define TABLENAME_CATEGORY      @"category"
-#define TABLENAME_DETAILHISTORY @"detailhistory"
-#define TABLENAME_RECORD        @"record"
-#define TABLENAME_COLLECTION    @"collection"
-#define TABLENAME_POST          @"post"
-#define TABLENAME_REPLY         @"reply"
-#define TABLENAME_NOTSHOWUID    @"notshowuid"
-#define TABLENAME_NOTSHOWTID    @"notshowtid"
-#define TABLENAME_ATTENT        @"attent"
+#define TABLENAME_SETTINGKV                 @"settingkv"
+#define TABLENAME_CATEGORY                  @"category"
+#define TABLENAME_DETAILHISTORY             @"detailhistory"
+#define TABLENAME_RECORD                    @"record"
+#define TABLENAME_COLLECTION                @"collection"
+#define TABLENAME_POST                      @"post"
+#define TABLENAME_REPLY                     @"reply"
+#define TABLENAME_NOTSHOWUID                @"notshowuid"
+#define TABLENAME_NOTSHOWTID                @"notshowtid"
+#define TABLENAME_ATTENT                    @"attent"
 
 
 @interface AppConfig ()
@@ -52,6 +53,7 @@
 @property (nonatomic, strong)   NSMutableArray *drafts;
 @property (nonatomic, strong)   NSMutableArray *colors;
 @property (nonatomic, strong)   NSMutableArray *fonts;
+@property (nonatomic, strong)   NSMutableArray *backgroundviews;
 
 
 
@@ -117,113 +119,9 @@
 //输入预定数据. 一些数据(数据量小,修改可能性小的)直接加入内存, 读的时候不操作数据库.
 - (void)configDBInitData
 {
+    //升级数据库.
     
-    //增加或更新预置值.
-    //color 加入一些预置.
-    NSDictionary *infoInsertColors = @{
-                                       DBDATA_STRING_COLUMNS:@[@"keyword", @"colorstring"],
-                                       DBDATA_STRING_VALUES :@[
-                                                                @[@"NavigationBarBackground",               @"#e1eaeb"],
-                                                                @[@"ContentBackground",                     @"#e1eaeb"],
-                                                                @[@"ToolBarBackground",                     @"#e1eaeb"],
-                                                                @[@"LeftMenuBackground",                    @"#e1eaeb"],
-                                                                @[@"RightMenuBackground",                   @"#e1eaeb"],
-                                                                @[@"PupopContainerBackground",              @"#e1eaeb"],
-                                                                
-                                                                @[@"SearchInputViewBackground",             @"clear"],
-                                                                @[@"SearchInputViewBorder",                 @"#000090"],
-                                                                @[@"SearchInputViewText",                   @"#000090"],
-                                                                @[@"SearchSearchButtonBackground",          @"clear"],
-                                                                @[@"SearchSearchButtonBorder",              @"#000090"],
-                                                                @[@"SearchSearchButtonText",                @"#000090"],
-                                                                @[@"SearchGoButtonBackground",              @"clear"],
-                                                                @[@"SearchGoButtonBorder",                  @"#000090"],
-                                                                @[@"SearchGoButtonText",                    @"#000090"],
-                                                                @[@"SearchInfoLabelBackground",             @"clear"],
-                                                                @[@"SearchInfoLabelBorder",                 @"#000090"],
-                                                                @[@"SearchInfoLabelText",                   @"#000090"],
-                                                                
-                                                                @[@"PostViewCellBackground",                @"#d0d0d0"],
-                                                                @[@"PostViewBackground",                    @"#d0d0d0"],
-                                                                @[@"ThreadsViewControllerBackground",       @"purple"],
-                                                                @[@"ViewControllerBackground",              @"#e1eeee"],
-                                                                @[@"BannerViewBackground",                  @"#a0a0a0@00"],
-                                                                @[@"PostViewPopupBackground",               @"white"],
-                                                                @[@"PostTableViewBackground",               @"#ffffff@60"],
-                                                                @[@"MenuActionBackground",                  @"blue"],
-                                                                @[@"CreateViewControllerBackground",        @"white"],
-                                                                @[@"ImageViewControllerBackground",         @"white"],
-                                                                @[@"PostBackground",                        @"white"],
-                                                                @[@"ReplyCellBorderMainBackground",         @"red"],
-                                                                @[@"ReplyCellBorder",                       @"#cccccc"],
-                                                                @[@"LoadingViewBackground",                 @"black"],
-                                                                @[@"draftTableViewBackground",              @"#eeeeee@80"],
-                                                                @[@"CellTitleText",                         @"#000000@66"],
-                                                                @[@"CellInfoText",                          @"#000000@66"],
-                                                                @[@"CellInfoAdditionalText",                @"#000000@66"],
-                                                                @[@"ThreadContentText",                     @"black"],
-                                                                @[@"manageInfoText",                        @"red"],
-                                                                @[@"otherInfoText",                         @"#000000@66"],
-                                                                @[@"RefreshTint",                           @"red"],
-                                                                @[@"BannerTopicText",                       @"black"],
-                                                                @[@"BannerButtonMenuText",                  @"black"],
-                                                                @[@"FootViewText",                          @"#000000@80"],
-                                                                @[@"SettingTableViewBackground",            @"clear"],
-                                                                @[@"draftCellText",                         @"#000000@80"],
-                                                                @[@"messageIndicationBackground",           @"#aaaaaa@60"],
-                                                                @[@"messageIndicationText",                 @"#000000@60"],
-                                                                @[@"CategoryCellBorder",                    @"#dddddd@56"],
-                                                                @[@"DetailCellTopicBorder",                 @"red"],
-                                                                @[@"DetailCellReplyBorder",                 @"#000011@20"],
-                                                                @[@"EmoticonButtonBorder",                  @"#0000ff@10"],
-                                                                @[@"CellActionButtonsText",                 @"#191970"],
-                                                                @[@"AttachPictureBackground",               @"blue"],
-                                                                @[@"Po",                                    @"blue"],
-                                                                @[@"Post",                                  @"purple"],
-                                                                @[@"SectionHeaderBackground",               @"#d0d0d0"],
-                                                                @[@"SectionHeaderButtonText",               @"#000000@80"],
-                                                                @[@"SectionHeaderButtonBackground",         @"clear"],
-                                                                @[@"GalleryImageViewBackground",            @"#000030@60"],
-                                                                @[@"UICustmizeTableViewBackground",         @"clear"],
-                                                                @[@"Reply",                                 @"orange"],
-                                                                @[@"orange",                                @"orange"]
-                                           
-                                           ]
-                                       };
-  
-    NSInteger retInsert = [self.dbData DBDataInsertDBName:DBNAME_CONFIG toTable:TABLENAME_COLOR withInfo:infoInsertColors countReplace:YES];
-    if(retInsert != DB_EXECUTE_OK) {
-        NSLog(@"#error - insert %@ values FAILED.", TABLENAME_COLOR);
-    }
-    
-    //font 加入一些预置.
-    //wp : width percentage.
-    //pt : pt
-    NSDictionary *infoInsertFont = @{
-                                       DBDATA_STRING_COLUMNS:@[@"keyword", @"fontstring"],
-                                       DBDATA_STRING_VALUES:@[
-                                                                @[@"PostTitle",                             @"wp0.036"],
-                                                                @[@"PostContent",                           @"wp0.045"],
-                                                                @[@"ButtonTopic",                           @"pt16.0"],
-                                                                @[@"BannerButtonMenu",                      @"wp0.040"],
-                                                                @[@"PopupView",                             @"pt16.0"],
-                                                                @[@"draftCellText",                         @"small"],
-                                                                @[@"ImageDownloadStatusLabel",              @"system"],
-                                                                @[@"copy",                                  @"system"],
-                                                                @[@"default",                               @"system"]
-                                                             ]
-                                       };
-    
-    retInsert = [self.dbData DBDataInsertDBName:DBNAME_CONFIG toTable:TABLENAME_FONT withInfo:infoInsertFont countReplace:YES];
-    if(retInsert != DB_EXECUTE_OK) {
-        NSLog(@"#error - insert %@ values FAILED.", TABLENAME_FONT);
-    }
-    
-    //
-    
-    
-    
-    
+    //数据更新.
     
     //读取一些配置. 之后read的时候不用操作数据库.
     [self configDBInitReadConfig];
@@ -332,6 +230,12 @@ else {NSLog(@"#error - obj (%@) is not NSNumber class.", arrayasd[indexzxc]);var
 #define ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER(varqwe, arrayasd, indexzxc, defaultqaz) \
 if([arrayasd[indexzxc] isKindOfClass:[NSString class]]) {varqwe = [arrayasd[indexzxc] copy];}\
 else {NSLog(@"#error - obj (%@) is not NSString class.", arrayasd[indexzxc]);varqwe = defaultqaz;}
+
+#define ASSIGN_BLOB_VALUE_FROM_ARRAYMEMBER(varqwe, arrayasd, indexzxc, defaultqaz) \
+if([arrayasd[indexzxc] isKindOfClass:[NSData class]]) {varqwe = [arrayasd[indexzxc] copy];}\
+else if([arrayasd[indexzxc] isKindOfClass:[NSNull class]]) {varqwe = nil;}\
+else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqwe = defaultqaz;}
+
 
 
 
@@ -574,16 +478,20 @@ else {NSLog(@"#error - obj (%@) is not NSString class.", arrayasd[indexzxc]);var
     NSArray *arrayReturn = nil ;
     if(count > 0) {
         
-        NSArray *keywordArray       = queryResult[@"keyword"];
-        NSArray *colorstringArray   = queryResult[@"colorstring"];
+        NSArray *nameArray              = queryResult[@"name"];
+        NSArray *titleArray             = queryResult[@"title"];
+        NSArray *enableCustmizeArray    = queryResult[@"enableCustmize"];
+        NSArray *colorstringArray       = queryResult[@"colorstring"];
         
-        if([self.dbData DBDataCheckCountOfArray:@[keywordArray, colorstringArray] withCount:count]) {
+        if([self.dbData DBDataCheckCountOfArray:@[nameArray, titleArray, enableCustmizeArray, colorstringArray] withCount:count]) {
             NSMutableArray *arrayReturnM = [NSMutableArray arrayWithCapacity:count];
             
             for(NSInteger index = 0; index < count ;  index ++) {
                 ColorItem *colorItem = [[ColorItem alloc] init];
-                ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER(colorItem.name, keywordArray, index, @"NAN")
-                ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER(colorItem.colorstring, colorstringArray, index, @"NAN")
+                ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER (colorItem.name,           nameArray,           index, @"NAN")
+                ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER (colorItem.title,          titleArray,          index, @"NAN")
+                ASSIGN_INTEGER_VALUE_FROM_ARRAYMEMBER(colorItem.enableCustmize, enableCustmizeArray, index, 0)
+                ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER (colorItem.colorstring,    colorstringArray,    index, @"NAN")
                 
                 [arrayReturnM addObject:colorItem];
             }
@@ -595,6 +503,61 @@ else {NSLog(@"#error - obj (%@) is not NSString class.", arrayasd[indexzxc]);var
     
     return arrayReturn;
 }
+
+
+- (ColorItem *)configDBColorGetByName:(NSString*)name
+{
+    ColorItem *colorItem = nil;
+    
+    NSDictionary *queryResult = [self.dbData DBDataQueryDBName:DBNAME_CONFIG
+                                                       toTable:TABLENAME_COLOR
+                                                   columnNames:nil
+                                                     withQuery:@{@"name":name}
+                                                     withLimit:nil];
+    NSInteger count = [self.dbData DBDataCheckRowsInDictionary:queryResult];
+    
+    if(count > 0) {
+        
+        NSArray *nameArray              = queryResult[@"name"];
+        NSArray *titleArray             = queryResult[@"title"];
+        NSArray *enableCustmizeArray    = queryResult[@"enableCustmize"];
+        NSArray *colorstringArray       = queryResult[@"colorstring"];
+        
+        if([self.dbData DBDataCheckCountOfArray:@[nameArray, titleArray, enableCustmizeArray, colorstringArray] withCount:count]) {
+            
+            colorItem = [[ColorItem alloc] init];
+            ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER (colorItem.name,           nameArray,           0, @"NAN")
+            ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER (colorItem.title,          titleArray,          0, @"NAN")
+            ASSIGN_INTEGER_VALUE_FROM_ARRAYMEMBER(colorItem.enableCustmize, enableCustmizeArray, 0, 0)
+            ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER (colorItem.colorstring,    colorstringArray,    0, @"NAN")
+        }
+    }
+    else {
+        NSLog(@"#error - configDBColorGetByName : %@ not found.", name);
+    }
+    
+    return colorItem;
+}
+
+
+- (BOOL)configDBColorUpdate:(ColorItem*)color
+{
+    BOOL result = YES;
+    
+    NSDictionary *infoInsert = @{
+                                 DBDATA_STRING_COLUMNS:@[@"name", @"colorstring"],
+                                 DBDATA_STRING_VALUES:@[@[color.name, color.colorstring]]
+                                 };
+    
+    NSInteger retDBData = [self.dbData DBDataInsertDBName:DBNAME_CONFIG toTable:TABLENAME_COLOR withInfo:infoInsert countReplace:YES];
+    if(DB_EXECUTE_OK != retDBData) {
+        NSLog(@"#error - ");
+        result = NO;
+    }
+    
+    return result;
+}
+
 
 //font.
 - (NSArray*)configDBFontGet
@@ -611,16 +574,20 @@ else {NSLog(@"#error - obj (%@) is not NSString class.", arrayasd[indexzxc]);var
     NSArray *arrayReturn = nil ;
     if(count > 0) {
         
-        NSArray *keywordArray       = queryResult[@"keyword"];
-        NSArray *fontstringArray    = queryResult[@"fontstring"];
+        NSArray *nameArray              = queryResult[@"name"];
+        NSArray *titleArray             = queryResult[@"title"];
+        NSArray *enableCustmizeArray    = queryResult[@"enableCustmize"];
+        NSArray *fontstringArray        = queryResult[@"fontstring"];
         
-        if([self.dbData DBDataCheckCountOfArray:@[keywordArray, fontstringArray] withCount:count]) {
+        if([self.dbData DBDataCheckCountOfArray:@[nameArray, titleArray, enableCustmizeArray, fontstringArray] withCount:count]) {
             NSMutableArray *arrayReturnM = [NSMutableArray arrayWithCapacity:count];
             
             for(NSInteger index = 0; index < count ;  index ++) {
                 FontItem *fontItem = [[FontItem alloc] init];
-                ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER(fontItem.name, keywordArray, index, @"NAN")
-                ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER(fontItem.fontstring, fontstringArray, index, @"NAN")
+                ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER (fontItem.name,            nameArray,           index, @"NAN")
+                ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER (fontItem.title,           titleArray,          index, @"NAN")
+                ASSIGN_INTEGER_VALUE_FROM_ARRAYMEMBER(fontItem.enableCustmize,  enableCustmizeArray, index, 0)
+                ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER(fontItem.fontstring,       fontstringArray,     index, @"NAN")
                 
                 [arrayReturnM addObject:fontItem];
             }
@@ -632,6 +599,186 @@ else {NSLog(@"#error - obj (%@) is not NSString class.", arrayasd[indexzxc]);var
     
     return arrayReturn;
 }
+
+
+
+- (FontItem *)configDBFontGetByName:(NSString*)name
+{
+    FontItem *fontItem = nil;
+    
+    NSDictionary *queryResult = [self.dbData DBDataQueryDBName:DBNAME_CONFIG
+                                                       toTable:TABLENAME_FONT
+                                                   columnNames:nil
+                                                     withQuery:@{@"name":name}
+                                                     withLimit:nil];
+    NSInteger count = [self.dbData DBDataCheckRowsInDictionary:queryResult];
+    
+    if(count > 0) {
+        
+        NSArray *nameArray              = queryResult[@"name"];
+        NSArray *titleArray             = queryResult[@"title"];
+        NSArray *enableCustmizeArray    = queryResult[@"enableCustmize"];
+        NSArray *fontstringArray       = queryResult[@"fontstring"];
+        
+        if([self.dbData DBDataCheckCountOfArray:@[nameArray, titleArray, enableCustmizeArray, fontstringArray] withCount:count]) {
+            
+            fontItem = [[FontItem alloc] init];
+            ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER (fontItem.name,           nameArray,           0, @"NAN")
+            ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER (fontItem.title,          titleArray,          0, @"NAN")
+            ASSIGN_INTEGER_VALUE_FROM_ARRAYMEMBER(fontItem.enableCustmize, enableCustmizeArray, 0, 0)
+            ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER (fontItem.fontstring,     fontstringArray,     0, @"NAN")
+        }
+    }
+    else {
+        NSLog(@"#error - configDBFontGetByName : %@ not found.", name);
+    }
+    
+    return fontItem;
+}
+
+
+- (BOOL)configDBFontUpdate:(FontItem*)font
+{
+    BOOL result = YES;
+    
+    NSDictionary *infoInsert = @{
+                                 DBDATA_STRING_COLUMNS:@[@"name", @"fontstring"],
+                                 DBDATA_STRING_VALUES:@[@[font.name, font.fontstring]]
+                                 };
+    
+    NSInteger retDBData = [self.dbData DBDataInsertDBName:DBNAME_CONFIG toTable:TABLENAME_FONT withInfo:infoInsert countReplace:YES];
+    if(DB_EXECUTE_OK != retDBData) {
+        NSLog(@"#error - ");
+        result = NO;
+    }
+    
+    return result;
+}
+
+
+
+//backgroundview.
+- (NSArray*)configDBBackgroundViewGet
+{
+    if(self.backgroundviews) {
+        return [NSArray arrayWithArray:self.backgroundviews];
+    }
+    
+    NSDictionary *queryResult = [self.dbData DBDataQueryDBName:DBNAME_CONFIG
+                                                       toTable:TABLENAME_BACKGROUNDVIEW
+                                                   columnNames:nil withQuery:nil withLimit:nil];
+    NSInteger count = [self.dbData DBDataCheckRowsInDictionary:queryResult];
+    
+    NSArray *arrayReturn = nil ;
+    if(count > 0) {
+        
+        NSArray *nameArray              = queryResult[@"name"];
+        NSArray *titleArray             = queryResult[@"title"];
+        NSArray *enableCustmizeArray    = queryResult[@"enableCustmize"];
+        NSArray *enableArray            = queryResult[@"onUse"];
+        NSArray *imageNameArray         = queryResult[@"imageName"];
+        NSArray *imageDataArray         = queryResult[@"imageData"];
+        
+            LOG_POSTION
+        if([self.dbData DBDataCheckCountOfArray:@[nameArray, titleArray, enableCustmizeArray, enableArray, imageNameArray, imageDataArray] withCount:count]) {
+            LOG_POSTION
+            NSMutableArray *arrayReturnM = [NSMutableArray arrayWithCapacity:count];
+            LOG_POSTION
+            
+            for(NSInteger index = 0; index < count ;  index ++) {
+            LOG_POSTION
+                BackgroundViewItem *backgroundViewItem = [[BackgroundViewItem alloc] init];
+                ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER (backgroundViewItem.name,           nameArray,           index, @"NAN")
+                ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER (backgroundViewItem.title,          titleArray,          index, @"NAN")
+                ASSIGN_INTEGER_VALUE_FROM_ARRAYMEMBER(backgroundViewItem.enableCustmize, enableCustmizeArray, index, 0)
+                ASSIGN_INTEGER_VALUE_FROM_ARRAYMEMBER(backgroundViewItem.onUse,          enableArray,         index, 0)
+                ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER (backgroundViewItem.imageName,      imageNameArray,      index, @"NAN")
+                ASSIGN_BLOB_VALUE_FROM_ARRAYMEMBER   (backgroundViewItem.imageData,      imageDataArray,      index, nil)
+                
+            LOG_POSTION
+                [arrayReturnM addObject:backgroundViewItem];
+            LOG_POSTION
+            }
+            
+            self.backgroundviews = arrayReturnM;
+            arrayReturn = [NSArray arrayWithArray:arrayReturnM];
+        }
+    }
+    
+    return arrayReturn;
+}
+
+
+- (BackgroundViewItem *)configDBBackgroundViewGetByName:(NSString*)name
+{
+    BackgroundViewItem *backgroundViewItem = nil;
+    
+    NSDictionary *queryResult = [self.dbData DBDataQueryDBName:DBNAME_CONFIG
+                                                       toTable:TABLENAME_BACKGROUNDVIEW
+                                                   columnNames:nil
+                                                     withQuery:@{@"name":name}
+                                                     withLimit:nil];
+    NSInteger count = [self.dbData DBDataCheckRowsInDictionary:queryResult];
+
+    if(count > 0) {
+        
+        NSArray *nameArray              = queryResult[@"name"];
+        NSArray *titleArray             = queryResult[@"title"];
+        NSArray *enableCustmizeArray    = queryResult[@"enableCustmize"];
+        NSArray *enableArray            = queryResult[@"onUse"];
+        NSArray *imageNameArray         = queryResult[@"imageName"];
+        NSArray *imageDataArray         = queryResult[@"imageData"];
+                
+        if([self.dbData DBDataCheckCountOfArray:@[nameArray, titleArray, enableCustmizeArray, enableArray, imageNameArray, imageDataArray] withCount:count]) {
+
+            backgroundViewItem = [[BackgroundViewItem alloc] init];
+            ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER (backgroundViewItem.name,           nameArray,           0, @"NAN")
+            ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER (backgroundViewItem.title,          titleArray,          0, @"NAN")
+            ASSIGN_INTEGER_VALUE_FROM_ARRAYMEMBER(backgroundViewItem.enableCustmize, enableCustmizeArray, 0, 0)
+            ASSIGN_INTEGER_VALUE_FROM_ARRAYMEMBER(backgroundViewItem.onUse,          enableArray,         0, 0)
+            ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER (backgroundViewItem.imageName,      imageNameArray,      0, @"NAN")
+            ASSIGN_BLOB_VALUE_FROM_ARRAYMEMBER   (backgroundViewItem.imageData,      imageDataArray,      0, nil)
+            
+        }
+    }
+    
+    return backgroundViewItem;
+}
+
+
+- (BOOL)configDBBackgroundViewUpdate:(BackgroundViewItem *)backgroundview
+{
+    BOOL result = YES;
+    
+    NSMutableDictionary *infoUpdateM = [[NSMutableDictionary alloc] init];
+    BackgroundViewItem *backgroundviewOriginal = [self configDBBackgroundViewGetByName:backgroundview.name];
+    if(backgroundview.onUse != backgroundviewOriginal.onUse) {
+        [infoUpdateM setObject:[NSNumber numberWithInteger:backgroundview.onUse] forKey:@"onUse"];
+    }
+    
+    if(![backgroundview.imageData isEqual:backgroundviewOriginal.imageData]) {
+        [infoUpdateM setObject:backgroundview.imageData forKey:@"imageData"];
+    }
+    
+    if(infoUpdateM.count > 0) {
+        NSInteger retDBData = [self.dbData DBDataUpdateDBName:DBNAME_CONFIG
+                                                      toTable:TABLENAME_BACKGROUNDVIEW
+                                               withInfoUpdate:infoUpdateM
+                                                withInfoQuery:@{@"name":backgroundview.name}];
+    
+        if(DB_EXECUTE_OK != retDBData) {
+            NSLog(@"#error - ");
+            result = NO;
+        }
+    }
+    else {
+        NSLog(@"#error - not data updated.");
+        result = NO;
+    }
+    
+    return result;
+}
+
 
 //settingkv.
 - (NSString*)configDBSettingKVGet:(NSString*)key
@@ -1323,6 +1470,27 @@ else {NSLog(@"#error - obj (%@) is not NSString class.", arrayasd[indexzxc]);var
     
     return arrayReturn;
 }
+
+
+//清除数据库. 需仅适用于开发者环境.
+- (void)removeAll
+{
+    [self.dbData removeAll];
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 @end

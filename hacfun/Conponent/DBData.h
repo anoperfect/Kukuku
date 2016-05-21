@@ -20,6 +20,7 @@ typedef NS_ENUM(NSInteger, DBDataColumnType) {
     DBDataColumnTypeNumberInteger    = 1,
     DBDataColumnTypeNumberLongLong,
     DBDataColumnTypeString,
+    DBDataColumnTypeBlob
 };
 
 
@@ -107,8 +108,6 @@ typedef NS_ENUM(NSInteger, DBDataColumnType) {
 
 
 
-
-
 //直接的sql语句执行表查询. 暂时只用于测试.
 - (NSDictionary*)DBDataQueryDBName:(NSString*)databaseName
                            toTable:(NSString*)tableName
@@ -123,6 +122,7 @@ typedef NS_ENUM(NSInteger, DBDataColumnType) {
             andArgumentsInArray:(NSArray*)arguments;
 
 
-
+//清除数据库. 需仅适用于开发者环境.
+- (void)removeAll;
 
 @end

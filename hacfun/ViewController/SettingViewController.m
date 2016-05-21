@@ -58,7 +58,7 @@
     [self.arraySettingItem addObject:@"界面设置"];
     //[self.arraySettingItem addObject:@"饼干管理"];
     [self.arraySettingItem addObject:@"版本"];
-    [self.arraySettingItem addObject:@"反馈建议: Ben.ZhaoBin@qq.com"];
+    [self.arraySettingItem addObject:@"反馈建议"];//: Ben.ZhaoBin@qq.com"];
     
     self.cellDict = [[NSMutableDictionary alloc] init];
 }
@@ -230,6 +230,20 @@
         self.viewSelectHostName = view;
     }
     
+    if([[self.arraySettingItem objectAtIndex:indexPath.row] isEqualToString:@"反馈建议"]) {
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:nil];
+        cell.detailTextLabel.text = @"Ben.ZhaoBin@qq.com";
+        
+        UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dev:)];
+        tapGestureRecognizer.numberOfTapsRequired = 10;
+        [cell addGestureRecognizer:tapGestureRecognizer];
+    }
+
+    
+    
+    
+    
+    
     if(nil == cell) {
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
     }
@@ -270,6 +284,12 @@
 
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
     
+}
+
+
+- (void)dev:(id)sender
+{
+    [[AppConfig sharedConfigDB] removeAll];
 }
 
 

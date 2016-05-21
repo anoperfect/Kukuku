@@ -29,6 +29,8 @@
 
 @property (nonatomic, assign) CGFloat heightBanner ;
 
+@property (nonatomic, assign) CGRect viewFrameRecord;
+
 @end
 
 @implementation CustomViewController
@@ -76,13 +78,33 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
     [self.view addSubview:self.messageIndication];
     
     self.view.backgroundColor = [UIColor colorWithName:@"ContentBackground"];
-//    self.view.backgroundColor = [UIColor colorWithPatternImage:[UIImage imageNamed:@"bg"]];
+
+    //去除哪个什么snapshot的警告.
+    if([[[UIDevice
+          currentDevice] systemVersion] floatValue]>=8.0) {
+        self.modalPresentationStyle=UIModalPresentationOverCurrentContext;
+        
+    }
 }
 
 
 - (void)viewWillLayoutSubviews {
     NSLog(@"/vc\\ %s", __FUNCTION__);
     [super viewWillLayoutSubviews];
+    
+    if(!CGRectEqualToRect(self.view.frame, self.viewFrameRecord)) {
+        NSLog(@"Reset content backgroundImage");
+        BackgroundViewItem *backgroundview = [[AppConfig sharedConfigDB] configDBBackgroundViewGetByName:@"Content"];
+        UIImage *image = nil;
+        if(backgroundview.onUse && backgroundview.imageData.length > 0 && nil != (image = [UIImage imageWithData:backgroundview.imageData])) {
+            image = [FuncDefine thumbOfImage:image fitToSize:self.view.frame.size isFillBlank:YES fillColor:[UIColor colorWithName:@"ContentBackground"] borderColor:[UIColor orangeColor] borderWidth:0];
+            
+            self.view.backgroundColor = [UIColor colorWithPatternImage:image];
+            NSLog(@"Reset content backgroundImage finished.");
+        }
+    }
+
+    self.viewFrameRecord = self.view.frame;
     
     CGFloat heightViewIndication = 36;
     
@@ -133,9 +155,17 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
     
     self.navigationController.toolbarHidden = YES;
     
-
-    self.navigationController.navigationBar.barTintColor = [UIColor colorWithName:@"NavigationBarBackground"];
-    self.navigationController.navigationBar.translucent = NO;
+    BackgroundViewItem *backgroundview = [[AppConfig sharedConfigDB] configDBBackgroundViewGetByName:@"NavigationBar"];
+    UIImage *image = nil;
+    if(backgroundview.onUse && backgroundview.imageData.length > 0 && nil != (image = [UIImage imageWithData:backgroundview.imageData])) {
+        [self.navigationController.navigationBar setBackgroundImage:image forBarMetrics:UIBarMetricsDefault];
+    }
+    else {
+        self.navigationController.navigationBar.barTintColor = [UIColor colorWithName:@"NavigationBarBackground"];
+        self.navigationController.navigationBar.translucent = NO;
+    }
+    
+    
 
     self.navigationController.toolbar.backgroundColor = [UIColor colorWithName:@"ToolBarBackground"];
     
@@ -276,7 +306,7 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
 - (void)showPopupView:(UIView*)view
 {
     UIView *containerView = [[UIView alloc] initWithFrame:self.view.bounds];
-    containerView.backgroundColor = [UIColor colorWithName:@"PupopContainerBackground"];
+    containerView.backgroundColor = [UIColor colorWithName:@"PopupContainerBackground"];
     containerView.alpha = 0.9;
     containerView.tag = TAG_popupView_container;
     [self.view addSubview:containerView];
@@ -290,7 +320,7 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
     
 //    CustomViewController *pvc = [[CustomViewController alloc] init];
 //    [pvc.view addSubview:view];
-//    pvc.view.backgroundColor = [UIColor colorWithName:@"PupopContainerBackground"];
+//    pvc.view.backgroundColor = [UIColor colorWithName:@"PopupContainerBackground"];
 //    UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:pvc action:@selector(dismissPopupView)];
 //    tapGestureRecognizer.numberOfTapsRequired = 1;
 //    [pvc.view addGestureRecognizer:tapGestureRecognizer];

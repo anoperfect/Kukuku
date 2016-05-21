@@ -23,7 +23,7 @@
                                 "COLUMNS":["sn", "hostname", "host", "imageHost", "urlString", "numberInCategoryPage", "numberInDetailPage"],
                                 "VALUES":[
                                           [0, "hacfun", "http://hacfun.tv/api", "http://img1.nimingban.com", "http://hacfun.tv", 20, 20],
-                                          [1, "kukuku", "http://kukuku.cc/api", "http://static.koukuko.com/h", "http://kukuku.cc/.mobile", 10, 20]
+                                          [1, "kukuku", "http://h.koukuko.com/api", "http://static.koukuko.com/h", "http://kukuku.cc/.mobile", 10, 20]
                                          ]
                             }
                          }
@@ -166,11 +166,101 @@
                "tableName":"color",
                "databaseNames":["config"],
                "columnAttributes": [
-                           {"columnName":"keyword"    , "dataType":"var", "isNeedForInsert":true, "isAutoIncrement":false, "defaultValue":"keywordqwe" },
-                           {"columnName":"colorstring", "dataType":"var", "isNeedForInsert":true, "isAutoIncrement":false, "defaultValue":"colorstringqwe" }
+                           {"columnName":"name"          , "dataType":"var"    , "isNeedForInsert":true, "isAutoIncrement":false, "defaultValue":"nameqwe" },
+                           {"columnName":"title"         , "dataType":"var"    , "isNeedForInsert":true, "isAutoIncrement":false, "defaultValue":"titleqwe" },
+                           {"columnName":"enableCustmize", "dataType":"integer", "isNeedForInsert":true, "isAutoIncrement":false, "defaultValue":0 },
+                           {"columnName":"colorstring"   , "dataType":"var"    , "isNeedForInsert":true, "isAutoIncrement":false, "defaultValue":"colorstringqwe" }
                            ],
-               "primaryKeys":["keyword"],
-               "preset":[],
+               "primaryKeys":["name"],
+               "preset":[
+               
+                         {
+                         "databaseName":"*",
+                         "content":
+                         {
+                         "COLUMNS":["name", "title", "enableCustmize", "colorstring"],
+                         "VALUES":[
+                                   ["NavigationBarBackground", "", 0,               "#e1eaeb"],
+                                   ["ContentBackground", "", 0,                                   "#e1eaeb"],
+                                   ["ToolBarBackground", "", 0,                                   "#e1eaeb"],
+                                   ["LeftMenuBackground", "", 0,                                  "#e1eaeb"],
+                                   ["RightMenuBackground", "", 0,                                 "#e1eaeb"],
+                                   ["PopupContainerBackground", "", 0,                            "#e1eaeb"],
+                                   
+                                   ["SearchInputViewBackground", "", 0,                           "clear"],
+                                   ["SearchInputViewBorder", "", 0,                               "#000090"],
+                                   ["SearchInputViewText", "", 0,                                 "#000090"],
+                                   ["SearchSearchButtonBackground", "", 0,                        "clear"],
+                                   ["SearchSearchButtonBorder", "", 0,                            "#000090"],
+                                   ["SearchSearchButtonText", "", 0,                              "#000090"],
+                                   ["SearchGoButtonBackground", "", 0,                            "clear"],
+                                   ["SearchGoButtonBorder", "", 0,                                "#000090"],
+                                   ["SearchGoButtonText", "", 0,                                  "#000090"],
+                                   ["SearchInfoLabelBackground", "", 0,                           "clear"],
+                                   ["SearchInfoLabelBorder", "", 0,                               "#000090"],
+                                   ["SearchInfoLabelText", "", 0,                                 "#000090"],
+                                   
+                                   ["PostViewCellBackground", "", 0,                              "#d0d0d0"],
+                                   ["PostViewBackground", "", 0,                                  "#d0d0d0"],
+                                   ["ThreadsViewControllerBackground", "", 0,                     "purple"],
+                                   ["ViewControllerBackground", "", 0,                            "#e1eeee"],
+                                   ["BannerViewBackground", "", 0,                                "#a0a0a0@00"],
+                                   ["PostViewPopupBackground", "", 0,                             "white"],
+                                   ["PostTableViewBackground", "", 0,                             "#ffffff@60"],
+                                   ["MenuActionBackground", "", 0,                                "blue"],
+                                   ["CreateViewControllerBackground", "", 0,                      "white"],
+                                   ["ImageViewControllerBackground", "", 0,                       "white"],
+                                   ["PostBackground", "", 0,                                      "white"],
+                                   ["ReplyCellBorderMainBackground", "", 0,                       "red"],
+                                   ["ReplyCellBorder", "", 0,                                     "#cccccc"],
+                                   ["LoadingViewBackground", "", 0,                               "black"],
+                                   ["draftTableViewBackground", "", 0,                            "#eeeeee@80"],
+                                   ["CellTitleText", "", 0,                                       "#000000@66"],
+                                   ["CellInfoText", "", 0,                                        "#000000@66"],
+                                   ["CellInfoAdditionalText", "", 0,                              "#000000@66"],
+                                   ["ThreadContentText", "", 0,                                   "black"],
+                                   ["manageInfoText", "", 0,                                      "red"],
+                                   ["otherInfoText", "", 0,                                       "#000000@66"],
+                                   ["RefreshTint", "", 0,                                         "red"],
+                                   ["BannerTopicText", "", 0,                                     "black"],
+                                   ["BannerButtonMenuText", "", 0,                                "black"],
+                                   ["FootViewText", "", 0,                                        "#000000@80"],
+                                   ["SettingTableViewBackground", "", 0,                          "clear"],
+                                   ["draftCellText", "", 0,                                       "#000000@80"],
+                                   ["messageIndicationBackground", "", 0,                         "#aaaaaa@60"],
+                                   ["messageIndicationText", "", 0,                               "#000000@60"],
+                                   ["CategoryCellBorder", "", 0,                                  "#dddddd@56"],
+                                   ["DetailCellTopicBorder", "", 0,                               "red"],
+                                   ["DetailCellReplyBorder", "", 0,                               "#000011@20"],
+                                   ["EmoticonButtonBorder",  "", 0,                               "#0000ff@10"],
+                                   ["CellActionButtonsText", "", 0,                               "#191970"],
+                                   ["AttachPictureBackground", "", 0,                             "blue"],
+                                   ["Po", "", 0,                                                  "blue"],
+                                   ["Post", "", 0,                                                "purple"],
+                                   ["SectionHeaderBackground", "", 0,                             "#d0d0d0"],
+                                   ["SectionHeaderButtonText", "", 0,                             "#000000@80"],
+                                   ["SectionHeaderButtonBackground", "", 0,                       "clear"],
+                                   ["GalleryImageViewBackground", "", 0,                          "#000030@60"],
+                                   ["UICustmizeTableViewBackground", "", 0,                       "clear"],
+                                   ["Reply", "", 0,                                               "orange"],
+                                   ["orange", "", 0,                                              "orange"]
+                                   
+                                   
+                                   
+                                   
+                                   
+                                   
+                                   ]
+                         }
+                         }
+               
+               
+               
+               
+               
+               
+               
+               ],
                "comment":"颜色"
                },
                
@@ -178,12 +268,78 @@
                "tableName":"font",
                "databaseNames":["config"],
                "columnAttributes": [
-                           {"columnName":"keyword"   , "dataType":"var", "isNeedForInsert":true, "isAutoIncrement":false, "defaultValue":"keywordqwe" },
-                           {"columnName":"fontstring", "dataType":"var", "isNeedForInsert":true, "isAutoIncrement":false, "defaultValue":"fonttringqwe" }
+                           {"columnName":"name"          , "dataType":"var"    , "isNeedForInsert":true, "isAutoIncrement":false, "defaultValue":"nameqwe" },
+                           {"columnName":"title"         , "dataType":"var"    , "isNeedForInsert":true, "isAutoIncrement":false, "defaultValue":"titleqwe" },
+                           {"columnName":"enableCustmize", "dataType":"integer", "isNeedForInsert":true, "isAutoIncrement":false, "defaultValue":0 },
+                           {"columnName":"fontstring"    , "dataType":"var"    , "isNeedForInsert":true, "isAutoIncrement":false, "defaultValue":"fontstringqwe" }
                            ],
-               "primaryKeys":["keyword"],
-               "preset":[],
+               "primaryKeys":["name"],
+               "preset":[
+                         
+                         {
+                         "databaseName":"*",
+                         "content":
+                         {
+                         "COLUMNS":["name", "title", "enableCustmize", "fontstring"],
+                         "VALUES":[
+                                   ["PostTitle", "", 0,                                      "wp0.036"],
+                                   ["PostContent", "", 0,                                    "wp0.045"],
+                                   ["ButtonTopic", "", 0,                                    "pt16.0"],
+                                   ["BannerButtonMenu", "", 0,                               "wp0.040"],
+                                   ["PopupView", "", 0,                                      "pt16.0"],
+                                   ["draftCellText", "", 0,                                 "small"],
+                                   ["ImageDownloadStatusLabel", "", 0,                       "system"],
+                                   ["copy", "", 0,                                           "system"],
+                                   ["default", "", 0,                                        "system"]
+                                   ]
+                         }
+                         }
+                         
+                         
+                         
+                         
+                         
+                         
+                         
+
+               
+               
+               
+               
+               ],
                "comment":"字体"
+               },
+               
+               {
+               "tableName":"backgroundview",
+               "databaseNames":["config"],
+               "columnAttributes": [
+                            {"columnName":"name"          , "dataType":"var"    , "isNeedForInsert":true, "isAutoIncrement":false, "defaultValue":"nameqwe" },
+                            {"columnName":"title"         , "dataType":"var"    , "isNeedForInsert":true, "isAutoIncrement":false, "defaultValue":"titleqwe" },
+                            {"columnName":"enableCustmize", "dataType":"integer", "isNeedForInsert":true, "isAutoIncrement":false, "defaultValue":0 },
+                            {"columnName":"onUse"         , "dataType":"integer", "isNeedForInsert":true, "isAutoIncrement":false, "defaultValue":0 },
+                            {"columnName":"imageName"     , "dataType":"var"    , "isNeedForInsert":true, "isAutoIncrement":false, "defaultValue":"imageNameqwe" },
+                            {"columnName":"imageData"     , "dataType":"blob"   , "isNeedForInsert":true, "isAutoIncrement":false, "defaultValue":"imageDataqwe" }
+                            ],
+               "primaryKeys":["name"],
+               "preset":[
+                         {
+                         "databaseName":"*",
+                         "content":
+                         {
+                         "COLUMNS":["name", "title", "enableCustmize", "onUse", "imageName"],
+                         "VALUES":[
+                                   ["NavigationBar", "导航栏", 1, 0, "NavigationBar"],
+                                   ["Content"      , "内容区", 1, 0, "Content"],
+                                   ["ToolBar"      , "工具栏", 1, 0, "ToolBar"],
+                                   ["LeftMenu"     , "左设置", 1, 0, "LeftMenu"],
+                                   ["RightMenu"    , "右栏目", 1, 0, "RightMenu"],
+                                   ["Popup"        , "弹出区", 1, 0, "Popup"]
+                                   ]
+                         }
+                         }
+               ],
+               "comment":"背景图片"
                },
                
                {

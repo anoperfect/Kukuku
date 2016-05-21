@@ -116,6 +116,8 @@
 
 - (void)viewWillLayoutSubviews
 {
+    [super viewWillLayoutSubviews];
+    
     FrameLayout *layout = [[FrameLayout alloc] initWithSize:self.view.frame.size];
     [layout setUseIncludedMode:@"textViewAndSearchButton" includedTo:FRAMELAYOUT_NAME_MAIN withPostion:FrameLayoutPositionTop andSizeValue:50];
     [layout divideInVertical:@"textViewAndSearchButton" to:@"textViewAll" and:@"buttonSearchAll" withPercentage:0.6];

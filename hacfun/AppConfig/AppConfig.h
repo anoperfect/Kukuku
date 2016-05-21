@@ -42,9 +42,19 @@
 
 //color.
 - (NSArray*)configDBColorGet;
+- (ColorItem *)configDBColorGetByName:(NSString*)name;
+- (BOOL)configDBColorUpdate:(ColorItem*)color;
 
 //font.
 - (NSArray*)configDBFontGet;
+- (FontItem *)configDBFontGetByName:(NSString*)name;
+- (BOOL)configDBFontUpdate:(FontItem*)font;
+
+//backgroundview.
+- (NSArray*)configDBBackgroundViewGet;
+- (BackgroundViewItem *)configDBBackgroundViewGetByName:(NSString*)name;
+- (BOOL)configDBBackgroundViewUpdate:(BackgroundViewItem*)backgroundview;
+
 
 //settingkv.
 - (NSString*)configDBSettingKVGet:(NSString*)key ;
@@ -91,29 +101,8 @@
 - (BOOL)configDBRecordAdds:(NSArray*)postDatas;
 - (NSArray*)configDBRecordGets:(NSArray*)tidArray;
 
+//清除数据库. 需仅适用于开发者环境.
+- (void)removeAll;
 
 
 @end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

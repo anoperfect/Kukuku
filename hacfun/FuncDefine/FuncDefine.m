@@ -37,6 +37,15 @@
     // 1.创建一个基于位图的上下文(开启一个基于位图的上下文)
     UIGraphicsBeginImageContextWithOptions(size, NO, 0.0);
     
+    if(isFillBlank) {
+    
+        UIBezierPath *path = [UIBezierPath bezierPathWithRect:CGRectMake(0, 0, size.width, size.height)];
+    //设置填充颜色
+        [fillColor set];
+        [path fill];
+    }
+    
+    
     CGFloat aspectradioSize = size.width / size.height;
     CGFloat aspectradioImage = image.size.width / image.size.height;
     
@@ -148,6 +157,9 @@
     
     return scaledImage;
 }
+
+
+
 
 
 
