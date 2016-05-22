@@ -336,9 +336,26 @@
 //显示之前的特殊定制.
 - (void)retreatPostViewDataAdditional:(PostData*)postData onIndexPath:(NSIndexPath*)indexPath
 {
-    if(indexPath.section == 0 || [postData.uid isEqualToString:self.topic.uid]) {
+    if([postData.uid isEqualToString:self.topic.uid]) {
         [postData.postViewData setObject:@YES forKey:@"uidUnderLine"];
         [postData.postViewData setObject:@YES forKey:@"uidBold"];
+    }
+    
+    if(self.isOnlyShowPo) {
+        if([postData.uid isEqualToString:self.topic.uid]) {
+            
+        }
+        else {
+            [postData updatePostViewDataViaAddFoldInfo:@"只看Po"];
+        }
+    }
+    else {
+        if([postData.uid isEqualToString:self.topic.uid]) {
+            
+        }
+        else {
+            [postData updatePostViewDataViaRemoveFoldInfo:@"只看Po"];
+        }
     }
 }
 
@@ -747,6 +764,7 @@
     if([string isEqualToString:@"开启只看Po"]){
         self.isOnlyShowPo = YES;
 
+#if 0
         NSArray *indexPaths = [self indexPathsPostData];
         for(NSIndexPath *indexPath in indexPaths) {
             PostData *postData = [self postDataOnIndexPath:indexPath];
@@ -757,6 +775,7 @@
                 [self foldCellOnIndexPath:indexPath withInfo:@"只看Po" andReload:NO];
             }
         }
+#endif
         
         [self.postView reloadData];
         
@@ -766,11 +785,12 @@
     else if([string isEqualToString:@"关闭只看Po"]){
         self.isOnlyShowPo = NO;
         
+#if 0
         NSArray *indexPaths = [self indexPathsPostData];
         for(NSIndexPath *indexPath in indexPaths) {
             [self unfoldCellOnIndexPath:indexPath withInfo:@"只看Po" andReload:NO];
         }
-        
+#endif
         [self.postView reloadData];
         
         [self showfootViewWithTitle:[NSString stringWithFormat:@"已关闭只看Po模式"]

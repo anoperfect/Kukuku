@@ -95,6 +95,7 @@
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
 {
     [self showIndicationText:@"加载失败. 请检查网络."];
+    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
 }
 
 
@@ -103,6 +104,5 @@
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
-
 
 @end

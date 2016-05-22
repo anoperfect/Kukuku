@@ -37,20 +37,40 @@
     [self.tableData addObject:host.hostname];
     [self.tableData addObjectsFromArray:@[@"搜索",@"收藏", @"发帖", @"回复", @"设置", @"图片"]];
     
-//    [self.view setBackgroundColor:[UIColor blueColor]];
-//    [self.view setBackgroundColor:[UIColor colorWithPatternImage:[UIImage imageNamed:@"bg"]]];
     self.tableView.contentInset = UIEdgeInsetsMake(100,0,0,0);
     
-//    self.tableView.backgroundView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"bgleft"]];
+
     self.tableView.backgroundColor = [UIColor colorWithName:@"LeftMenuBackground"];
+    [self custmizeBackgroundView];
     
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(custmizeBackgroundView) name:@"custmizeBackgroundViewRightMenu" object:nil];
+}
+
+
+- (void)custmizeBackgroundView
+{
+    NSString *name = @"LeftMenu";
+    NSString *fillColorName = @"LeftMenuBackground";
+    NSLog(@"Reset %@ backgroundImage", name);
+    BackgroundViewItem *backgroundview = [[AppConfig sharedConfigDB] configDBBackgroundViewGetByName:name];
+    UIImage *image = nil;
+    if(backgroundview.onUse && backgroundview.imageData.length > 0 && nil != (image = [UIImage imageWithData:backgroundview.imageData])) {
+        image = [FuncDefine thumbOfImage:image fitToSize:self.view.frame.size isFillBlank:YES fillColor:[UIColor colorWithName:fillColorName] borderColor:[UIColor orangeColor] borderWidth:0];
+        
+        [self.tableView setBackgroundView:[[UIImageView alloc] initWithImage:image]];
+        NSLog(@"ReSet %@ backgroundImage finished.", name);
+    }
+    else {
+        [self.tableView setBackgroundView:nil];
+        NSLog(@"Clear %@ backgroundImage finished.", name);
+    }
 }
 
 
 - (void)viewDidAppear:(BOOL)animated {
-//        [self.view setFrame:CGRectMake(0, 20, self.view.frame.size.width, self.view.frame.size.height - 20)];
     [super viewDidAppear:animated];
-//    [[[UIApplication sharedApplication] keyWindow] setBackgroundColor:[UIColor purpleColor]];
+
+    [self custmizeBackgroundView];
 }
 
 
@@ -220,5 +240,10 @@
     
 }
 
+
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
 
 @end

@@ -88,21 +88,78 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
 }
 
 
+- (void)custmizeBackgroundViewNavigationBar
+{
+    NSString *name = @"NavigationBar";
+    NSString *backgroundColorName = @"NavigationBarBackground";
+    NSLog(@"Reset %@ backgroundImage", name);
+    BackgroundViewItem *backgroundview = [[AppConfig sharedConfigDB] configDBBackgroundViewGetByName:name];
+    UIImage *image = nil;
+    if(backgroundview.onUse && backgroundview.imageData.length > 0 && nil != (image = [UIImage imageWithData:backgroundview.imageData])) {
+        image = [FuncDefine thumbOfImage:image fitToSize:self.navigationController.navigationBar.frame.size isFillBlank:YES fillColor:[UIColor colorWithName:backgroundColorName] borderColor:[UIColor orangeColor] borderWidth:0];
+        
+        [self.navigationController.navigationBar setBackgroundImage:image forBarMetrics:UIBarMetricsDefault];
+        NSLog(@"Reset %@ backgroundImage finished.", name);
+    }
+    else {
+        self.navigationController.navigationBar.barTintColor = [UIColor colorWithName:@"NavigationBarBackground"];
+        self.navigationController.navigationBar.translucent = NO;
+    }
+}
+
+
+
+- (void)custmizeBackgroundViewContent
+{
+    NSString *name = @"Content";
+    NSString *backgroundColorName = @"ContentBackground";
+    NSLog(@"Reset %@ backgroundImage", name);
+    BackgroundViewItem *backgroundview = [[AppConfig sharedConfigDB] configDBBackgroundViewGetByName:name];
+    UIImage *image = nil;
+    if(backgroundview.onUse && backgroundview.imageData.length > 0 && nil != (image = [UIImage imageWithData:backgroundview.imageData])) {
+        image = [FuncDefine thumbOfImage:image fitToSize:self.view.frame.size isFillBlank:YES fillColor:[UIColor colorWithName:backgroundColorName] borderColor:[UIColor orangeColor] borderWidth:0];
+        
+        self.view.backgroundColor = [UIColor colorWithPatternImage:image];
+        NSLog(@"Reset %@ backgroundImage finished.", name);
+    }
+    else {
+        self.view.backgroundColor = [UIColor colorWithName:backgroundColorName];
+        NSLog(@"Clear %@ backgroundImage finished.", name);
+    }
+}
+
+
+- (void)custmizeBackgroundViewToolBar
+{
+    NSString *name = @"ToolBar";
+    NSString *backgroundColorName = @"ToolBarBackground";
+    NSLog(@"Reset %@ backgroundImage", name);
+    
+    BackgroundViewItem *backgroundview = [[AppConfig sharedConfigDB] configDBBackgroundViewGetByName:name];
+    UIImage *image = nil;
+    if(backgroundview.onUse && backgroundview.imageData.length > 0 && nil != (image = [UIImage imageWithData:backgroundview.imageData])) {
+        image = [FuncDefine thumbOfImage:image fitToSize:self.navigationController.toolbar.frame.size isFillBlank:YES fillColor:[UIColor colorWithName:backgroundColorName] borderColor:[UIColor orangeColor] borderWidth:0];
+        
+        self.navigationController.toolbar.backgroundColor = [UIColor colorWithPatternImage:image];
+        NSLog(@"Reset %@ backgroundImage finished.", name);
+    }
+    else {
+        self.navigationController.toolbar.backgroundColor = [UIColor colorWithName:backgroundColorName];
+        NSLog(@"Clear %@ backgroundImage finished.", name);
+        NSLog(@"%@", backgroundview);
+    }
+}
+
+
 - (void)viewWillLayoutSubviews {
     NSLog(@"/vc\\ %s", __FUNCTION__);
     [super viewWillLayoutSubviews];
     
     if(!CGRectEqualToRect(self.view.frame, self.viewFrameRecord)) {
-        NSLog(@"Reset content backgroundImage");
-        BackgroundViewItem *backgroundview = [[AppConfig sharedConfigDB] configDBBackgroundViewGetByName:@"Content"];
-        UIImage *image = nil;
-        if(backgroundview.onUse && backgroundview.imageData.length > 0 && nil != (image = [UIImage imageWithData:backgroundview.imageData])) {
-            image = [FuncDefine thumbOfImage:image fitToSize:self.view.frame.size isFillBlank:YES fillColor:[UIColor colorWithName:@"ContentBackground"] borderColor:[UIColor orangeColor] borderWidth:0];
-            
-            self.view.backgroundColor = [UIColor colorWithPatternImage:image];
-            NSLog(@"Reset content backgroundImage finished.");
-        }
+        [self custmizeBackgroundViewContent];
     }
+    
+    [self custmizeBackgroundViewToolBar];
 
     self.viewFrameRecord = self.view.frame;
     
@@ -155,6 +212,7 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
     
     self.navigationController.toolbarHidden = YES;
     
+#if 0
     BackgroundViewItem *backgroundview = [[AppConfig sharedConfigDB] configDBBackgroundViewGetByName:@"NavigationBar"];
     UIImage *image = nil;
     if(backgroundview.onUse && backgroundview.imageData.length > 0 && nil != (image = [UIImage imageWithData:backgroundview.imageData])) {
@@ -164,11 +222,12 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
         self.navigationController.navigationBar.barTintColor = [UIColor colorWithName:@"NavigationBarBackground"];
         self.navigationController.navigationBar.translucent = NO;
     }
-    
-    
 
     self.navigationController.toolbar.backgroundColor = [UIColor colorWithName:@"ToolBarBackground"];
+#endif
     
+    [self custmizeBackgroundViewNavigationBar];
+    [self custmizeBackgroundViewToolBar];
     
     [self.navigationItem setHidesBackButton:YES];
     

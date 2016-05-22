@@ -58,8 +58,19 @@
     self.cellTitle = @[@"背景图"];
 //    self.cellTitle = @[@"背景图", @"颜色", @"字体"];
     
-    self.backgroundviews = [[UIpConfig sharedUIpConfig] getUIpConfigBackgroundViews];
-
+    self.backgroundviews = [NSMutableArray arrayWithArray:[[UIpConfig sharedUIpConfig] getUIpConfigBackgroundViews]];
+    NSMutableIndexSet *indexSetRemove = [[NSMutableIndexSet alloc] init];
+    NSInteger idx = 0;
+    for(BackgroundViewItem *item in self.backgroundviews) {
+        if(!item.enableCustmize) {
+            [indexSetRemove addIndex:idx];
+        }
+        
+        idx ++;
+    }
+    
+    [self.backgroundviews removeObjectsAtIndexes:indexSetRemove];
+    
     NSInteger count = self.backgroundviews.count;
     self.backgroundviewSwitchViews = [NSMutableArray arrayWithCapacity:count];
     for(NSInteger index = 0; index < count; index ++) {
@@ -140,6 +151,17 @@
 }
 
 
+- (void)executeUpdateBackgroundViewByName:(NSString*)name
+{
+    if([name isEqualToString:@"LeftMenu"]) {
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"custmizeBackgroundViewLeftMenu" object:self userInfo:nil];
+    }
+    else if([name isEqualToString:@"RightMenu"]) {
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"custmizeBackgroundViewRightMenu" object:self userInfo:nil];
+    }
+}
+
+
 - (void)backgroundviewsValueChange:(UISwitch *)switchView
 {
     NSInteger row = switchView.tag;
@@ -156,7 +178,7 @@
             item.onUse = YES;
             BOOL updateResult = [[UIpConfig sharedUIpConfig] updateUIpConfigBackgroundView:item];
             if(updateResult) {
-                
+                [self executeUpdateBackgroundViewByName:item.name];
             }
             else {
                 switchView.on = NO;

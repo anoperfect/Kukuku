@@ -24,8 +24,10 @@
     
 //    self.tableView.backgroundView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"bgleft"]];
     self.tableView.backgroundColor =  [UIColor colorWithName:@"RightMenuBackground"];
+    [self custmizeBackgroundView];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateCategories) name:@"UpdateCategories" object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(custmizeBackgroundView) name:@"custmizeBackgroundViewRightMenu" object:nil];
     
     [self updateCategories];
 }
@@ -45,10 +47,23 @@
 }
 
 
-- (void)viewDidAppear:(BOOL)animated
+- (void)custmizeBackgroundView
 {
-    [super viewDidAppear:animated];
-    NSLog(@"x-%@", NSStringFromUIEdgeInsets(self.tableView.contentInset));
+    NSString *name = @"RightMenu";
+    NSString *fillColorName = @"RightMenuBackground";
+    NSLog(@"Reset %@ backgroundImage", name);
+    BackgroundViewItem *backgroundview = [[AppConfig sharedConfigDB] configDBBackgroundViewGetByName:name];
+    UIImage *image = nil;
+    if(backgroundview.onUse && backgroundview.imageData.length > 0 && nil != (image = [UIImage imageWithData:backgroundview.imageData])) {
+        image = [FuncDefine thumbOfImage:image fitToSize:self.view.frame.size isFillBlank:YES fillColor:[UIColor colorWithName:fillColorName] borderColor:[UIColor orangeColor] borderWidth:0];
+        
+        [self.tableView setBackgroundView:[[UIImageView alloc] initWithImage:image]];
+        NSLog(@"ReSet %@ backgroundImage finished.", name);
+    }
+    else {
+        [self.tableView setBackgroundView:nil];
+        NSLog(@"Clear %@ backgroundImage finished.", name);
+    }
 }
 
 
@@ -129,6 +144,12 @@
         [self openContentNavigationController:nvc];
     }
     
+}
+
+
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 

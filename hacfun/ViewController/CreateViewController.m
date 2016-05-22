@@ -625,7 +625,9 @@
     [ary addObject:@"email"];
     [ary addObject:@"title"];
     [ary addObject:@"content"];
-    [ary addObject:@"image"];
+    if(_imageDataPost) {
+        [ary addObject:@"image"];
+    }
     
     NSInteger idx = 0;
     
@@ -760,50 +762,59 @@
         NSInteger newCommitedTid = [(NSNumber*)[dict objectForKey:@"threadsId"] integerValue];
         NSLog(@"%zi, %d, %zi", code, success, newCommitedTid);
         
-        if(200 == code && success && newCommitedTid > 0) {
+        if(200 == code && success){
             NSLog(@"post successfully.");
-            self.newCommitedTid = newCommitedTid;
+            popupView.titleLabel = @"发送成功";
+            if(newCommitedTid > 0) {
+                self.newCommitedTid = newCommitedTid;
+            
             
 #if 0
-            //占位record表.
-            NSDictionary *infoInsert = @{
-                                         @"tid":[NSNumber numberWithInteger:newCommitedTid],
-                                         @"belongToTid":self.topicTid==0?[NSNumber numberWithInteger:newCommitedTid]:[NSNumber numberWithInteger:self.topicTid],
-                                         @"createdAt":[NSNumber numberWithLongLong:0],
-                                         @"updatedAt":[NSNumber numberWithLongLong:0],
-                                         @"jsonstring":@""
-                                         };
-            
-           [[AppConfig sharedConfigDB] configDBRecordInsertOrReplace:infoInsert];
+                //占位record表.
+                NSDictionary *infoInsert = @{
+                                             @"tid":[NSNumber numberWithInteger:newCommitedTid],
+                                             @"belongToTid":self.topicTid==0?[NSNumber numberWithInteger:newCommitedTid]:[NSNumber numberWithInteger:self.topicTid],
+                                             @"createdAt":[NSNumber numberWithLongLong:0],
+                                             @"updatedAt":[NSNumber numberWithLongLong:0],
+                                             @"jsonstring":@""
+                                             };
+                
+                [[AppConfig sharedConfigDB] configDBRecordInsertOrReplace:infoInsert];
 #endif
-            //主题贴.
-            if(self.topicTid == 0) {
-                Post *post = [[Post alloc] init];
-                post.tid        = newCommitedTid;
-                post.postedAt   = self.editedAt;
-                
-                [[AppConfig sharedConfigDB] configDBPostAdd:post];
-            }
-            else { // 回复帖.
-                Reply *reply = [[Reply alloc] init];
-                reply.tid           = newCommitedTid;
-                reply.repliedAt     = self.editedAt;
-                reply.tidBelongTo   = self.topicTid;
-                
-                NSLog(@"vbn %@", reply);
-                
-                [[AppConfig sharedConfigDB] configDBReplyAdd:reply];
-            }
+                //主题贴.
+                if(self.topicTid == 0) {
+                    Post *post = [[Post alloc] init];
+                    post.tid        = newCommitedTid;
+                    post.postedAt   = self.editedAt;
+                    
+                    [[AppConfig sharedConfigDB] configDBPostAdd:post];
+                }
+                else { // 回复帖.
+                    Reply *reply = [[Reply alloc] init];
+                    reply.tid           = newCommitedTid;
+                    reply.repliedAt     = self.editedAt;
+                    reply.tidBelongTo   = self.topicTid;
+                    
+                    NSLog(@"vbn %@", reply);
+                    
+                    [[AppConfig sharedConfigDB] configDBReplyAdd:reply];
+                }
+                popupView.finish = ^(void) {
+                    [self createFinishedWithTid:newCommitedTid];
+                };
             
-            //保存到post纪录.
-            popupView.titleLabel = @"发送成功";
-            
-            popupView.finish = ^(void) {
-                [self createFinishedWithTid:newCommitedTid];
-            };
+            }
+            else {
+                popupView.finish = ^(void) {
+                    [self.navigationController popViewControllerAnimated:YES];
+                };
+            }
         }
         else {
             NSString *msg = (NSString*)[dict objectForKey:@"msg"];
+            if(!msg) {
+                msg = (NSString*)[dict objectForKey:@"message"];
+            }
             popupView.titleLabel = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
             popupView.titleLabel = msg;
         }

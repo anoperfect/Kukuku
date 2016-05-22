@@ -277,7 +277,7 @@ else { v = -1; }
         char cstr[3] = {0};
         if([self characterAtIndex:2] == 'x') {
             NSString *v = [self substringWithRange:NSMakeRange(3, self.length - 4)];
-            int value = [v hexValue];
+            NSInteger value = [v hexValue];
             cstr[1] = value  & 0x00FF;
             cstr[0] = (value >>8) &0x00FF;
             toStr = [NSString stringWithCString:cstr encoding:NSUnicodeStringEncoding];
@@ -285,7 +285,7 @@ else { v = -1; }
         }
         else {
             NSString *v = [self substringFromIndex:2];
-            int value = [v intValue];
+            NSInteger value = [v integerValue];
             cstr[1] = value  & 0x00FF;
             cstr[0] = (value >>8) &0x00FF;
             toStr = [NSString stringWithCString:cstr encoding:NSUnicodeStringEncoding];

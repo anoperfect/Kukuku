@@ -75,6 +75,9 @@ typedef NS_ENUM(NSInteger, ThreadDataToViewType) {
 - (NSMutableDictionary*)toViewDisplayData:(ThreadDataToViewType)type;
 - (void)generatePostViewData:(ThreadDataToViewType)type;
 
+- (void)updatePostViewDataViaAddFoldInfo:(NSString*)info;
+- (void)updatePostViewDataViaRemoveFoldInfo:(NSString*)info;
+
 
 - (NSArray<NSString*> *)contentURLStrings;
 

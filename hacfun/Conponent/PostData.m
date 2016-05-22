@@ -629,6 +629,54 @@ PostView 接收的字段字段
 }
 
 
+- (void)updatePostViewDataViaAddFoldInfo:(NSString*)info
+{
+    NSString *foldInfo = [self.postViewData objectForKey:@"fold"];
+    if(foldInfo.length > 0) {
+        NSArray *foldInfos = [foldInfo componentsSeparatedByString:@","];
+        if([foldInfos indexOfObject:info] == NSNotFound) {
+            [self.postViewData setObject:[NSString stringWithFormat:@"%@,%@", foldInfo, info] forKey:@"fold"];
+        }
+        else {
+            NSLog(@"add fold info : already added.");
+        }
+    }
+    else {
+        [self.postViewData setObject:[NSString stringWithFormat:@"%@", info] forKey:@"fold"];
+    }
+}
+
+
+- (void)updatePostViewDataViaRemoveFoldInfo:(NSString*)info
+{
+    NSString *foldInfo = [self.postViewData objectForKey:@"fold"];
+    if(foldInfo.length > 0) {
+        NSArray *foldInfos = [foldInfo componentsSeparatedByString:@","];
+        NSMutableArray *foldInfosUpdate = [NSMutableArray arrayWithArray:foldInfos];
+        [foldInfosUpdate removeObject:info];
+        
+        if(foldInfosUpdate.count < foldInfos.count) {
+            if(foldInfosUpdate.count > 0) {
+                [self.postViewData setObject:[foldInfosUpdate componentsJoinedByString:@","] forKey:@"fold"];
+                NSLog(@"remove fold info %@, then %@", info, [self.postViewData objectForKey:@"fold"]);
+            }
+            else {
+                [self.postViewData removeObjectForKey:@"fold"];
+                NSLog(@"remove fold info %@, then none fold", info);
+            }
+        }
+        else {
+            NSLog(@"remove fold info %@ , not found.", info);
+        }
+        
+        [self.postViewData setObject:[NSString stringWithFormat:@"%@,%@", foldInfo, info] forKey:@"fold"];
+    }
+    else {
+        NSLog(@"#remove fold info %@ , not found, fold info empty", info);
+    }
+}
+
+
 + (void)gotParsedPostDatas:(NSArray*)postDatas
 {
     //将比对优化部分放到AppConfig的接口实现中.

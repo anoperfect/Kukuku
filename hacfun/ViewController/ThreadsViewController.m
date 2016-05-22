@@ -232,7 +232,10 @@
     
     if(refresh.refreshing) {
         refresh.attributedTitle = [[NSAttributedString alloc]initWithString:@"正在刷新"];
-        [self performSelector:@selector(refreshPostData) withObject:nil afterDelay:0];
+        
+        [refresh endRefreshing];
+//        [self performSelector:@selector(refreshPostData) withObject:nil afterDelay:1];
+        [self refreshPostData];
     }
 }
 
@@ -330,7 +333,7 @@
     
     NSArray *foldInfos = [self.dynamicPostViewDataFold objectForKey:indexPath];
     if([foldInfos isKindOfClass:[NSArray class]] && foldInfos.count > 0) {
-        [dict setObject:[NSString combineArray:foldInfos withInterval:@", " andPrefix:@"" andSuffix:@""] forKey:@"fold"];
+        [dict setObject:[NSString combineArray:foldInfos withInterval:@"," andPrefix:@"" andSuffix:@""] forKey:@"fold"];
     }
     
     NSString *statusMessage = [self.dynamicPostViewDataStatusInfo objectForKey:indexPath];
