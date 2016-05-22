@@ -76,6 +76,9 @@ typedef NS_ENUM(NSInteger, ThreadDataToViewType) {
 - (void)generatePostViewData:(ThreadDataToViewType)type;
 
 
+- (NSArray<NSString*> *)contentURLStrings;
+
+
 //从栏目请求响应api中获取的内容中解出PostData数组. forum的信息以key=forum, obj=dict的形式存入additional.
 + (NSMutableArray*)parseFromCategoryJsonData:(NSData*)data atPage:(NSInteger)page storeAdditional:(NSMutableDictionary*)additonal;
 

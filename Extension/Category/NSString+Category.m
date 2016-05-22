@@ -189,7 +189,174 @@
 }
 
 
+- (NSArray*)subStringRangesWithRegularExpression:(NSString*)regularExpression
+{
+    NSString *searchText = self;
+    NSRange rangeResult;
+    NSRange rangeSearch = NSMakeRange(0, searchText.length);
 
+    NSMutableArray *ranges = [[NSMutableArray alloc] init];
+    
+    while(1) {
+        rangeResult = [searchText rangeOfString:regularExpression options:NSRegularExpressionSearch range:rangeSearch];
+        if (rangeResult.location == NSNotFound || rangeResult.length == 0) {
+            break;
+        }
+        
+        [ranges addObject:[NSValue valueWithRange:rangeResult]];
+        
+        rangeSearch.location = rangeResult.location + rangeResult.length;
+        rangeSearch.length = searchText.length - rangeSearch.location;
+    }
+    
+    return [NSArray arrayWithArray:ranges];
+}
+
+
+
+#define HEXCHAR_TO_INT(ch, v) \
+if(ch >= '0' && ch <= '9')      { v = ch - '0'; } \
+else if(ch >= 'A' && ch <= 'F') { v = ch - 'A' + 10; } \
+else if(ch >= 'a' && ch <= 'f') { v = ch - 'a' + 10; } \
+else { v = -1; }
+
+#define DECCHAR_TO_INT(ch, v) \
+if(ch >= '0' && ch <= '9')      { v = ch - '0'; }   \
+else { v = -1; }
+
+
+
+//对字符串. ff123456类型转换成int.
+- (NSInteger)hexValue
+{
+    
+    NSInteger number = 0;
+    NSLog(@"hexValue : [%@] -> [%zd]", self, number);
+    NSString *str ;
+    if(self.length % 2 == 0) {
+        str = self;
+    }
+    else {
+        str = [NSString stringWithFormat:@"0%@", self];
+    }
+    
+    int v;
+    NSInteger lenth = str.length;
+    for(NSInteger idx = 0; idx < lenth/2; idx ++) {
+        number <<= 8;
+        
+        HEXCHAR_TO_INT([str characterAtIndex:idx*2] , v)
+        if(v == -1) {
+            NSLog(@"#error - [%@] not hex value format.", self);
+            return 0;
+        }
+        
+        number += (v << 4);
+        
+        HEXCHAR_TO_INT([str characterAtIndex:idx*2 + 1] , v)
+        if(v == -1) {
+            NSLog(@"#error - [%@] not hex value format.", self);
+            return 0;
+        }
+        
+        number += (v);
+    }
+    
+    NSLog(@"hexValue : [%@] -> [%zd]", self, number);
+    return number;
+}
+
+
+
+//由一个&#xffoc;,或者&#20000; 的字符串转换为可识别字符串.
+- (NSString *)NCRToString
+{
+    NSString *toStr = nil;
+    NSLog(@"NCRToString : [%@] -> [%@]", self, toStr);
+    if([self hasPrefix:@"&#"] && [self hasSuffix:@";"]) {
+        char cstr[3] = {0};
+        if([self characterAtIndex:2] == 'x') {
+            NSString *v = [self substringWithRange:NSMakeRange(3, self.length - 4)];
+            int value = [v hexValue];
+            cstr[1] = value  & 0x00FF;
+            cstr[0] = (value >>8) &0x00FF;
+            toStr = [NSString stringWithCString:cstr encoding:NSUnicodeStringEncoding];
+            
+        }
+        else {
+            NSString *v = [self substringFromIndex:2];
+            int value = [v intValue];
+            cstr[1] = value  & 0x00FF;
+            cstr[0] = (value >>8) &0x00FF;
+            toStr = [NSString stringWithCString:cstr encoding:NSUnicodeStringEncoding];
+        }
+    }
+    else {
+        NSLog(@"#error - [%@] invalue NCR format.", self);
+    }
+    
+    NSLog(@"NCRToString : [%@] -> [%@]", self, toStr);
+    return toStr;
+}
+
+
+
+
+
+
+//NCR转换.匹配替换部分有问题.
+-(NSString *)NCRDecode
+{
+    NSMutableString *str = [NSMutableString stringWithString:self];
+    
+    NSArray *ranges = [self subStringRangesWithRegularExpression:@"&#x{0,1}[0-9a-fA-F]+;"];
+    NSInteger count = ranges.count;
+    NSLog(@"ranges : %@", ranges);
+    
+    for(NSInteger idx = count-1; idx >= 0; idx -- ) {
+        NSValue *valueWithRange = ranges[idx];
+        NSLog(@"range : %@", valueWithRange);
+        NSRange range = [valueWithRange rangeValue];
+        NSString *NCRString = [self substringWithRange:range];
+        NSString *decodedString = [NCRString NCRToString];
+        NSLog(@"decode string : [%@]", decodedString);
+        if(decodedString.length > 0) {
+            [str replaceCharactersInRange:range withString:decodedString];
+        }
+    }
+    
+    return [NSString stringWithString:str];
+#if 0
+    NSMutableString *srcString =    [[NSMutableString alloc]initWithString:self];
+    if ([srcString containsString:@"&#"]) {
+        [srcString replaceOccurrencesOfString:@"&#" withString:@"" options:NSLiteralSearch range:NSMakeRange(0,     [srcString length])];
+        
+        NSMutableString *desString = [[NSMutableString alloc]init];
+        
+        NSArray *arr = [srcString componentsSeparatedByString:@";"];
+        
+        for(int i=0;i<[arr count]-1;i++){
+            
+            NSString *v = [arr objectAtIndex:i];
+            char *c = malloc(3);
+            int value = [v intValue];
+            c[1] = value  &0x00FF;
+            c[0] = value >>8 &0x00FF;
+            c[2] = '\0';
+            [desString appendString:[NSString stringWithCString:c encoding:NSUnicodeStringEncoding]];
+            free(c);
+        }
+        
+        return desString;
+    }
+    else
+    {
+        return self;
+    }
+#endif
+}
 
 
 @end
+
+

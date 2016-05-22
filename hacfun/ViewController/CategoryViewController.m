@@ -109,7 +109,7 @@
     
     NSLog(@"&&&&&&%zd %zd", self.numberLoaded, self.pageNumLoading);
     
-    if(self.numberLoaded == [self numberExpectedInPage:self.pageNumLoading]) {
+    if(self.numberLoaded >= [self numberExpectedInPage:self.pageNumLoading]) {
         self.pageNumLoading ++;
     }
     
@@ -161,7 +161,13 @@
 //重载以定义cell能支持的动作. NSArray成员为 NSString.
 - (NSArray*)actionStringsForRowAtIndexPath:(NSIndexPath*)indexPath
 {
-    return @[@"复制", @"举报", @"最近回复"];
+    PostData *postData = [self postDataOnIndexPath:indexPath];
+    if(postData.recentReply.count > 0) {
+        return @[@"复制", @"举报", @"最近回复"];
+    }
+    else {
+        return @[@"复制", @"举报"]; 
+    }
 }
 
 

@@ -32,5 +32,16 @@
 
 +(NSString*)stringFromTableIndexPath:(NSIndexPath*)indexPath;
 
+
+//对字符串. ff123456类型转换成int.
+- (NSInteger)hexValue;
+
+//由一个&#xffoc;,或者&#20000; 的字符串转换为可识别字符串.
+- (NSString *)NCRToString;
+
+
+//NCR转换.匹配替换部分有问题.
+-(NSString *)NCRDecode;
+
 @end
 

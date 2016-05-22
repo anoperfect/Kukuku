@@ -720,23 +720,17 @@
 //重载以定义cell能支持的动作. NSArray成员为 NSString.
 - (NSArray*)actionStringsForRowAtIndexPath:(NSIndexPath*)indexPath
 {
-    if(0 == indexPath.section) {
-        if(!self.isOnlyShowPo) {
-            return @[@"复制", @"举报", @"链接"];
-        }
-        else {
-            return @[@"复制", @"举报", @"链接"];
-        }
+    PostData *postData = [self postDataOnIndexPath:indexPath];
+    NSArray<NSString*> *urlStrings = [postData contentURLStrings];
+    if(urlStrings.count > 0) {
+        
+//        return @[@"复制", @"举报", @"链接"];
+        return @[@"复制", @"举报"];
     }
     else {
-        return @[@"复制", @"举报", @"链接"];
+        return @[@"复制", @"举报"];
     }
 }
-
-
-
-
-
 
 
 

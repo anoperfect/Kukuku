@@ -754,7 +754,7 @@
     obj = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableLeaves error:nil];
     if(obj && [obj isKindOfClass:[NSDictionary class]]) {
         dict = (NSDictionary*)obj;
-        NSLog(@"dict : %@", dict);
+        NSLog(@"dict : %@", [NSString stringFromNSDictionary:dict]);
         NSInteger code = [(NSNumber*)[dict objectForKey:@"code"] integerValue];
         BOOL success = [(NSNumber*)[dict objectForKey:@"success"] boolValue];
         NSInteger newCommitedTid = [(NSNumber*)[dict objectForKey:@"threadsId"] integerValue];

@@ -32,8 +32,8 @@
 
 #if 1
 #define NSLog(FORMAT, ...) {\
-NSString *content = [NSString stringWithFormat:FORMAT, ##__VA_ARGS__];\
-[[NSLogn sharedNSLogn] LogContentRaw:content line:__LINE__ file:__FILE__ function:__FUNCTION__];}
+NSString *contentqwert1y = [NSString stringWithFormat:FORMAT, ##__VA_ARGS__];\
+[[NSLogn sharedNSLogn] LogContentRaw:contentqwert1y line:__LINE__ file:__FILE__ function:__FUNCTION__];}
 #endif
 
 

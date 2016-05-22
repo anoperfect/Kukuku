@@ -116,6 +116,12 @@
 }
 
 
+- (NSArray<NSString*> *)contentURLStrings
+{
+    return nil;
+}
+
+
 + (PostData*)fromDictData:(NSDictionary *)dict atPage:(NSInteger)page {
     
     PostData *pd = [[PostData alloc] init];
@@ -356,7 +362,7 @@
         //已经添加链接的不添加.
         NSLog(@"zxc %zd %zd", rangeResult.location, rangeResult.length);
         NSString *subString = [searchText substringFromIndex:(rangeResult.location+rangeResult.length)];
-        if([subString hasPrefix:@"</a>"] || [subString hasPrefix:@"\">"]) {
+        if([subString hasPrefix:@"</a>"] || [subString hasPrefix:@"\""]) {
             NSLog(@"ignore link");
         }
         else {
@@ -393,6 +399,9 @@
 + (NSString*) postDataContentRetreat:(NSString*)content {
     //一些www的关键字符信息需转义.
     content = [NSString decodeWWWEscape:content];
+    
+    //新版本使用NCR显示部分字符. 修改.
+    content = [content NCRDecode];
     
     //font属性由RTLabel显示大小不合适. 手动修改成这样.
     content = [content stringByReplacingOccurrencesOfString:@"font size=\"5\"" withString:@"font size=\"16\""];
@@ -522,7 +531,6 @@ PostView 接收的字段字段
     NSMutableString *titleText = [NSMutableString stringWithFormat:@"%@  %@ ", stringCreatedAt, uidRetreat];
     [dict setObject:titleText forKey:@"title"];
     
-    NSString *content = nil;
     if(self.sage) {
         [dict setObject:@"SAGE" forKey:@"manageInfo"];
     }
@@ -533,7 +541,16 @@ PostView 接收的字段字段
     [dict setObject:@"" forKey:@"otherInfo"];
     
     //正文.
+    //htm转换. 更新的接口response中有NCR. 可以用这种方法转换.
+    //会导致其他元素丢失. 暂时不适用这种方法.
+    NSDictionary *options = @{NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType};
+    NSAttributedString *attributedString = [[NSAttributedString alloc] initWithData:[self.content dataUsingEncoding:NSUnicodeStringEncoding] options:options documentAttributes:nil error:nil];
+    NS0Log(@"%@", attributedString);
+    NS0Log(@"%@", [attributedString string]);
+    
+    NSString * content = [attributedString string];
     content = self.content;
+    
     if(self.name.length > 0) {
         content = [NSString stringWithFormat:@"名称: %@\n%@", self.name, content];
     }
