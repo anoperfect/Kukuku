@@ -788,6 +788,10 @@
                     post.postedAt   = self.editedAt;
                     
                     [[AppConfig sharedConfigDB] configDBPostAdd:post];
+                    
+                    popupView.finish = ^(void) {
+                        [self createFinishedWithTid:newCommitedTid];
+                    };
                 }
                 else { // 回复帖.
                     Reply *reply = [[Reply alloc] init];
@@ -798,11 +802,12 @@
                     NSLog(@"vbn %@", reply);
                     
                     [[AppConfig sharedConfigDB] configDBReplyAdd:reply];
+                    
+                    popupView.finish = ^(void) {
+                        [self.navigationController popViewControllerAnimated:YES];
+                        [[NSNotificationCenter defaultCenter] postNotificationName:@"CreateReplyFinish" object:self userInfo:nil];
+                    };
                 }
-                popupView.finish = ^(void) {
-                    [self createFinishedWithTid:newCommitedTid];
-                };
-            
             }
             else {
                 popupView.finish = ^(void) {

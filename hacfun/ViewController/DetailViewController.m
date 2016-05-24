@@ -43,7 +43,7 @@
 @property (nonatomic, assign) BOOL pageDescMode;
 
 
-
+@property (nonatomic,strong)  NSMutableDictionary *parseAddtional;
 
 
 @end
@@ -133,7 +133,7 @@
 
 
 - (void)reloadFromCreateReplyFinish:(NSNotification*)notification {
-    LOG_POSTION
+    [self actionViaString:@"lastpage"];
 }
 
 
@@ -264,8 +264,14 @@
         [self hiddenToolBar];
         [self showIndicationText:@"加载最后一页"];
         
-        self.pageDescMode = YES;
-        [self refreshPostDataToPage:-1];
+        if(self.pageSize > 0) {
+            [self showIndicationText:@"加载最后一页"];
+            self.pageDescMode = YES;
+            [self refreshPostDataToPage:self.pageSize];
+        }
+        else {
+            [self showIndicationText:@"未加载到详细回复信息"];
+        }
         
         return ;
     }
@@ -496,57 +502,145 @@
 }
 
 
+- (id)objectParseFromDict:(NSDictionary*)dict WithXPath:(NSArray*)xpath
+{
+    id obj = nil;
+    
+    id objParsing = dict;
+    NSLog(@"objParsing : %@", objParsing);
+    for(NSDictionary *detail in xpath) {
+        if(!([detail isKindOfClass:[NSDictionary class]] && detail.count == 1)) {
+            LOG_POSTION
+            obj = nil;
+            break;
+        }
+        
+        Class c = detail.allValues[0];
+        if(c == [NSDictionary class]) {
+            if([objParsing isKindOfClass:[NSDictionary class]]) {
+                objParsing = [objParsing objectForKey:detail.allKeys[0]];
+            }
+            else {
+                NSLog(@"#error : %@ -> %@", [objParsing class], objParsing);
+                obj = nil;
+                break;
+            }
+        }
+        else if(c == [NSArray class]) {
+            if([objParsing isKindOfClass:[NSArray class]]
+               && [detail.allKeys[0] isKindOfClass:[NSNumber class]]
+               && ((NSArray*)objParsing).count > [detail.allKeys[0] integerValue]
+               ) {
+                objParsing = [objParsing objectAtIndex:[detail.allKeys[0] integerValue]];
+            }
+            else {
+                LOG_POSTION
+                obj = nil;
+                break;
+            }
+        }
+        else {
+            LOG_POSTION
+            obj = nil;
+            break;
+        }
+        
+        if([xpath lastObject] == detail) {
+            obj = objParsing;
+        }
+        else {
+            NSLog(@"keep parseing.");
+        }
+    }
+    
+    return obj;
+}
+
+
+
+- (NSInteger)parseAddtionalGetPageSize
+{
+    NSArray *xpathSize = @[
+                       @{@"page":[NSDictionary class]},
+                       @{@"size":[NSDictionary class]}
+                       ];
+    
+    NSNumber *pageSizeNumber = [self objectParseFromDict:self.parseAddtional WithXPath:xpathSize];
+    if([pageSizeNumber isKindOfClass:[NSNumber class]]) {
+        return [pageSizeNumber integerValue];
+    }
+    else {
+        return NSNotFound;
+    }
+}
+
+
+- (id)parseAddtionalGetPage
+{
+    NSArray *xpathPage = @[
+                           @{@"page":[NSDictionary class]},
+                           @{@"page":[NSDictionary class]}
+                           ];
+    
+    id pageObject = [self objectParseFromDict:self.parseAddtional WithXPath:xpathPage];
+    return pageObject;
+}
+
+
+- (void)parseAdditionalInfo
+{
+    self.pageSize = [self parseAddtionalGetPageSize];
+    if(self.pageSize == NSNotFound) {
+        NSLog(@"#errror - Detail Additonal : update pageSize not found.");
+    }
+    else {
+        NSLog(@"Detail Additonal : update pageSize to %zd.", self.pageSize);
+    }
+    
+    
+    id pageObject = [self parseAddtionalGetPage];
+    if(pageObject == nil) {
+        NSLog(@"#errror - Detail Additonal : update pageSize not found.");
+    }
+    else {
+        NSLog(@"Detail Additonal : update page to %@.", pageObject);
+    }
+    
+    if(self.pageNumLoading == -1) {
+        if([pageObject isEqual:@"last"] || [pageObject isEqual:[NSNumber numberWithInteger:self.pageSize]]) {
+            self.pageNumLoading = self.pageSize;
+            NSLog(@"Detail Additonal : page (last) checked.");
+        }
+        else {
+            NSLog(@"#errror - Detail Additonal : page (last) checked error.");
+        }
+        
+        self.pageNumLoading = self.pageSize;
+        NSLog(@"Detail Additonal : update pageNumLoading to %zd.", self.pageNumLoading);
+    }
+    else {
+        if([pageObject isEqual:[NSNumber numberWithInteger:self.pageNumLoading]]) {
+            NSLog(@"Detail Additonal : page (%zd) checked.", self.pageNumLoading);
+        }
+        else {
+            NSLog(@"#errror - Detail Additonal : page (%zd) checked error.", self.pageNumLoading);
+        }
+    }
+}
+
+
 - (NSMutableArray*)parseDownloadedData:(NSData*)data
 {
     LOG_POSTION
     
-    NSMutableDictionary *addtional = [[NSMutableDictionary alloc] init];
+    self.parseAddtional = [[NSMutableDictionary alloc] init];
     NSMutableArray *replies = [[NSMutableArray alloc] init];
-    PostData *topic = [PostData parseFromDetailedJsonData:data atPage:self.pageNumLoading repliesTo:replies storeAdditional:addtional];
+    PostData *topic = [PostData parseFromDetailedJsonData:data atPage:self.pageNumLoading repliesTo:replies storeAdditional:self.parseAddtional];
     if(!topic) {
         return nil;
     }
     
-    //更新下附加信息.
-    NS0Log(@"Detail Additonal : %@", addtional);
-    NSString *key = @"page";
-    NSLog(@"Detail Additonal : parse item %@", key);
-    if([[addtional objectForKey:key] isKindOfClass:[NSDictionary class]]) {
-        NSDictionary *pageInfo = [addtional objectForKey:@"page"];
-        NSNumber *sizeNumber = [pageInfo objectForKey:@"size"];
-        if([sizeNumber isKindOfClass:[NSNumber class]]) {
-            self.pageSize = [sizeNumber integerValue];
-            NSLog(@"Detail Additonal : update pageSize to %zd.", self.pageSize);
-        }
-        else {
-            NSLog(@"#errror - Detail Additonal : update pageSize not found.");
-        }
-        
-        id page = [pageInfo objectForKey:@"page"];
-        if(self.pageNumLoading == -1) {
-            if([page isEqual:@"last"]) {
-                self.pageNumLoading = self.pageSize;
-                NSLog(@"Detail Additonal : page (last) checked.");
-            }
-            else {
-                NSLog(@"#errror - Detail Additonal : page (last) checked error.");
-            }
-            
-            self.pageNumLoading = self.pageSize;
-            NSLog(@"Detail Additonal : update pageNumLoading to %zd.", self.pageNumLoading);
-        }
-        else {
-            if([page isEqual:[NSNumber numberWithInteger:self.pageNumLoading]]) {
-                NSLog(@"Detail Additonal : page (%zd) checked.", self.pageNumLoading);
-            }
-            else {
-                NSLog(@"#errror - Detail Additonal : page (%zd) checked error.", self.pageNumLoading);
-            }
-        }
-    }
-    else {
-        NSLog(@"#errror - Detail Additonal : item %@ not found", key);
-    }
+    [self parseAdditionalInfo];
     
     //查看是否需更新主题.
     //确认主题内容是否更新. 更新的话需保存主题的高度. 否则在主题不显示在屏幕的时候导致当前页面显示的原cell移动.
@@ -839,6 +933,10 @@
         [self loadPage:page-1];
     }
 }
+
+
+
+
 
 
 - (void)dealloc {

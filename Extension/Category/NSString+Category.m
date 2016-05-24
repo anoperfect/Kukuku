@@ -131,6 +131,7 @@
     content = [content stringByReplacingOccurrencesOfString:@"&nbsp;" withString:@" "];
     content = [content stringByReplacingOccurrencesOfString:@"&#39;" withString:@"'"];
     content = [content stringByReplacingOccurrencesOfString:@"<br>" withString:@"\n"];
+    content = [content stringByReplacingOccurrencesOfString:@"<br />" withString:@"\n"];
     content = [content stringByReplacingOccurrencesOfString:tmpReplace withString:specialChar];
     
     return content;
@@ -231,7 +232,7 @@ else { v = -1; }
 {
     
     NSInteger number = 0;
-    NSLog(@"hexValue : [%@] -> [%zd]", self, number);
+    //NSLog(@"hexValue : [%@] -> [%zd]", self, number);
     NSString *str ;
     if(self.length % 2 == 0) {
         str = self;
@@ -262,7 +263,7 @@ else { v = -1; }
         number += (v);
     }
     
-    NSLog(@"hexValue : [%@] -> [%zd]", self, number);
+    //NSLog(@"hexValue : [%@] -> [%zd]", self, number);
     return number;
 }
 
@@ -272,7 +273,7 @@ else { v = -1; }
 - (NSString *)NCRToString
 {
     NSString *toStr = nil;
-    NSLog(@"NCRToString : [%@] -> [%@]", self, toStr);
+    //NSLog(@"NCRToString : [%@] -> [%@]", self, toStr);
     if([self hasPrefix:@"&#"] && [self hasSuffix:@";"]) {
         char cstr[3] = {0};
         if([self characterAtIndex:2] == 'x') {
@@ -295,7 +296,7 @@ else { v = -1; }
         NSLog(@"#error - [%@] invalue NCR format.", self);
     }
     
-    NSLog(@"NCRToString : [%@] -> [%@]", self, toStr);
+    //NSLog(@"NCRToString : [%@] -> [%@]", self, toStr);
     return toStr;
 }
 
@@ -315,11 +316,11 @@ else { v = -1; }
     
     for(NSInteger idx = count-1; idx >= 0; idx -- ) {
         NSValue *valueWithRange = ranges[idx];
-        NSLog(@"range : %@", valueWithRange);
+        //NSLog(@"range : %@", valueWithRange);
         NSRange range = [valueWithRange rangeValue];
         NSString *NCRString = [self substringWithRange:range];
         NSString *decodedString = [NCRString NCRToString];
-        NSLog(@"decode string : [%@]", decodedString);
+        //NSLog(@"decode string : [%@]", decodedString);
         if(decodedString.length > 0) {
             [str replaceCharactersInRange:range withString:decodedString];
         }

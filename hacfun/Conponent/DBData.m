@@ -986,38 +986,39 @@
         //判断表是否存在.
         if([self DBDataDetectTableExist:db withTableName:tableAttribute.tableName]) {
             NSLog(@"[%@ : %@] table exist.", databaseName, tableAttribute.tableName);
-            continue;
-        }
-        
-//        NSMutableString *createStringm = [NSMutableString stringWithFormat:@"create table if not exists %@(", tableAttribute.tableName];
-        NSMutableString *createStringm = [NSMutableString stringWithFormat:@"create table %@(", tableAttribute.tableName];
-        NSInteger index = 0;
-        for(DBColumnAttribute *columnAttribute in tableAttribute.columnAttributes) {
-            if(index > 0) {
-                [createStringm appendString:@", "];
-            }
-            
-//            [createStringm appendFormat:@"%@ %@ %@", columnAttribute.columnName, [self columnTypeToString:columnAttribute.dataType], columnAttribute.isAutoIncrement?@"autoincrement":@""];
-            [createStringm appendFormat:@"%@ %@ %@", columnAttribute.columnName, [self columnTypeToString:columnAttribute.dataType], columnAttribute.isAutoIncrement?@"":@""];
-            
-            index ++;
-        }
-        
-        if(tableAttribute.primaryKeys.count > 0) {
-            [createStringm appendFormat:@", PRIMARY KEY(%@)", [NSString combineArray:tableAttribute.primaryKeys withInterval:@"\", " andPrefix:@"\"" andSuffix:@"\""]];
-        }
-        
-        [createStringm appendString:@")"];
-        
-        //NSString *createHostsTable = @"create table if not exists hosts(id integer primary key autoincrement, hostname varchar, host varchar, imageHost varchar)";
-        BOOL executeResult = [db executeUpdate:[NSString stringWithString:createStringm]];
-        if(executeResult) {
-            NSLog(@"[%@ : %@] create table OK.", databaseName, tableAttribute.tableName);
         }
         else {
-            NSLog(@"#error- [%@ : %@] create table FAILED. <%@>",databaseName, tableAttribute.tableName, createStringm);
-            sleep(100);
-            continue;
+        
+            //        NSMutableString *createStringm = [NSMutableString stringWithFormat:@"create table if not exists %@(", tableAttribute.tableName];
+            NSMutableString *createStringm = [NSMutableString stringWithFormat:@"create table %@(", tableAttribute.tableName];
+            NSInteger index = 0;
+            for(DBColumnAttribute *columnAttribute in tableAttribute.columnAttributes) {
+                if(index > 0) {
+                    [createStringm appendString:@", "];
+                }
+                
+                //            [createStringm appendFormat:@"%@ %@ %@", columnAttribute.columnName, [self columnTypeToString:columnAttribute.dataType], columnAttribute.isAutoIncrement?@"autoincrement":@""];
+                [createStringm appendFormat:@"%@ %@ %@", columnAttribute.columnName, [self columnTypeToString:columnAttribute.dataType], columnAttribute.isAutoIncrement?@"":@""];
+                
+                index ++;
+            }
+            
+            if(tableAttribute.primaryKeys.count > 0) {
+                [createStringm appendFormat:@", PRIMARY KEY(%@)", [NSString combineArray:tableAttribute.primaryKeys withInterval:@"\", " andPrefix:@"\"" andSuffix:@"\""]];
+            }
+            
+            [createStringm appendString:@")"];
+            
+            //NSString *createHostsTable = @"create table if not exists hosts(id integer primary key autoincrement, hostname varchar, host varchar, imageHost varchar)";
+            BOOL executeResult = [db executeUpdate:[NSString stringWithString:createStringm]];
+            if(executeResult) {
+                NSLog(@"[%@ : %@] create table OK.", databaseName, tableAttribute.tableName);
+            }
+            else {
+                NSLog(@"#error- [%@ : %@] create table FAILED. <%@>",databaseName, tableAttribute.tableName, createStringm);
+                sleep(100);
+                continue;
+            }
         }
         
         //添加预置数据.
@@ -1045,11 +1046,12 @@
 
             NSLog(@"[%@ : %@] insert presets.", databaseName, tableAttribute.tableName);
             
+            //根据primary判断是否重复.
+            
+            
             NSInteger retInsert = [self DBDataInsert:db toTable:tableAttribute withInfo:contents countReplace:NO];
             if(DB_EXECUTE_OK != retInsert) {
                 NSLog(@"#error- [%@ : %@] insert preset FAILED. <%@>", databaseName, tableAttribute.tableName, contents);
-                sleep(100);
-                continue;
             }
             else {
                 NSLog(@"[%@ : %@] insert presets OK.", databaseName, tableAttribute.tableName);

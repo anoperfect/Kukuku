@@ -379,7 +379,7 @@
                            {"columnName":"forum", "dataType":"integer", "isNeedForInsert":false, "isAutoIncrement":false, "defaultValue":0 },
                            {"columnName":"click", "dataType":"integer", "isNeedForInsert":false, "isAutoIncrement":false, "defaultValue":0 }
                            ],
-               "primaryKeys":["sn"],
+               "primaryKeys":["name"],
                "preset":[
                          {"databaseName":"hacfun", "content":{
                                                                 "COLUMNS":["link", "name", "click"],

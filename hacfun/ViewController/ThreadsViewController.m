@@ -253,7 +253,7 @@
 
 - (void)refreshPostDataToPage:(NSInteger)page
 {
-    LOG_POSTION
+    NSLog(@"refreshPostDataToPage to page : %zd", page);
     
     [self clearPostData];
     [self showfootViewWithTitle:@"" andActivityIndicator:NO andDate:NO];
