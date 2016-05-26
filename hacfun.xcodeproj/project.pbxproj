@@ -622,6 +622,8 @@
 				B5DAFEF11CC1D9B8000551B2 /* AMSlideMenuRightTableViewController.h */,
 				B5DAFEF21CC1D9B8000551B2 /* AMSlideMenuRightTableViewController.m */,
 				B5DAFEF31CC1D9B8000551B2 /* AMSlideMenuWithoutStoryboard-Prefix.pch */,
+				B5DAFEFC1CC1D9B8000551B2 /* UIViewController+AMSlideMenu.h */,
+				B5DAFEFD1CC1D9B8000551B2 /* UIViewController+AMSlideMenu.m */,
 				B5DAFEF41CC1D9B8000551B2 /* icon-menu.png */,
 				B5DAFEF51CC1D9B8000551B2 /* icon-menu@2x.png */,
 				B5DAFEF61CC1D9B8000551B2 /* LeftMenuTVC.h */,
@@ -630,8 +632,6 @@
 				B5DAFEF91CC1D9B8000551B2 /* MainVC.m */,
 				B5DAFEFA1CC1D9B8000551B2 /* RightMenuTVC.h */,
 				B5DAFEFB1CC1D9B8000551B2 /* RightMenuTVC.m */,
-				B5DAFEFC1CC1D9B8000551B2 /* UIViewController+AMSlideMenu.h */,
-				B5DAFEFD1CC1D9B8000551B2 /* UIViewController+AMSlideMenu.m */,
 			);
 			name = AMSlideMenu;
 			path = Vendor/AMSlideMenu;

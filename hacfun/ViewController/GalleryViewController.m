@@ -26,8 +26,9 @@
 @property (nonatomic, assign) BOOL muiltSelectMode;
 
 
-@property (nonatomic, strong) NSArray *images;
-@property (nonatomic, strong) NSArray *filePaths;
+//@property (nonatomic, strong) NSMutableArray *images;
+@property (nonatomic, strong) NSMutableArray *filePaths;
+@property (nonatomic, strong) NSMutableArray *thumbs;
 
 @property (nonatomic, assign) NSInteger totalImagesNumber;
 
@@ -61,21 +62,27 @@
     self.imageDisplay = [[ImagesDisplay alloc] init];
     [self.view addSubview:self.imageDisplay];
     self.imageDisplay.backgroundColor = [UIColor clearColor];
-    [self.imageDisplay setDisplayedImages:self.images];
+    //[self.imageDisplay setDisplayedImages:self.images];
     
     __weak GalleryViewController *selfBlock = self;
     [self.imageDisplay setDidSelectHandle:^(NSInteger row) {
         [selfBlock displayImageInRow:row];
     }];
-
     
-    dispatch_async(dispatch_get_main_queue(), ^{
+    //indiction message 需等待CustomViewController的viewWillLayoutSubviews调整到最前面猜可以显示出来. 因此reloadDownloadedImage延迟一点等待viewWillLayoutSubviews执行.
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         [self reloadDownloadedImage];
     });
     
-    [self showImagesNumberAfterDelay:1];
     
-    self.view.backgroundColor = [UIColor whiteColor];
+    
+//    dispatch_async(dispatch_get_main_queue(), ^{
+//        [self reloadDownloadedImage];
+//    });
+//    
+//    [self showImagesNumberAfterDelay:1];
+//    
+//    self.view.backgroundColor = [UIColor whiteColor];
 }
 
 
@@ -127,9 +134,10 @@
 }
 
 
+#if 0
 - (void)reloadDownloadedImage
 {
-    NSMutableArray *imageArray = [[NSMutableArray alloc] init];
+    NSMutableArray *imageArray = nil; //[[NSMutableArray alloc] init];
     NSMutableArray *filePathArray = [[NSMutableArray alloc] init];
     NSMutableDictionary *additonal = [[NSMutableDictionary alloc] init];
     
@@ -171,23 +179,81 @@
         });
     }
 }
+#endif
+
+- (void)reloadDownloadedImage
+{
+    [self showIndicationText:@"正整理图片数据, 请稍等. "];
+    [self.imageDisplay setDisplayedImages:nil];
+    
+    dispatch_queue_t concurrentQueue = dispatch_queue_create("my.concurrent.queue", DISPATCH_QUEUE_CONCURRENT);
+    dispatch_async(concurrentQueue, ^(void){
+        //        self.images     = [[NSMutableArray alloc] init];
+        self.filePaths  = [[NSMutableArray alloc] init];
+        self.thumbs     = [[NSMutableArray alloc] init];
+        
+        NSMutableDictionary *additional = [[NSMutableDictionary alloc] init];
+        [ImageViewCache inputCacheImagesAndPathWithTopNumber:NSIntegerMax
+                                                outputImages:nil
+                                                 outputThumb:self.thumbs
+                                                    withSize:CGSizeMake(100, 127)
+                                            outputFilePathsM:self.filePaths
+                                             outputAdditonal:additional
+                                                    progress:^(NSInteger number){
+                                                        [self showIndicationText:[NSString stringWithFormat:@"已整理图片 : %zd", number]];
+                                                    }
+         
+         ];
+        
+        self.totalImagesNumber = [[additional objectForKey:@"totalNumber"] integerValue];
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self showIndicationText:[NSString stringWithFormat:@"共有图片%zd张", self.totalImagesNumber]];
+            [self.imageDisplay setDisplayedImages:self.thumbs];
+            
+            
+        });
+        
+    });
+}
+
+
+
+
+- (UIImage*)imageAtRow:(NSInteger)row
+{
+    NSData *data ;
+    UIImage *image = nil;
+    if(row >= 0
+       && self.filePaths.count > row
+       && (nil != (data = [NSData dataWithContentsOfFile:self.filePaths[row]]))
+       && (nil != (image = [UIImage imageWithData:data]))) {
+
+    }
+    
+    return image;
+    
+}
+
+
 
 
 - (void)displayImageInRow:(NSInteger)row
 {
-    if(row >= 0 && self.images.count > row) {
-        UIImage *image = [self.images objectAtIndex:row];
+    UIImage *image = [self imageAtRow:row];
+    if(image) {
         ImageViewController *imageViewController = [[ImageViewController alloc] init];
         [imageViewController setDisplayedImage:image];
-        
         [self.navigationController pushViewController:imageViewController animated:YES];
     }
     else {
         NSLog(@"#error : row error.");
+        [self showIndicationText:@"读取图片数据错误."];
     }
 }
 
 
+#if 0
 - (void)showImagesNumberAfterDelay:(NSInteger)sec
 {
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(sec * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
@@ -201,16 +267,17 @@
         
     });
 }
+#endif
 
 
-
+#if 0
 - (void)setDisplayedImages:(NSArray*)images andNames:(NSArray*)filePaths
 {
     self.images = images;
     self.filePaths = filePaths;
     [self.imageDisplay setDisplayedImages:self.images];
 }
-
+#endif
 
 - (void)actionViaString:(NSString *)string
 {
@@ -309,7 +376,7 @@
 {
     NSInteger numberEnable = 0;
     NSArray *boolValues = [self.imageDisplay getResultMuiltSelectModeBOOLValues];
-    if(boolValues.count != self.images.count) {
+    if(boolValues.count != self.filePaths.count) {
         NSLog(@"#error count not match.");
         return;
     }
@@ -317,8 +384,11 @@
     NSMutableArray *images = [[NSMutableArray alloc] init];
     for(NSInteger index = 0; index < boolValues.count; index ++) {
         if([boolValues[index] boolValue]) {
-            [images addObject:self.images[index]];
-            numberEnable ++;
+            UIImage *image = [self imageAtRow:index];
+            if(image) {
+                [images addObject:image];
+                numberEnable ++;
+            }
         }
     }
     
@@ -333,7 +403,7 @@
 {
     NSInteger numberEnable = 0;
     NSArray *boolValues = [self.imageDisplay getResultMuiltSelectModeBOOLValues];
-    if(boolValues.count != self.images.count) {
+    if(boolValues.count != self.filePaths.count) {
         NSLog(@"#error count not match.");
         return;
     }
@@ -341,9 +411,12 @@
     NSMutableArray *images = [[NSMutableArray alloc] init];
     for(NSInteger index = 0; index < boolValues.count; index ++) {
         if([boolValues[index] boolValue]) {
-            [images addObject:self.images[index]];
-            numberEnable ++;
-            UIImageWriteToSavedPhotosAlbum(self.images[index], nil, nil, nil);
+            UIImage *image = [self imageAtRow:index];
+            if(image) {
+                [images addObject:image];
+                numberEnable ++;
+                UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil);
+            }
         }
     }
 }
@@ -351,18 +424,14 @@
 
 - (void)imagesDelete
 {
-    NSInteger numberEnable = 0;
     NSArray *boolValues = [self.imageDisplay getResultMuiltSelectModeBOOLValues];
-    if(boolValues.count != self.images.count || boolValues.count != self.filePaths.count) {
+    if(boolValues.count != self.filePaths.count) {
         NSLog(@"#error count not match.");
         return;
     }
     
-    NSMutableArray *images = [[NSMutableArray alloc] init];
     for(NSInteger index = 0; index < boolValues.count; index ++) {
         if([boolValues[index] boolValue]) {
-            [images addObject:self.images[index]];
-            numberEnable ++;
             [[NSFileManager defaultManager] removeItemAtPath:self.filePaths[index] error:nil];
         }
     }

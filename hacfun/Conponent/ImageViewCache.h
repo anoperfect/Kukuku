@@ -19,8 +19,11 @@
 //返回实际获取到的image个数.
 + (NSInteger)inputCacheImagesAndPathWithTopNumber:(NSInteger)topNumber
                                      outputImages:(NSMutableArray*)imageArray
+                                      outputThumb:(NSMutableArray*)thumbs
+                                         withSize:(CGSize)size
                                  outputFilePathsM:(NSMutableArray*)filePathArray
-                                  outputAdditonal:(NSMutableDictionary*)dictm;
+                                  outputAdditonal:(NSMutableDictionary*)dictm
+                                        progress:(void (^)(NSInteger number))progress;
 
 + (void)deleteCaches;
 

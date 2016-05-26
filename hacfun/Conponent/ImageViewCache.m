@@ -61,8 +61,11 @@
 //返回实际获取到的image个数.
 + (NSInteger)inputCacheImagesAndPathWithTopNumber:(NSInteger)topNumber
                                      outputImages:(NSMutableArray*)imageArray
+                                      outputThumb:(NSMutableArray*)thumbs
+                                         withSize:(CGSize)size
                                  outputFilePathsM:(NSMutableArray*)filePathArray
                                   outputAdditonal:(NSMutableDictionary*)dictm
+                                         progress:(void (^)(NSInteger number))progress
 {
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSError *error = nil;
@@ -80,8 +83,19 @@
         if(image) {
             [imageArray addObject:image];
             [filePathArray addObject:fullName];
+            UIImage *thumb  = [FuncDefine thumbOfImage:image
+                                             fitToSize:size
+                                           isFillBlank:YES
+                                             fillColor:[UIColor clearColor]
+                                           borderColor:[UIColor orangeColor] borderWidth:3.6];
+            [thumbs addObject:thumb];
             
             retNumber ++;
+            if(progress) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    progress(retNumber);
+                });
+            }
             
             if(retNumber >= topNumber) {
                 break;

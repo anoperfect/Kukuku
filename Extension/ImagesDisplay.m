@@ -40,9 +40,6 @@
     if (self) {
         UICollectionViewFlowLayout *flowLayout= [[UICollectionViewFlowLayout alloc] init];
         self.imagesView = [[UICollectionView alloc] initWithFrame:CGRectMake(20, 20, 250, 350) collectionViewLayout:flowLayout];
-        
-        
-        
         self.imagesView.backgroundColor = [UIColor colorWithName:@"GalleryImageViewBackground"];
         [self.imagesView registerClass:[UICollectionViewCell class] forCellWithReuseIdentifier:@"myCell"];
         self.imagesView.delegate = self;
@@ -117,11 +114,11 @@
     
     imageView.frame = cell.bounds;
     imageView.image = [self.imageDatas objectAtIndex:indexPath.row];
-    imageView.image = [FuncDefine thumbOfImage:imageView.image
-                                     fitToSize:CGSizeMake(100, 127)
-                                   isFillBlank:YES
-                                     fillColor:[UIColor clearColor]
-                                   borderColor:[UIColor orangeColor] borderWidth:3.6];
+//    imageView.image = [FuncDefine thumbOfImage:imageView.image
+//                                     fitToSize:CGSizeMake(100, 127)
+//                                   isFillBlank:YES
+//                                     fillColor:[UIColor clearColor]
+//                                   borderColor:[UIColor orangeColor] borderWidth:3.6];
     
     CGFloat heightSelectSign = 36;
     UIImageView *muiltSelectSign = [cell viewWithTag:10000001];

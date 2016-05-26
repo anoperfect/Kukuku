@@ -32,6 +32,8 @@
              borderColor:(UIColor*)borderColor
              borderWidth:(CGFloat)borderWidth
 {
+    [FuncDefine timeIntervalCountWithRecount:YES];
+    NSLog(@"---thumbOfImage start.");
     UIImage *bgImage = image;
     
     // 1.创建一个基于位图的上下文(开启一个基于位图的上下文)
@@ -98,6 +100,7 @@
     // 5.结束上下文
     UIGraphicsEndImageContext();
     
+    NSLog(@"---thumbOfImage finish.%f", [FuncDefine timeIntervalCountWithRecount:NO]);
     return thumbImage;
 }
 
