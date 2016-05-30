@@ -9,7 +9,7 @@
 #import "AppConfig.h"
 #import "FMDB.h"
 #import "FuncDefine.h"
-
+#import "appkey.h"
 
 
 
@@ -93,6 +93,9 @@
 
 - (id)init {
     if (self = [super init]) {
+        
+        self.appkey = APPKEY;
+        self.appSecret = APPSECRET;
         
         self.dictSettingKV = [[NSMutableDictionary alloc] init];
         
@@ -1869,8 +1872,7 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
 - (void)authAsync:(void(^)(BOOL result))handle
 {
     //当前未开启sign校验. 随意写一个. token校验同样未开启.
-    self.appkey = @"ee2a5472-065b-41c2-7e57-111111111111";
-    self.appSecret = @"s6Q17e57y2E175e7";
+
     NSString *idfa = [NSString deviceIdfa];
     self.hwid = [idfa calculateMD5];
     

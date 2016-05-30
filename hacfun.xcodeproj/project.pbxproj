@@ -31,7 +31,6 @@
 		B523C9EA1B78FADC00944004 /* CookieManage.m in Sources */ = {isa = PBXBuildFile; fileRef = B523C9E01B78FADC00944004 /* CookieManage.m */; };
 		B523C9EB1B78FADC00944004 /* PopupView.m in Sources */ = {isa = PBXBuildFile; fileRef = B523C9E21B78FADC00944004 /* PopupView.m */; };
 		B523C9EC1B78FADC00944004 /* PostData.m in Sources */ = {isa = PBXBuildFile; fileRef = B523C9E41B78FADC00944004 /* PostData.m */; };
-		B523C9ED1B78FADC00944004 /* PostDataCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = B523C9E61B78FADC00944004 /* PostDataCellView.m */; };
 		B523C9F51B78FAFD00944004 /* AppConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = B523C9F11B78FAFD00944004 /* AppConfig.m */; };
 		B523C9F61B78FAFD00944004 /* FuncDefine.m in Sources */ = {isa = PBXBuildFile; fileRef = B523C9F41B78FAFD00944004 /* FuncDefine.m */; };
 		B523C9FB1B78FD6F00944004 /* BannerView.m in Sources */ = {isa = PBXBuildFile; fileRef = B523C9F81B78FD6F00944004 /* BannerView.m */; };
@@ -133,6 +132,7 @@
 /* Begin PBXFileReference section */
 		35EC275D60C6828CB8827836 /* Pods_hacfun.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_hacfun.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		87BFC3AADD62AA5E2C26FF64 /* Pods-hacfun.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-hacfun.release.xcconfig"; path = "Pods/Target Support Files/Pods-hacfun/Pods-hacfun.release.xcconfig"; sourceTree = "<group>"; };
+		B502373B1CFCA3AD00C8AE1A /* appkey.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = appkey.h; sourceTree = "<group>"; };
 		B5039B1C1CB7FF1E00C7865F /* buttondelete.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = buttondelete.png; sourceTree = "<group>"; };
 		B5039B1D1CB7FF1E00C7865F /* buttonsave.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = buttonsave.png; sourceTree = "<group>"; };
 		B5039B1E1CB7FF1E00C7865F /* buttonshare.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = buttonshare.png; sourceTree = "<group>"; };
@@ -169,8 +169,6 @@
 		B523C9E21B78FADC00944004 /* PopupView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PopupView.m; sourceTree = "<group>"; };
 		B523C9E31B78FADC00944004 /* PostData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PostData.h; sourceTree = "<group>"; };
 		B523C9E41B78FADC00944004 /* PostData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PostData.m; sourceTree = "<group>"; };
-		B523C9E51B78FADC00944004 /* PostDataCellView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PostDataCellView.h; sourceTree = "<group>"; };
-		B523C9E61B78FADC00944004 /* PostDataCellView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = PostDataCellView.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		B523C9F01B78FAFD00944004 /* AppConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppConfig.h; sourceTree = "<group>"; };
 		B523C9F11B78FAFD00944004 /* AppConfig.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppConfig.m; sourceTree = "<group>"; };
 		B523C9F31B78FAFD00944004 /* FuncDefine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FuncDefine.h; sourceTree = "<group>"; };
@@ -348,70 +346,15 @@
 			name = Pods;
 			sourceTree = "<group>";
 		};
-		B523C9B91B78FAB500944004 /* ViewController */ = {
-			isa = PBXGroup;
-			children = (
-				B5C3E42A1CEC2EC1005181A2 /* TidResultViewController.h */,
-				B5C3E42B1CEC2EC1005181A2 /* TidResultViewController.m */,
-				B58D87321B81F2AC00B9A1BA /* CustomViewController.h */,
-				B5C3E4281CEC2EA4005181A2 /* CustomViewController.m */,
-				B5C3E42D1CEC4A23005181A2 /* IntroductionViewController.h */,
-				B5C3E42E1CEC4A23005181A2 /* IntroductionViewController.m */,
-				B523C9CF1B78FAB500944004 /* ThreadsViewController.h */,
-				B523C9D01B78FAB500944004 /* ThreadsViewController.m */,
-				B5F24BB61C49F27E0027DAB2 /* NetworkThreadViewController.h */,
-				B5F24BB71C49F27E0027DAB2 /* NetworkThreadViewController.m */,
-				B523C9BC1B78FAB500944004 /* CategoryViewController.h */,
-				B523C9BD1B78FAB500944004 /* CategoryViewController.m */,
-				B523C9CB1B78FAB500944004 /* DetailViewController.h */,
-				B523C9CC1B78FAB500944004 /* DetailViewController.m */,
-				B523C9BE1B78FAB500944004 /* CreateViewController.h */,
-				B523C9BF1B78FAB500944004 /* CreateViewController.m */,
-				B5F24BB01C49EBF70027DAB2 /* LocaleViewController.h */,
-				B5F24BB11C49EBF70027DAB2 /* LocaleViewController.m */,
-				B5E137891B7CDB76002B5979 /* CollectionViewController.h */,
-				B5E1378A1B7CDB76002B5979 /* CollectionViewController.m */,
-				B5A058551B9DE86200370557 /* PostViewController.h */,
-				B5A058561B9DE86200370557 /* PostViewController.m */,
-				B5A058581B9DE87A00370557 /* ReplyViewController.h */,
-				B5A058591B9DE87A00370557 /* ReplyViewController.m */,
-				B50D38B71B7F4BE10024E464 /* SettingViewController.h */,
-				B50D38B81B7F4BE10024E464 /* SettingViewController.m */,
-				B523C9C01B78FAB500944004 /* ImageViewController.h */,
-				B523C9C11B78FAB500944004 /* ImageViewController.m */,
-				B56E53511CB4014700998F74 /* GalleryViewController.h */,
-				B56E53521CB4014700998F74 /* GalleryViewController.m */,
-				B5DD9A8D1CE214BC00C762AF /* DeveloperViewController.h */,
-				B5DD9A8E1CE214BC00C762AF /* DeveloperViewController.m */,
-				B5DD9A901CE2151500C762AF /* SearchViewController.h */,
-				B5DD9A911CE2151500C762AF /* SearchViewController.m */,
-				B5DD9A931CE2152000C762AF /* TestViewController.h */,
-				B5DD9A941CE2152000C762AF /* TestViewController.m */,
-				B5DD9A961CE2154400C762AF /* UICustmizeViewController.h */,
-				B5DD9A971CE2154400C762AF /* UICustmizeViewController.m */,
-			);
-			path = ViewController;
-			sourceTree = "<group>";
-		};
-		B523C9DC1B78FADC00944004 /* Conponent */ = {
+		B50237331CFC9D4300C8AE1A /* View */ = {
 			isa = PBXGroup;
 			children = (
 				B523C9F71B78FD6F00944004 /* BannerView.h */,
 				B523C9F81B78FD6F00944004 /* BannerView.m */,
 				B523C9F91B78FD6F00944004 /* PostImageView.h */,
 				B523C9FA1B78FD6F00944004 /* PostImageView.m */,
-				B5E137921B7D92E1002B5979 /* ImageViewCache.h */,
-				B5E137931B7D92E1002B5979 /* ImageViewCache.m */,
-				B523C9DD1B78FADC00944004 /* ButtonData.h */,
-				B523C9DE1B78FADC00944004 /* ButtonData.m */,
-				B523C9DF1B78FADC00944004 /* CookieManage.h */,
-				B523C9E01B78FADC00944004 /* CookieManage.m */,
 				B523C9E11B78FADC00944004 /* PopupView.h */,
 				B523C9E21B78FADC00944004 /* PopupView.m */,
-				B523C9E31B78FADC00944004 /* PostData.h */,
-				B523C9E41B78FADC00944004 /* PostData.m */,
-				B523C9E51B78FADC00944004 /* PostDataCellView.h */,
-				B523C9E61B78FADC00944004 /* PostDataCellView.m */,
 				B50F997E1C109E5900240C9D /* EmoticonCharacterView.h */,
 				B50F997F1C109E5900240C9D /* EmoticonCharacterView.m */,
 				B50F99811C12815700240C9D /* GridView.h */,
@@ -424,8 +367,125 @@
 				B5DD9A9A1CE215C000C762AF /* PostGroupView.m */,
 				B5C3E4301CEC56EA005181A2 /* AlignTopLabel.h */,
 				B5C3E4311CEC56EA005181A2 /* AlignTopLabel.m */,
+			);
+			name = View;
+			sourceTree = "<group>";
+		};
+		B50237341CFC9D8700C8AE1A /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				B523C9E31B78FADC00944004 /* PostData.h */,
+				B523C9E41B78FADC00944004 /* PostData.m */,
+				B5E137921B7D92E1002B5979 /* ImageViewCache.h */,
+				B5E137931B7D92E1002B5979 /* ImageViewCache.m */,
+				B523C9DD1B78FADC00944004 /* ButtonData.h */,
+				B523C9DE1B78FADC00944004 /* ButtonData.m */,
+				B523C9DF1B78FADC00944004 /* CookieManage.h */,
+				B523C9E01B78FADC00944004 /* CookieManage.m */,
+			);
+			name = Model;
+			sourceTree = "<group>";
+		};
+		B50237351CFC9ED500C8AE1A /* Custom */ = {
+			isa = PBXGroup;
+			children = (
+				B58D87321B81F2AC00B9A1BA /* CustomViewController.h */,
+				B5C3E4281CEC2EA4005181A2 /* CustomViewController.m */,
+				B523C9CF1B78FAB500944004 /* ThreadsViewController.h */,
+				B523C9D01B78FAB500944004 /* ThreadsViewController.m */,
+			);
+			name = Custom;
+			sourceTree = "<group>";
+		};
+		B50237361CFC9EF100C8AE1A /* Network */ = {
+			isa = PBXGroup;
+			children = (
+				B5F24BB61C49F27E0027DAB2 /* NetworkThreadViewController.h */,
+				B5F24BB71C49F27E0027DAB2 /* NetworkThreadViewController.m */,
+				B523C9BC1B78FAB500944004 /* CategoryViewController.h */,
+				B523C9BD1B78FAB500944004 /* CategoryViewController.m */,
+				B523C9CB1B78FAB500944004 /* DetailViewController.h */,
+				B523C9CC1B78FAB500944004 /* DetailViewController.m */,
+				B523C9BE1B78FAB500944004 /* CreateViewController.h */,
+				B523C9BF1B78FAB500944004 /* CreateViewController.m */,
+				B523C9C01B78FAB500944004 /* ImageViewController.h */,
+				B523C9C11B78FAB500944004 /* ImageViewController.m */,
+				B5DD9A901CE2151500C762AF /* SearchViewController.h */,
+				B5DD9A911CE2151500C762AF /* SearchViewController.m */,
+			);
+			name = Network;
+			sourceTree = "<group>";
+		};
+		B50237371CFC9F0C00C8AE1A /* Locale */ = {
+			isa = PBXGroup;
+			children = (
+				B5F24BB01C49EBF70027DAB2 /* LocaleViewController.h */,
+				B5F24BB11C49EBF70027DAB2 /* LocaleViewController.m */,
+				B5C3E42A1CEC2EC1005181A2 /* TidResultViewController.h */,
+				B5C3E42B1CEC2EC1005181A2 /* TidResultViewController.m */,
+				B5E137891B7CDB76002B5979 /* CollectionViewController.h */,
+				B5E1378A1B7CDB76002B5979 /* CollectionViewController.m */,
+				B5A058551B9DE86200370557 /* PostViewController.h */,
+				B5A058561B9DE86200370557 /* PostViewController.m */,
+				B5A058581B9DE87A00370557 /* ReplyViewController.h */,
+				B5A058591B9DE87A00370557 /* ReplyViewController.m */,
+			);
+			name = Locale;
+			sourceTree = "<group>";
+		};
+		B50237381CFC9F9500C8AE1A /* Functional */ = {
+			isa = PBXGroup;
+			children = (
+				B56E53511CB4014700998F74 /* GalleryViewController.h */,
+				B56E53521CB4014700998F74 /* GalleryViewController.m */,
+				B5C3E42D1CEC4A23005181A2 /* IntroductionViewController.h */,
+				B5C3E42E1CEC4A23005181A2 /* IntroductionViewController.m */,
+				B5DD9A931CE2152000C762AF /* TestViewController.h */,
+				B5DD9A941CE2152000C762AF /* TestViewController.m */,
+			);
+			name = Functional;
+			sourceTree = "<group>";
+		};
+		B50237391CFCA07400C8AE1A /* Setting */ = {
+			isa = PBXGroup;
+			children = (
+				B50D38B71B7F4BE10024E464 /* SettingViewController.h */,
+				B50D38B81B7F4BE10024E464 /* SettingViewController.m */,
+				B5DD9A961CE2154400C762AF /* UICustmizeViewController.h */,
+				B5DD9A971CE2154400C762AF /* UICustmizeViewController.m */,
+			);
+			name = Setting;
+			sourceTree = "<group>";
+		};
+		B502373A1CFCA08800C8AE1A /* Develop */ = {
+			isa = PBXGroup;
+			children = (
+				B5DD9A8D1CE214BC00C762AF /* DeveloperViewController.h */,
+				B5DD9A8E1CE214BC00C762AF /* DeveloperViewController.m */,
+			);
+			name = Develop;
+			sourceTree = "<group>";
+		};
+		B523C9B91B78FAB500944004 /* ViewController */ = {
+			isa = PBXGroup;
+			children = (
+				B50237351CFC9ED500C8AE1A /* Custom */,
+				B50237381CFC9F9500C8AE1A /* Functional */,
+				B50237361CFC9EF100C8AE1A /* Network */,
+				B50237371CFC9F0C00C8AE1A /* Locale */,
+				B50237391CFCA07400C8AE1A /* Setting */,
+				B502373A1CFCA08800C8AE1A /* Develop */,
+			);
+			path = ViewController;
+			sourceTree = "<group>";
+		};
+		B523C9DC1B78FADC00944004 /* Conponent */ = {
+			isa = PBXGroup;
+			children = (
 				B5DD9A9C1CE217FB00C762AF /* ModelAndViewInc.h */,
 				B5DD9A9D1CE217FB00C762AF /* ModelAndViewInc.m */,
+				B50237341CFC9D8700C8AE1A /* Model */,
+				B50237331CFC9D4300C8AE1A /* View */,
 			);
 			path = Conponent;
 			sourceTree = "<group>";
@@ -435,6 +495,7 @@
 			children = (
 				B523C9F01B78FAFD00944004 /* AppConfig.h */,
 				B523C9F11B78FAFD00944004 /* AppConfig.m */,
+				B502373B1CFCA3AD00C8AE1A /* appkey.h */,
 				B5B0771F1CC626DE00CF50A2 /* db.json */,
 			);
 			path = AppConfig;
@@ -568,10 +629,6 @@
 				B523C9F21B78FAFD00944004 /* FuncDefine */,
 				B523C9DC1B78FADC00944004 /* Conponent */,
 				B523C9B91B78FAB500944004 /* ViewController */,
-				B5D8D4771B52060C0091DA20 /* AppDelegate.h */,
-				B5D8D4781B52060C0091DA20 /* AppDelegate.m */,
-				B5D8D4801B52060C0091DA20 /* Images.xcassets */,
-				B5D8D4821B52060C0091DA20 /* LaunchScreen.xib */,
 				B5D8D4731B52060C0091DA20 /* Supporting Files */,
 			);
 			path = hacfun;
@@ -580,6 +637,10 @@
 		B5D8D4731B52060C0091DA20 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				B5D8D4771B52060C0091DA20 /* AppDelegate.h */,
+				B5D8D4781B52060C0091DA20 /* AppDelegate.m */,
+				B5D8D4801B52060C0091DA20 /* Images.xcassets */,
+				B5D8D4821B52060C0091DA20 /* LaunchScreen.xib */,
 				B58D881F1B85621500B9A1BA /* libsqlite3.dylib */,
 				B523C9FD1B78FDB100944004 /* Source */,
 				B5D8D4741B52060C0091DA20 /* Info.plist */,
@@ -901,7 +962,6 @@
 				B50F99831C12815700240C9D /* GridView.m in Sources */,
 				B5A8036A1CAA808F00F88EC7 /* NSLogn.m in Sources */,
 				B5A0585A1B9DE87A00370557 /* ReplyViewController.m in Sources */,
-				B523C9ED1B78FADC00944004 /* PostDataCellView.m in Sources */,
 				B5DD9A921CE2151500C762AF /* SearchViewController.m in Sources */,
 				B5DAFF1E1CC1D9B8000551B2 /* AMSlideMenuLeftMenuSegue.m in Sources */,
 				B523C9F51B78FAFD00944004 /* AppConfig.m in Sources */,
