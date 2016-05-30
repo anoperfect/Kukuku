@@ -169,7 +169,7 @@ static NSInteger kcountObject = 0;
     
     Host *host = [[AppConfig sharedConfigDB] configDBHostsGetCurrent];
     NSString *imageHost = host.imageHost;
-    NSString *downloadString = [NSString stringWithFormat:@"%@/%@", imageHost, self.data.image];
+    NSString *downloadString = [NSString stringWithFormat:@"%@%@", imageHost, self.data.image];
     postImageView.linkImageString = downloadString;
     
     [self.delegate PostView:self didSelectThumb:[postImageView getDisplayingImage] withImageLink:downloadString];

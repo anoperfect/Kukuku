@@ -18,10 +18,12 @@
 
 
 
+
 //host.
 - (NSArray*)configDBHostsGet;
 - (Host*)configDBHostsGetCurrent;
 - (NSArray*)configDBHostsGetHostnames;
+#define HOSTNAME ([[AppConfig sharedConfigDB] configDBHostsGetCurrent].hostname)
 
 //hostindex.
 - (NSInteger)configDBHostIndexGet;
@@ -63,7 +65,9 @@
 
 //category.
 - (NSArray*)configDBCategoryGet;
+- (Category*)configDBCategoryGetByName:(NSString*)name;
 -     (BOOL)configDBCategoryAddClick:(NSString*)cateogry;
+
 
 
 //DetailHistory
@@ -103,6 +107,14 @@
 
 //清除数据库. 需仅适用于开发者环境.
 - (void)removeAll;
+
+
+- (NSString*)generateRequestURL:(NSString*)query andArgument:(NSDictionary*)argument;
+- (void)authAsync:(void(^)(BOOL result))handle;
+- (void)updateCategoryAsync:(void(^)(BOOL result, NSInteger total, NSInteger updateNumber))handle;
+- (NSData*)sendSynchronousRequestTo:(NSString*)query andArgument:(NSDictionary*)argument;
+- (NSDictionary*)sendSynchronousRequestAndJsonParseTo:(NSString*)query andArgument:(NSDictionary*)argument;
+
 
 
 @end

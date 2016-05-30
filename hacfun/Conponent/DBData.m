@@ -59,12 +59,12 @@
 
 - (DBTableAttribute*)getDBTableAttribute:(NSString*)databaseName withTableName:(NSString*)tableName
 {
-    NSLog(@"self.tableAttributess.count : %zd", self.tableAttributes.count);
+    NS0Log(@"self.tableAttributess.count : %zd", self.tableAttributes.count);
     
     for(DBTableAttribute *tableAttribute in self.tableAttributes) {
         if([tableAttribute.tableName isEqualToString:tableName]) {
             if([tableAttribute.databaseNames indexOfObject:databaseName] != NSNotFound) {
-                NSLog(@"<%@ : %@> table value found.", databaseName, tableName);
+                NS0Log(@"<%@ : %@> table value found.", databaseName, tableName);
                 return tableAttribute;
             }
             else {
@@ -79,11 +79,15 @@
 
 - (DBColumnAttribute*)getDBColumnAttributeFromTableAttribute:(DBTableAttribute*)tableAttributes withColumnName:(NSString*)columnName
 {
+    NSMutableArray *columnAttributeNames = [[NSMutableArray alloc] init];
     for(DBColumnAttribute *columnAttribute in tableAttributes.columnAttributes) {
+        [columnAttributeNames addObject:columnAttribute.columnName];
         if([columnAttribute.columnName isEqualToString:columnName]) {
             return columnAttribute;
         }
     }
+    
+    NSLog(@"#error - <%@> not found in <%@>", columnName, columnAttributeNames);
     
     return nil;
 }
@@ -264,7 +268,7 @@
         NSLog(@"insert table %@ [%zd] OK.", tableAttribute.tableName, countOfValues);
     }
     else {
-        NSLog(@"error- insert table %@ FAILED (executeUpdate [%@] error).", tableAttribute.tableName, insert);
+        NSLog(@"#error- insert table %@ FAILED (executeUpdate [%@] error).", tableAttribute.tableName, insert);
         return DB_EXECUTE_ERROR_SQL;
     }
     
@@ -275,7 +279,7 @@
 //增
 - (NSInteger)DBDataInsertDBName:(NSString*)databaseName toTable:(NSString*)tableName withInfo:(NSDictionary*)infoInsert countReplace:(BOOL)couldReplace
 {
-    if(![NSThread isMainThread]) {NSLog(@"#error - should excute db in MainThread.");}
+    if(![NSThread isMainThread]) {NSLog(@"#error - should excute db in MainThread. <%@:%@>", databaseName, tableName);}
     
     
     FMDatabase *db = [self getDataBaseByName:databaseName];
@@ -345,7 +349,7 @@
 //删
 - (NSInteger)DBDataDeleteDBName:(NSString*)databaseName toTable:(NSString*)tableName withQuery:(NSDictionary*)infoQuery
 {
-    if(![NSThread isMainThread]) {NSLog(@"#error - should excute db in MainThread.");}
+    if(![NSThread isMainThread]) {NSLog(@"#error - should excute db in MainThread. <%@:%@>", databaseName, tableName);}
     FMDatabase *db = [self getDataBaseByName:databaseName];
     if(!db) {
         NSLog(@"#error - not find database <%@>", databaseName);
@@ -426,7 +430,7 @@
           [NSString stringFromNSDictionary:infoLimit1]
           );
     
-    if(![NSThread isMainThread]) {NSLog(@"#error - should excute db in MainThread.");}
+
     //获取表信息.
     NSLog(@"table :%@ , name:%@, %zd.", tableAttribute, tableAttribute.tableName, tableAttribute.primaryKeys.count);
     NSMutableString *querym ;
@@ -591,6 +595,8 @@
                          withQuery:(NSDictionary*)infoQuery
                          withLimit:(NSDictionary*)infoLimit
 {
+    if(![NSThread isMainThread]) {NSLog(@"#error - should excute db in MainThread. <%@:%@>", databaseName, tableName);}
+    
     FMDatabase *db = [self getDataBaseByName:databaseName];
     if(!db) {
         NSLog(@"#error - not find database <%@ : %@>", databaseName, tableName);
@@ -648,7 +654,7 @@
 
 - (NSInteger)DBDataUpdateDBName:(NSString*)databaseName toTable:(NSString*)tableName withInfoUpdate:(NSDictionary*)infoUpdate withInfoQuery:(NSDictionary*)infoQuery
 {
-    if(![NSThread isMainThread]) {NSLog(@"#error - should excute db in MainThread.");}
+    if(![NSThread isMainThread]) {NSLog(@"#error - should excute db in MainThread. <%@:%@>", databaseName, tableName);}
     FMDatabase *db = [self getDataBaseByName:databaseName];
     if(!db) {
         NSLog(@"#error - not find database <%@ : %@>", databaseName, tableName);
@@ -665,6 +671,78 @@
 }
 
 
+//改. 暂时不实现.
+- (NSInteger)DBDataUpdates:(FMDatabase*)db toTable:(DBTableAttribute*)tableAttribute withInfosUpdate:(NSArray<NSDictionary*> *)infosUpdate withInfosQuery:(NSArray<NSDictionary*> *)infosQuery
+{
+    NSInteger ret = DB_EXECUTE_OK;
+    NSMutableString *updatem = nil;
+    BOOL retFMDB;
+    
+    [db beginTransaction];
+    
+    NSInteger count = infosUpdate.count;
+    for(NSInteger index = 0; index < count; index ++) {
+        NSDictionary *infoUpdate = infosUpdate[index];
+        NSDictionary *infoQuery = infosQuery[index];
+        if(!([infoUpdate isKindOfClass:[NSDictionary class]] && [infoQuery isKindOfClass:[NSDictionary class]])) {
+            NSLog(@"#error - infosUpdate / infosQuery argument error.");
+            continue;
+        }
+        
+        NSMutableArray *arguments = [[NSMutableArray alloc] init];
+        
+        NSArray *infoUpdateKeys = infoUpdate.allKeys;
+        NSArray *infoUpdateValues = infoUpdate.allValues;
+        
+        updatem = [NSMutableString stringWithFormat:@"UPDATE %@ set ", tableAttribute.tableName];
+        
+        for(NSInteger index = 0; index < infoUpdateKeys.count; index++) {
+            if(index > 0) {
+                [updatem appendString:@", "];
+            }
+            
+            [updatem appendFormat:@"%@ = ? ", infoUpdateKeys[index]];
+            [arguments addObject:infoUpdateValues[index]];
+        }
+        
+        NSString *queryString = [self DBDataGenerateQueryString:infoQuery andArgumentsInArray:arguments];
+        [updatem appendString:queryString];
+        
+        NSLog(@"UPDATE executeUpdate [%@] with arguments [%@].", updatem, [NSString combineArray:arguments withInterval:@"," andPrefix:@"" andSuffix:@""]);
+        retFMDB = [db executeUpdate:updatem withArgumentsInArray:arguments];
+        if(retFMDB) {
+            
+        }
+        else {
+            NSLog(@"#error - DBDataUpdate failed.");
+            ret = DB_EXECUTE_ERROR_DATA;
+        }
+    }
+    
+    [db commit];
+    
+    return ret;
+}
+
+
+//使用事物提供批量改.
+- (NSInteger)DBDataUpdatesDBName:(NSString*)databaseName toTable:(NSString*)tableName withInfosUpdate:(NSArray<NSDictionary*> *)infosUpdate withInfosQuery:(NSArray<NSDictionary*> *)infosQuery;
+{
+    if(![NSThread isMainThread]) {NSLog(@"#error - should excute db in MainThread. <%@:%@>", databaseName, tableName);}
+    FMDatabase *db = [self getDataBaseByName:databaseName];
+    if(!db) {
+        NSLog(@"#error - not find database <%@ : %@>", databaseName, tableName);
+        return DB_EXECUTE_ERROR_NOT_FOUND;
+    }
+    
+    DBTableAttribute *tableAttribute = [self getDBTableAttribute:databaseName withTableName:tableName];
+    if(!tableAttribute) {
+        NSLog(@"#error - not find table <%@ : %@>", databaseName, tableName);
+        return DB_EXECUTE_ERROR_NOT_FOUND;
+    }
+    
+    return [self DBDataUpdates:db toTable:tableAttribute withInfosUpdate:infosUpdate withInfosQuery:infosQuery];
+}
 
 
 
@@ -1019,44 +1097,44 @@
                 sleep(100);
                 continue;
             }
-        }
-        
-        //添加预置数据.
-        for(NSDictionary *dict in tableAttribute.preset) {
-            NSString *databaseNamePreset = [dict objectForKey:@"databaseName"];
-            if(!([databaseNamePreset isEqualToString:databaseName] || [databaseNamePreset isEqualToString:@"*"])) {
-                continue;
-            }
             
-            //检测. values 的类型为NSArray, array中的成员为NSDictionary.
-            BOOL dataChecked = YES;
-            NSDictionary *contents = [dict objectForKey:@"content"];
-            if([contents isKindOfClass:[NSDictionary class]]) {
+            //添加预置数据.
+            for(NSDictionary *dict in tableAttribute.preset) {
+                NSString *databaseNamePreset = [dict objectForKey:@"databaseName"];
+                if(!([databaseNamePreset isEqualToString:databaseName] || [databaseNamePreset isEqualToString:@"*"])) {
+                    continue;
+                }
+                
+                //检测. values 的类型为NSArray, array中的成员为NSDictionary.
+                BOOL dataChecked = YES;
+                NSDictionary *contents = [dict objectForKey:@"content"];
+                if([contents isKindOfClass:[NSDictionary class]]) {
+                    
+                }
+                else {
+                    dataChecked = NO;
+                }
+                
+                if(!dataChecked) {
+                    NSLog(@"#error- [%@ : %@] create table preset FAILED.",databaseNamePreset, tableAttribute.tableName);
+                    sleep(100);
+                    continue;
+                }
+                
+                NSLog(@"[%@ : %@] insert presets.", databaseName, tableAttribute.tableName);
+                
+                //根据primary判断是否重复.
+                
+                
+                NSInteger retInsert = [self DBDataInsert:db toTable:tableAttribute withInfo:contents countReplace:NO];
+                if(DB_EXECUTE_OK != retInsert) {
+                    NSLog(@"#error- [%@ : %@] insert preset FAILED. <%@>", databaseName, tableAttribute.tableName, contents);
+                }
+                else {
+                    NSLog(@"[%@ : %@] insert presets OK.", databaseName, tableAttribute.tableName);
+                }
                 
             }
-            else {
-                dataChecked = NO;
-            }
-            
-            if(!dataChecked) {
-                NSLog(@"#error- [%@ : %@] create table preset FAILED.",databaseNamePreset, tableAttribute.tableName);
-                sleep(100);
-                continue;
-            }
-
-            NSLog(@"[%@ : %@] insert presets.", databaseName, tableAttribute.tableName);
-            
-            //根据primary判断是否重复.
-            
-            
-            NSInteger retInsert = [self DBDataInsert:db toTable:tableAttribute withInfo:contents countReplace:NO];
-            if(DB_EXECUTE_OK != retInsert) {
-                NSLog(@"#error- [%@ : %@] insert preset FAILED. <%@>", databaseName, tableAttribute.tableName, contents);
-            }
-            else {
-                NSLog(@"[%@ : %@] insert presets OK.", databaseName, tableAttribute.tableName);
-            }
-            
         }
     }
 }
@@ -1114,11 +1192,10 @@
 
 
 - (NSDictionary*)DBDataQuery:(FMDatabase*)db
-                     toTable:(DBTableAttribute*)tableAttribute
                withSqlString:(NSString*)sqlString
          andArgumentsInArray:(NSArray*)arguments
 {
-    if(![NSThread isMainThread]) {NSLog(@"#error - should excute db in MainThread.");}
+    if(![NSThread isMainThread]) {NSLog(@"#error - should excute db in MainThread. <%@>", sqlString);}
     
     NSLog(@"sqlString : %@", sqlString);
     if(arguments.count > 0) {
@@ -1130,6 +1207,13 @@
     
     //怎么取?
     
+    
+    
+    
+    
+    
+    
+    
     [rs close];
     
     return nil;
@@ -1138,28 +1222,20 @@
 
 //直接的sql语句执行表查询. 暂时只用于测试.
 - (NSDictionary*)DBDataQueryDBName:(NSString*)databaseName
-                           toTable:(NSString*)tableName
                      withSqlString:(NSString*)sqlString
                andArgumentsInArray:(NSArray*)arguments
 {
     FMDatabase *db = [self getDataBaseByName:databaseName];
     if(!db) {
-        NSLog(@"#error - not find database <%@ : %@>", databaseName, tableName);
+        NSLog(@"#error - not find database <%@>", databaseName);
         return nil;
     }
     
-    DBTableAttribute *tableAttribute = [self getDBTableAttribute:databaseName withTableName:tableName];
-    if(!tableAttribute) {
-        NSLog(@"#error - not find table <%@ : %@>", databaseName, tableName);
-        return nil;
-    }
-    
-    return [self DBDataQuery:db toTable:tableAttribute withSqlString:sqlString andArgumentsInArray:arguments];
+    return [self DBDataQuery:db withSqlString:sqlString andArgumentsInArray:arguments];
 }
 
 
 - (NSInteger)DBDataUpdate:(FMDatabase*)db
-                      toTable:(DBTableAttribute*)tableAttribute
                 withSqlString:(NSString*)sqlString
           andArgumentsInArray:(NSArray*)arguments
 {
@@ -1188,23 +1264,16 @@
 
 //直接的sql语句执行表增删改. 暂时只用于测试.
 - (NSInteger)DBDataUpdateDBName:(NSString*)databaseName
-                            toTable:(NSString*)tableName
                       withSqlString:(NSString*)sqlString
                 andArgumentsInArray:(NSArray*)arguments
 {
     FMDatabase *db = [self getDataBaseByName:databaseName];
     if(!db) {
-        NSLog(@"#error - not find database <%@ : %@>", databaseName, tableName);
+        NSLog(@"#error - not find database <%@>", databaseName);
         return DB_EXECUTE_ERROR_NOT_FOUND;
     }
     
-    DBTableAttribute *tableAttribute = [self getDBTableAttribute:databaseName withTableName:tableName];
-    if(!tableAttribute) {
-        NSLog(@"#error - not find table <%@ : %@>", databaseName, tableName);
-        return DB_EXECUTE_ERROR_NOT_FOUND;
-    }
-    
-    return [self DBDataUpdate:db toTable:tableAttribute withSqlString:sqlString andArgumentsInArray:arguments];
+    return [self DBDataUpdate:db withSqlString:sqlString andArgumentsInArray:arguments];
 }
 
 

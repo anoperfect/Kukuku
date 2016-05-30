@@ -197,6 +197,64 @@
     return nil;
 }
 
+
++ (id)objectParseFromDict:(NSDictionary*)dict WithXPath:(NSArray*)xpath
+{
+    id obj = nil;
+    
+    id objParsing = dict;
+    NS0Log(@"objParsing : %@", objParsing);
+    for(NSDictionary *detail in xpath) {
+        if(!([detail isKindOfClass:[NSDictionary class]] && detail.count == 1)) {
+            LOG_POSTION
+            obj = nil;
+            break;
+        }
+        
+        Class c = detail.allValues[0];
+        if(c == [NSDictionary class]) {
+            if([objParsing isKindOfClass:[NSDictionary class]]) {
+                objParsing = [objParsing objectForKey:detail.allKeys[0]];
+            }
+            else {
+                NSLog(@"#error : %@ -> %@", [objParsing class], objParsing);
+                obj = nil;
+                break;
+            }
+        }
+        else if(c == [NSArray class]) {
+            if([objParsing isKindOfClass:[NSArray class]]
+               && [detail.allKeys[0] isKindOfClass:[NSNumber class]]
+               && ((NSArray*)objParsing).count > [detail.allKeys[0] integerValue]
+               ) {
+                objParsing = [objParsing objectAtIndex:[detail.allKeys[0] integerValue]];
+            }
+            else {
+                LOG_POSTION
+                obj = nil;
+                break;
+            }
+        }
+        else {
+            LOG_POSTION
+            obj = nil;
+            break;
+        }
+        
+        if([xpath lastObject] == detail) {
+            obj = objParsing;
+        }
+        else {
+            NS0Log(@"keep parseing.");
+        }
+    }
+    
+    return obj;
+}
+
+
+
+
 @end
 
 
@@ -218,6 +276,42 @@
 
 
 @implementation Category
+
+- (BOOL)isEqual:(id)other
+{
+    if (other == self) {
+        return YES;
+//    } else if (![super isEqual:other]) {
+//        return NO;
+    } else {
+        if(![other isKindOfClass:[Category class]]) {
+            return NO;
+        }
+        
+        Category *otherCategory = other;
+        if([self.name isEqualToString:otherCategory.name]
+           && [self.link isEqualToString:otherCategory.link]
+           && self.forum == otherCategory.forum) {
+            return YES;
+        }
+        else {
+            return NO;
+        }
+    }
+}
+
+- (NSUInteger)hash
+{
+    return [self.name hash] ^ [self.link hash];
+}
+
+
+- (NSString *)description
+{
+    return [NSString stringWithFormat:@"%@ , %@, %zd", self.name, self.link, self.forum];
+}
+
+
 @end
 
 

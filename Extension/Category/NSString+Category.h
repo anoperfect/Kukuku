@@ -43,5 +43,9 @@
 //NCR转换.匹配替换部分有问题.
 -(NSString *)NCRDecode;
 
+
+- (NSString *)calculateMD5;
++ (NSString *)deviceIdfa;
+
 @end
 

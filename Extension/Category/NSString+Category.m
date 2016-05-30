@@ -7,6 +7,12 @@
 //
 
 #import "NSString+Category.h"
+#import <CommonCrypto/CommonDigest.h>
+#import <AdSupport/AdSupport.h>
+
+
+
+
 
 @implementation NSString (Category)
 + (NSString *)URLEncodedString:(NSString*)urlString
@@ -358,6 +364,41 @@ else { v = -1; }
 }
 
 
+
+- (NSString *)calculateMD5
+{
+    const char *cStr = [self UTF8String];
+    
+    unsigned char digest[16];
+    CC_MD5( cStr, (unsigned int)strlen(cStr), digest ); // This is the md5 call
+    
+    NSMutableString *output = [NSMutableString stringWithCapacity:CC_MD5_DIGEST_LENGTH * 2];
+    for(int i = 0; i < CC_MD5_DIGEST_LENGTH; i++) {
+        [output appendFormat:@"%02x", digest[i]];
+    }
+    
+    return [NSString stringWithString:output];
+}
+
+
++ (NSString *)deviceIdfa
+{
+    NSString *systemVersion = [[UIDevice currentDevice] systemVersion];
+    NSString *deviceIdfa = nil;
+    //已经限定target版本.
+    if([systemVersion floatValue] >= 7.0f )
+    {
+        deviceIdfa = [[[ASIdentifierManager sharedManager] advertisingIdentifier] UUIDString];
+        deviceIdfa = [deviceIdfa stringByReplacingOccurrencesOfString:@"-" withString:@""];
+    }else{
+        //        deviceIdfa = [[UIDevice currentDevice] uniqueGlobalDeviceIdentifier];
+    }
+    return deviceIdfa;
+}
+
+
 @end
+
+
 
 

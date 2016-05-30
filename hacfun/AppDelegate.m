@@ -9,6 +9,11 @@
 #import "MainVC.h"
 #import "CategoryViewController.h"
 #import "AppConfig.h"
+#import "TestViewController.h"
+
+
+
+
 @interface AppDelegate ()
 
 @end
@@ -21,9 +26,9 @@
     [[NSLogn sharedNSLogn] connect];
     [AppConfig sharedConfigDB];
 
-    MainVC *mainVC = [[MainVC alloc] init];
-    
-    UINavigationController *startNVC = [[UINavigationController alloc] initWithRootViewController:mainVC];
+    //MainVC *mainVC = [[MainVC alloc] init];
+    TestViewController *vc = [[TestViewController alloc] init];
+    UINavigationController *startNVC = [[UINavigationController alloc] initWithRootViewController:vc];
     
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     

@@ -101,7 +101,7 @@
 
     NSInteger tid = postData.tid;
     NSLog(@"tid = %zi", tid);
-    [vc setPostTid:tid withData:postData];
+    [vc setDetailedTid:tid onCategory:nil withData:postData];
     
     [self.navigationController pushViewController:vc animated:YES];
 }

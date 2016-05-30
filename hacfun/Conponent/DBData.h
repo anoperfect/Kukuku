@@ -94,6 +94,10 @@ typedef NS_ENUM(NSInteger, DBDataColumnType) {
 - (NSInteger)DBDataUpdateDBName:(NSString*)databaseName toTable:(NSString*)tableName withInfoUpdate:(NSDictionary*)infoUpdate withInfoQuery:(NSDictionary*)infoQuery;
 
 
+//使用事物提供批量改.
+- (NSInteger)DBDataUpdatesDBName:(NSString*)databaseName toTable:(NSString*)tableName withInfosUpdate:(NSArray<NSDictionary*> *)infosUpdate withInfosQuery:(NSArray<NSDictionary*> *)infosQuery;
+
+
 //+1
 - (NSInteger)DBDataUpdateAdd1DBName:(NSString*)databaseName toTable:(NSString*)tableName withColumnName:(NSString*)columnName withInfoQuery:(NSDictionary*)infoQuery;
 
@@ -110,14 +114,12 @@ typedef NS_ENUM(NSInteger, DBDataColumnType) {
 
 //直接的sql语句执行表查询. 暂时只用于测试.
 - (NSDictionary*)DBDataQueryDBName:(NSString*)databaseName
-                           toTable:(NSString*)tableName
                      withSqlString:(NSString*)sqlString
                andArgumentsInArray:(NSArray*)arguments;
 
 
 //直接的sql语句执行表增删改. 暂时只用于测试.
 - (NSInteger)DBDataUpdateDBName:(NSString*)databaseName
-                        toTable:(NSString*)tableName
                   withSqlString:(NSString*)sqlString
             andArgumentsInArray:(NSArray*)arguments;
 

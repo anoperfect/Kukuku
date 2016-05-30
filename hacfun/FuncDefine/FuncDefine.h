@@ -42,6 +42,7 @@
 + (UIImage*) imageScale:(UIImage*)image toSize:(CGSize)size;
 + (UIImage*)createImageWithColor:(UIColor*)color;
 
++ (id)objectParseFromDict:(NSDictionary*)dict WithXPath:(NSArray*)xpath;
 @end
 
 

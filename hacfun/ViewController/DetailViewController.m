@@ -16,6 +16,7 @@
 @interface DetailViewController ()
 
 @property (assign,nonatomic) NSInteger tid;
+@property (nonatomic, strong) Category *category;
 
 @property (strong,nonatomic) PostData *topic;
 @property (nonatomic,strong) NSMutableDictionary *threadsInfo;
@@ -137,9 +138,10 @@
 }
 
 
-- (void)setPostTid:(NSInteger)tid withData:(PostData *)postDataTopic
+- (void)setDetailedTid:(NSInteger)tid onCategory:(Category*)category withData:(PostData*)postDataTopic
 {
     self.tid = tid;
+    self.category = category;
     self.textTopic =[NSString stringWithFormat:@"No.%zi", self.tid];
     if(postDataTopic) {
         self.topic = [postDataTopic copy];
@@ -451,12 +453,11 @@
 
 - (void)presentCreateViewControllerWithReferenceId:(NSInteger)referenceId {
     CreateViewController *vc = [[CreateViewController alloc] init];
-    if(referenceId == 0) {
-        [vc setReplyId:self.tid];
+    NSString *originalContent = nil;
+    if(referenceId > 0) {
+        originalContent = [NSString stringWithFormat:@">>No.%zd", referenceId];
     }
-    else {
-        [vc setReplyId:self.tid withReference:referenceId];
-    }
+    [vc setCreateCategory:self.category replyTid:self.tid withOriginalContent:originalContent];
     
     [self.navigationController pushViewController:vc animated:YES];
 }
@@ -474,13 +475,21 @@
     NSLog(@"numberLoaded : %zd", self.numberLoaded);
     NSLog(@"pageNumLoading : %zd", self.pageNumLoading);
     
-    
-    
     //上一次加载满一个page的话, 才可以加载下一个page.
     if(self.numberLoaded == [self numberExpectedInPage:self.pageNumLoading]) {
         self.pageNumLoading ++;
     }
     
+    NSString *urlString = [[AppConfig sharedConfigDB] generateRequestURL:@"v2/topic/getTopicReplyPage"
+                                                             andArgument:@{
+                                                                           @"page":[NSNumber numberWithInteger:self.pageNumLoading],
+                                                                           @"pageSize":@20,
+                                                                           @"topicId":[NSNumber numberWithInteger:self.tid]
+                                                                           }];
+    return urlString;
+    
+    
+#if 0
     if(self.pageNumLoading != -1) {
         NSString *urlString = [NSString stringWithFormat:@"%@/t/%zi?page=%zi", self.host.host, self.tid, self.pageNumLoading];
         NSLog(@"urlString : %@", urlString);
@@ -491,6 +500,7 @@
         NSLog(@"urlString : %@", urlString);
         return urlString;
     }
+#endif
 }
 
 
@@ -502,70 +512,13 @@
 }
 
 
-- (id)objectParseFromDict:(NSDictionary*)dict WithXPath:(NSArray*)xpath
-{
-    id obj = nil;
-    
-    id objParsing = dict;
-    NSLog(@"objParsing : %@", objParsing);
-    for(NSDictionary *detail in xpath) {
-        if(!([detail isKindOfClass:[NSDictionary class]] && detail.count == 1)) {
-            LOG_POSTION
-            obj = nil;
-            break;
-        }
-        
-        Class c = detail.allValues[0];
-        if(c == [NSDictionary class]) {
-            if([objParsing isKindOfClass:[NSDictionary class]]) {
-                objParsing = [objParsing objectForKey:detail.allKeys[0]];
-            }
-            else {
-                NSLog(@"#error : %@ -> %@", [objParsing class], objParsing);
-                obj = nil;
-                break;
-            }
-        }
-        else if(c == [NSArray class]) {
-            if([objParsing isKindOfClass:[NSArray class]]
-               && [detail.allKeys[0] isKindOfClass:[NSNumber class]]
-               && ((NSArray*)objParsing).count > [detail.allKeys[0] integerValue]
-               ) {
-                objParsing = [objParsing objectAtIndex:[detail.allKeys[0] integerValue]];
-            }
-            else {
-                LOG_POSTION
-                obj = nil;
-                break;
-            }
-        }
-        else {
-            LOG_POSTION
-            obj = nil;
-            break;
-        }
-        
-        if([xpath lastObject] == detail) {
-            obj = objParsing;
-        }
-        else {
-            NSLog(@"keep parseing.");
-        }
-    }
-    
-    return obj;
-}
-
-
-
 - (NSInteger)parseAddtionalGetPageSize
 {
     NSArray *xpathSize = @[
-                       @{@"page":[NSDictionary class]},
-                       @{@"size":[NSDictionary class]}
+                       @{@"totalPage":[NSDictionary class]},
                        ];
     
-    NSNumber *pageSizeNumber = [self objectParseFromDict:self.parseAddtional WithXPath:xpathSize];
+    NSNumber *pageSizeNumber = [FuncDefine objectParseFromDict:self.parseAddtional WithXPath:xpathSize];
     if([pageSizeNumber isKindOfClass:[NSNumber class]]) {
         return [pageSizeNumber integerValue];
     }
@@ -579,16 +532,16 @@
 {
     NSArray *xpathPage = @[
                            @{@"page":[NSDictionary class]},
-                           @{@"page":[NSDictionary class]}
                            ];
     
-    id pageObject = [self objectParseFromDict:self.parseAddtional WithXPath:xpathPage];
+    id pageObject = [FuncDefine objectParseFromDict:self.parseAddtional WithXPath:xpathPage];
     return pageObject;
 }
 
 
 - (void)parseAdditionalInfo
 {
+    NSLog(@"parseAdditionalInfo : %@", [NSString stringFromNSDictionary:self.parseAddtional]);
     self.pageSize = [self parseAddtionalGetPageSize];
     if(self.pageSize == NSNotFound) {
         NSLog(@"#errror - Detail Additonal : update pageSize not found.");
@@ -596,7 +549,6 @@
     else {
         NSLog(@"Detail Additonal : update pageSize to %zd.", self.pageSize);
     }
-    
     
     id pageObject = [self parseAddtionalGetPage];
     if(pageObject == nil) {
@@ -635,8 +587,9 @@
     
     self.parseAddtional = [[NSMutableDictionary alloc] init];
     NSMutableArray *replies = [[NSMutableArray alloc] init];
-    PostData *topic = [PostData parseFromDetailedJsonData:data atPage:self.pageNumLoading repliesTo:replies storeAdditional:self.parseAddtional];
+    PostData *topic = [PostData parseFromDetailedJsonData:data atPage:self.pageNumLoading repliesTo:replies storeAdditional:self.parseAddtional onHostName:self.host.hostname];
     if(!topic) {
+        NSLog(@"#error - parseFromDetailedJsonData failed.");
         return nil;
     }
     

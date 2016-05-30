@@ -14,7 +14,7 @@
 
 
 //alloc init后调用设置tid.
-- (void)setPostTid:(NSInteger)tid withData:(PostData*)postDataTopic;
+- (void)setDetailedTid:(NSInteger)tid onCategory:(Category*)category withData:(PostData*)postDataTopic;
 
 
 //前往最后一页.

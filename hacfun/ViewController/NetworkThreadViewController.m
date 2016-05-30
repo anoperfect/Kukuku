@@ -77,17 +77,24 @@
 {
     PostDataPage *postDataPage = [self.postDataPages lastObject];
     if(postDataPage) {
-        if(postDataPage.postDatas.count == [self numberExpectedInPage:self.pageNumLoading]) {
-            self.pageNumLoading = postDataPage.page + 1;
-            self.numberLoaded = 0;
-        }
+        if(postDataPage.page > 0) {
+            if(postDataPage.postDatas.count >= [self numberExpectedInPage:self.pageNumLoading]) {
+                self.pageNumLoading = postDataPage.page + 1;
+                self.numberLoaded = 0;
+            }
+            else {
+                self.pageNumLoading = postDataPage.page;
+                self.numberLoaded = 0;
+            }
+        } //Detail会用到page0用于topic.
         else {
-            self.pageNumLoading = postDataPage.page;
-            self.numberLoaded = postDataPage.postDatas.count;
+            self.pageNumLoading = 1;
+            self.numberLoaded = 0;
         }
     }
     else {
         self.pageNumLoading = 1;
+        self.numberLoaded = 0;
     }
     
     [self setBackgroundDownload];

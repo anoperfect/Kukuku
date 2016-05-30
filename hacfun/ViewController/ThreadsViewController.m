@@ -148,7 +148,7 @@
         
         LOG_VIEW_REC0(self.view, @"view")
         LOG_VIEW_REC0(self.postView, @"postView")
-        [self.postView reloadData];
+        [self reloadPostView];
         
         //footview.
         self.footView.titleLabel.lineBreakMode = NSLineBreakByWordWrapping;
@@ -940,7 +940,8 @@
         dispatch_async(dispatch_get_main_queue(), ^{
             CreateViewController *createViewController = [[CreateViewController alloc]init];
             NSString *content = [NSString stringWithFormat:@">>NO.%zd\n", postDataRow.tid];
-            [createViewController setCreateCategory:@"值班室" withOriginalContent:content];
+            Category *categoryAdmin = [[AppConfig sharedConfigDB] configDBCategoryGetByName:@"值班室"];
+            [createViewController setCreateCategory:categoryAdmin replyTid:NSNotFound withOriginalContent:content];
             [self.navigationController pushViewController:createViewController animated:YES];
         });
     }
@@ -1223,7 +1224,9 @@
 - (void)reloadPostView
 {
     NSLog(@"###### UITableView reload.");
-    [self.postView reloadData];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.postView reloadData];
+    });
 }
 
 
@@ -1246,6 +1249,7 @@
 
 - (PostData*)postDataOnIndexPath:(NSIndexPath*)indexPath
 {
+    LOG_POSTION
     PostData *postData = nil;
     
     if(indexPath.section >=0 && indexPath.section < self.postDataPages.count) {

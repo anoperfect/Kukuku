@@ -57,6 +57,16 @@
 
 
 
+
+
+@property (nonatomic, strong)   NSString *appkey;
+@property (nonatomic, strong)   NSString *hwid;
+@property (nonatomic, strong)   NSString *appSecret;
+@property (nonatomic, strong)   NSString *token;
+@property (nonatomic, assign)   BOOL      authResult;
+
+
+
 //host相关缓存.
 @property (nonatomic, strong) NSMutableDictionary *dictSettingKV;
 
@@ -95,6 +105,9 @@
         
         //测试.
         [self test];
+        
+        //开始鉴权.
+        //[self authAsync:nil];
     }
     
     return self;
@@ -149,7 +162,7 @@
 {
     //Post测试数据.
     NSString *strAddPostTest = @"INSERT INTO Post(tid,postedAt) VALUES(6624990,0)";
-    [self.dbData DBDataUpdateDBName:DBNAME_HOST toTable:TABLENAME_POST withSqlString:strAddPostTest andArgumentsInArray:nil];
+    [self.dbData DBDataUpdateDBName:DBNAME_HOST withSqlString:strAddPostTest andArgumentsInArray:nil];
 }
 
 
@@ -679,14 +692,10 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
         NSArray *imageNameArray         = queryResult[@"imageName"];
         NSArray *imageDataArray         = queryResult[@"imageData"];
         
-            LOG_POSTION
         if([self.dbData DBDataCheckCountOfArray:@[nameArray, titleArray, enableCustmizeArray, enableArray, imageNameArray, imageDataArray] withCount:count]) {
-            LOG_POSTION
             NSMutableArray *arrayReturnM = [NSMutableArray arrayWithCapacity:count];
-            LOG_POSTION
             
             for(NSInteger index = 0; index < count ;  index ++) {
-            LOG_POSTION
                 BackgroundViewItem *backgroundViewItem = [[BackgroundViewItem alloc] init];
                 ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER (backgroundViewItem.name,           nameArray,           index, @"NAN")
                 ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER (backgroundViewItem.title,          titleArray,          index, @"NAN")
@@ -695,9 +704,7 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
                 ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER (backgroundViewItem.imageName,      imageNameArray,      index, @"NAN")
                 ASSIGN_BLOB_VALUE_FROM_ARRAYMEMBER   (backgroundViewItem.imageData,      imageDataArray,      index, nil)
                 
-            LOG_POSTION
                 [arrayReturnM addObject:backgroundViewItem];
-            LOG_POSTION
             }
             
             self.backgroundviews = arrayReturnM;
@@ -787,7 +794,7 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
         return [self.dictSettingKV objectForKey:key];
     }
     
-    NSString *valueString = @"NAN";
+    NSString *valueString = nil;
     NSDictionary *queryResult = [self.dbData DBDataQueryDBName:DBNAME_HOST
                                                        toTable:TABLENAME_SETTINGKV
                                                    columnNames:@[@"value"]
@@ -807,7 +814,7 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
         }
     }
     else {
-        NSLog(@"#error - ");
+        NSLog(@"#error - <%@> not found.", key);
     }
     
     return valueString;
@@ -886,6 +893,131 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
 }
 
 
+- (Category*)configDBCategoryGetByName:(NSString*)name
+{
+    //从数据库查询.
+    NSDictionary *queryResult = [self.dbData DBDataQueryDBName:DBNAME_HOST
+                                                       toTable:TABLENAME_CATEGORY
+                                                   columnNames:nil
+                                                     withQuery:@{@"name":name}
+                                                     withLimit:nil];
+    NSInteger count = [self.dbData DBDataCheckRowsInDictionary:queryResult];
+    
+    Category *category = nil;
+
+    if(count > 0) {
+        NSArray *nameArray      = queryResult[@"name"];
+        NSArray *linkArray      = queryResult[@"link"];
+        NSArray *forumArray     = queryResult[@"forum"];
+        NSArray *clickArray     = queryResult[@"click"];
+        
+        if([self.dbData DBDataCheckCountOfArray:@[nameArray, linkArray, forumArray, clickArray] withCount:count]) {
+            category = [[Category alloc] init];
+            ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER (category.name , nameArray , 0, @"NAN")
+            ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER (category.link , linkArray , 0, @"NAN")
+            ASSIGN_INTEGER_VALUE_FROM_ARRAYMEMBER(category.forum, forumArray, 0, 0)
+            ASSIGN_INTEGER_VALUE_FROM_ARRAYMEMBER(category.click, clickArray, 0, 0)
+        }
+    }
+    
+    return category;
+}
+
+
+- (Category*)configDBCategoryParseFromDict:(NSDictionary*)dict onHostName:(NSString*)hostname
+{
+    Category* category = [[Category alloc] init];
+    BOOL parsed = YES;
+    
+    NSString *name = [dict objectForKey:@"name"];
+    NSString *keywords = [dict objectForKey:@"keywords"];
+    NSString *displayName = [dict objectForKey:@"displayName"];
+    NSString *description = [dict objectForKey:@"description"];
+    
+    if((name.length > 0)
+       && [name isEqualToString:keywords]
+       && [name isEqualToString:displayName]
+       && [name isEqualToString:description]) {
+        category.name = [name copy];
+        category.link = [NSString URLEncodedString:category.name];
+    }
+    else {
+        NSLog(@"#error - <%@ %@ %@ %@>", name, keywords, displayName, description);
+        parsed = NO;
+    }
+    
+    NSNumber *forumNumber = [dict objectForKey:@"id"];
+    if([forumNumber isKindOfClass:[NSNumber class]]) {
+        category.forum = [forumNumber integerValue];
+    }
+    else {
+        NSLog(@"#error - id set to forum failed.");
+        parsed = NO;
+    }
+    
+    if(!parsed) {
+        NSLog(@"#error - configDBCategoryParseFromDict failed <%@>.", [NSString stringFromNSDictionary:dict]);
+        category = nil;
+    }
+    
+    return category;
+}
+
+
+- (BOOL)configDBCategoryInserts:(NSArray*)categories
+{
+    BOOL result = YES;
+    NSArray *columnNames = @[@"name", @"link", @"forum", @"click"];
+    NSMutableArray *values = [[NSMutableArray alloc] init];
+    
+    for(Category *category in categories) {
+        NSMutableArray *value = [NSMutableArray arrayWithCapacity:columnNames.count];
+        [value addObject:[category.name copy]];
+        [value addObject:[category.link copy]];
+        [value addObject:[NSNumber numberWithInteger:category.forum]];
+        [value addObject:[NSNumber numberWithInteger:category.click]];
+        [values addObject:[NSArray arrayWithArray:value]];
+    }
+    
+    NSDictionary *infoInsert = @{
+                                 DBDATA_STRING_COLUMNS:columnNames,
+                                 DBDATA_STRING_VALUES:[NSArray arrayWithArray:values]
+                                 };
+    NSInteger retDBData = [self.dbData DBDataInsertDBName:DBNAME_HOST toTable:TABLENAME_CATEGORY withInfo:infoInsert countReplace:NO];
+    if(retDBData == DB_EXECUTE_OK) {
+        NSLog(@"---Category : insert/update OK");
+    }
+    else {
+        NSLog(@"#error ---Category : insert/update FAILED");
+        result = NO;
+    }
+    
+    return result;
+}
+
+
+- (BOOL)configDBCategoryUpdates:(NSArray*)categories
+{
+    BOOL result = YES;
+    
+    NSMutableArray<NSDictionary*> *infosUpdate = [[NSMutableArray alloc] init];
+    NSMutableArray<NSDictionary*> *infosQuery = [[NSMutableArray alloc] init];
+    
+    for(Category *category in categories) {
+        [infosUpdate addObject:@{@"link":category.link, @"forum":[NSNumber numberWithInteger:category.forum]}];
+        [infosQuery addObject:@{@"name":category.name}];
+    }
+    
+    NSInteger retDBData = [self.dbData DBDataUpdatesDBName:DBNAME_HOST toTable:TABLENAME_CATEGORY withInfosUpdate:infosUpdate withInfosQuery:infosQuery];
+    if(retDBData != DB_EXECUTE_OK) {
+        NSLog(@"#error - DBDataUpdateAdd1DBName");
+        result = NO;
+    }
+    
+    return result;
+}
+
+
 -     (BOOL)configDBCategoryAddClick:(NSString*)cateogry
 {
     BOOL result = YES;
@@ -898,6 +1030,13 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
     
     return result;
 }
+
+
+
+
+
+
+
 
 
 
@@ -1493,4 +1632,412 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+- (NSString*)generateSign:(NSDictionary*)argument
+{
+    NSArray *allkeys = argument.allKeys;
+    allkeys = [allkeys sortedArrayUsingSelector:@selector(compare:)];
+    
+    NSMutableString *signRAW = [NSMutableString stringWithString:self.appSecret];
+    for(NSString *key in allkeys) {
+        [signRAW appendFormat:@"%@%@", key, argument[key]];
+    }
+    [signRAW appendString:self.appSecret];
+    NSString *sign = [signRAW calculateMD5];
+    
+    NSLog(@"sign : [%@] -> [%@]", signRAW, sign);
+    
+    return sign;
+}
+
+
+- (NSString*)generateArgumentWithAuthInfoAndQueryArgument:(NSDictionary*)argument1
+{
+    NSMutableDictionary *argumentWithAppendAuth = [NSMutableDictionary dictionaryWithDictionary:argument1];
+    [argumentWithAppendAuth setObject:self.appkey forKey:@"appkey"];
+    [argumentWithAppendAuth setObject:self.hwid   forKey:@"hwid"];
+    if(self.token) {
+        [argumentWithAppendAuth setObject:self.token   forKey:@"token"];
+    }
+    
+    NSString *sign = [self generateSign:argumentWithAppendAuth];
+    [argumentWithAppendAuth setObject:sign forKey:@"sign"];
+    
+    
+    NSArray *allkeys = argumentWithAppendAuth.allKeys;
+    allkeys = [allkeys sortedArrayUsingSelector:@selector(compare:)];
+    
+    NSMutableString *argumentString = [NSMutableString stringWithString:@""];
+    for(NSString *key in allkeys) {
+        [argumentString appendFormat:@"%@=%@", key, argumentWithAppendAuth[key]];
+        if([key isEqual:[allkeys lastObject]]) {
+            
+        }
+        else {
+            [argumentString appendString:@"&"];
+        }
+    }
+    
+    return [NSString stringWithString:argumentString];
+}
+
+
+- (NSString*)generateRequestURL:(NSString*)query andArgument:(NSDictionary*)argument
+{
+    NSString *urlHostString = @"http://api.kukuku.cc";
+    NSString *urlStringm = [NSString stringWithFormat:@"%@/%@?%@",
+                            urlHostString,
+                            query,
+                           [self generateArgumentWithAuthInfoAndQueryArgument:argument]
+                           ];
+    
+    NSString *urlString = [NSString stringWithString:urlStringm];
+    
+    NSLog(@"generateRequestURL : [%@]", urlString);
+    return urlString;
+}
+
+
+- (NSData*)sendSynchronousRequestTo:(NSString*)query andArgument:(NSDictionary*)argument
+{
+    NSString *urlString = [self generateRequestURL:query andArgument:argument];
+    urlString = [urlString stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
+    NSLog(@"request URL : %@", urlString);
+    NSMutableURLRequest *mutableRequest = [[NSMutableURLRequest alloc] initWithURL:[[NSURL alloc] initWithString:urlString] cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:10];
+    mutableRequest.HTTPMethod = @"GET";
+    
+    NSURLResponse *response = nil;
+    NSError *error = nil;
+    
+    NSData *data = [NSURLConnection sendSynchronousRequest:mutableRequest returningResponse:&response error:&error];
+    if(error || data.length == 0) {
+        NSLog(@"%@", error);
+        data = nil;
+    }
+    else {
+        
+    }
+    
+    return data;
+}
+
+
+- (NSDictionary*)sendSynchronousRequestAndJsonParseTo:(NSString*)query andArgument:(NSDictionary*)argument;
+{
+    NSDictionary *dict = nil;
+    NSData *data = [self sendSynchronousRequestTo:query andArgument:argument];
+    if(data) {
+        dict = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableLeaves error:nil];
+        if([dict isKindOfClass:[NSDictionary class]]) {
+            
+        }
+        else {
+            NSLog(@"#error - sendSynchronousRequestTo return data json parse to NSDictionary failed.");
+            dict = nil;
+        }
+    }
+    else {
+        NSLog(@"#error - sendSynchronousRequestTo return nil.");
+    }
+ 
+    return dict;
+}
+
+
+- (BOOL)checkResponseDict:(NSDictionary*)dict
+{
+    if([[dict objectForKey:@"code"] isEqual:[NSNumber numberWithInteger:200]]) {
+        return YES;
+    }
+    else {
+        return NO;
+    }
+}
+
+
+- (void)authAsync:(void(^)(BOOL result))handle
+{
+    //当前未开启sign校验. 随意写一个. token校验同样未开启.
+    self.appkey = @"ee2a5472-065b-41c2-7e57-111111111111";
+    self.appSecret = @"s6Q17e57y2E175e7";
+    NSString *idfa = [NSString deviceIdfa];
+    self.hwid = [idfa calculateMD5];
+    
+    self.token = [self configDBSettingKVGet:@"token"];
+    
+    if([self.token isEqualToString:@"NAN"]) {
+        self.token = nil;
+    }
+    
+    self.authResult = NO;
+    
+    dispatch_queue_t concurrentQueue = dispatch_queue_create("my.auth.queue", DISPATCH_QUEUE_CONCURRENT);
+    dispatch_async(concurrentQueue, ^{
+        NSString *query = @"";
+        NSDictionary *argument = nil;
+        
+        //NSData *data = nil;
+        NSDictionary* dict = nil;
+        
+        if(!self.token) {
+            query = @"v2/token/createNewIfNotExist";
+            argument = nil;
+            
+            NSLog(@"auth : perform <%@>.", query);
+            dict = [self sendSynchronousRequestAndJsonParseTo:query andArgument:argument];
+            NSLog(@"tyu : %@", dict);
+            
+            if([dict isKindOfClass:[NSDictionary class]] && [dict[@"token"] isKindOfClass:[NSString class]]) {
+                self.token = [NSString stringWithString:dict[@"token"]];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self configDBSettingKVSet:@"token" withValue:self.token];
+                });
+                NSLog(@"auth <%@> token got : %@", query, self.token);
+            }
+            else {
+                NSLog(@"#error : auth <%@> get token failed.", query);
+            }
+        }
+        
+        if(self.token) {
+            query = @"v2/system/healthy";
+            argument = nil;
+            NSLog(@"auth : perform <%@>.", query);
+            dict = [self sendSynchronousRequestAndJsonParseTo:query andArgument:argument];
+            if([self checkResponseDict:dict]) {
+                self.authResult = YES;
+            }
+            else {
+                NSLog(@"#error - auth <%@> response failed.", query);
+            }
+        }
+        
+        if(handle) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                handle(self.authResult);
+            });
+        }
+    });
+}
+
+
+- (void)updateCategoryAsync:(void(^)(BOOL result, NSInteger total, NSInteger updateNumber))handle
+{
+    NSArray *categories = [self configDBCategoryGet];
+    
+    __weak typeof(self) weakSelf = self;
+    
+    dispatch_queue_t concurrentQueue = dispatch_queue_create("my.auth.queue", DISPATCH_QUEUE_CONCURRENT);
+    dispatch_async(concurrentQueue, ^{
+        NSMutableArray *categoriesUpdate = [[NSMutableArray alloc] init];
+        NSMutableArray *categoriesInsert = [[NSMutableArray alloc] init];
+        
+        NSInteger total         = categories.count;
+        NSInteger updateNumber  = 0;
+        BOOL result             = YES;
+        
+        NSString *query = @"";
+        NSDictionary *argument = nil;
+        
+        query = @"v2/group/list";
+        argument = nil;
+        
+        NSLog(@"auth : perform <%@>.", query);
+        NSDictionary* dict = [weakSelf sendSynchronousRequestAndJsonParseTo:query andArgument:argument];
+
+        NS0Log(@"tyu : %@", dict);
+        
+        if([dict isKindOfClass:[NSDictionary class]] && [[dict objectForKey:@"result"] isKindOfClass:[NSArray class]]) {
+            NSArray *result = [dict objectForKey:@"result"];
+            for(NSDictionary *dict in result) {
+                if(![dict isKindOfClass:[NSDictionary class]]) {
+                    NSLog(@"#error - format.");
+                    continue;
+                }
+                
+                Category *category = [weakSelf configDBCategoryParseFromDict:dict onHostName:[weakSelf configDBHostsGetCurrent].hostname];
+                if(!category) {
+                    NSLog(@"#error - configDBCategoryParseFromDict <%@>.", [NSString stringFromNSDictionary:dict]);
+                    continue;
+                }
+                
+                Category *categoryDB = nil;
+                for(Category *c in categories) {
+                    if([c.name isEqualToString:category.name]) {
+                        categoryDB = c;
+                        break;
+                    }
+                }
+                
+                if(!categoryDB) {
+                    [categoriesInsert addObject:category];
+                    total ++;
+                    updateNumber ++;
+                }
+                else {
+                    if([category isEqual:categoryDB]) {
+                        
+                    }
+                    else {
+                        NSLog(@"parsed : %@", category);
+                        NSLog(@"stored : %@", categoryDB);
+                        [categoriesUpdate addObject:category];
+                        updateNumber ++;
+                    }
+                }
+                
+            }
+        }
+        else {
+            NSLog(@"#error - <%@> response nil.", query);
+            result = NO;
+        }
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if(categoriesInsert.count > 0) {
+                [weakSelf configDBCategoryInserts:categoriesInsert];
+            }
+            
+            if(categoriesUpdate.count > 0) {
+                [weakSelf configDBCategoryUpdates:categoriesUpdate];
+            }
+        });
+        
+        NSLog(@"updateCategoryAsync result:%d, total:%zd, updateNumber:%zd", result, total, updateNumber);
+        
+        if(handle) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                handle(result, total, updateNumber);
+            });
+        }
+    });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 @end
+
+
+

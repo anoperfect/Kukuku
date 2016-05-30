@@ -22,8 +22,8 @@
                             {
                                 "COLUMNS":["sn", "hostname", "host", "imageHost", "urlString", "numberInCategoryPage", "numberInDetailPage"],
                                 "VALUES":[
-                                          [0, "hacfun", "http://hacfun.tv/api", "http://img1.nimingban.com", "http://hacfun.tv", 20, 20],
-                                          [1, "kukuku", "http://h.koukuko.com/api", "http://static.koukuko.com/h", "http://kukuku.cc/m", 10, 20]
+                                          [0, "hacfun", "http://hacfun.tv/api", "http://img1.nimingban.com/", "http://hacfun.tv", 20, 20],
+                                          [1, "kukuku", "http://h.koukuko.com/api", "", "http://kukuku.cc/m", 20, 20]
                                          ]
                             }
                          }
@@ -373,7 +373,6 @@
                "tableName":"category",
                "databaseNames":["kukuku","hacfun"],
                "columnAttributes": [
-                           {"columnName":"sn"   , "dataType":"integer", "isNeedForInsert":false, "isAutoIncrement":true , "defaultValue":0 },
                            {"columnName":"name" , "dataType":"var"    , "isNeedForInsert":true , "isAutoIncrement":false, "defaultValue":"keyqwe" },
                            {"columnName":"link" , "dataType":"var"    , "isNeedForInsert":true , "isAutoIncrement":false, "defaultValue":"valueqwe" },
                            {"columnName":"forum", "dataType":"integer", "isNeedForInsert":false, "isAutoIncrement":false, "defaultValue":0 },
@@ -446,7 +445,7 @@
                                                              }
                          },
                                                              
-                         {"databaseName":"kukuku", "content":{
+                         {"databaseName":"kukuku0", "content":{
                                                                 "COLUMNS":["link", "name", "click"],
                                                                 "VALUES":[
                                                                             ["%E7%BB%BC%E5%90%88%E7%89%881", "综合版1", 0], 

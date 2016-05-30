@@ -7,16 +7,54 @@
 //
 
 #import "TestViewController.h"
-
+#import "ModelAndViewInc.h"
+#import "MainVC.h"
 @interface TestViewController ()
 
 @end
 
 @implementation TestViewController
 
+
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        self.textTopic = @"鉴权";
+    }
+    return self;
+}
+
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    
+    [[AppConfig sharedConfigDB] authAsync:^(BOOL result){
+        if(result) {
+            [self showIndicationText:@"鉴权OK."];
+
+        }
+        else {
+            [self showIndicationText:@"鉴权失败."];
+        }
+    }];
+    
+    //检查category更新.
+    [[AppConfig sharedConfigDB] updateCategoryAsync:^(BOOL result, NSInteger total, NSInteger updateNumber){
+        NSLog(@"%d %zd %zd", result, total, updateNumber);
+        
+        if(total > 0) {
+            MainVC *mainVC = [[MainVC alloc] init];
+            [self.navigationController setViewControllers:@[mainVC] animated:NO];
+        }
+        
+        
+        
+    }];
+    
+    
+    
 }
 
 - (void)didReceiveMemoryWarning {

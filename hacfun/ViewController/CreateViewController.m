@@ -23,6 +23,55 @@
 #define TAG_ACTION_VIEW     100002
 
 
+#if 0
+@interface PostDataSend : NSObject<NSURLConnectionDelegate>
+
+@property (nonatomic, strong) NSString  *name;
+@property (nonatomic, strong) NSString  *email;
+@property (nonatomic, strong) NSString  *title;
+@property (nonatomic, strong) NSString  *content;
+
+
+
+@property (nonatomic, strong) NSString  *imageType;
+@property (nonatomic, strong) NSString  *imageName;
+@property (nonatomic, strong) UIImage   *image;
+
+@property (nonatomic, strong) void (^responseHandler)(NSURLResponse * response);
+@property (nonatomic, strong) void (^progrossHandler)(NSString *status, BOOL continuous) ;
+@property (nonatomic, strong) void (^completionHandler)(NSURLResponse *response, NSData *data, NSError *connectionError);
+
+@property (nonatomic, strong) NSURLResponse *response;
+@property (nonatomic, strong) NSMutableData *responseData;
+
+- (void)aysncPostToUrlString:(NSString*)urlString
+             responseHandler:(void (^)(NSURLResponse * response))responseHandler
+             progrossHandler:(void (^)(NSString *status, BOOL continuous))progrossHandler
+           completionHandler:(void (^)(NSURLResponse *response,
+                                       NSData *data,
+                                       NSError *connectionError))completionHandler;
+@end
+
+
+
+
+
+@implementation PostDataSend
+
+- (void)aysncPostToUrlString:(NSString*)urlString
+             responseHandler:(void (^)(NSURLResponse * response))responseHandler
+             progrossHandler:(void (^)(NSString *status, BOOL continuous))progrossHandler
+           completionHandler:(void (^)(NSURLResponse *response,
+                                       NSData *data,
+                                       NSError *connectionError))completionHandler
+{
+    
+}
+
+
+@end
+#endif
+
 @interface CreateViewController ()
 <UITextViewDelegate, UIImagePickerControllerDelegate,UINavigationControllerDelegate, UITableViewDataSource, UITableViewDelegate> {
     UITextView              * _textView;
@@ -45,10 +94,11 @@
 
 
 
-@property (strong,nonatomic) NSString *nameCategory; //提交主题贴时的栏目.
+//@property (strong,nonatomic) NSString *nameCategory; //提交主题贴时的栏目.
 @property (strong,nonatomic) NSString *originalContent; //提交主题时的预制内容, 用于举报时.
 @property (assign,nonatomic) NSInteger topicTid; //回复的主题id.
-@property (assign,nonatomic) NSInteger idReference; //引用的id.
+//@property (assign,nonatomic) NSInteger idReference; //引用的id.
+@property (strong,nonatomic) Category *category;
 
 @property (nonatomic, assign) long long editedAt; //记录开始发送的时间.
 
@@ -62,6 +112,9 @@
 @property (nonatomic, strong) NSArray *drafts;
 
 @property (nonatomic, assign) BOOL isDraftViewShowing;
+
+@property (nonatomic, strong) PostData *dataSend;
+@property (nonatomic, strong) UIImage *postImage;
 
 
 @end
@@ -152,12 +205,12 @@
         self.textTopic = [NSString stringWithFormat:@"No.%zi", self.topicTid];
     }
     else {
-        self.textTopic = [NSString stringWithFormat:@"%@ - 新建", self.nameCategory];
+        self.textTopic = [NSString stringWithFormat:@"%@ - 新建", self.category.name];
     }
     
-    if(self.idReference > 0) {
-        _textView.text = [NSString stringWithFormat:@">>No.%zi\n", self.idReference];
-    }
+//    if(self.idReference > 0) {
+//        _textView.text = [NSString stringWithFormat:@">>No.%zi\n", self.idReference];
+//    }
     
     NSLog(@"finish.")
 }
@@ -218,14 +271,10 @@
     [_captureButton         setImageEdgeInsets:actionsButtonEdge];
     [_photoLibraryButton    setImageEdgeInsets:actionsButtonEdge];
     
-    LOG_VIEW_RECT(_textView, @"textView")
-    LOG_VIEW_RECT(_viewAttachPicture, @"_viewAttachPicture")
-    LOG_VIEW_RECT(_actionsContainerView, @"_actionsContainerView")
-    
 //    [self layoutSubviewActions];
     //[self layoutSubviewAttachPicture];
     
-    NSLog(@"%@", layout);
+    NS0Log(@"%@", layout);
     
     if(self.draftView) {
         CGFloat widthContain = self.view.frame.size.width;
@@ -250,9 +299,9 @@
         _textView.returnKeyType = UIReturnKeyDefault;
         _textView.keyboardType = UIKeyboardTypeDefault;
         
-        if(self.idReference > 0) {
-            _textView.text = [NSString stringWithFormat:@">>No.%zi\n", self.idReference];
-        }
+//        if(self.idReference > 0) {
+//            _textView.text = [NSString stringWithFormat:@">>No.%zi\n", self.idReference];
+//        }
         
         if(self.originalContent) {
             _textView.text = self.originalContent;
@@ -492,6 +541,8 @@
     _imageDataPost = UIImageJPEGRepresentation(image, 0.8);
     NSLog(@"imageData length : %zi", [_imageDataPost length]);
     
+    self.postImage = image;
+    
     [self focusToInput];
 }
 
@@ -504,32 +555,42 @@
 }
 
 
-- (void)setCreateCategory:(NSString*)nameCategory withOriginalContent:(NSString*)originalContent
+//- (void)setCreateCategory:(NSString*)nameCategory withOriginalContent:(NSString*)originalContent
+//{
+//    LOG_POSTION
+//    self.nameCategory = nameCategory;
+//    self.topicTid = 0;
+//    self.idReference = 0;
+//    self.originalContent = originalContent;
+//}
+//
+//
+//- (void)setReplyId:(NSInteger)id
+//{
+//    LOG_POSTION
+//    self.nameCategory = nil;
+//    self.topicTid = id;
+//    self.idReference = 0;
+//}
+//
+//
+//- (void)setReplyId:(NSInteger)id withReference:(NSInteger)idReference
+//{
+//    LOG_POSTION
+//    self.nameCategory = nil;
+//    self.topicTid = id;
+//    self.idReference = idReference;
+//}
+
+
+
+- (void)setCreateCategory:(Category*)category replyTid:(NSInteger)tid withOriginalContent:(NSString*)originalContent
 {
-    LOG_POSTION
-    self.nameCategory = nameCategory;
-    self.topicTid = 0;
-    self.idReference = 0;
+    self.category = category;
+    self.topicTid = tid;
     self.originalContent = originalContent;
 }
 
-
-- (void)setReplyId:(NSInteger)id
-{
-    LOG_POSTION
-    self.nameCategory = nil;
-    self.topicTid = id;
-    self.idReference = 0;
-}
-
-
-- (void)setReplyId:(NSInteger)id withReference:(NSInteger)idReference
-{
-    LOG_POSTION
-    self.nameCategory = nil;
-    self.topicTid = id;
-    self.idReference = idReference;
-}
 
 
 - (void)notifyDetailViewControllerReload {
@@ -573,7 +634,150 @@
 }
 
 
+- (void)sendToHostName:(NSString*)hostname
+{
+    self.dataSend = [[PostData alloc] init];
+    self.dataSend.content = _textView.text;
+    self.dataSend.postImage = self.postImage;
+    
+    PopupView *popupView = [[PopupView alloc] init];
+    
+    __weak typeof(popupView) popupViewBlock = popupView;
+    __weak typeof(self)     selfBlock = self;
+    
+    popupView.rectPadding = 10;
+    popupView.rectCornerRadius = 2;
+    popupView.numofTapToClose = 0;
+    popupView.secondsOfAutoClose = 0;
+    popupView.titleLabel = @"发送服务器中";
+    popupView.borderLabel = 3;
+    popupView.line = 3;
+    popupView.stringIncrease = @".";
+    popupView.secondsOfstringIncrease = 1;
+    popupView.finish = ^(void) {
+        NSLog(@"-=-=-=%@", self);
+        [selfBlock focusToInput];
+    };
+    [popupView setTag:(NSInteger)@"PopupView"];
+    [popupView popupInSuperView:self.view];
+    
+    [self.dataSend aysncPostToCategory:self.category
+                               replyTo:self.topicTid
+                       responseHandler:^(NSURLResponse* response) {
+                        
+                        }
+     
+                       progrossHandler:^(NSString *status, BOOL continuous) {
+                           popupViewBlock.titleLabel = status;
+                           popupViewBlock.numofTapToClose = 1;
+                           
+                           if(continuous) {
+                               popupViewBlock.secondsOfstringIncrease = 1;
+                           }
+                       }
+     
+                     completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
+                         if(!connectionError && data.length > 0) {
+                             [selfBlock responseData:data onHostName:hostname];
+                         }
+                         
+                         
+                     }
+     ];
+}
+
+
+- (void)responseData:(NSData*)data onHostName:(NSString*)hostname
+{
+    PopupView *popupView = (PopupView*)[self.view viewWithTag:(NSInteger)@"PopupView"];
+    popupView.numofTapToClose = 1;
+    popupView.secondsOfstringIncrease = 0;
+    
+    NSObject *obj;
+    NSDictionary *dict;
+    obj = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableLeaves error:nil];
+    if(obj && [obj isKindOfClass:[NSDictionary class]]) {
+        dict = (NSDictionary*)obj;
+        NSLog(@"dict : %@", [NSString stringFromNSDictionary:dict]);
+        NSInteger code = [(NSNumber*)[dict objectForKey:@"code"] integerValue];
+        BOOL success = [(NSNumber*)[dict objectForKey:@"success"] boolValue];
+        NSLog(@"%zi, %d", code, success);
+        
+        if(200 == code || success){
+            NSLog(@"post successfully.");
+            popupView.titleLabel = @"发送成功";
+            
+            NSDictionary *dictPostData = [dict objectForKey:@"result"];
+            PostData *postData = nil;
+            if([dictPostData isKindOfClass:[NSDictionary class]]
+               && nil != (postData = [PostData fromDictData:dictPostData atPage:0 onHostName:hostname])) {
+ 
+                //主题贴.
+                if(self.topicTid == 0 || self.topicTid == NSNotFound) {
+                    Post *post = [[Post alloc] init];
+                    post.tid        = postData.tid;
+                    post.postedAt   = self.editedAt;
+                    
+                    [[AppConfig sharedConfigDB] configDBPostAdd:post];
+                    
+                    popupView.finish = ^(void) {
+                        [self createTopicFinishedWithTid:postData.tid andPostData:postData];
+
+                    };
+                }
+                else { // 回复帖.
+                    Reply *reply = [[Reply alloc] init];
+                    reply.tid           = postData.tid;
+                    reply.repliedAt     = self.editedAt;
+                    reply.tidBelongTo   = self.topicTid;
+                    
+                    NSLog(@"vbn %@", reply);
+                    
+                    [[AppConfig sharedConfigDB] configDBReplyAdd:reply];
+                    
+                    popupView.finish = ^(void) {
+//                        [self.navigationController popViewControllerAnimated:YES];
+//                        [[NSNotificationCenter defaultCenter] postNotificationName:@"CreateReplyFinish" object:self userInfo:nil];
+                        [self createReplyFinishedWithTid:postData.tid andPostData:postData];
+                    };
+                }
+            }
+            else {
+                popupView.finish = ^(void) {
+                    [self.navigationController popViewControllerAnimated:YES];
+                };
+            }
+        }
+        else {
+            NSString *msg = (NSString*)[dict objectForKey:@"msg"];
+            if(!msg) {
+                msg = (NSString*)[dict objectForKey:@"message"];
+            }
+            popupView.titleLabel = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+            popupView.titleLabel = msg;
+        }
+    }
+    else {
+        NSLog(@"obj [%@] nil or not NSDictionary class", @"JSONObjectWithData");
+        popupView.titleLabel = @"发送失败.数据错误或服务器响应异常.";
+    }
+    
+    [[CookieManage sharedCookieManage] showCookie:@"cookie after POST."];
+}
+
+
+
+
+
+
+
 - (void)clickSend {
+    [self sendToHostName:HOSTNAME];
+}
+
+
+- (void)clickSend0
+{
     
     NSTimeInterval t = [[NSDate date] timeIntervalSince1970];
     self.editedAt = t * 1000.0;
@@ -583,8 +787,8 @@
     Host *host = [[AppConfig sharedConfigDB] configDBHostsGetCurrent];
     NSString *str = nil;
     
-    if(self.nameCategory) {
-        str =[NSString stringWithFormat:@"%@/%@/create", host.host, self.nameCategory];
+    if(self.topicTid <= 0) {
+        str =[NSString stringWithFormat:@"%@/%@/create", host.host, self.category.name];
     }
     else {
         str = [NSString stringWithFormat:@"%@/t/%zi/create", host.host, self.topicTid];
@@ -615,7 +819,7 @@
     [dic setObject:@"sage" forKey:@"email"]; //莫拉岛民的平均值.
     [dic setObject:@"" forKey:@"email"];
     [dic setObject:@"" forKey:@"title"];
-    NSString *contentInput = [NSString stringWithFormat:@"客户端测试.[%@]沉的快...", self.nameCategory];
+    NSString *contentInput = [NSString stringWithFormat:@"客户端测试.[%@]沉的快...", self.category.name];
     contentInput = _textView.text;
     [dic setObject:contentInput forKey:@"content"];
     [dic setObject:@"" forKey:@"image"];
@@ -737,6 +941,83 @@
 }
 
 
+- (void)responseData:(NSData*)data
+{
+    PopupView *popupView = (PopupView*)[self.view viewWithTag:(NSInteger)@"PopupView"];
+    popupView.numofTapToClose = 1;
+    popupView.secondsOfstringIncrease = 0;
+    
+    NSObject *obj;
+    NSDictionary *dict;
+    obj = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableLeaves error:nil];
+    if(obj && [obj isKindOfClass:[NSDictionary class]]) {
+        dict = (NSDictionary*)obj;
+        NSLog(@"dict : %@", [NSString stringFromNSDictionary:dict]);
+        NSInteger code = [(NSNumber*)[dict objectForKey:@"code"] integerValue];
+        BOOL success = [(NSNumber*)[dict objectForKey:@"success"] boolValue];
+        NSInteger newCommitedTid = [(NSNumber*)[dict objectForKey:@"threadsId"] integerValue];
+        NSLog(@"%zi, %d, %zi", code, success, newCommitedTid);
+        
+        if(200 == code && success){
+            NSLog(@"post successfully.");
+            popupView.titleLabel = @"发送成功";
+            if(newCommitedTid > 0) {
+                self.newCommitedTid = newCommitedTid;
+                
+                //主题贴.
+                if(self.topicTid == 0) {
+                    Post *post = [[Post alloc] init];
+                    post.tid        = newCommitedTid;
+                    post.postedAt   = self.editedAt;
+                    
+                    [[AppConfig sharedConfigDB] configDBPostAdd:post];
+                    
+                    popupView.finish = ^(void) {
+                        [self createTopicFinishedWithTid:newCommitedTid andPostData:nil];
+                    };
+                }
+                else { // 回复帖.
+                    Reply *reply = [[Reply alloc] init];
+                    reply.tid           = newCommitedTid;
+                    reply.repliedAt     = self.editedAt;
+                    reply.tidBelongTo   = self.topicTid;
+                    
+                    NSLog(@"vbn %@", reply);
+                    
+                    [[AppConfig sharedConfigDB] configDBReplyAdd:reply];
+                    
+                    popupView.finish = ^(void) {
+                        [self.navigationController popViewControllerAnimated:YES];
+                        [[NSNotificationCenter defaultCenter] postNotificationName:@"CreateReplyFinish" object:self userInfo:nil];
+                    };
+                }
+            }
+            else {
+                popupView.finish = ^(void) {
+                    [self.navigationController popViewControllerAnimated:YES];
+                };
+            }
+        }
+        else {
+            NSString *msg = (NSString*)[dict objectForKey:@"msg"];
+            if(!msg) {
+                msg = (NSString*)[dict objectForKey:@"message"];
+            }
+            popupView.titleLabel = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+            popupView.titleLabel = msg;
+        }
+    }
+    else {
+        NSLog(@"obj [%@] nil or not NSDictionary class", @"JSONObjectWithData");
+        popupView.titleLabel = @"发送失败.数据错误或服务器响应异常.";
+    }
+    
+    [[CookieManage sharedCookieManage] showCookie:@"cookie after POST."];
+}
+
+
+
+
 - (void)connectionDidFinishLoading:(NSURLConnection*)connection {
     NSLog(@"%@数据包传输完成%s", [NSThread currentThread], __FUNCTION__);
     
@@ -746,6 +1027,13 @@
     
     NSData *data = [[NSData alloc] initWithData:connectionData];
     [_dictConnectionData removeObjectForKey:number];
+    
+    
+    [self responseData:data];
+
+#if 0
+    
+    
     
     PopupView *popupView = (PopupView*)[self.view viewWithTag:(NSInteger)@"PopupView"];
     popupView.numofTapToClose = 1;
@@ -830,14 +1118,24 @@
     }
     
     [[CookieManage sharedCookieManage] showCookie:@"cookie after POST."];
+#endif
 }
 
 
-- (void)createFinishedWithTid:(NSInteger)tid
+- (void)createTopicFinishedWithTid:(NSInteger)tid andPostData:(PostData*)postData
 {
     [self.navigationController popViewControllerAnimated:YES];
     DetailViewController *newDetailViewController = [[DetailViewController alloc] init];
-    [newDetailViewController setPostTid:tid withData:nil];
+    [newDetailViewController setDetailedTid:tid onCategory:self.category withData:postData];
+    [self.navigationController pushViewController:newDetailViewController animated:YES];
+}
+
+
+- (void)createReplyFinishedWithTid:(NSInteger)tid andPostData:(PostData*)postData
+{
+    [self.navigationController popViewControllerAnimated:YES];
+    DetailViewController *newDetailViewController = [[DetailViewController alloc] init];
+    [newDetailViewController setDetailedTid:tid onCategory:self.category withData:postData];
     [self.navigationController pushViewController:newDetailViewController animated:YES];
 }
 

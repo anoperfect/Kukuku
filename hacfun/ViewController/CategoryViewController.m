@@ -87,7 +87,7 @@
 
 - (void)createNewPost {
     CreateViewController *createViewController = [[CreateViewController alloc]init];
-    [createViewController setCreateCategory:self.category.name withOriginalContent:nil];
+    [createViewController setCreateCategory:self.category replyTid:NSNotFound withOriginalContent:nil];
     
     [self.navigationController pushViewController:createViewController animated:YES];
 }
@@ -113,14 +113,22 @@
         self.pageNumLoading ++;
     }
     
-    return [NSString stringWithFormat:@"%@/%@?page=%zi", self.host.host, self.category.link, self.pageNumLoading];
+    NSString *urlString = [[AppConfig sharedConfigDB] generateRequestURL:@"v2/topic/page"
+                                                             andArgument:@{
+                                                                           @"page":[NSNumber numberWithInteger:self.pageNumLoading],
+                                                                           @"pageSize":@20,
+                                                                           @"groupId":[NSNumber numberWithInteger:self.category.forum]
+                                                                           }];
+    return urlString;
+    
+    //return [NSString stringWithFormat:@"%@/%@?page=%zi", self.host.host, self.category.link, self.pageNumLoading];
 }
 
 
 //---override. different parse mothod.
 - (NSMutableArray*)parseDownloadedData:(NSData*)data {
     NSMutableDictionary *addtional = [[NSMutableDictionary alloc] init];
-    NSMutableArray *postDatas = [PostData parseFromCategoryJsonData:data atPage:self.pageNumLoading storeAdditional:addtional];
+    NSMutableArray *postDatas = [PostData parseFromCategoryJsonData:data atPage:self.pageNumLoading storeAdditional:addtional onHostName:self.host.hostname];
     NSLog(@"addtional : %@", addtional);
     
     NSString *key = @"forum";
@@ -152,7 +160,7 @@
 
     NSInteger tid = postData.tid;
     NSLog(@"tid = %zi", tid);
-    [vc setPostTid:tid withData:postData];
+    [vc setDetailedTid:tid onCategory:self.category withData:postData];
 
     [self.navigationController pushViewController:vc animated:YES];
 }

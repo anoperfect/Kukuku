@@ -7,8 +7,8 @@
 //
 
 #import <Foundation/Foundation.h>
-
-
+#import "FuncDefine.h"
+@class Category;
 @interface PostData : NSObject <NSCoding>
 
 
@@ -54,6 +54,7 @@ typedef enum {
 @property (nonatomic,strong) NSMutableDictionary *postViewData;
 
 
+
 - (void)copyFrom:(PostData*)postDataFrom;
 - (BOOL)isIdInArray:(NSArray*)array;
 
@@ -88,6 +89,10 @@ typedef NS_ENUM(NSInteger, ThreadDataToViewType) {
 //返回解析出的主题. 具体回复内容放置到replies中. additional可存储一些其他信息.
 + (PostData*)parseFromDetailedJsonData:(NSData*)data atPage:(NSInteger)page repliesTo:(NSMutableArray*)replies  storeAdditional:(NSMutableDictionary*)additonal;
 
++ (PostData*)fromDictData:(NSDictionary *)dict atPage:(NSInteger)page onHostName:(NSString*)hostname;
++ (NSMutableArray*)parseFromCategoryJsonData:(NSData*)data atPage:(NSInteger)page storeAdditional:(NSMutableDictionary*)additonal onHostName:(NSString*)hostname;
+
++ (PostData*)parseFromDetailedJsonData:(NSData*)data atPage:(NSInteger)page repliesTo:(NSMutableArray*)replies storeAdditional:(NSMutableDictionary*)additonal onHostName:(NSString*)hostname;
 
 //从json格式的 string中解析.
 + (PostData*)fromString:(NSString*)jsonstring atPage:(NSInteger)page;
@@ -99,6 +104,40 @@ typedef NS_ENUM(NSInteger, ThreadDataToViewType) {
 //下载内容为空或者解析出错时返回nil.
 //在主线程中执行时返回nil.
 + (PostData*)sendSynchronousRequestByTid:(long long)tid atPage:(NSInteger)page repliesTo:(NSMutableArray*)replies storeAdditional:(NSMutableDictionary*)additonal;
+
+
+
+
+
+//发送时候使用到的数据和接口.
+//@property (nonatomic, strong) NSString  *postImageType;
+//@property (nonatomic, strong) NSString  *postImageName;
+
+
+@property (nonatomic, strong) UIImage   *postImage;
+//以下数据为交互获取.
+@property (nonatomic, strong) NSString  *postImageId;
+@property (nonatomic, strong) NSString  *postImageResourceKey;
+@property (nonatomic, strong) NSString  *postImageResourceHash;
+@property (nonatomic, assign) NSInteger  postImageWidth;
+@property (nonatomic, assign) NSInteger  postImageHeight;
+@property (nonatomic, strong) NSString  *postImageUrl;
+
+
+@property (nonatomic, strong) void (^responseHandler)(NSURLResponse * response);
+@property (nonatomic, strong) void (^progrossHandler)(NSString *status, BOOL continuous) ;
+@property (nonatomic, strong) void (^completionHandler)(NSURLResponse *response, NSData *data, NSError *connectionError);
+
+@property (nonatomic, strong) NSURLResponse *response;
+@property (nonatomic, strong) NSMutableData *responseData;
+
+- (void)aysncPostToCategory:(Category*)category
+                    replyTo:(NSInteger)replyToTid
+            responseHandler:(void (^)(NSURLResponse * response))responseHandler
+            progrossHandler:(void (^)(NSString *status, BOOL continuous))progrossHandler
+          completionHandler:(void (^)(NSURLResponse *response,
+                                       NSData *data,
+                                       NSError *connectionError))completionHandler;
 
 
 
