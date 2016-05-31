@@ -132,7 +132,7 @@
 /* Begin PBXFileReference section */
 		35EC275D60C6828CB8827836 /* Pods_hacfun.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_hacfun.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		87BFC3AADD62AA5E2C26FF64 /* Pods-hacfun.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-hacfun.release.xcconfig"; path = "Pods/Target Support Files/Pods-hacfun/Pods-hacfun.release.xcconfig"; sourceTree = "<group>"; };
-		B502373B1CFCA3AD00C8AE1A /* appkey.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = appkey.h; sourceTree = "<group>"; };
+		B502373C1CFD390900C8AE1A /* koukukoisland.appkey */ = {isa = PBXFileReference; lastKnownFileType = text; path = koukukoisland.appkey; sourceTree = "<group>"; };
 		B5039B1C1CB7FF1E00C7865F /* buttondelete.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = buttondelete.png; sourceTree = "<group>"; };
 		B5039B1D1CB7FF1E00C7865F /* buttonsave.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = buttonsave.png; sourceTree = "<group>"; };
 		B5039B1E1CB7FF1E00C7865F /* buttonshare.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = buttonshare.png; sourceTree = "<group>"; };
@@ -495,8 +495,8 @@
 			children = (
 				B523C9F01B78FAFD00944004 /* AppConfig.h */,
 				B523C9F11B78FAFD00944004 /* AppConfig.m */,
-				B502373B1CFCA3AD00C8AE1A /* appkey.h */,
 				B5B0771F1CC626DE00CF50A2 /* db.json */,
+				B502373C1CFD390900C8AE1A /* koukukoisland.appkey */,
 			);
 			path = AppConfig;
 			sourceTree = "<group>";
