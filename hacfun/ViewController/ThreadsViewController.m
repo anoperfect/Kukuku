@@ -321,7 +321,7 @@
 //增加折叠,cell功能栏,状态信息等.
 - (void)retreatPostViewData:(PostData*)postData onIndexPath:(NSIndexPath*)indexPath
 {
-    NSLog(@"ffflod : %@", self.dynamicPostViewDataFold);
+    NSLog(@"ffflod : %@", [NSString stringLineFromNSDictionary:self.dynamicPostViewDataFold]);
     
     NSMutableDictionary *dict = postData.postViewData;
     

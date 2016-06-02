@@ -8,6 +8,11 @@
 
 #import "UICustmizeViewController.h"
 #import "ModelAndViewInc.h"
+#import "AppConfig.h"
+
+
+
+
 @interface UICustmizeViewController () <UITableViewDelegate, UITableViewDataSource, UIImagePickerControllerDelegate, UINavigationControllerDelegate>
 @property (nonatomic, strong) UITableView *tableView;
 @property (nonatomic, strong) NSMutableArray<UISwitch*> *backgroundviewSwitchViews;

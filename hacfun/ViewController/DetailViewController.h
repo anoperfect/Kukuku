@@ -17,9 +17,6 @@
 - (void)setDetailedTid:(NSInteger)tid onCategory:(Category*)category withData:(PostData*)postDataTopic;
 
 
-//前往最后一页.
-- (void)toLastPage ;
-
 
 
 @end

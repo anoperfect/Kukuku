@@ -55,7 +55,7 @@
     BackgroundViewItem *backgroundview = [[AppConfig sharedConfigDB] configDBBackgroundViewGetByName:name];
     UIImage *image = nil;
     if(backgroundview.onUse && backgroundview.imageData.length > 0 && nil != (image = [UIImage imageWithData:backgroundview.imageData])) {
-        image = [FuncDefine thumbOfImage:image fitToSize:self.view.frame.size isFillBlank:YES fillColor:[UIColor colorWithName:fillColorName] borderColor:[UIColor orangeColor] borderWidth:0];
+        image = [UIImage thumbOfImage:image fitToSize:self.view.frame.size isFillBlank:YES fillColor:[UIColor colorWithName:fillColorName] borderColor:[UIColor orangeColor] borderWidth:0];
         
         [self.tableView setBackgroundView:[[UIImageView alloc] initWithImage:image]];
         NSLog(@"ReSet %@ backgroundImage finished.", name);

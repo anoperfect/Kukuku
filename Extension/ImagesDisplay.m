@@ -7,7 +7,7 @@
 //
 #import "FuncDefine.h"
 #import "ImagesDisplay.h"
-
+#import "NSLogn.h"
 
 
 

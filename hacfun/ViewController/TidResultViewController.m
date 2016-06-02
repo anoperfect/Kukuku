@@ -7,7 +7,8 @@
 //
 
 #import "TidResultViewController.h"
-
+#import "Extension.pch"
+#import "AppConfig.h"
 @interface TidResultViewController ()
 
 

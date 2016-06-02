@@ -83,7 +83,7 @@
         if(image) {
             [imageArray addObject:image];
             [filePathArray addObject:fullName];
-            UIImage *thumb  = [FuncDefine thumbOfImage:image
+            UIImage *thumb  = [UIImage thumbOfImage:image
                                              fitToSize:size
                                            isFillBlank:YES
                                              fillColor:[UIColor clearColor]

@@ -7,7 +7,8 @@
 //
 
 #import "IntroductionViewController.h"
-
+#import "TypeModel.h"
+#import "AppConfig.h"
 @interface IntroductionViewController () <UIWebViewDelegate>
 
 

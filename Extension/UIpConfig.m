@@ -79,6 +79,12 @@
             NSLog(@"#error - color null from [%@]", item.colorstring);
             item.color = [UIColor orangeColor];
         }
+        
+        item.colornight = [UIColor colorFromString:item.colornightstring];
+        if(!item.colornight) {
+            NSLog(@"#error - color null from [%@]", item.colorstring);
+            item.color = [UIColor blueColor];
+        }
     }
     
     self.colorItems = [NSMutableArray arrayWithArray:colors];
@@ -125,6 +131,11 @@
     if(!color.color) {
         NSLog(@"#error - color null from [%@]", color.colorstring);
         color.color = [UIColor orangeColor];
+    }
+    
+    if(!color.colornight) {
+        NSLog(@"#error - color null from [%@]", color.colorstring);
+        color.colornight = [UIColor blueColor];
     }
     
     BOOL result = [[AppConfig sharedConfigDB] configDBColorUpdate:color];
@@ -327,13 +338,21 @@ else { v = -1; }
 {
     for(ColorItem *item in [[UIpConfig sharedUIpConfig] getUIpConfigColors]) {
         if([item.name isEqualToString:name]) {
-            NS0Log(@"colorWithName : %@ (%@) => %@", name, item.colorstring, item.color);
-            return item.color;
+            if(![UIpConfig sharedUIpConfig].nightmode) {
+                NS0Log(@"colorWithName : %@ (%@) => %@", name, item.colorstring, item.color);
+                return item.color;
+            }
+            else {
+                NS0Log(@"colorWithName : %@ (%@) => %@", name, item.colornightstring, item.colornight);
+                return item.colornight;
+            }
         }
     }
 
     NSLog(@"#error - colorWithName [%@] not found.", name);
-    return [UIColor orangeColor];
+    
+    
+    return ![UIpConfig sharedUIpConfig].nightmode?[UIColor orangeColor]:[UIColor blueColor];
 }
 
 

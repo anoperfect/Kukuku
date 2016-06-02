@@ -10,7 +10,7 @@
 #import "CreateViewController.h"
 #import "DetailViewController.h"
 #import "PopupView.h"
-
+#import "AppConfig.h"
 
 
 @interface DetailViewController ()

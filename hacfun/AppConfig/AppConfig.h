@@ -9,6 +9,10 @@
 #import <Foundation/Foundation.h>
 #import "FuncDefine.h"
 #import "DBData.h"
+#import "ModelAndViewInc.h"
+
+
+
 @interface AppConfig : NSObject
 
 

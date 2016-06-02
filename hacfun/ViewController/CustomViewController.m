@@ -10,6 +10,7 @@
 #import "FuncDefine.h"
 #import "AppConfig.h"
 #import "BannerView.h"
+#import "ButtonData.h"
 
 
 
@@ -98,7 +99,7 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
     BackgroundViewItem *backgroundview = [[AppConfig sharedConfigDB] configDBBackgroundViewGetByName:name];
     UIImage *image = nil;
     if(backgroundview.onUse && backgroundview.imageData.length > 0 && nil != (image = [UIImage imageWithData:backgroundview.imageData])) {
-        image = [FuncDefine thumbOfImage:image fitToSize:self.navigationController.navigationBar.frame.size isFillBlank:YES fillColor:[UIColor colorWithName:backgroundColorName] borderColor:[UIColor orangeColor] borderWidth:0];
+        image = [UIImage thumbOfImage:image fitToSize:self.navigationController.navigationBar.frame.size isFillBlank:YES fillColor:[UIColor colorWithName:backgroundColorName] borderColor:[UIColor orangeColor] borderWidth:0];
         
         [self.navigationController.navigationBar setBackgroundImage:image forBarMetrics:UIBarMetricsDefault];
         NSLog(@"Reset %@ backgroundImage finished.", name);
@@ -119,7 +120,7 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
     BackgroundViewItem *backgroundview = [[AppConfig sharedConfigDB] configDBBackgroundViewGetByName:name];
     UIImage *image = nil;
     if(backgroundview.onUse && backgroundview.imageData.length > 0 && nil != (image = [UIImage imageWithData:backgroundview.imageData])) {
-        image = [FuncDefine thumbOfImage:image fitToSize:self.view.frame.size isFillBlank:YES fillColor:[UIColor colorWithName:backgroundColorName] borderColor:[UIColor orangeColor] borderWidth:0];
+        image = [UIImage thumbOfImage:image fitToSize:self.view.frame.size isFillBlank:YES fillColor:[UIColor colorWithName:backgroundColorName] borderColor:[UIColor orangeColor] borderWidth:0];
         
         self.view.backgroundColor = [UIColor colorWithPatternImage:image];
         NSLog(@"Reset %@ backgroundImage finished.", name);
@@ -140,7 +141,7 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
     BackgroundViewItem *backgroundview = [[AppConfig sharedConfigDB] configDBBackgroundViewGetByName:name];
     UIImage *image = nil;
     if(backgroundview.onUse && backgroundview.imageData.length > 0 && nil != (image = [UIImage imageWithData:backgroundview.imageData])) {
-        image = [FuncDefine thumbOfImage:image fitToSize:self.navigationController.toolbar.frame.size isFillBlank:YES fillColor:[UIColor colorWithName:backgroundColorName] borderColor:[UIColor orangeColor] borderWidth:0];
+        image = [UIImage thumbOfImage:image fitToSize:self.navigationController.toolbar.frame.size isFillBlank:YES fillColor:[UIColor colorWithName:backgroundColorName] borderColor:[UIColor orangeColor] borderWidth:0];
         
         self.navigationController.toolbar.backgroundColor = [UIColor colorWithPatternImage:image];
         NSLog(@"Reset %@ backgroundImage finished.", name);

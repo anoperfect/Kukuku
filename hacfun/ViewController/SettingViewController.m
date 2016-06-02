@@ -95,13 +95,13 @@
     
     if(sw.tag == (NSInteger)@"无图模式") {
     NSLog(@"-%s sw: %zi, value:%zi", __FUNCTION__, sw.tag, sw.on);
-        NSString *value = [NSString stringWithFormat:@"%d", sw.on];
+        NSString *value = [NSString stringWithFormat:@"bool%d", sw.on];
         [[AppConfig sharedConfigDB] configDBSettingKVSet:@"disableimageshow" withValue:value];
     }
     
     if(sw.tag == (NSInteger)@"自动存图") {
     NSLog(@"-%s sw: %zi, value:%zi", __FUNCTION__, sw.tag, sw.on);
-        NSString *value = [NSString stringWithFormat:@"%d", sw.on];
+        NSString *value = [NSString stringWithFormat:@"bool%d", sw.on];
         [[AppConfig sharedConfigDB] configDBSettingKVSet:@"autosaveimagetoalbum" withValue:value];
     }
     
@@ -181,9 +181,9 @@
         [sw setTag:(NSInteger)@"无图模式"];
         NSString *value = [[AppConfig sharedConfigDB] configDBSettingKVGet:@"disableimageshow"] ;
         NSLog(@"kv %@: %@", settingItem, value);
-        BOOL b = [value boolValue];
-        NSLog(@"BOOL : %d", b);
-        [sw setOn:[value boolValue]];
+        BOOL on = [value isEqualToString:@"bool1"];
+        NSLog(@"BOOL : %d", on);
+        [sw setOn:on];
         
         [sw addTarget:self action:@selector(switchValueChange:) forControlEvents:UIControlEventValueChanged];
         cell.accessoryView = sw;
@@ -195,9 +195,9 @@
         [sw setTag:(NSInteger)@"自动存图"];
         NSString *value = [[AppConfig sharedConfigDB] configDBSettingKVGet:@"autosaveimagetoalbum"] ;
         NSLog(@"kv %@: %@", settingItem, value);
-        BOOL b = [value boolValue];
-        NSLog(@"BOOL : %d", b);
-        [sw setOn:[value boolValue]];
+        BOOL on = [value isEqualToString:@"bool1"];
+        NSLog(@"BOOL : %d", on);
+        [sw setOn:on];
         
         [sw addTarget:self action:@selector(switchValueChange:) forControlEvents:UIControlEventValueChanged];
         cell.accessoryView = sw;

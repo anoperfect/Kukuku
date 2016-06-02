@@ -14,6 +14,7 @@
 
 
 //model
+#import "TypeModel.h"
 #import "PostData.h"
 
 

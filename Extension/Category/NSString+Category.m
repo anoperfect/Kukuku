@@ -190,6 +190,37 @@
 }
 
 
++(NSString*)stringLineFromNSDictionary:(NSDictionary*)dict
+{
+    if(!dict) {
+        return @"NSDictionary nil";
+    }
+    
+    NSMutableString *strm = [NSMutableString stringWithString:@"{"];
+    
+    for(id key in dict.allKeys) {
+        id obj = [dict objectForKey:key];
+        if([obj isKindOfClass:[NSNumber class]]) {
+            [strm appendFormat:@"%@ = %@", key, [dict objectForKey:key]];
+        }
+        else {
+            [strm appendFormat:@"%@ = \"%@\"", key, [dict objectForKey:key]];
+        }
+        
+        if([key isEqual:[dict.allKeys lastObject]]) {
+            
+        }
+        else {
+            [strm appendString:@"\t"];
+        }
+    }
+    
+    [strm appendString:@"}"];
+    
+    return [NSString stringWithString:strm];
+}
+
+
 +(NSString*)stringFromTableIndexPath:(NSIndexPath*)indexPath
 {
     return [NSString stringWithFormat:@"%zd:%zd", indexPath.section, indexPath.row];
@@ -318,7 +349,7 @@ else { v = -1; }
     
     NSArray *ranges = [self subStringRangesWithRegularExpression:@"&#x{0,1}[0-9a-fA-F]+;"];
     NSInteger count = ranges.count;
-    NSLog(@"ranges : %@", ranges);
+    //NS0Log(@"ranges : %@", ranges);
     
     for(NSInteger idx = count-1; idx >= 0; idx -- ) {
         NSValue *valueWithRange = ranges[idx];

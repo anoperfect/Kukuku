@@ -477,8 +477,8 @@
     NSLog(@"DBDataQuery : table:%@, columnNames:%@, infoQuery:%@, infoLimit:%@",
           tableAttribute.tableName,
           [NSString combineArray:columnNames withInterval:@"," andPrefix:@"[" andSuffix:@"]"],
-          [NSString stringFromNSDictionary:infoQuery1],
-          [NSString stringFromNSDictionary:infoLimit1]
+          [NSString stringLineFromNSDictionary:infoQuery1],
+          [NSString stringLineFromNSDictionary:infoLimit1]
           );
     
 
@@ -516,7 +516,7 @@
     }
     
     NSLog(@"query string : [%@]", querym);
-    NSLog(@"query parameterm : [%@]", arguments);
+    NSLog(@"query parameterm : [%@]", [NSString combineArray:arguments withInterval:@", " andPrefix:@"" andSuffix:@""]);
     FMResultSet *rs = [db executeQuery:[NSString stringWithString:querym] withArgumentsInArray:arguments];
     
     for(NSString *columnName in queryColumnsNamesM) {
@@ -566,12 +566,12 @@
                             [columnValues addObject:objString];
                         }
                         else {
-                            NSLog(@"#error - rs column %@ parse error.", columnAttribute.columnName);
+                            NSLog(@"#error - rs column [%@] parse failed <%@> <class : %@>.", columnAttribute.columnName, objString, [objString class]);
                             [columnValues addObject:@"NAN-parseerror"];
                         }
                         break;
                     
-                    case DBDataColumnTypeBlob:
+                    case DBDataColumnTypeData:
                         objData = [rs objectForColumnName:columnAttribute.columnName];
                         if([objData isKindOfClass:[NSData class]]) {
                             [columnValues addObject:objData];
@@ -810,7 +810,7 @@
     [updatem appendString:queryString];
     
     NSLog(@"query string : [%@]", updatem);
-    NSLog(@"query parameterm : [%@]", arguments);
+    NSLog(@"query parameterm : [%@]", [NSString combineArray:arguments withInterval:@", " andPrefix:@"" andSuffix:@""]);
     retFMDB = [db executeUpdate:updatem withArgumentsInArray:arguments];
     if(retFMDB) {
         
@@ -866,7 +866,7 @@
             return @"var";
             break;
           
-        case DBDataColumnTypeBlob:
+        case DBDataColumnTypeData:
             return @"blob";
             break;
             
@@ -889,14 +889,44 @@
     else if([typeString isEqualToString:@"longlong"]) {
         type = DBDataColumnTypeNumberLongLong;
     }
-    else if([typeString isEqualToString:@"var"]) {
+    else if([typeString isEqualToString:@"string"]) {
         type = DBDataColumnTypeString;
     }
     else {
-        type = DBDataColumnTypeBlob;
+        type = DBDataColumnTypeData;
     }
     
     return type;
+}
+
+
+- (NSString*)columnDefaultValueToString:(DBColumnAttribute*)column
+{
+    NSString *defaultString = @"";
+    if(column.defaultValue) {
+        switch (column.dataType) {
+            case DBDataColumnTypeNumberInteger:
+                defaultString = @"DEFAULT (0)";
+                break;
+                
+            case DBDataColumnTypeNumberLongLong:
+                defaultString = @"DEFAULT (0)";
+                break;
+                
+            case DBDataColumnTypeString:
+                defaultString = [NSString stringWithFormat:@"DEFAULT (\'%@\')", column.defaultValue];
+                break;
+                
+            case DBDataColumnTypeData:
+                break;
+                
+            default:
+                break;
+        }
+
+    }
+    
+    return defaultString;
 }
 
 
@@ -1053,8 +1083,7 @@
     if([columnName isKindOfClass:[NSString class]] &&
        [dataTypeString isKindOfClass:[NSString class]] &&
        [isNeedForInsertNumber isKindOfClass:[NSNumber class]] &&
-       [isAutoIncrementNumber isKindOfClass:[NSNumber class]] &&
-       ([defaultValue isKindOfClass:[NSString class]] || [defaultValue isKindOfClass:[NSNumber class]])){
+       [isAutoIncrementNumber isKindOfClass:[NSNumber class]] ){
         
         columnAttribute.columnName          = columnName;
         columnAttribute.dataType            = [self columnTypeFromString:dataTypeString];
@@ -1063,7 +1092,7 @@
         columnAttribute.defaultValue        = defaultValue;
     }
     else {
-        NSLog(@"#error-");
+        NSLog(@"#error- column value invalid.");
         sleep(100);
         return nil;
     }
@@ -1127,7 +1156,14 @@
                 }
                 
                 //            [createStringm appendFormat:@"%@ %@ %@", columnAttribute.columnName, [self columnTypeToString:columnAttribute.dataType], columnAttribute.isAutoIncrement?@"autoincrement":@""];
-                [createStringm appendFormat:@"%@ %@ %@", columnAttribute.columnName, [self columnTypeToString:columnAttribute.dataType], columnAttribute.isAutoIncrement?@"":@""];
+                
+                NSString *defaultString = [self columnDefaultValueToString:columnAttribute];
+                
+                [createStringm appendFormat:@"%@ %@ %@ %@"
+                                                        , columnAttribute.columnName
+                                                        , [self columnTypeToString:columnAttribute.dataType]
+                                                        , columnAttribute.isAutoIncrement?@"":@""
+                                                        , defaultString];
                 
                 index ++;
             }
@@ -1341,5 +1377,12 @@
 @end
 
 
+
+
+#if 0
+
+
+
+#endif
 
 

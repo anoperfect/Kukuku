@@ -20,7 +20,7 @@ typedef NS_ENUM(NSInteger, DBDataColumnType) {
     DBDataColumnTypeNumberInteger    = 1,
     DBDataColumnTypeNumberLongLong,
     DBDataColumnTypeString,
-    DBDataColumnTypeBlob
+    DBDataColumnTypeData
 };
 
 

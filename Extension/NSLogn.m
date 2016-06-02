@@ -357,14 +357,14 @@ void* func_send_log(void *arg)
 
 - (void)LogContentRaw:(NSString*)content line:(long)line file:(const char*)file function:(const char*)function
 {
-    double interval = [FuncDefine timeIntervalCountWithRecount:false];
+    double interval = [NSDate timeIntervalCountWithRecount:false];
     NSMutableString *str = [[NSMutableString alloc] init];
     [str appendFormat:@"%90s %6ld %3.6f: %@", function, line, interval, content];
     printf("%s\n", [str UTF8String]);
     
     NSMutableDictionary *dictm = [[NSMutableDictionary alloc] init];
     [dictm setObject:content forKey:@"c"];
-    [dictm setObject:[NSNumber numberWithDouble:[FuncDefine timeIntervalCountWithRecount:false]] forKey:@"v"];
+    [dictm setObject:[NSNumber numberWithDouble:[NSDate timeIntervalCountWithRecount:false]] forKey:@"v"];
     [dictm setObject:[NSValue valueWithPointer:(__bridge const void * _Nullable)([NSThread currentThread])] forKey:@"t"];
     [dictm setObject:[NSString stringWithCString:function encoding:NSUTF8StringEncoding] forKey:@"f"];
     [dictm setObject:[NSString stringWithCString:file encoding:NSUTF8StringEncoding] forKey:@"F"];
@@ -372,7 +372,7 @@ void* func_send_log(void *arg)
     NSMutableString *sendString = [[NSMutableString alloc] init];
     [sendString appendString:@"{"];
     [sendString appendFormat:@"\"c\":\"%@\", ", [NSString URLEncodedString:content]];
-    [sendString appendFormat:@"\"v\":%@, ", [NSNumber numberWithDouble:[FuncDefine timeIntervalCountWithRecount:false]]];
+    [sendString appendFormat:@"\"v\":%@, ", [NSNumber numberWithDouble:[NSDate timeIntervalCountWithRecount:false]]];
     [sendString appendFormat:@"\"t\":\"%@\", ", [NSValue valueWithPointer:(__bridge const void * _Nullable)([NSThread currentThread])]];
     [sendString appendFormat:@"\"f\":\"%@\", ", [NSString stringWithCString:function encoding:NSUTF8StringEncoding]];
     [sendString appendFormat:@"\"F\":\"%@\", ", [NSString stringWithCString:file encoding:NSUTF8StringEncoding]];

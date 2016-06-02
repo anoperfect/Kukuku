@@ -6,14 +6,12 @@
 //  Copyright (c) 2015年 Ben. All rights reserved.
 //
 #import <UIKit/UIKit.h>
-#import "BannerView.h"
-#import "ButtonData.h"
-#import "AppConfig.h"
 
 
 
 
 
+@class ButtonData;
 
 @interface CustomViewController : UIViewController
 

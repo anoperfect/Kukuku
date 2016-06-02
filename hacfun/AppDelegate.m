@@ -9,7 +9,7 @@
 #import "MainVC.h"
 #import "CategoryViewController.h"
 #import "AppConfig.h"
-#import "TestViewController.h"
+#import "BonJoYiViewController.h"
 
 
 
@@ -27,7 +27,7 @@
     [AppConfig sharedConfigDB];
 
     //MainVC *mainVC = [[MainVC alloc] init];
-    TestViewController *vc = [[TestViewController alloc] init];
+    BonJoYiViewController *vc = [[BonJoYiViewController alloc] init];
     UINavigationController *startNVC = [[UINavigationController alloc] initWithRootViewController:vc];
     
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];

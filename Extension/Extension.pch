@@ -9,7 +9,15 @@
 #ifndef extension_pch
 #define extension_pch
 
+
+
+
+
+
+
 #import "NSString+Category.h"
+#import "UIImage+Category.h"
+#import "NSDate+Category.h"
 #import "NSLogn.h"
 #import "FrameLayout.h"
 #import "UIpConfig.h"

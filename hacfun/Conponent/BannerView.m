@@ -82,7 +82,6 @@ static NSInteger kcountObjBannerView = 0;
 - (void)setTopicButton {
     
     LOG_POSTION
-    self.backgroundColor = [UIColor colorWithName:@"BannerViewBackground"];
     
     self.buttonTopic = [[PushButton alloc] init];
     self.buttonTopic.showsTouchWhenHighlighted = YES;

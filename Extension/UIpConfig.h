@@ -14,6 +14,8 @@
 @property (nonatomic, assign) BOOL      enableCustmize;
 @property (nonatomic, strong) NSString *colorstring;
 @property (nonatomic, strong) UIColor  *color;
+@property (nonatomic, strong) NSString *colornightstring;
+@property (nonatomic, strong) UIColor  *colornight;
 @end
 
 
@@ -58,6 +60,7 @@
 @interface UIpConfig : NSObject
 
 
+
 + (UIpConfig*)sharedUIpConfig;
 - (NSMutableArray*)getUIpConfigColors;
 - (BOOL)updateUIpConfigColor:(ColorItem*)color;
@@ -71,6 +74,9 @@
 
 - (NSMutableArray*)getUIpConfigBackgroundViews;
 - (BOOL)updateUIpConfigBackgroundView:(BackgroundViewItem *)backgroundview;
+
+
+@property (nonatomic, assign) BOOL nightmode;
 
 
 @end

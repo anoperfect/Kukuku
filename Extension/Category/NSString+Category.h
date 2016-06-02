@@ -29,6 +29,7 @@
 + (NSString*)combineArray:(NSArray*)array withInterval:(NSString*)intetval andPrefix:(NSString*)prefix andSuffix:(NSString*)suffix;
 
 +(NSString*)stringFromNSDictionary:(NSDictionary*)dict;
++(NSString*)stringLineFromNSDictionary:(NSDictionary*)dict;
 
 +(NSString*)stringFromTableIndexPath:(NSIndexPath*)indexPath;
 

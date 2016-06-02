@@ -525,16 +525,18 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
         NSArray *titleArray             = queryResult[@"title"];
         NSArray *enableCustmizeArray    = queryResult[@"enableCustmize"];
         NSArray *colorstringArray       = queryResult[@"colorstring"];
+        NSArray *colornightstringArray  = queryResult[@"colornightstring"];
         
-        if([self.dbData DBDataCheckCountOfArray:@[nameArray, titleArray, enableCustmizeArray, colorstringArray] withCount:count]) {
+        if([self.dbData DBDataCheckCountOfArray:@[nameArray, titleArray, enableCustmizeArray, colorstringArray, colornightstringArray] withCount:count]) {
             NSMutableArray *arrayReturnM = [NSMutableArray arrayWithCapacity:count];
             
             for(NSInteger index = 0; index < count ;  index ++) {
                 ColorItem *colorItem = [[ColorItem alloc] init];
-                ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER (colorItem.name,           nameArray,           index, @"NAN")
-                ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER (colorItem.title,          titleArray,          index, @"NAN")
-                ASSIGN_INTEGER_VALUE_FROM_ARRAYMEMBER(colorItem.enableCustmize, enableCustmizeArray, index, 0)
-                ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER (colorItem.colorstring,    colorstringArray,    index, @"NAN")
+                ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER (colorItem.name,               nameArray,              index, @"NAN")
+                ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER (colorItem.title,              titleArray,             index, @"NAN")
+                ASSIGN_INTEGER_VALUE_FROM_ARRAYMEMBER(colorItem.enableCustmize,     enableCustmizeArray,    index, 0)
+                ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER (colorItem.colorstring,        colorstringArray,       index, @"NAN")
+                ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER (colorItem.colornightstring,   colornightstringArray,  index, @"NAN")
                 
                 [arrayReturnM addObject:colorItem];
             }
@@ -565,14 +567,16 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
         NSArray *titleArray             = queryResult[@"title"];
         NSArray *enableCustmizeArray    = queryResult[@"enableCustmize"];
         NSArray *colorstringArray       = queryResult[@"colorstring"];
+        NSArray *colorsnighttringArray  = queryResult[@"colornightstring"];
         
-        if([self.dbData DBDataCheckCountOfArray:@[nameArray, titleArray, enableCustmizeArray, colorstringArray] withCount:count]) {
+        if([self.dbData DBDataCheckCountOfArray:@[nameArray, titleArray, enableCustmizeArray, colorstringArray, colorsnighttringArray] withCount:count]) {
             
             colorItem = [[ColorItem alloc] init];
-            ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER (colorItem.name,           nameArray,           0, @"NAN")
-            ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER (colorItem.title,          titleArray,          0, @"NAN")
-            ASSIGN_INTEGER_VALUE_FROM_ARRAYMEMBER(colorItem.enableCustmize, enableCustmizeArray, 0, 0)
-            ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER (colorItem.colorstring,    colorstringArray,    0, @"NAN")
+            ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER (colorItem.name,               nameArray,              0, @"NAN")
+            ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER (colorItem.title,              titleArray,             0, @"NAN")
+            ASSIGN_INTEGER_VALUE_FROM_ARRAYMEMBER(colorItem.enableCustmize,     enableCustmizeArray,    0, 0)
+            ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER (colorItem.colorstring,        colorstringArray,       0, @"NAN")
+            ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER (colorItem.colornightstring,   colorsnighttringArray,  0, @"NAN")
         }
     }
     else {
@@ -588,8 +592,8 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
     BOOL result = YES;
     
     NSDictionary *infoInsert = @{
-                                 DBDATA_STRING_COLUMNS:@[@"name", @"colorstring"],
-                                 DBDATA_STRING_VALUES:@[@[color.name, color.colorstring]]
+                                 DBDATA_STRING_COLUMNS:@[@"name", @"colorstring", @"colornightstring"],
+                                 DBDATA_STRING_VALUES:@[@[color.name, color.colorstring, color.colornightstring]]
                                  };
     
     NSInteger retDBData = [self.dbData DBDataInsertDBName:DBNAME_CONFIG toTable:TABLENAME_COLOR withInfo:infoInsert orReplace:YES];
@@ -985,6 +989,34 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
         parsed = NO;
     }
     
+    NSString *headerIconUrl = [FuncDefine objectParseFromDict:dict WithXPath:@[
+                                                     @{@"headerIcon":[NSDictionary class]},
+                                                     @{@"Url":[NSDictionary class]}
+                                                     ]
+     ];
+    if([headerIconUrl isKindOfClass:[NSString class]]) {
+        category.headerIconUrl = headerIconUrl;
+    }
+    else {
+        NSLog(@"#error - Category <%@> not parsed.", @"headerIconUrl");
+    }
+    
+    NSString *content = [dict objectForKey:@"content"];
+    if([content isKindOfClass:[NSString class]]) {
+        category.content = content;
+    }
+    else {
+        NSLog(@"#error - Category <%@> not parsed.", @"content");
+    }
+    
+    NSNumber *passwordRequiredNumber = [dict objectForKey:@"passwordRequired"];
+    if([passwordRequiredNumber isKindOfClass:[NSNumber class]]) {
+        category.passwordRequired = [passwordRequiredNumber boolValue];
+    }
+    else {
+        NSLog(@"#error - Category <%@> not parsed.", @"passwordRequired");
+    }
+    
     if(!parsed) {
         NSLog(@"#error - configDBCategoryParseFromDict failed <%@>.", [NSString stringFromNSDictionary:dict]);
         category = nil;
@@ -997,7 +1029,7 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
 - (BOOL)configDBCategoryInserts:(NSArray*)categories
 {
     BOOL result = YES;
-    NSArray *columnNames = @[@"name", @"link", @"forum", @"click"];
+    NSArray *columnNames = @[@"name", @"link", @"forum", @"click", @"headerIconUrl", @"content", @"passwordRequired"];
     NSMutableArray *values = [[NSMutableArray alloc] init];
     
     for(Category *category in categories) {
@@ -1006,6 +1038,10 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
         [value addObject:[category.link copy]];
         [value addObject:[NSNumber numberWithInteger:category.forum]];
         [value addObject:[NSNumber numberWithInteger:category.click]];
+        [value addObject:[category.headerIconUrl copy]];
+        [value addObject:[category.content copy]];
+        [value addObject:[NSNumber numberWithInteger:category.passwordRequired]];
+        
         [values addObject:[NSArray arrayWithArray:value]];
     }
     
@@ -1985,7 +2021,7 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
         NSLog(@"auth : perform <%@>.", query);
         NSDictionary* dict = [weakSelf sendSynchronousRequestAndJsonParseTo:query andArgument:argument];
 
-        NS0Log(@"tyu : %@", dict);
+        NSLog(@"group : %@", dict);
         
         if([dict isKindOfClass:[NSDictionary class]] && [[dict objectForKey:@"result"] isKindOfClass:[NSArray class]]) {
             NSArray *result = [dict objectForKey:@"result"];

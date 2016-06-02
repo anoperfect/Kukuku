@@ -168,6 +168,7 @@
 {
     [[NSLogn sharedNSLogn] sendLogContent:@"123"];
     UIImageWriteToSavedPhotosAlbum(self.imageDisplay, nil, nil, nil);
+    [self showIndicationText:@"已保存到相册"];
 }
 
 
@@ -210,7 +211,7 @@
     [self.labelPercentage setText:@""];
     
     NSString *value = [[AppConfig sharedConfigDB] configDBSettingKVGet:@"autosaveimagetoalbum"] ;
-    BOOL bAutoSaveImageToAlbum = [value boolValue];
+    BOOL bAutoSaveImageToAlbum = [value isEqualToString:@"bool1"];
     NSData *imageDataDownload = [NSData dataWithData:self.imageDataDownload];
     if(bAutoSaveImageToAlbum) {
         UIImage *image = [UIImage imageWithData:imageDataDownload];

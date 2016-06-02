@@ -343,7 +343,7 @@
                         CGFloat heightTo = 68.0;
                         CGFloat scale = 2.0;
                         
-                        NSLog(@"from %d:%d", (int)width, (int)height);
+                        NS0Log(@"from %d:%d", (int)width, (int)height);
                         
                         
                         if(width / height >= (widthTo / heightTo)) {
@@ -355,7 +355,7 @@
                             height = heightTo;
                         }
                         
-                        NSLog(@"to   %d:%d", (int)width, (int)height);
+                        NS0Log(@"to   %d:%d", (int)width, (int)height);
                         
                         pd.thumb = [NSString stringWithFormat:@"%@?op=imageView2&mode=1&width=%d&height=%d&quality=60", pd.image, (int)(width*scale), (int)(height*scale)];
                     }
@@ -372,7 +372,7 @@
             }
         }
         else {
-            NSLog(@"no image.")
+            NS0Log(@"no image.")
         }
         
         
@@ -796,7 +796,7 @@ PostView 接收的字段字段
     
     //判断是否设置无图模式.
     NSString *value = [[AppConfig sharedConfigDB] configDBSettingKVGet:@"disableimageshow"] ;
-    BOOL b = [value boolValue];
+    BOOL b = [value isEqualToString:@"bool1"];
     if(nil == self.thumb || [self.thumb isEqualToString:@""] || b) {
         
     }

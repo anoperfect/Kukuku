@@ -60,6 +60,10 @@
 		B564D0F71C9189C400E903B6 /* bg.png in Resources */ = {isa = PBXBuildFile; fileRef = B564D0F61C9189C400E903B6 /* bg.png */; };
 		B56E53531CB4014700998F74 /* GalleryViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B56E53521CB4014700998F74 /* GalleryViewController.m */; };
 		B56E53561CB4017D00998F74 /* ImagesDisplay.m in Sources */ = {isa = PBXBuildFile; fileRef = B56E53551CB4017D00998F74 /* ImagesDisplay.m */; };
+		B5718D521D00758D00B6E5E0 /* TypeModel.m in Sources */ = {isa = PBXBuildFile; fileRef = B5718D511D00758D00B6E5E0 /* TypeModel.m */; };
+		B5718D551D00762400B6E5E0 /* UIImage+Category.m in Sources */ = {isa = PBXBuildFile; fileRef = B5718D541D00762400B6E5E0 /* UIImage+Category.m */; };
+		B5718D581D0079C900B6E5E0 /* NSDate+Category.m in Sources */ = {isa = PBXBuildFile; fileRef = B5718D571D0079C900B6E5E0 /* NSDate+Category.m */; };
+		B5718D5B1D00882000B6E5E0 /* BonJoYiViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B5718D5A1D00882000B6E5E0 /* BonJoYiViewController.m */; };
 		B57780D71CE9FBB900F60B6F /* draft.png in Resources */ = {isa = PBXBuildFile; fileRef = B57780D31CE9FBB900F60B6F /* draft.png */; };
 		B57780D81CE9FBB900F60B6F /* folding.png in Resources */ = {isa = PBXBuildFile; fileRef = B57780D41CE9FBB900F60B6F /* folding.png */; };
 		B57780D91CE9FBB900F60B6F /* lastpage.png in Resources */ = {isa = PBXBuildFile; fileRef = B57780D51CE9FBB900F60B6F /* lastpage.png */; };
@@ -205,6 +209,14 @@
 		B56E53521CB4014700998F74 /* GalleryViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GalleryViewController.m; sourceTree = "<group>"; };
 		B56E53541CB4017D00998F74 /* ImagesDisplay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImagesDisplay.h; sourceTree = "<group>"; };
 		B56E53551CB4017D00998F74 /* ImagesDisplay.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImagesDisplay.m; sourceTree = "<group>"; };
+		B5718D501D00758D00B6E5E0 /* TypeModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TypeModel.h; sourceTree = "<group>"; };
+		B5718D511D00758D00B6E5E0 /* TypeModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TypeModel.m; sourceTree = "<group>"; };
+		B5718D531D00762400B6E5E0 /* UIImage+Category.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "UIImage+Category.h"; path = "Category/UIImage+Category.h"; sourceTree = "<group>"; };
+		B5718D541D00762400B6E5E0 /* UIImage+Category.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "UIImage+Category.m"; path = "Category/UIImage+Category.m"; sourceTree = "<group>"; };
+		B5718D561D0079C900B6E5E0 /* NSDate+Category.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSDate+Category.h"; path = "Category/NSDate+Category.h"; sourceTree = "<group>"; };
+		B5718D571D0079C900B6E5E0 /* NSDate+Category.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSDate+Category.m"; path = "Category/NSDate+Category.m"; sourceTree = "<group>"; };
+		B5718D591D00882000B6E5E0 /* BonJoYiViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BonJoYiViewController.h; sourceTree = "<group>"; };
+		B5718D5A1D00882000B6E5E0 /* BonJoYiViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BonJoYiViewController.m; sourceTree = "<group>"; };
 		B57780D31CE9FBB900F60B6F /* draft.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = draft.png; sourceTree = "<group>"; };
 		B57780D41CE9FBB900F60B6F /* folding.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = folding.png; sourceTree = "<group>"; };
 		B57780D51CE9FBB900F60B6F /* lastpage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = lastpage.png; sourceTree = "<group>"; };
@@ -374,6 +386,8 @@
 		B50237341CFC9D8700C8AE1A /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				B5718D501D00758D00B6E5E0 /* TypeModel.h */,
+				B5718D511D00758D00B6E5E0 /* TypeModel.m */,
 				B523C9E31B78FADC00944004 /* PostData.h */,
 				B523C9E41B78FADC00944004 /* PostData.m */,
 				B5E137921B7D92E1002B5979 /* ImageViewCache.h */,
@@ -412,6 +426,8 @@
 				B523C9C11B78FAB500944004 /* ImageViewController.m */,
 				B5DD9A901CE2151500C762AF /* SearchViewController.h */,
 				B5DD9A911CE2151500C762AF /* SearchViewController.m */,
+				B5718D591D00882000B6E5E0 /* BonJoYiViewController.h */,
+				B5718D5A1D00882000B6E5E0 /* BonJoYiViewController.m */,
 			);
 			name = Network;
 			sourceTree = "<group>";
@@ -727,6 +743,10 @@
 				B5DAFF471CC29650000551B2 /* NSThread+Util.m */,
 				B5DAFF3B1CC2918E000551B2 /* NSString+Category.h */,
 				B5DAFF3C1CC2918E000551B2 /* NSString+Category.m */,
+				B5718D531D00762400B6E5E0 /* UIImage+Category.h */,
+				B5718D541D00762400B6E5E0 /* UIImage+Category.m */,
+				B5718D561D0079C900B6E5E0 /* NSDate+Category.h */,
+				B5718D571D0079C900B6E5E0 /* NSDate+Category.m */,
 			);
 			name = Category;
 			sourceTree = "<group>";
@@ -943,6 +963,7 @@
 				B5DAFF261CC1D9B8000551B2 /* MainVC.m in Sources */,
 				B523C9EA1B78FADC00944004 /* CookieManage.m in Sources */,
 				B523C9F61B78FAFD00944004 /* FuncDefine.m in Sources */,
+				B5718D581D0079C900B6E5E0 /* NSDate+Category.m in Sources */,
 				B5A058571B9DE86200370557 /* PostViewController.m in Sources */,
 				B523C9D41B78FAB500944004 /* ImageViewController.m in Sources */,
 				B523C9FB1B78FD6F00944004 /* BannerView.m in Sources */,
@@ -985,7 +1006,10 @@
 				B5C3E42F1CEC4A23005181A2 /* IntroductionViewController.m in Sources */,
 				B5DAFF251CC1D9B8000551B2 /* LeftMenuTVC.m in Sources */,
 				B523C9EB1B78FADC00944004 /* PopupView.m in Sources */,
+				B5718D521D00758D00B6E5E0 /* TypeModel.m in Sources */,
+				B5718D5B1D00882000B6E5E0 /* BonJoYiViewController.m in Sources */,
 				B5DAFF201CC1D9B8000551B2 /* AMSlideMenuMainViewController.m in Sources */,
+				B5718D551D00762400B6E5E0 /* UIImage+Category.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
