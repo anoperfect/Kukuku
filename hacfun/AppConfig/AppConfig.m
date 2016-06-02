@@ -20,7 +20,7 @@
 //这不是正式的appSecret. appSecret需保密. 正式的appSecret存本地用于test&build.
 #define APPSECRET       @"s6Q1w62100abcdef"
 
-#import "kukuku.appkey"
+#import "koukukoisland.appkey"
 
 
 #define DBNAME_CONFIG           @"config"
@@ -110,6 +110,10 @@
         self.dictSettingKV = [[NSMutableDictionary alloc] init];
         
         self.dbData = [[DBData alloc] init];
+        
+        //测试.
+        [self testBeforeBuild];
+        
         //建立或者升级数据库.
         [self configdbBuildTable];
         
@@ -117,7 +121,7 @@
         [self configDBInitData];
         
         //测试.
-        [self test];
+        [self testAfterBuild];
         
         //开始鉴权.
         //[self authAsync:nil];
@@ -171,12 +175,25 @@
 }
 
 
-- (void)test
+- (void)testBeforeBuild
 {
+
+}
+
+
+- (void)testAfterBuild
+{
+//    NSString *tablename = @"color";
+//    NSString *strDropTable = [NSString stringWithFormat:@"DROP TABLE %@", tablename];
+//    [self.dbData DBDataUpdateDBName:DBNAME_CONFIG withSqlString:strDropTable andArgumentsInArray:nil];
+    
     //Post测试数据.
-    NSString *strAddPostTest = @"INSERT INTO Post(tid,postedAt) VALUES(6624990,0)";
+    NSString *strAddPostTest = @"INSERT OR IGNORE INTO Post(tid,postedAt) VALUES(6624990,0)";
     [self.dbData DBDataUpdateDBName:DBNAME_HOST withSqlString:strAddPostTest andArgumentsInArray:nil];
 }
+
+
+
 
 
 //host.
@@ -393,7 +410,7 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
                                  DBDATA_STRING_VALUES:[NSArray arrayWithArray:valuesM]
                                  };
     
-    NSInteger retDBData = [self.dbData DBDataInsertDBName:DBNAME_CONFIG toTable:TABLENAME_EMOTICON withInfo:infoInsert countReplace:YES];
+    NSInteger retDBData = [self.dbData DBDataInsertDBName:DBNAME_CONFIG toTable:TABLENAME_EMOTICON withInfo:infoInsert orReplace:YES];
     if(retDBData != DB_EXECUTE_OK) {
         NSLog(@"#error - ");
         result = NO;
@@ -449,7 +466,7 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
                                  DBDATA_STRING_COLUMNS:@[@"content", @"click"],
                                  DBDATA_STRING_VALUES:@[@[content, @0]]
                                  };
-    NSInteger retDBData = [self.dbData DBDataInsertDBName:DBNAME_CONFIG toTable:TABLENAME_DRAFT withInfo:infoInsert countReplace:YES];
+    NSInteger retDBData = [self.dbData DBDataInsertDBName:DBNAME_CONFIG toTable:TABLENAME_DRAFT withInfo:infoInsert orReplace:YES];
     if(DB_EXECUTE_OK != retDBData) {
         NSLog(@"#error - ");
         result = NO;
@@ -575,7 +592,7 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
                                  DBDATA_STRING_VALUES:@[@[color.name, color.colorstring]]
                                  };
     
-    NSInteger retDBData = [self.dbData DBDataInsertDBName:DBNAME_CONFIG toTable:TABLENAME_COLOR withInfo:infoInsert countReplace:YES];
+    NSInteger retDBData = [self.dbData DBDataInsertDBName:DBNAME_CONFIG toTable:TABLENAME_COLOR withInfo:infoInsert orReplace:YES];
     if(DB_EXECUTE_OK != retDBData) {
         NSLog(@"#error - ");
         result = NO;
@@ -672,7 +689,7 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
                                  DBDATA_STRING_VALUES:@[@[font.name, font.fontstring]]
                                  };
     
-    NSInteger retDBData = [self.dbData DBDataInsertDBName:DBNAME_CONFIG toTable:TABLENAME_FONT withInfo:infoInsert countReplace:YES];
+    NSInteger retDBData = [self.dbData DBDataInsertDBName:DBNAME_CONFIG toTable:TABLENAME_FONT withInfo:infoInsert orReplace:YES];
     if(DB_EXECUTE_OK != retDBData) {
         NSLog(@"#error - ");
         result = NO;
@@ -844,7 +861,7 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
                                  DBDATA_STRING_VALUES:@[@[key, value]]
                                  };
     
-    NSInteger retDBData = [self.dbData DBDataInsertDBName:DBNAME_HOST toTable:TABLENAME_SETTINGKV withInfo:infoInsert countReplace:YES];
+    NSInteger retDBData = [self.dbData DBDataInsertDBName:DBNAME_HOST toTable:TABLENAME_SETTINGKV withInfo:infoInsert orReplace:YES];
     if(DB_EXECUTE_OK != retDBData) {
         NSLog(@"#error - ");
         result = NO;
@@ -996,7 +1013,7 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
                                  DBDATA_STRING_COLUMNS:columnNames,
                                  DBDATA_STRING_VALUES:[NSArray arrayWithArray:values]
                                  };
-    NSInteger retDBData = [self.dbData DBDataInsertDBName:DBNAME_HOST toTable:TABLENAME_CATEGORY withInfo:infoInsert countReplace:NO];
+    NSInteger retDBData = [self.dbData DBDataInsertDBName:DBNAME_HOST toTable:TABLENAME_CATEGORY withInfo:infoInsert];
     if(retDBData == DB_EXECUTE_OK) {
         NSLog(@"---Category : insert/update OK");
     }
@@ -1098,7 +1115,7 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
                                  DBDATA_STRING_VALUES:@[@[[NSNumber numberWithInteger:detailHistory.tid], [NSNumber numberWithLongLong:detailHistory.createdAtForDisplay], [NSNumber numberWithLongLong:detailHistory.createdAtForLoaded]]]
                                  };
     
-    NSInteger retDBData = [self.dbData DBDataInsertDBName:DBNAME_HOST toTable:TABLENAME_DETAILHISTORY withInfo:infoInsert countReplace:YES];
+    NSInteger retDBData = [self.dbData DBDataInsertDBName:DBNAME_HOST toTable:TABLENAME_DETAILHISTORY withInfo:infoInsert orReplace:YES];
     if(DB_EXECUTE_OK != retDBData) {
         NSLog(@"#error - ");
         result = NO;
@@ -1187,7 +1204,7 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
                                  DBDATA_STRING_VALUES:@[@[[NSNumber numberWithInteger:collection.tid], [NSNumber numberWithLongLong:collection.collectedAt]]]
                                  };
     
-    NSInteger retDBData = [self.dbData DBDataInsertDBName:DBNAME_HOST toTable:TABLENAME_COLLECTION withInfo:infoInsert countReplace:NO];
+    NSInteger retDBData = [self.dbData DBDataInsertDBName:DBNAME_HOST toTable:TABLENAME_COLLECTION withInfo:infoInsert];
     if(DB_EXECUTE_OK != retDBData) {
         NSLog(@"#error - ");
         result = NO;
@@ -1302,7 +1319,7 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
                                  DBDATA_STRING_VALUES:@[@[[NSNumber numberWithInteger:post.tid], [NSNumber numberWithLongLong:post.postedAt]]]
                                  };
     
-    NSInteger retDBData = [self.dbData DBDataInsertDBName:DBNAME_HOST toTable:TABLENAME_POST withInfo:infoInsert countReplace:NO];
+    NSInteger retDBData = [self.dbData DBDataInsertDBName:DBNAME_HOST toTable:TABLENAME_POST withInfo:infoInsert];
     if(DB_EXECUTE_OK != retDBData) {
         NSLog(@"#error - ");
         result = NO;
@@ -1430,7 +1447,7 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
     
     NSLog(@"vbn %@", infoInsert);
     
-    NSInteger retDBData = [self.dbData DBDataInsertDBName:DBNAME_HOST toTable:TABLENAME_REPLY withInfo:infoInsert countReplace:NO];
+    NSInteger retDBData = [self.dbData DBDataInsertDBName:DBNAME_HOST toTable:TABLENAME_REPLY withInfo:infoInsert];
     if(DB_EXECUTE_OK != retDBData) {
         NSLog(@"#error - ");
         result = NO;
@@ -1552,7 +1569,7 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
                                      DBDATA_STRING_COLUMNS:columnNames,
                                      DBDATA_STRING_VALUES:[NSArray arrayWithArray:values]
                                      };
-        NSInteger retDBData = [self.dbData DBDataInsertDBName:DBNAME_HOST toTable:TABLENAME_RECORD withInfo:infoInsert countReplace:YES];
+        NSInteger retDBData = [self.dbData DBDataInsertDBName:DBNAME_HOST toTable:TABLENAME_RECORD withInfo:infoInsert orReplace:YES];
         if(retDBData == DB_EXECUTE_OK) {
             NSLog(@"---RECORD : insert/update OK");
         }

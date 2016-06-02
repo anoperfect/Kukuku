@@ -138,7 +138,7 @@
 
 
 //增
-- (NSInteger)DBDataInsert:(FMDatabase*)db toTable:(DBTableAttribute*)tableAttribute withInfo:(NSDictionary*)infoInsert countReplace:(BOOL)couldReplace
+- (NSInteger)DBDataInsert:(FMDatabase*)db toTable:(DBTableAttribute*)tableAttribute withInfo:(NSDictionary*)infoInsert orReplace:(BOOL)replace orIgnore:(BOOL)ignore
 {
     //检查infoInsert.
     //检查columnNames.
@@ -240,12 +240,19 @@
     
     //获取insert信息值. 组成sql语句.
     //执行.
+    NSString *insertOr = @"";
+    if(replace) {
+        insertOr = @"OR REPLACE";
+    }
+    else if(ignore) {
+        insertOr = @"OR IGNORE";
+    }
+    
     NSMutableString *insert = [NSMutableString stringWithFormat:@"INSERT %@ INTO %@(%@) VALUES ",
-                        couldReplace?@"OR REPLACE":@"",
+                        insertOr,
                         tableAttribute.tableName,
                         [NSString stringsCombine:columnNames withConnector:@","]
                         ];
-    
     
     NSInteger countOfValues = values.count;
     BOOL addJoiner = NO;
@@ -276,8 +283,9 @@
 }
 
 
+
 //增
-- (NSInteger)DBDataInsertDBName:(NSString*)databaseName toTable:(NSString*)tableName withInfo:(NSDictionary*)infoInsert countReplace:(BOOL)couldReplace
+- (NSInteger)DBDataInsertDBName:(NSString*)databaseName toTable:(NSString*)tableName withInfo:(NSDictionary*)infoInsert
 {
     if(![NSThread isMainThread]) {NSLog(@"#error - should excute db in MainThread. <%@:%@>", databaseName, tableName);}
     
@@ -294,8 +302,51 @@
         return DB_EXECUTE_ERROR_NOT_FOUND;
     }
     
-    return [self DBDataInsert:db toTable:tableAttribute withInfo:infoInsert countReplace:couldReplace];
+    return [self DBDataInsert:db toTable:tableAttribute withInfo:infoInsert orReplace:NO orIgnore:NO];
 }
+
+
+- (NSInteger)DBDataInsertDBName:(NSString*)databaseName toTable:(NSString*)tableName withInfo:(NSDictionary*)infoInsert orReplace:(BOOL)replace
+{
+    if(![NSThread isMainThread]) {NSLog(@"#error - should excute db in MainThread. <%@:%@>", databaseName, tableName);}
+    
+    
+    FMDatabase *db = [self getDataBaseByName:databaseName];
+    if(!db) {
+        NSLog(@"#error - not find database <%@>", databaseName);
+        return DB_EXECUTE_ERROR_NOT_FOUND;
+    }
+    
+    DBTableAttribute *tableAttribute = [self getDBTableAttribute:databaseName withTableName:tableName];
+    if(!tableAttribute) {
+        NSLog(@"#error - not find database <%@>", databaseName);
+        return DB_EXECUTE_ERROR_NOT_FOUND;
+    }
+    
+    return [self DBDataInsert:db toTable:tableAttribute withInfo:infoInsert orReplace:YES orIgnore:NO];
+}
+
+
+- (NSInteger)DBDataInsertDBName:(NSString*)databaseName toTable:(NSString*)tableName withInfo:(NSDictionary*)infoInsert orIgnore:(BOOL)ignore
+{
+    if(![NSThread isMainThread]) {NSLog(@"#error - should excute db in MainThread. <%@:%@>", databaseName, tableName);}
+    
+    
+    FMDatabase *db = [self getDataBaseByName:databaseName];
+    if(!db) {
+        NSLog(@"#error - not find database <%@>", databaseName);
+        return DB_EXECUTE_ERROR_NOT_FOUND;
+    }
+    
+    DBTableAttribute *tableAttribute = [self getDBTableAttribute:databaseName withTableName:tableName];
+    if(!tableAttribute) {
+        NSLog(@"#error - not find database <%@>", databaseName);
+        return DB_EXECUTE_ERROR_NOT_FOUND;
+    }
+    
+    return [self DBDataInsert:db toTable:tableAttribute withInfo:infoInsert orReplace:NO orIgnore:ignore];
+}
+
 
 
 
@@ -1124,9 +1175,7 @@
                 NSLog(@"[%@ : %@] insert presets.", databaseName, tableAttribute.tableName);
                 
                 //根据primary判断是否重复.
-                
-                
-                NSInteger retInsert = [self DBDataInsert:db toTable:tableAttribute withInfo:contents countReplace:NO];
+                NSInteger retInsert = [self DBDataInsert:db toTable:tableAttribute withInfo:contents orReplace:NO orIgnore:YES];
                 if(DB_EXECUTE_OK != retInsert) {
                     NSLog(@"#error- [%@ : %@] insert preset FAILED. <%@>", databaseName, tableAttribute.tableName, contents);
                 }

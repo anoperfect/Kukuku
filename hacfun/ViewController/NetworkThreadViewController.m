@@ -102,6 +102,7 @@
 
 
 - (void)setBackgroundDownload {
+    
     NSString *str = [self getDownloadUrlString];
     NSLog(@"threads download str=%@", str);
     
@@ -133,6 +134,7 @@
 
 
 - (void)connectionDidFinishLoading:(NSURLConnection*)connection {
+    self.postView.allowsSelection = YES;
     NSLog(@"%@数据包传输完成%s", [NSThread currentThread], __FUNCTION__);
     NS0Log(@"connection data : %@", [[NSString alloc] initWithData:self.jsonData encoding:NSUTF8StringEncoding]);
     [self parseAndFresh:self.jsonData onPage:self.pageNumLoading];
@@ -140,6 +142,7 @@
 
 
 - (void)connection:(NSURLConnection*)connection didFailWithError:(NSError *)error {
+    self.postView.allowsSelection = YES;
     NSLog(@"%@数据传输失败,产生错误%s", [NSThread currentThread], __FUNCTION__);
     NSLog(@"error:%@", error);
     [self parseAndFresh:nil onPage:self.pageNumLoading];

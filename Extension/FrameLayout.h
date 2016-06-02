@@ -75,6 +75,30 @@ typedef NS_ENUM(NSInteger, FrameLayoutPosition) {
 
 
 
+- (void)arrangeInHerizonIn:(NSString*)inName
+                        to:(NSArray<NSString*> *)names
+     withPercentageHeights:(NSArray<NSNumber *> *)percentageHeights;
+
+- (void)arrangeInHerizonIn:(NSString*)inName
+                        to:(NSArray<NSString*> *)names
+               withHeights:(NSArray<NSNumber *> *)heights;
+
+
+- (void)arrangeInVerticalIn:(NSString*)inName
+                         to:(NSArray<NSString*> *)names
+       withPercentageWidths:(NSArray<NSNumber *> *)percentageWidths;
+
+- (void)arrangeInVerticalIn:(NSString*)inName
+                         to:(NSArray<NSString*> *)names
+                 withWidths:(NSArray<NSNumber *> *)widths;
+
+
+
+- (void)arrangeInHerizonIn:(NSString*)inName toNameAndPercentageHeights:(NSArray<NSDictionary*> *)nameAndPercentageHeights;
+
+
+
+
 //Beside mode.
 - (CGRect)setUseBesideMode:(NSString*)name
                   besideTo:(NSString*)toName

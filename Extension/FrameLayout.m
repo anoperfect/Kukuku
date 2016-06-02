@@ -180,6 +180,145 @@
 }
 
 
+- (void)arrangeInHerizonIn:(NSString*)inName
+                        to:(NSArray<NSString*> *)names
+     withPercentageHeights:(NSArray<NSNumber *> *)percentageHeights
+{
+    if(!(names.count == percentageHeights.count && names.count > 0)) {
+        NSLog(@"#error - names.count : %zd, percentageHeights.count : %zd", names.count, percentageHeights.count);
+        return ;
+    }
+    
+    CGRect inFrame = [self getCGRect:inName];
+    CGFloat y = 0.0;
+    for(NSInteger idx = 0; idx < names.count; idx ++) {
+        NSNumber *number = percentageHeights[idx];
+        CGFloat percentageHeight = [number floatValue];
+        
+        CGRect toFrame = inFrame;
+        toFrame.origin.y = y;
+        toFrame.size.height = inFrame.size.height * percentageHeight;
+        
+        y += toFrame.size.height;
+        
+        [self setCGRect:toFrame toName:names[idx]];
+    }
+}
+
+
+- (void)arrangeInHerizonIn:(NSString*)inName toNameAndPercentageHeights:(NSArray<NSDictionary*> *)nameAndPercentageHeights
+{
+    CGRect inFrame = [self getCGRect:inName];
+    CGFloat y = 0.0;
+    for(NSInteger idx = 0; idx < nameAndPercentageHeights.count; idx ++) {
+        NSDictionary *dict = nameAndPercentageHeights[idx];
+        NSString *name = nil;
+        NSNumber *number = nil;
+        
+        if([dict isKindOfClass:[NSDictionary class]]
+           && dict.count == 1
+           && [(name = dict.allKeys[0]) isKindOfClass:[NSString class]]
+           && [(number = [dict objectForKey:name]) isKindOfClass:[NSNumber class]]) {
+
+            CGFloat percentageHeight = [number floatValue];
+            
+            CGRect toFrame = inFrame;
+            toFrame.origin.y = y;
+            toFrame.size.height = inFrame.size.height * percentageHeight;
+            
+            y += toFrame.size.height;
+            
+            [self setCGRect:toFrame toName:name];
+        }
+        else {
+            NSLog(@"#error - nameAndPercentageHeights[%zd] value invalid.<%@>.", idx, dict);
+        }
+    }
+}
+
+
+
+
+- (void)arrangeInHerizonIn:(NSString*)inName
+                        to:(NSArray<NSString*> *)names
+               withHeights:(NSArray<NSNumber *> *)heights
+{
+    if(!(names.count == heights.count && names.count > 0)) {
+        NSLog(@"#error - names.count : %zd, percentageHeights.count : %zd", names.count, heights.count);
+        return ;
+    }
+    
+    CGRect inFrame = [self getCGRect:inName];
+    CGFloat y = 0.0;
+    for(NSInteger idx = 0; idx < names.count; idx ++) {
+        NSNumber *number = heights[idx];
+        CGFloat height = [number floatValue];
+        
+        CGRect toFrame = inFrame;
+        toFrame.origin.y = y;
+        toFrame.size.height = height;
+        
+        y += toFrame.size.height;
+        
+        [self setCGRect:toFrame toName:names[idx]];
+    }
+}
+
+
+- (void)arrangeInVerticalIn:(NSString*)inName
+                         to:(NSArray<NSString*> *)names
+       withPercentageWidths:(NSArray<NSNumber *> *)percentageWidths
+{
+    if(!(names.count == percentageWidths.count && names.count > 0)) {
+        NSLog(@"#error - names.count : %zd, percentageHeights.count : %zd", names.count, percentageWidths.count);
+        return ;
+    }
+    
+    CGRect inFrame = [self getCGRect:inName];
+    CGFloat x = 0.0;
+    for(NSInteger idx = 0; idx < names.count; idx ++) {
+        NSNumber *number = percentageWidths[idx];
+        CGFloat percentageWidth = [number floatValue];
+        
+        CGRect toFrame = inFrame;
+        toFrame.origin.x = x;
+        toFrame.size.width = inFrame.size.width * percentageWidth;
+        
+        x += toFrame.size.width;
+        
+        [self setCGRect:toFrame toName:names[idx]];
+    }
+}
+
+
+
+- (void)arrangeInVerticalIn:(NSString*)inName
+                         to:(NSArray<NSString*> *)names
+                 withWidths:(NSArray<NSNumber *> *)widths
+{
+    if(!(names.count == widths.count && names.count > 0)) {
+        NSLog(@"#error - names.count : %zd, percentageHeights.count : %zd", names.count, widths.count);
+        return ;
+    }
+    
+    CGRect inFrame = [self getCGRect:inName];
+    CGFloat x = 0.0;
+    for(NSInteger idx = 0; idx < names.count; idx ++) {
+        NSNumber *number = widths[idx];
+        CGFloat width = [number floatValue];
+        
+        CGRect toFrame = inFrame;
+        toFrame.origin.x = x;
+        toFrame.size.width = width;
+        
+        x += toFrame.size.width;
+        
+        [self setCGRect:toFrame toName:names[idx]];
+    }
+}
+
+
+
 //Beside mode.
 #if 0
 - (CGRect)setUsingBesideMode:(NSString*)name aboveTo:(NSString*)toName withHeightValue:(CGFloat)height

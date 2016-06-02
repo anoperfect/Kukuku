@@ -408,9 +408,11 @@
         return;
     }
     
+    NSInteger saveToAlbumNumber = 0;
     NSMutableArray *images = [[NSMutableArray alloc] init];
     for(NSInteger index = 0; index < boolValues.count; index ++) {
         if([boolValues[index] boolValue]) {
+            saveToAlbumNumber ++;
             UIImage *image = [self imageAtRow:index];
             if(image) {
                 [images addObject:image];
@@ -418,6 +420,13 @@
                 UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil);
             }
         }
+    }
+    
+    if(saveToAlbumNumber > 0) {
+        [self showIndicationText:[NSString stringWithFormat:@"已保存图片到相册 : %zd", saveToAlbumNumber]];
+    }
+    else {
+        [self showIndicationText:[NSString stringWithFormat:@"未选择保存图片"]];
     }
 }
 
@@ -430,10 +439,19 @@
         return;
     }
     
+    NSInteger deleteNumber = 0;
     for(NSInteger index = 0; index < boolValues.count; index ++) {
         if([boolValues[index] boolValue]) {
             [[NSFileManager defaultManager] removeItemAtPath:self.filePaths[index] error:nil];
+            deleteNumber ++;
         }
+    }
+    
+    if(deleteNumber > 0) {
+        [self showIndicationText:[NSString stringWithFormat:@"已删除图片 : %zd", deleteNumber]];
+    }
+    else {
+        [self showIndicationText:[NSString stringWithFormat:@"未选择删除图片"]];
     }
     
     //取消多选模式.

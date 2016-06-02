@@ -24,6 +24,7 @@
 #import "PostImageView.h"
 #import "PostView.h"
 #import "AlignTopLabel.h"
+#import "PushButton.h"
 
 //viewcontroller
 #import "ThreadsViewController.h"

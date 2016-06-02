@@ -200,6 +200,17 @@
                                    ["SearchInfoLabelBorder", "", 0,                               "#000090"],
                                    ["SearchInfoLabelText", "", 0,                                 "#000090"],
                                    
+                                   ["CustomInputViewBackground", "", 0,                           "clear"],
+                                   ["CustomInputViewBorder", "", 0,                               "#000090"],
+                                   ["CustomInputViewText", "", 0,                                 "#000090"],
+                                   ["CustomButtonBackground", "", 0,                                "clear"],
+                                   ["CustomButtonBorder", "", 0,                                    "#000090"],
+                                   ["CustomButtonText", "", 0,                                      "#000090"],
+                                   ["CustomLabelBackground", "", 0,                                 "clear"],
+                                   ["CustomLabelBorder", "", 0,                                     "#000090"],
+                                   ["CustomLabelText", "", 0,                                       "#000090"],
+                                   
+                                   
                                    ["PostViewCellBackground", "", 0,                              "#d0d0d0"],
                                    ["PostViewBackground", "", 0,                                  "#d0d0d0"],
                                    ["ThreadsViewControllerBackground", "", 0,                     "purple"],

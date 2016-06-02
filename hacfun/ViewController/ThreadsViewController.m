@@ -616,6 +616,18 @@
 }
 
 
+//#此方法暂时屏蔽频繁上拉时导致的闪退.
+- (BOOL)tableView:(UITableView *)tableView shouldHighlightRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if(self.threadsStatus == ThreadsStatusLoading) {
+        return NO;
+    }
+    else {
+        return YES;
+    }
+}
+
+
 - (void)sectionHeaderAction:(id)sender
 {
     LOG_POSTION

@@ -5,7 +5,7 @@
 //  Created by Ben on 15/8/17.
 //  Copyright (c) 2015年 Ben. All rights reserved.
 //
-
+#import "MBProgressHUD.h"
 #import "CustomViewController.h"
 #import "FuncDefine.h"
 #import "AppConfig.h"
@@ -14,7 +14,7 @@
 
 
 
-@interface CustomViewController ()
+@interface CustomViewController () <MBProgressHUDDelegate>
 
 @property (nonatomic, strong) NSMutableArray    *actionDatas;
 @property (nonatomic, assign) NSInteger     tagButtons;
@@ -31,6 +31,8 @@
 
 @property (nonatomic, assign) CGRect viewFrameRecord;
 
+
+@property (nonatomic, strong) MBProgressHUD *messageIndicationHUD;
 @end
 
 @implementation CustomViewController
@@ -433,7 +435,7 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
 }
 
 
-- (void)showIndicationText:(NSString*)text
+- (void)showIndicationText1:(NSString*)text
 {
     NSLog(@"---xxx0 : >>>>>>IndicationText : %@", text);
     //[self.view bringSubviewToFront:self.messageIndication];
@@ -461,6 +463,30 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
                                                                           userInfo:nil
                                                                            repeats:NO];
 }
+
+
+- (void)showIndicationText:(NSString*)text
+{
+    NSLog(@"---xxx0 : >>>>>>IndicationText : %@", text);
+    
+    if(!self.messageIndicationHUD) {
+        self.messageIndicationHUD = [MBProgressHUD showHUDAddedTo:self.navigationController.view animated:YES];
+        self.messageIndicationHUD.mode = MBProgressHUDModeText;
+        self.messageIndicationHUD.userInteractionEnabled = NO;
+        self.messageIndicationHUD.delegate = self;
+        self.messageIndicationHUD.removeFromSuperViewOnHide = NO; //设置这个.
+    }
+    
+    self.messageIndicationHUD.labelText = text;
+    [self.messageIndicationHUD show:YES];
+    [self.messageIndicationHUD hide:YES afterDelay:3.0];
+}
+
+////一直沿用self.messageIndicationHUD可能导致不能显示. 注意设置self.messageIndicationHUD.removeFromSuperViewOnHide = NO;
+//- (void)hudWasHidden:(MBProgressHUD *)hud
+//{return ;
+//    self.messageIndicationHUD = nil;
+//}
 
 
 - (void)hideIndicationText
