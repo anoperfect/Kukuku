@@ -99,6 +99,7 @@
     }
     
     cell.textLabel.text = name;
+    cell.textLabel.textColor = [UIColor colorWithName:@"RightMenuText"];
     
     return cell;
 }

@@ -170,16 +170,7 @@
 {
     NSLog(@"action string : %@", string);
     
-    if([string isEqualToString:@"more"]) {
-        if(self.navigationController.toolbarHidden) {
-            [self showToolBar];
-        }
-        else {
-            [self hiddenToolBar];
-        }
 
-        return;
-    }
     
     if([string isEqualToString:@"reply"]) {
         [self createReplyPost];
@@ -224,12 +215,12 @@
         return ;
     }
     
-    if([string isEqualToString:@"folding"] && !self.isOnlyShowPo){
+    if([string isEqualToString:@"onlyShowPo"] && !self.isOnlyShowPo){
         [self hiddenToolBar];
         [self showIndicationText:@"当前为只看Po模式"];
         
         self.isOnlyShowPo = YES;
-        
+#if 0
         NSArray *indexPaths = [self indexPathsPostData];
         for(NSIndexPath *indexPath in indexPaths) {
             PostData *postData = [self postDataOnIndexPath:indexPath];
@@ -240,23 +231,23 @@
                 [self foldCellOnIndexPath:indexPath withInfo:@"只看Po" andReload:NO];
             }
         }
-        
+#endif
         [self.postView reloadData];
         
         return ;
     }
     
-    if([string isEqualToString:@"folding"] && self.isOnlyShowPo){
+    if([string isEqualToString:@"onlyShowPo"] && self.isOnlyShowPo){
         [self hiddenToolBar];
         [self showIndicationText:@"已关闭只看Po模式"];
         
         self.isOnlyShowPo = NO;
-        
+#if 0
         NSArray *indexPaths = [self indexPathsPostData];
         for(NSIndexPath *indexPath in indexPaths) {
             [self unfoldCellOnIndexPath:indexPath withInfo:@"只看Po" andReload:NO];
         }
-        
+#endif
         [self.postView reloadData];
         
         return ;
@@ -277,6 +268,8 @@
         
         return ;
     }
+    
+    [super actionViaString:string];
 }
 
 
@@ -307,19 +300,21 @@
         actionData = [[ButtonData alloc] init];
         actionData.keyword      = @"停止加载全部";
         actionData.imageName    = @"loadall";
+        actionData.triggerOn    = YES;
         [toolDatas addObject:actionData];
     }
     
     if(!self.isOnlyShowPo) {
         actionData = [[ButtonData alloc] init];
-        actionData.keyword      = @"folding";
+        actionData.keyword      = @"onlyShowPo";
         actionData.imageName    = @"folding";
         [toolDatas addObject:actionData];
     }
     else {
         actionData = [[ButtonData alloc] init];
-        actionData.keyword      = @"folding";
+        actionData.keyword      = @"onlyShowPo";
         actionData.imageName    = @"folding";
+        actionData.triggerOn    = YES;
         [toolDatas addObject:actionData];
     }
     
@@ -440,6 +435,7 @@
 - (void)downloadAllDetail
 {
     self.autoRepeatDownload = YES;
+    self.autoRepeatDownloadPages = NSIntegerMax;
     [self actionLoadMore];
 }
 
@@ -447,6 +443,7 @@
 - (void)stopDownloadAllDetail
 {
     self.autoRepeatDownload = NO;
+    self.autoRepeatDownloadPages = 0;
 }
 
 
@@ -455,7 +452,7 @@
     CreateViewController *vc = [[CreateViewController alloc] init];
     NSString *originalContent = nil;
     if(referenceId > 0) {
-        originalContent = [NSString stringWithFormat:@">>No.%zd", referenceId];
+        originalContent = [NSString stringWithFormat:@">>No.%zd\n", referenceId];
     }
     [vc setCreateCategory:self.category replyTid:self.tid withOriginalContent:originalContent];
     
@@ -721,16 +718,6 @@
 {
     [super actionAfterParseAndRefresh:data andPostDataParsed:postDataParsed andPostDataAppended:postDataAppended];
     
-    //自动加载的时候的提示信息.
-    if(self.autoRepeatDownload) {
-        if(![self isLastPage]) {
-            [self showIndicationText:[NSString stringWithFormat:@"已加载第%zd页, 共%zd条.", self.pageNumLoaded, [self numberOfPostDatasTotal] - 1]];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self actionLoadMore];
-            });
-        }
-    }
-    
     //保存最新回复CreatedAt.
     [self storeLoadedInfo];
 }
@@ -774,7 +761,7 @@
 - (NSString*)getFooterViewTitleOnStatus:(ThreadsStatus)status
 {
     if(status == ThreadsStatusLoadSuccessful) {
-        return [NSString stringWithFormat:@"加载成功, 已加载回复%zd条.", [self numberOfPostDatasTotal] - 1 ];
+        return [NSString stringWithFormat:@"加载成功, 已加载回复%zd条.", [self numberOfPostDatasTotal]];
     }
     
     return [super getFooterViewTitleOnStatus:status];
@@ -888,8 +875,21 @@
 }
 
 
-
-
+- (NSInteger)numberOfPostDatasTotal
+{
+    NSInteger number = 0;
+    
+    for(PostDataPage *page in self.postDataPages) {
+        if(page.page != 0) {
+            number += page.postDatas.count;
+        }
+    }
+    
+    NSLog(@"self.postDataPages count : %zd", self.postDataPages.count);
+    NSLog(@"numberOfPostDatasTotal : %zd", number);
+    
+    return number;
+}
 
 
 - (void)dealloc {

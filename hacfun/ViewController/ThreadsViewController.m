@@ -951,7 +951,7 @@
     else if([string isEqualToString:@"举报"]){
         dispatch_async(dispatch_get_main_queue(), ^{
             CreateViewController *createViewController = [[CreateViewController alloc]init];
-            NSString *content = [NSString stringWithFormat:@">>NO.%zd\n", postDataRow.tid];
+            NSString *content = [NSString stringWithFormat:@">>No.%zd\n", postDataRow.tid];
             Category *categoryAdmin = [[AppConfig sharedConfigDB] configDBCategoryGetByName:@"值班室"];
             [createViewController setCreateCategory:categoryAdmin replyTid:NSNotFound withOriginalContent:content];
             [self.navigationController pushViewController:createViewController animated:YES];

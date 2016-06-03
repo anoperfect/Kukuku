@@ -31,8 +31,8 @@
         ButtonData *actionData = nil;
         
         actionData = [[ButtonData alloc] init];
-        actionData.keyword      = @"refresh";
-        actionData.imageName    = @"refresh";
+        actionData.keyword      = @"more";
+        actionData.imageName    = @"more";
         [self actionAddData:actionData];
         
         actionData = [[ButtonData alloc] init];
@@ -67,22 +67,111 @@
 {
     self.category = category;
     self.textTopic = self.category.name;
+    
+    NSLog(@"category : %@", category);
 }
 
 
 - (void)actionViaString:(NSString*)string
 {
     NSLog(@"action string : %@", string);
+    
     if([string isEqualToString:@"refresh"]) {
+        [self hiddenToolBar];
         [self refreshPostData];
         return;
     }
     
     if([string isEqualToString:@"new"]) {
+        [self hiddenToolBar];
         [self createNewPost];
         return;
     }
+    
+    if([string isEqualToString:@"版规"]) {
+        [self hiddenToolBar];
+        UIWebView *view = [[UIWebView alloc] init];
+        view.frame = UIEdgeInsetsInsetRect(self.view.bounds, UIEdgeInsetsMake(60, 10, 60, 10));
+        [view loadHTMLString:self.category.content baseURL:nil];
+        
+        [self showPopupView:view];
+    }
+    
+    if([string isEqualToString:@"load10"]) {
+        [self hiddenToolBar];
+        [self showIndicationText:[NSString stringWithFormat:@"开始自动加载"]];
+        
+        [self load10];
+        
+        return;
+    }
+    
+    if([string isEqualToString:@"load10stop"]) {
+        [self hiddenToolBar];
+        [self showIndicationText:[NSString stringWithFormat:@"停止自动加载"]];
+        [self load10stop];
+        
+        return ;
+    }
+    
+    [super actionViaString:string];
 }
+
+
+- (void)load10
+{
+    self.autoRepeatDownload = YES;
+    self.autoRepeatDownloadPages = 10;
+    [self actionLoadMore];
+}
+
+
+- (void)load10stop
+{
+    self.autoRepeatDownload = NO;
+    self.autoRepeatDownloadPages = 0;
+}
+
+
+- (NSArray*)toolData
+{
+    LOG_POSTION
+    NSMutableArray *toolDatas = [[NSMutableArray alloc] init];
+    
+    ButtonData *actionData = nil;
+    
+    if(self.category.content.length > 0) {
+        actionData = [[ButtonData alloc] init];
+        actionData.keyword      = @"版规";
+        actionData.imageName    = @"rule";
+        [toolDatas addObject:actionData];
+    }
+    
+    actionData = [[ButtonData alloc] init];
+    actionData.keyword      = @"refresh";
+    actionData.imageName    = @"refresh";
+    [toolDatas addObject:actionData];
+    
+    if(!self.autoRepeatDownload) {
+        actionData = [[ButtonData alloc] init];
+        actionData.keyword      = @"load10";
+        actionData.imageName    = @"load10";
+        [toolDatas addObject:actionData];
+    }
+    else {
+        actionData = [[ButtonData alloc] init];
+        actionData.keyword      = @"load10stop";
+        actionData.imageName    = @"load10";
+        actionData.triggerOn    = YES;
+        [toolDatas addObject:actionData];
+    }
+
+    NSLog(@"---%zd", toolDatas.count);
+    
+    return [NSArray arrayWithArray:toolDatas];
+}
+
+
 
 
 - (void)createNewPost {

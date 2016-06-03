@@ -111,6 +111,7 @@ typedef NS_ENUM(NSInteger, DBDataColumnType) {
 
 //辅助检测. 
 - (BOOL)DBDataCheckCountOfArray:(NSArray*)arrays withCount:(NSInteger)count;
+- (BOOL)DBDataCheckCount:(NSInteger)count OfArrayObjects:(id)obj, ...;
 
 
 

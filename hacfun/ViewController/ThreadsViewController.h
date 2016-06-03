@@ -88,6 +88,7 @@ typedef NS_ENUM(NSInteger, ThreadsStatus) {
 
 //持续加载下一页.
 @property (nonatomic, assign) BOOL autoRepeatDownload;
+@property (nonatomic, assign) NSInteger autoRepeatDownloadPages;
 
 @property (nonatomic, assign) ThreadsStatus threadsStatus;
 

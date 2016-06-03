@@ -266,6 +266,10 @@
 if([arrayasd[indexzxc] isKindOfClass:[NSNumber class]]) {varqwe = [arrayasd[indexzxc] integerValue];}\
 else {NSLog(@"#error - obj (%@) is not NSNumber class.", arrayasd[indexzxc]);varqwe = defaultqaz;}
 
+#define ASSIGN_BOOL_VALUE_FROM_ARRAYMEMBER(varqwe, arrayasd, indexzxc, defaultqaz) \
+if([arrayasd[indexzxc] isKindOfClass:[NSNumber class]]) {varqwe = ([arrayasd[indexzxc] integerValue] > 0);}\
+else {NSLog(@"#error - obj (%@) is not NSNumber class.", arrayasd[indexzxc]);varqwe = defaultqaz;}
+
 #define ASSIGN_LONGLONG_VALUE_FROM_ARRAYMEMBER(varqwe, arrayasd, indexzxc, defaultqaz) \
 if([arrayasd[indexzxc] isKindOfClass:[NSNumber class]]) {varqwe = [arrayasd[indexzxc] longLongValue];}\
 else {NSLog(@"#error - obj (%@) is not NSNumber class.", arrayasd[indexzxc]);varqwe = defaultqaz;}
@@ -877,6 +881,63 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
 }
 
 
+- (void)setTitleWithString:(NSString *)title,...
+{
+    NSMutableArray *argsArray = [[NSMutableArray alloc] init];
+    if (title)
+    {
+        //将第一个参数添加到array
+        [argsArray addObject:title];
+        
+        va_list params; //定义一个指向个数可变的参数列表指针；
+        va_start(params,title);//va_start  得到第一个可变参数地址,
+        
+        NSString *arg;
+        while( (arg = va_arg(params,NSString *)) )         //va_arg 指向下一个参数地址
+        {
+            if ( arg )
+            {
+                [argsArray addObject:arg];
+            }
+        }
+        va_end(params);         //置空
+    }
+    for (NSString *str in argsArray)
+    {
+        NSLog(@"%@",str);
+    }
+}
+
+
+-(NSArray *)actionUsePic:(id)actionNum, ... {
+    NSMutableArray *argsArray = [[NSMutableArray alloc] init];
+    va_list params; //定义一个指向个数可变的参数列表指针;
+    va_start(params,actionNum);//va_start 得到第一个可变参数地址,
+    id arg;
+    if (actionNum) {
+        //将第一个参数添加到array
+        id prev = actionNum;
+        [argsArray addObject:prev];
+        //va_arg 指向下一个参数地址
+        //这里是问题的所在 网上的例子，没有保存第一个参数地址，后边循环，指针将不会在指向第一个参数
+        while( (arg = va_arg(params,id)) )
+        {
+            if ( arg ){
+                [argsArray addObject:arg];
+            }
+        }
+        //置空
+        va_end(params);
+        //这里循环 将看到所有参数
+        for (NSNumber *num in argsArray) {
+            NSLog(@"%d", [num intValue]);
+        }
+    }
+    return argsArray;
+}
+
+
+
 //category.
 - (NSArray*)configDBCategoryGet
 {
@@ -888,22 +949,30 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
                                                      withLimit:@{DBDATA_STRING_ORDER:@"ORDER BY click DESC"}];
     NSInteger count = [self.dbData DBDataCheckRowsInDictionary:queryResult];
     
+    NSLog(@"zzz:%@", queryResult);
+    
     NSArray *arrayReturn = nil ;
     if(count > 0) {
-        NSArray *nameArray      = queryResult[@"name"];
-        NSArray *linkArray      = queryResult[@"link"];
-        NSArray *forumArray     = queryResult[@"forum"];
-        NSArray *clickArray     = queryResult[@"click"];
+        NSArray *nameArray              = queryResult[@"name"];
+        NSArray *linkArray              = queryResult[@"link"];
+        NSArray *forumArray             = queryResult[@"forum"];
+        NSArray *headerIconUrlArray     = queryResult[@"headerIconUrl"];
+        NSArray *contentArray           = queryResult[@"content"];
+        NSArray *passwordRequiredArray  = queryResult[@"passwordRequired"];
+        NSArray *clickArray             = queryResult[@"click"];
         
-        if([self.dbData DBDataCheckCountOfArray:@[nameArray, linkArray, forumArray, clickArray] withCount:count]) {
+        if([self.dbData DBDataCheckCountOfArray:@[nameArray, linkArray, forumArray, headerIconUrlArray, contentArray, passwordRequiredArray, clickArray] withCount:count]) {
             NSMutableArray *arrayReturnM = [NSMutableArray arrayWithCapacity:count];
             
             for(NSInteger index = 0; index < count ;  index ++) {
                 Category *category = [[Category alloc] init];
-                category.name           = nameArray[index];
-                category.link           = linkArray[index];
-                category.forum          = [forumArray[index] integerValue];
-                category.click          = [clickArray[index] integerValue];
+                ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER (category.name ,               nameArray ,             index,  @"NAN")
+                ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER (category.link ,               linkArray ,             index,  @"NAN")
+                ASSIGN_INTEGER_VALUE_FROM_ARRAYMEMBER(category.forum,               forumArray,             index,  0)
+                ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER (category.headerIconUrl ,      headerIconUrlArray ,    index,  @"NAN")
+                ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER (category.content,             contentArray,           index,  @"NAN")
+                ASSIGN_BOOL_VALUE_FROM_ARRAYMEMBER   (category.passwordRequired,    passwordRequiredArray,  index,  NO)
+                ASSIGN_INTEGER_VALUE_FROM_ARRAYMEMBER(category.click,               clickArray,             index,  0)
                 
                 [arrayReturnM addObject:category];
             }
@@ -940,17 +1009,23 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
     Category *category = nil;
 
     if(count > 0) {
-        NSArray *nameArray      = queryResult[@"name"];
-        NSArray *linkArray      = queryResult[@"link"];
-        NSArray *forumArray     = queryResult[@"forum"];
-        NSArray *clickArray     = queryResult[@"click"];
+        NSArray *nameArray              = queryResult[@"name"];
+        NSArray *linkArray              = queryResult[@"link"];
+        NSArray *forumArray             = queryResult[@"forum"];
+        NSArray *headerIconUrlArray     = queryResult[@"headerIconUrl"];
+        NSArray *contentArray           = queryResult[@"content"];
+        NSArray *passwordRequiredArray  = queryResult[@"passwordRequired"];
+        NSArray *clickArray             = queryResult[@"click"];
         
-        if([self.dbData DBDataCheckCountOfArray:@[nameArray, linkArray, forumArray, clickArray] withCount:count]) {
+        if([self.dbData DBDataCheckCountOfArray:@[nameArray, linkArray, forumArray, headerIconUrlArray, contentArray, passwordRequiredArray, clickArray] withCount:count]) {
             category = [[Category alloc] init];
-            ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER (category.name , nameArray , 0, @"NAN")
-            ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER (category.link , linkArray , 0, @"NAN")
-            ASSIGN_INTEGER_VALUE_FROM_ARRAYMEMBER(category.forum, forumArray, 0, 0)
-            ASSIGN_INTEGER_VALUE_FROM_ARRAYMEMBER(category.click, clickArray, 0, 0)
+            ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER (category.name ,               nameArray ,             0,  @"NAN")
+            ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER (category.link ,               linkArray ,             0,  @"NAN")
+            ASSIGN_INTEGER_VALUE_FROM_ARRAYMEMBER(category.forum,               forumArray,             0,  0)
+            ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER (category.headerIconUrl ,      headerIconUrlArray ,    0,  @"NAN")
+            ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER (category.content,             contentArray,           0,  @"NAN")
+            ASSIGN_BOOL_VALUE_FROM_ARRAYMEMBER   (category.passwordRequired,    passwordRequiredArray,  0,  NO)
+            ASSIGN_INTEGER_VALUE_FROM_ARRAYMEMBER(category.click,               clickArray,             0,  0)
         }
     }
     
@@ -968,15 +1043,23 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
     NSString *displayName = [dict objectForKey:@"displayName"];
     NSString *description = [dict objectForKey:@"description"];
     
-    if((name.length > 0)
-       && [name isEqualToString:keywords]
-       && [name isEqualToString:displayName]
-       && [name isEqualToString:description]) {
+    if(name.length > 0) {
         category.name = [name copy];
         category.link = [NSString URLEncodedString:category.name];
+        
+        if([name isEqualToString:keywords]
+           && [name isEqualToString:displayName]
+           && [name isEqualToString:description])
+        {
+            
+        }
+        else {
+            NSLog(@"#error - <%@ %@ %@ %@>", name, keywords, displayName, description);
+        }
+        
     }
     else {
-        NSLog(@"#error - <%@ %@ %@ %@>", name, keywords, displayName, description);
+        NSLog(@"#error - Category %@ not parsed.", @"name");
         parsed = NO;
     }
     
@@ -991,14 +1074,15 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
     
     NSString *headerIconUrl = [FuncDefine objectParseFromDict:dict WithXPath:@[
                                                      @{@"headerIcon":[NSDictionary class]},
-                                                     @{@"Url":[NSDictionary class]}
+                                                     @{@"url":[NSDictionary class]}
                                                      ]
      ];
     if([headerIconUrl isKindOfClass:[NSString class]]) {
         category.headerIconUrl = headerIconUrl;
     }
     else {
-        NSLog(@"#error - Category <%@> not parsed.", @"headerIconUrl");
+        category.headerIconUrl = @"";
+        NSLog(@"#error - Category %@ <%@> not parsed.", category.name,  @"headerIconUrl");
     }
     
     NSString *content = [dict objectForKey:@"content"];
@@ -1006,7 +1090,8 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
         category.content = content;
     }
     else {
-        NSLog(@"#error - Category <%@> not parsed.", @"content");
+        category.content = @"";
+        NSLog(@"#error - Category %@ <%@> not parsed.", category.name, @"content");
     }
     
     NSNumber *passwordRequiredNumber = [dict objectForKey:@"passwordRequired"];
@@ -1014,7 +1099,8 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
         category.passwordRequired = [passwordRequiredNumber boolValue];
     }
     else {
-        NSLog(@"#error - Category <%@> not parsed.", @"passwordRequired");
+        category.passwordRequired = NO;
+        NSLog(@"#error - Category %@ <%@> not parsed.", category.name, @"passwordRequired");
     }
     
     if(!parsed) {
@@ -1029,18 +1115,25 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
 - (BOOL)configDBCategoryInserts:(NSArray*)categories
 {
     BOOL result = YES;
-    NSArray *columnNames = @[@"name", @"link", @"forum", @"click", @"headerIconUrl", @"content", @"passwordRequired"];
+    NSArray *columnNames = @[@"name", @"link", @"forum", @"headerIconUrl", @"content", @"passwordRequired", @"click"];
     NSMutableArray *values = [[NSMutableArray alloc] init];
     
     for(Category *category in categories) {
         NSMutableArray *value = [NSMutableArray arrayWithCapacity:columnNames.count];
+        
+        #define ASSIGN_STRING_IF_NULL(s, v) if(!(s)) { (s) = (v);}
+        ASSIGN_STRING_IF_NULL(category.name, @"")
+        ASSIGN_STRING_IF_NULL(category.link, @"")
+        ASSIGN_STRING_IF_NULL(category.headerIconUrl, @"")
+        ASSIGN_STRING_IF_NULL(category.content, @"")
+
         [value addObject:[category.name copy]];
         [value addObject:[category.link copy]];
         [value addObject:[NSNumber numberWithInteger:category.forum]];
-        [value addObject:[NSNumber numberWithInteger:category.click]];
         [value addObject:[category.headerIconUrl copy]];
         [value addObject:[category.content copy]];
         [value addObject:[NSNumber numberWithInteger:category.passwordRequired]];
+        [value addObject:[NSNumber numberWithInteger:category.click]];
         
         [values addObject:[NSArray arrayWithArray:value]];
     }
@@ -1070,7 +1163,14 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
     NSMutableArray<NSDictionary*> *infosQuery = [[NSMutableArray alloc] init];
     
     for(Category *category in categories) {
-        [infosUpdate addObject:@{@"link":category.link, @"forum":[NSNumber numberWithInteger:category.forum]}];
+        [infosUpdate addObject:@{
+                                 @"link":category.link,
+                                 @"forum":[NSNumber numberWithInteger:category.forum],
+                                 @"headerIconUrl":category.headerIconUrl,
+                                 @"content":category.content,
+                                 @"passwordRequired":[NSNumber numberWithBool:category.passwordRequired]
+                                 }
+         ];
         [infosQuery addObject:@{@"name":category.name}];
     }
     
@@ -1887,12 +1987,13 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
     NSError *error = nil;
     
     NSData *data = [NSURLConnection sendSynchronousRequest:mutableRequest returningResponse:&response error:&error];
+    
     if(error || data.length == 0) {
         NSLog(@"%@", error);
         data = nil;
     }
     else {
-        
+        NSLog(@"%@ : \n%@", query, [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
     }
     
     return data;
@@ -1904,6 +2005,7 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
     NSDictionary *dict = nil;
     NSData *data = [self sendSynchronousRequestTo:query andArgument:argument];
     if(data) {
+        
         dict = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableLeaves error:nil];
         if([dict isKindOfClass:[NSDictionary class]]) {
             
@@ -2021,7 +2123,7 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
         NSLog(@"auth : perform <%@>.", query);
         NSDictionary* dict = [weakSelf sendSynchronousRequestAndJsonParseTo:query andArgument:argument];
 
-        NSLog(@"group : %@", dict);
+        NS0Log(@"group : %@", dict);
         
         if([dict isKindOfClass:[NSDictionary class]] && [[dict objectForKey:@"result"] isKindOfClass:[NSArray class]]) {
             NSArray *result = [dict objectForKey:@"result"];

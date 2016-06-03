@@ -100,8 +100,10 @@
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"Cell"];
     }
     
-    cell.textLabel.text = self.tableData[indexPath.row];
     [cell setBackgroundColor:[UIColor clearColor]];
+    
+    cell.textLabel.text = self.tableData[indexPath.row];
+    cell.textLabel.textColor = [UIColor colorWithName:@"LeftMenuText"];
     
     return cell;
 }

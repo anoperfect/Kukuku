@@ -83,10 +83,8 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
     self.view.backgroundColor = [UIColor colorWithName:@"ContentBackground"];
 
     //去除哪个什么snapshot的警告.
-    if([[[UIDevice
-          currentDevice] systemVersion] floatValue]>=8.0) {
+    if([[[UIDevice currentDevice] systemVersion] floatValue]>=8.0) {
         self.modalPresentationStyle=UIModalPresentationOverCurrentContext;
-        
     }
 }
 
@@ -351,8 +349,16 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
 
 - (void)actionViaString:(NSString *)string
 {
-    NSLog(@"need to override.");
-    [self doesNotRecognizeSelector:@selector(actionViaString:)];
+    if([string isEqualToString:@"more"]) {
+        if(self.navigationController.toolbarHidden) {
+            [self showToolBar];
+        }
+        else {
+            [self hiddenToolBar];
+        }
+        
+        return;
+    }
 }
 
 
@@ -460,9 +466,23 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
     self.messageIndicationAutoCloseTimer = nil;
     self.messageIndicationAutoCloseTimer = [NSTimer scheduledTimerWithTimeInterval:3.0
                                                                             target:self
-                                                                          selector:@selector(hideIndicationText)
+                                                                          selector:@selector(hideIndicationText1)
                                                                           userInfo:nil
                                                                            repeats:NO];
+}
+
+
+- (void)hideIndicationText1
+{
+    [UIView animateWithDuration:0.3f
+                          delay:0.0f
+                        options:UIViewAnimationOptionCurveEaseIn
+                     animations:^{
+                         self.messageIndication.frame = CGRectMake(0, -36, self.view.frame.size.width, 36);
+                     }
+                     completion:^(BOOL finished) {
+                         
+                     }];
 }
 
 
@@ -490,18 +510,15 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
 //}
 
 
-- (void)hideIndicationText
-{
-    [UIView animateWithDuration:0.3f
-                          delay:0.0f
-                        options:UIViewAnimationOptionCurveEaseIn
-                     animations:^{
-                         self.messageIndication.frame = CGRectMake(0, -36, self.view.frame.size.width, 36);
-                     }
-                     completion:^(BOOL finished) {
-                         
-                     }];
-}
+
+
+
+
+
+
+
+
+
 
 
 
@@ -534,6 +551,9 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
         button.actionData = data;
         [button addTarget:self action:@selector(action:) forControlEvents:UIControlEventTouchDown];
         [button setFrame:CGRectMake(0, 0, self.heightBanner, self.heightBanner)];
+        if(data.triggerOn) {
+            button.backgroundColor = [UIColor colorWithName:@"CustomButtonTriggerOnBackground"];
+        }
         UIBarButtonItem *item = nil;
         if(nil != data.imageName) {
             UIImage *image = [UIImage imageNamed:data.imageName];

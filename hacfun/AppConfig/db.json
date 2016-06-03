@@ -192,11 +192,18 @@
                                    ["CustomInputViewBorder", "", 0,                               "#000090", "#000090"],
                                    ["CustomInputViewText", "", 0,                                 "#000090", "#000090"],
                                    ["CustomButtonBackground", "", 0,                                "clear", "clear"],
+                                   ["CustomButtonTriggerOnBackground", "", 0,                     "#000090@60", "#000090@60"],
                                    ["CustomButtonBorder", "", 0,                                    "#000090", "#000090"],
                                    ["CustomButtonText", "", 0,                                      "#000090", "#000090"],
                                    ["CustomLabelBackground", "", 0,                                 "clear", "clear"],
                                    ["CustomLabelBorder", "", 0,                                     "#000090", "#000090"],
                                    ["CustomLabelText", "", 0,                                       "#000090", "#000090"],
+                                   
+                                   ["CustomBackground", "", 0, "#e1eaeb", "#e1eaeb"],
+                                   ["CustomText", "", 0, "black", "#e1eaeb"],
+                                   ["CustomLightText", "", 0, "#000000@66", "#000000@66"],
+                                   
+                                   
                                    
                                    ["PostViewBackground", "", 0,                                  "#d0d0d0", "#d0d0d0"],
                                    ["PostViewPopupBackground", "", 0,                             "white", "white"],

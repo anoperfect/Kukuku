@@ -201,11 +201,11 @@
     //键盘出现时,重置textView高度和btn的高度.
     [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(keyboardChangeFrame:) name:UIKeyboardWillChangeFrameNotification object:nil];
     
-    if(0 != self.topicTid) {
-        self.textTopic = [NSString stringWithFormat:@"No.%zi", self.topicTid];
+    if(self.topicTid == 0 || self.topicTid == NSNotFound) {
+        self.textTopic = [NSString stringWithFormat:@"%@ - 新建", self.category.name];
     }
     else {
-        self.textTopic = [NSString stringWithFormat:@"%@ - 新建", self.category.name];
+        self.textTopic = [NSString stringWithFormat:@"No.%zi", self.topicTid];
     }
     
 //    if(self.idReference > 0) {
@@ -787,11 +787,11 @@
     Host *host = [[AppConfig sharedConfigDB] configDBHostsGetCurrent];
     NSString *str = nil;
     
-    if(self.topicTid <= 0) {
-        str =[NSString stringWithFormat:@"%@/%@/create", host.host, self.category.name];
+    if(self.topicTid == 0 || self.topicTid == NSNotFound) {
+        str = [NSString stringWithFormat:@"%@/t/%zi/create", host.host, self.topicTid];
     }
     else {
-        str = [NSString stringWithFormat:@"%@/t/%zi/create", host.host, self.topicTid];
+        str =[NSString stringWithFormat:@"%@/%@/create", host.host, self.category.name];
     }
     
     NSURL *url=[[NSURL alloc] initWithString:[str stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
@@ -965,7 +965,7 @@
                 self.newCommitedTid = newCommitedTid;
                 
                 //主题贴.
-                if(self.topicTid == 0) {
+                if(self.topicTid == 0 || self.topicTid == NSNotFound) {
                     Post *post = [[Post alloc] init];
                     post.tid        = newCommitedTid;
                     post.postedAt   = self.editedAt;
@@ -1070,7 +1070,7 @@
                 [[AppConfig sharedConfigDB] configDBRecordInsertOrReplace:infoInsert];
 #endif
                 //主题贴.
-                if(self.topicTid == 0) {
+                if(self.topicTid == 0 || self.topicTid == NSNotFound) {
                     Post *post = [[Post alloc] init];
                     post.tid        = newCommitedTid;
                     post.postedAt   = self.editedAt;

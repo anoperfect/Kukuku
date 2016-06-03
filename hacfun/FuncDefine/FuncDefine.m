@@ -39,7 +39,7 @@
     NS0Log(@"objParsing : %@", objParsing);
     for(NSDictionary *detail in xpath) {
         if(!([detail isKindOfClass:[NSDictionary class]] && detail.count == 1)) {
-            LOG_POSTION
+            NSLog(@"#error : xpath detail invalid.<%@>", detail);
             obj = nil;
             break;
         }
@@ -50,7 +50,7 @@
                 objParsing = [objParsing objectForKey:detail.allKeys[0]];
             }
             else {
-                NSLog(@"#error : %@ -> %@", [objParsing class], objParsing);
+                NSLog(@"#error : key=%@, value=%@(class%@)", detail.allKeys[0], objParsing, [objParsing class]);
                 obj = nil;
                 break;
             }
@@ -63,13 +63,13 @@
                 objParsing = [objParsing objectAtIndex:[detail.allKeys[0] integerValue]];
             }
             else {
-                LOG_POSTION
+                NSLog(@"#error : key=%@, value=%@(class%@)", detail.allKeys[0], objParsing, [objParsing class]);
                 obj = nil;
                 break;
             }
         }
         else {
-            LOG_POSTION
+            NSLog(@"#error : xpath detail class invalid.<%@>", c);
             obj = nil;
             break;
         }

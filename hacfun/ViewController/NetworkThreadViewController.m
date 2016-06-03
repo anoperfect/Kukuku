@@ -208,23 +208,31 @@
 {
     //关于自动下载.
     //停止自动下载.
-    if(postDataAppended.count <= 0) {
-        if(self.autoRepeatDownload) {
-            self.autoRepeatDownload = NO;
-            //[self showIndicationText:@"获取数据失败. 自动加载停止."];
+    if(self.autoRepeatDownload) {
+        BOOL stopAutoRepeatDownload = NO;
+        if(postDataAppended.count <= 0) {
+            NSLog(@"stopAutoRepeatDownload due to : %@", @"none parsed.");
+            stopAutoRepeatDownload = YES;
         }
-    }
-    else {
-        if([self isLastPage]) {
-            NSLog(@"last page.");
-            if(self.autoRepeatDownload) {
-                self.autoRepeatDownload = NO;
-                //[self showIndicationText:@"加载完成. 自动加载停止."];
-            }
+        else if([self isLastPage]) {
+            NSLog(@"stopAutoRepeatDownload due to : %@", @"last page.");
+            stopAutoRepeatDownload = YES;
+        }
+        else if( -- self.autoRepeatDownloadPages <= 0) {
+            NSLog(@"stopAutoRepeatDownload due to : %@", @"reach setting download page.");
+            stopAutoRepeatDownload = YES;
+        }
+        
+        if(stopAutoRepeatDownload) {
+            [self showIndicationText:@"自动加载停止"];
+            self.autoRepeatDownload = NO;
+            self.autoRepeatDownloadPages = 0;
         }
         else {
-            NSLog(@"not last page.");
-
+            [self showIndicationText:[NSString stringWithFormat:@"已加载第%zd页, 共%zd条.", self.pageNumLoaded, [self numberOfPostDatasTotal]]];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self actionLoadMore];
+            });
         }
     }
 }

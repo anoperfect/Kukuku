@@ -69,7 +69,7 @@
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"%@ , %@, %zd", self.name, self.link, self.forum];
+    return [NSString stringWithFormat:@"name:%@ , link:%@, forum:%zd, click:%zd, headerIconUrl:%@, content:%@", self.name, self.link, self.forum, self.click, self.headerIconUrl, self.content];
 }
 
 

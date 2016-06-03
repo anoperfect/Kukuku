@@ -1254,6 +1254,45 @@
 }
 
 
+- (BOOL)DBDataCheckCount:(NSInteger)count OfArrayObjects:(id)obj, ...
+{
+    BOOL result = YES;
+    
+    NSArray *a = obj;
+    
+    id argment = nil;
+    
+    NSInteger idx = 0;
+    if([a isKindOfClass:[NSArray class]] && a.count == count) {
+        idx = 1;
+        
+        va_list params;
+        va_start(params, obj);
+        
+        
+        
+        
+        while (nil != (argment=va_arg(params, id))) {
+            if([a isKindOfClass:[NSArray class]] && a.count == count) {
+                idx ++;
+            }
+            else {
+                NSLog(@"#error : idx %zd invalid", idx);
+                result = NO;
+            }
+        }
+    
+        va_end(params);
+    }
+    else {
+        NSLog(@"#error : idx %zd invalid", idx);
+        result = NO;
+    }
+    
+    return result;
+}
+
+
 
 - (BOOL)DBDataCheckCountOfArray:(NSArray*)arrays withCount:(NSInteger)count
 {
