@@ -120,6 +120,7 @@
 		B5DD9A9E1CE217FB00C762AF /* ModelAndViewInc.m in Sources */ = {isa = PBXBuildFile; fileRef = B5DD9A9D1CE217FB00C762AF /* ModelAndViewInc.m */; };
 		B5E1378B1B7CDB76002B5979 /* CollectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B5E1378A1B7CDB76002B5979 /* CollectionViewController.m */; };
 		B5E137941B7D92E1002B5979 /* ImageViewCache.m in Sources */ = {isa = PBXBuildFile; fileRef = B5E137931B7D92E1002B5979 /* ImageViewCache.m */; };
+		B5E3C1521D03477100620E9C /* appicon1024x1024.png in Resources */ = {isa = PBXBuildFile; fileRef = B5E3C1511D03477100620E9C /* appicon1024x1024.png */; };
 		B5F24BB21C49EBF70027DAB2 /* LocaleViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B5F24BB11C49EBF70027DAB2 /* LocaleViewController.m */; };
 		B5F24BB51C49F0C40027DAB2 /* DBData.m in Sources */ = {isa = PBXBuildFile; fileRef = B5F24BB41C49F0C40027DAB2 /* DBData.m */; };
 		B5F24BB81C49F27E0027DAB2 /* NetworkThreadViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B5F24BB71C49F27E0027DAB2 /* NetworkThreadViewController.m */; };
@@ -316,6 +317,7 @@
 		B5E1378A1B7CDB76002B5979 /* CollectionViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CollectionViewController.m; sourceTree = "<group>"; };
 		B5E137921B7D92E1002B5979 /* ImageViewCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageViewCache.h; sourceTree = "<group>"; };
 		B5E137931B7D92E1002B5979 /* ImageViewCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = ImageViewCache.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		B5E3C1511D03477100620E9C /* appicon1024x1024.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = appicon1024x1024.png; sourceTree = "<group>"; };
 		B5F24BB01C49EBF70027DAB2 /* LocaleViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocaleViewController.h; sourceTree = "<group>"; };
 		B5F24BB11C49EBF70027DAB2 /* LocaleViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocaleViewController.m; sourceTree = "<group>"; };
 		B5F24BB31C49F0C40027DAB2 /* DBData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DBData.h; path = ../hacfun/Conponent/DBData.h; sourceTree = "<group>"; };
@@ -543,6 +545,7 @@
 		B523C9FE1B78FDB100944004 /* images */ = {
 			isa = PBXGroup;
 			children = (
+				B5E3C1511D03477100620E9C /* appicon1024x1024.png */,
 				B57780D31CE9FBB900F60B6F /* draft.png */,
 				B57780D41CE9FBB900F60B6F /* folding.png */,
 				B57780D51CE9FBB900F60B6F /* lastpage.png */,
@@ -809,6 +812,7 @@
 				TargetAttributes = {
 					B5D8D46F1B52060C0091DA20 = {
 						CreatedOnToolsVersion = 6.1;
+						DevelopmentTeam = 4ELM59EN5N;
 					};
 					B5D8D4881B52060C0091DA20 = {
 						CreatedOnToolsVersion = 6.1;
@@ -847,6 +851,7 @@
 				B523CA1F1B78FDB100944004 /* reply.png in Resources */,
 				B523CA1D1B78FDB100944004 /* new1.png in Resources */,
 				B55E9D7E1C9CFD7D00F581F5 /* capture.png in Resources */,
+				B5E3C1521D03477100620E9C /* appicon1024x1024.png in Resources */,
 				B523CA181B78FDB100944004 /* edit.png in Resources */,
 				B5039B241CB8BB8700C7865F /* selected.png in Resources */,
 				B523CA1A1B78FDB100944004 /* jumppage.png in Resources */,

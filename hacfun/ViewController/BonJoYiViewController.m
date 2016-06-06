@@ -32,6 +32,12 @@
 
 
 
+
+@property (nonatomic, strong) UIView        *bonJoYiView;
+@property (nonatomic, strong) UIImageView   *bonJoYiIcon;
+@property (nonatomic, strong) UILabel       *bonJoYiLabel;
+
+
 @end
 
 
@@ -96,6 +102,21 @@
     self.labelInfo.numberOfLines = 0;
     self.labelInfo.textColor = [UIColor colorWithName:@"CustomLabelText"];
     
+    self.bonJoYiView = [[UIView alloc] initWithFrame:self.view.bounds];
+    self.bonJoYiView.backgroundColor = [UIColor colorWithName:@"CustomBackground"];
+    
+    UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 160, 160)];
+    imageView.image = [UIImage imageNamed:@"appicon1024x1024"];
+    imageView.center = self.bonJoYiView.center;
+    #define bonJoYiView_imageview_tag 100
+    imageView.tag = bonJoYiView_imageview_tag;
+    [self.bonJoYiView addSubview:imageView];
+    
+    [self.view addSubview:self.bonJoYiView];
+    
+    //[self showPopupView:self.bonJoYiView inTime:3];
+    
+    
     
     dispatch_async(dispatch_get_main_queue(), ^{
         [self auth];
@@ -128,8 +149,41 @@
     self.buttonUpdate.frame     = [layout getCGRect:@"buttonUpdate"];
     self.buttonEnter.frame      = [layout getCGRect:@"buttonUpdate"];
     self.labelInfo.frame        = [layout getCGRect:@"labelInfo"];
+ 
+    self.bonJoYiView.frame = self.view.bounds;
+    UIView *imageview = [self.bonJoYiView viewWithTag:bonJoYiView_imageview_tag];
+    imageview.center = self.bonJoYiView.center;
+    
+    [layout setCGRect:self.view.bounds toName:@"bonJoYi"];
+    
+    [layout arrangeInHerizonIn:@"bonJoYi" toNameAndPercentageHeights:@[
+                                                                       @{@"bonJoYiTop":@0.1},
+                                                                       @{@"bonJoYiIcon":@0.3},
+                                                                       @{@"bonJoYiLabel":@0.2}
+                                                                       ]
+     ];
+    
+    self.bonJoYiIcon.frame = [layout getCGRect:@"bonJoYiIcon"];
+    self.bonJoYiLabel.frame = [layout getCGRect:@"bonJoYiLabel"];
+     
+    
+    
+    
     
 }
+
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    
+
+    
+    
+    
+}
+
+
 
 
 - (void)auth

@@ -146,7 +146,7 @@
     /* 图片附件. */
     _viewAttachPicture = [[UIView alloc] init];
     [self.view addSubview:_viewAttachPicture];
-    _viewAttachPicture.backgroundColor  = [UIColor colorWithName:@"AttachPictureBackground"];
+    _viewAttachPicture.backgroundColor  = [UIColor colorWithName:@"CreateAttachPictureBackground"];
     _viewAttachPicture.tag              = (NSInteger)@"ImageAttachView";
     
     _imageView = [[UIImageView alloc] init];
@@ -453,11 +453,11 @@
         [footerButton addTarget:self action:@selector(addInputToDraft) forControlEvents:UIControlEventTouchDown];
         footerButton.frame = CGRectMake(0, 0, self.draftView.frame.size.width, 36);
         [footerButton setTitle:@"加入草稿(长按进入编辑模式)" forState:UIControlStateNormal];
-        [footerButton setTitleColor:[UIColor colorWithName:@"draftCellText"] forState:UIControlStateNormal];
-        footerButton.titleLabel.font = [UIFont fontWithName:@"draftCellText"];
+        [footerButton setTitleColor:[UIColor colorWithName:@"CreateDraftText"] forState:UIControlStateNormal];
+        footerButton.titleLabel.font = [UIFont fontWithName:@"CreateDraftText"];
         self.draftView.tableFooterView = footerButton;
         
-        self.draftView.backgroundColor = [UIColor colorWithName:@"draftTableViewBackground"];
+        self.draftView.backgroundColor = [UIColor colorWithName:@"CreateDraftBackground"];
         
         //增加draft长按进入编辑功能.
         UILongPressGestureRecognizer *longPressGr = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(draftLongPressToEditMode:)];
@@ -772,6 +772,7 @@
 
 
 - (void)clickSend {
+    [self notFocusToInput];
     [self sendToHostName:HOSTNAME];
 }
 

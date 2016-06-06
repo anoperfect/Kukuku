@@ -79,7 +79,7 @@ static NSInteger kcountObject = 0;
             self.titleLabel = [[UILabel alloc] init];
             self.titleLabel.text = @"yyyy-mm-dd xyu-ACV-";
             self.titleLabel.font = [UIFont fontWithName:@"PostTitle"];
-            self.titleLabel.textColor = [UIColor colorWithName:@"CellTitleText"];
+            self.titleLabel.textColor = [UIColor colorWithName:@"PostViewLightText"];
             //            self.titleLabel.lineBreakMode = RTTextLineBreakModeWordWrapping;
             [self addSubview:self.titleLabel];
         }
@@ -89,7 +89,7 @@ static NSInteger kcountObject = 0;
             self.infoLabel.text = [NSString stringWithFormat:@"回应: %ld", -1L];
             
             self.infoLabel.font = [UIFont fontWithName:@"PostTitle"];
-            self.infoLabel.textColor = [UIColor colorWithName:@"CellInfoText"];
+            self.infoLabel.textColor = [UIColor colorWithName:@"PostViewLightText"];
             [self.infoLabel setTextAlignment:NSTextAlignmentRight];
             
             [self addSubview:self.infoLabel];
@@ -99,7 +99,7 @@ static NSInteger kcountObject = 0;
             self.manageInfoLabel = [[UILabel alloc] init];
             self.manageInfoLabel.text = @"";
             self.manageInfoLabel.font = [UIFont fontWithName:@"PostTitle"];
-            self.manageInfoLabel.textColor = [UIColor colorWithName:@"manageInfoText"];
+            self.manageInfoLabel.textColor = [UIColor colorWithName:@"PostViewManageText"];
             self.manageInfoLabel.textAlignment = NSTextAlignmentLeft;
             
             [self addSubview:self.manageInfoLabel];
@@ -109,7 +109,7 @@ static NSInteger kcountObject = 0;
             self.otherInfoLabel = [[UILabel alloc] init];
             self.otherInfoLabel.text = @"";
             self.otherInfoLabel.font = [UIFont fontWithName:@"PostTitle"];
-            self.otherInfoLabel.textColor = [UIColor colorWithName:@"otherInfoText"];
+            self.otherInfoLabel.textColor = [UIColor colorWithName:@"PostViewLightText"];
             self.otherInfoLabel.textAlignment = NSTextAlignmentRight;
             
             [self addSubview:self.otherInfoLabel];
@@ -119,7 +119,7 @@ static NSInteger kcountObject = 0;
             self.statusInfoLabel = [[UILabel alloc] init];
             self.statusInfoLabel.text = @"";
             self.statusInfoLabel.font = [UIFont fontWithName:@"PostTitle"];
-            self.statusInfoLabel.textColor = [UIColor colorWithName:@"otherInfoText"];
+            self.statusInfoLabel.textColor = [UIColor colorWithName:@"PostViewLightText"];
             self.statusInfoLabel.textAlignment = NSTextAlignmentRight;
             
             [self addSubview:self.statusInfoLabel];
@@ -133,7 +133,7 @@ static NSInteger kcountObject = 0;
             
             self.contentLabel.lineBreakMode = NSLineBreakByWordWrapping;
             self.contentLabel.font = [UIFont fontWithName:@"PostContent"];
-            self.contentLabel.textColor = [UIColor colorWithName:@"ThreadContentText"];
+            self.contentLabel.textColor = [UIColor colorWithName:@"PostViewText"];
             self.contentLabel.textColor = [UIColor blackColor];
             
             self.contentLabel.delegate = self;
@@ -155,7 +155,7 @@ static NSInteger kcountObject = 0;
             self.actionButtons0 = [[UIToolbar alloc] init];
             //[self.actionButtons addTarget:self action:@selector(actionPressed:) forControlEvents:UIControlEventValueChanged];
             [self addSubview:self.actionButtons0];
-            self.actionButtons0.tintColor = [UIColor colorWithName:@"CellActionButtonsText"];
+            self.actionButtons0.tintColor = [UIColor colorWithName:@"PostViewActionText"];
         }
     }
     
@@ -307,7 +307,7 @@ static NSInteger kcountObject = 0;
                 LOG_RECT(postView.frame, @"postView1")
             }
             
-            self.repliesView.backgroundColor = [UIColor colorWithName:@"repliesInPostView"];
+            self.repliesView.backgroundColor = [UIColor colorWithName:@"PostViewRepliesBackground"];
         }
     }
     

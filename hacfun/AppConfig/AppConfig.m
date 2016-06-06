@@ -2039,6 +2039,7 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
     //当前未开启sign校验. 随意写一个. token校验同样未开启.
 
     NSString *idfa = [NSString deviceIdfa];
+    
     self.hwid = [idfa calculateMD5];
     
     self.token = [self configDBSettingKVGet:@"token"];

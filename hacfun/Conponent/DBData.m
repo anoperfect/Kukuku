@@ -1211,7 +1211,7 @@
                 NSLog(@"[%@ : %@] insert presets.", databaseName, tableAttribute.tableName);
                 
                 //根据primary判断是否重复.
-                NSInteger retInsert = [self DBDataInsert:db toTable:tableAttribute withInfo:contents orReplace:NO orIgnore:YES];
+                NSInteger retInsert = [self DBDataInsert:db toTable:tableAttribute withInfo:contents orReplace:YES orIgnore:NO];
                 if(DB_EXECUTE_OK != retInsert) {
                     NSLog(@"#error- [%@ : %@] insert preset FAILED. <%@>", databaseName, tableAttribute.tableName, contents);
                 }

@@ -77,7 +77,7 @@
         [button addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchDown];
         [button.layer setBorderWidth:0.5];
 
-        [button.layer setBorderColor:[UIColor colorWithName:@"EmoticonButtonBorder"].CGColor];
+        [button.layer setBorderColor:[UIColor colorWithName:@"CreateEmoticonButtonBorder"].CGColor];
         [self.buttonsGridView addCellView:button];
         button.adjustsImageWhenHighlighted = YES;
         button.showsTouchWhenHighlighted = YES;

@@ -51,6 +51,7 @@
 - (void)showPopupView:(UIView*)view;
 - (void)dismissPopupView;
 
+- (void)showPopupView:(UIView *)view inTime:(NSTimeInterval)secs;
 
 
 //重载按钮行为(默认openLeftMenu).

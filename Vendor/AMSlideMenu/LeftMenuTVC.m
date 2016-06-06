@@ -103,7 +103,7 @@
     [cell setBackgroundColor:[UIColor clearColor]];
     
     cell.textLabel.text = self.tableData[indexPath.row];
-    cell.textLabel.textColor = [UIColor colorWithName:@"LeftMenuText"];
+    cell.textLabel.textColor = [UIColor colorWithName:@"CustomText"];
     
     return cell;
 }

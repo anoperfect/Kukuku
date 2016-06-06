@@ -231,6 +231,7 @@
 //if use url. it can not running on main thread.
 +(UIColor*)colorFromString:(NSString*)string
 {
+    LOG_POSTION
     if(!string || string.length == 0) {
         NSLog(@"#error - invlid color string [%@].", string);
         return [UIColor orangeColor];
@@ -253,6 +254,10 @@
     if(nil != systemColor) {
         NS0Log(@"system color : %@", systemColor);
         return systemColor;
+    }
+    
+    if([string hasPrefix:@">>"]) {
+        return [self colorWithName:[string substringFromIndex:@">>".length]];
     }
     
     if([string characterAtIndex:0] != '#') {
@@ -336,7 +341,8 @@ else { v = -1; }
 
 + (UIColor*)colorWithName:(NSString*)name
 {
-    for(ColorItem *item in [[UIpConfig sharedUIpConfig] getUIpConfigColors]) {
+    NSArray *a = [[UIpConfig sharedUIpConfig] getUIpConfigColors];
+    for(ColorItem *item in a) {
         if([item.name isEqualToString:name]) {
             if(![UIpConfig sharedUIpConfig].nightmode) {
                 NS0Log(@"colorWithName : %@ (%@) => %@", name, item.colorstring, item.color);
@@ -350,8 +356,6 @@ else { v = -1; }
     }
 
     NSLog(@"#error - colorWithName [%@] not found.", name);
-    
-    
     return ![UIpConfig sharedUIpConfig].nightmode?[UIColor orangeColor]:[UIColor blueColor];
 }
 

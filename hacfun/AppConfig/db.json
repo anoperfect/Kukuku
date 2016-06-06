@@ -181,13 +181,15 @@
                          {
                          "COLUMNS":["name", "title", "enableCustmize", "colorstring", "colornightstring"],
                          "VALUES":[
+                                   ["CustomBackground", "", 0,                             "#e1eaeb", "#e1eaeb"],
+                                   
                                    ["NavigationBarBackground", "", 0,                             "#e1eaeb", "#e1eaeb"],
                                    ["ContentBackground", "", 0,                                   "#e1eaeb", "#e1eaeb"],
                                    ["ToolBarBackground", "", 0,                                   "#e1eaeb", "#e1eaeb"],
                                    ["LeftMenuBackground", "", 0,                                  "#e1eaeb", "#e1eaeb"],
                                    ["RightMenuBackground", "", 0,                                 "#e1eaeb", "#e1eaeb"],
                                    ["PopupContainerBackground", "", 0,                            "#e1eaeb", "#e1eaeb"],
-                                   
+                                
                                    ["CustomInputViewBackground", "", 0,                           "clear", "clear"],
                                    ["CustomInputViewBorder", "", 0,                               "#000090", "#000090"],
                                    ["CustomInputViewText", "", 0,                                 "#000090", "#000090"],
@@ -203,39 +205,42 @@
                                    ["CustomText", "", 0, "black", "#e1eaeb"],
                                    ["CustomLightText", "", 0, "#000000@66", "#000000@66"],
                                    
-                                   
+                                   ["CustomIndicationBackground", "", 0,                         "#aaaaaa@60", "#aaaaaa@60"],
+                                   ["CustomIndicationText", "", 0,                               "#000000@60", "#000000@60"],
                                    
                                    ["PostViewBackground", "", 0,                                  "#d0d0d0", "#d0d0d0"],
                                    ["PostViewPopupBackground", "", 0,                             "white", "white"],
+                                   ["PostViewRepliesBackground", "", 0,                                  "#d0d0d0", "#d0d0d0"],
+                                   ["PostViewText", "", 0,                                   "black", "black"],
+                                   ["PostViewLightText", "", 0,                                       "#000000@66", "#000000@66"],
+                                   ["PostViewActionText", "", 0,                               "#191970", "#191970"],
+                                   ["PostViewManageText", "", 0,                                      "red", "red"],
+                                   
                                    ["PostTableViewBackground", "", 0,                             "#ffffff@60", "#ffffff@60"],
+                                   ["PostTableViewSectionHeaderBackground", "", 0,                             "#d0d0d0", "#d0d0d0"],
+                                   ["PostTableViewRefreshTint", "", 0,                                         "red", "red"],
+                                   ["PostTableViewFootViewText", "", 0,                                        "#000000@80", "#000000@80"],
 
-                                   ["CellTitleText", "", 0,                                       "#000000@66", "#000000@66"],
-                                   ["CellInfoText", "", 0,                                        "#000000@66", "#000000@66"],
-                                   ["CellInfoAdditionalText", "", 0,                              "#000000@66", "#000000@66"],
-                                   ["ThreadContentText", "", 0,                                   "black", "black"],
-                                   ["manageInfoText", "", 0,                                      "red", "red"],
-                                   ["otherInfoText", "", 0,                                       "#000000@66", "#000000@66"],
-                                   ["RefreshTint", "", 0,                                         "red", "red"],
+
                                    ["BannerTopicText", "", 0,                                     "black", "black"],
-                                   ["FootViewText", "", 0,                                        "#000000@80", "#000000@80"],
-                                   ["SettingTableViewBackground", "", 0,                          "clear", "clear"],
-                                   ["draftTableViewBackground", "", 0,                            "#eeeeee@80", "#eeeeee@80"],
-                                   ["draftCellText", "", 0,                                       "#000000@80", "#000000@80"],
-                                   ["messageIndicationBackground", "", 0,                         "#aaaaaa@60", "#aaaaaa@60"],
-                                   ["messageIndicationText", "", 0,                               "#000000@60", "#000000@60"],
-                                   ["CategoryCellBorder", "", 0,                                  "#dddddd@56", "#dddddd@56"],
-                                   ["DetailCellTopicBorder", "", 0,                               "red", "red"],
-                                   ["DetailCellReplyBorder", "", 0,                               "#000011@20", "#000011@20"],
-                                   ["EmoticonButtonBorder",  "", 0,                               "#0000ff@10", "#0000ff@10"],
-                                   ["CellActionButtonsText", "", 0,                               "#191970", "#191970"],
-                                   ["AttachPictureBackground", "", 0,                             "blue", "blue"],
-                                   ["Po", "", 0,                                                  "blue", "blue"],
-                                   ["Post", "", 0,                                                "purple", "purple"],
-                                   ["SectionHeaderBackground", "", 0,                             "#d0d0d0", "#d0d0d0"],
-                                   ["SectionHeaderButtonText", "", 0,                             "#000000@80", "#000000@80"],
-                                   ["SectionHeaderButtonBackground", "", 0,                       "clear", "clear"],
+                                   
+
+                                   ["CreateDraftBackground", "", 0,                            "#eeeeee@80", "#eeeeee@80"],
+                                   ["CreateDraftText", "", 0,                                       "#000000@80", "#000000@80"],
+                                   
+
+                                   ["CategoryPostViewBorder", "", 0,                                  "#dddddd@56", "#dddddd@56"],
+                                   ["DetailPostViewTopicBorder", "", 0,                               "red", "red"],
+                                   ["DetailPostViewReplyBorder", "", 0,                               "#000011@20", "#000011@20"],
+                                   
+                                   ["CreateEmoticonButtonBorder",  "", 0,                               "#0000ff@10", "#0000ff@10"],
+                                   ["CreateAttachPictureBackground", "", 0,                             "blue", "blue"],
                                    ["GalleryImageViewBackground", "", 0,                          "#000030@60", "#000030@60"],
                                    ["UICustmizeTableViewBackground", "", 0,                       "clear", "clear"],
+                                   ["SettingTableViewBackground", "", 0,                          "clear", "clear"],
+                                   
+                                   ["Po", "", 0,                                                  "blue", "blue"],
+                                   ["Post", "", 0,                                                "purple", "purple"],
                                    ["Reply", "", 0,                                               "orange", "orange"],
                                    ["orange", "", 0,                                              "orange", "orange"]
                                    

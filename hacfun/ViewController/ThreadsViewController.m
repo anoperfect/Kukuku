@@ -89,7 +89,7 @@
     //footview.
     self.footView = [[PushButton alloc] init];
     self.footView.backgroundColor = self.postView.backgroundColor;
-    [self.footView setTitleColor:[UIColor colorWithName:@"FootViewText"] forState:UIControlStateNormal];
+    [self.footView setTitleColor:[UIColor colorWithName:@"PostTableViewFootViewText"] forState:UIControlStateNormal];
     [self showfootViewWithTitle:[self getFooterViewTitleOnStatus:self.threadsStatus] andActivityIndicator:NO andDate:NO];
     [self.footView.titleLabel setFont:[UIFont fontWithName:@"PostContent"]];
     [self.footView addTarget:self action:@selector(clickFootView) forControlEvents:UIControlEventTouchDown];
@@ -218,7 +218,7 @@
 
 - (void)setBeginRefreshing {
     self.refresh = [[UIRefreshControl alloc]init];
-    self.refresh.tintColor = [UIColor colorWithName:@"RefreshTint"];
+    self.refresh.tintColor = [UIColor colorWithName:@"PostTableViewRefreshTint"];
     self.refresh.attributedTitle = [[NSAttributedString alloc] initWithString:@"下拉刷新"];
     [self.refresh addTarget:self action:@selector(refreshAction:) forControlEvents:UIControlEventValueChanged];
     [self.postView addSubview:self.refresh];
@@ -534,7 +534,7 @@
     if(v) {
         v.layer.backgroundColor = [UIColor whiteColor].CGColor;
         v.layer.borderWidth = 5;
-        v.layer.borderColor = [UIColor colorWithName:@"CategoryCellBorder"].CGColor;
+        v.layer.borderColor = [UIColor colorWithName:@"CategoryPostViewBorder"].CGColor;
 //        v.layer.shadowOpacity = 0.7;
 //        v.layer.shadowRadius = 10.0;
     }
@@ -601,11 +601,11 @@
     }
     
     UIView* sectionHeaderView = [[UIView alloc] init];
-    sectionHeaderView.backgroundColor = [UIColor colorWithName:@"SectionHeaderBackground"];
+    sectionHeaderView.backgroundColor = [UIColor colorWithName:@"PostTableViewSectionHeaderBackground"];
     PushButton *sectionHeaderButton = [[PushButton alloc] initWithFrame:CGRectMake(36, 0, tableView.frame.size.width - 36 * 2, 36)];
     [sectionHeaderButton setTitle:headerString forState:UIControlStateNormal];
-    [sectionHeaderButton setTitleColor:[UIColor colorWithName:@"SectionHeaderButtonText"] forState:UIControlStateNormal];
-    sectionHeaderButton.backgroundColor = [UIColor colorWithName:@"SectionHeaderButtonBackground"];
+    [sectionHeaderButton setTitleColor:[UIColor colorWithName:@"CustomText"] forState:UIControlStateNormal];
+    sectionHeaderButton.backgroundColor = [UIColor colorWithName:@"CustomButtonBackground"];
     
     [sectionHeaderButton addTarget:self action:@selector(sectionHeaderAction:) forControlEvents:UIControlEventTouchDown];
     sectionHeaderButton.tag = section;

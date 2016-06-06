@@ -676,7 +676,7 @@
     
     CALayer *border = [CALayer layer];
     if(0 == indexPath.section && 0 == indexPath.row) {
-        border.backgroundColor = [[UIColor colorWithName:@"DetailCellTopicBorder"] CGColor];
+        border.backgroundColor = [[UIColor colorWithName:@"DetailPostViewTopicBorder"] CGColor];
         float borderHeight = 1.0;
         border.frame = CGRectMake(0.0f,
                                   postView.frame.size.height-borderHeight,
@@ -684,7 +684,7 @@
                                   borderHeight);
     }
     else {
-        border.backgroundColor = [[UIColor colorWithName:@"DetailCellReplyBorder"] CGColor];
+        border.backgroundColor = [[UIColor colorWithName:@"DetailPostViewReplyBorder"] CGColor];
         float borderHeight = 1.0;
         border.frame = CGRectMake(0.0f,
                                   postView.frame.size.height-borderHeight,

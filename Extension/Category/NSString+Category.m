@@ -13,7 +13,6 @@
 
 
 
-
 @implementation NSString (Category)
 + (NSString *)URLEncodedString:(NSString*)urlString
 {
@@ -414,9 +413,10 @@ else { v = -1; }
 
 + (NSString *)deviceIdfa
 {
-    NSString *systemVersion = [[UIDevice currentDevice] systemVersion];
-    NSString *deviceIdfa = nil;
+    NSString *deviceIdfa = @"Idfanotdefine";
+    
     //已经限定target版本.
+    NSString *systemVersion = [[UIDevice currentDevice] systemVersion];
     if([systemVersion floatValue] >= 7.0f )
     {
         deviceIdfa = [[[ASIdentifierManager sharedManager] advertisingIdentifier] UUIDString];
@@ -424,12 +424,36 @@ else { v = -1; }
     }else{
         //        deviceIdfa = [[UIDevice currentDevice] uniqueGlobalDeviceIdentifier];
     }
+    
     return deviceIdfa;
 }
 
 
+#if 0
++ (NSString*)deviceUuid
+{
+    NSString *deviceUuid = @"Uuidnotdefine";
+    
+    NSString *uuidkeychain = [SSKeychain passwordForService:@"app.Ku岛Fun" account:@"uuid"];
+    if(uuidkeychain) {
+        NSLog(@"deviceUuid use keychain <%@>.", uuidkeychain);
+        deviceUuid = uuidkeychain;
+    }
+    else {
+        CFUUIDRef puuid = CFUUIDCreate( nil );
+        CFStringRef uuidString = CFUUIDCreateString( nil, puuid );
+        NSString * result = (NSString *)CFBridgingRelease(CFStringCreateCopy( NULL, uuidString));
+        CFRelease(puuid);
+        CFRelease(uuidString);
+        
+        [SSKeychain setPassword:result forService:@"app.Ku岛Fun" account:@"uuid"];
+        NSLog(@"deviceUuid generate and set keychain <%@>", result);
+        
+        deviceUuid = result;
+    }
+    
+    return deviceUuid;
+}
+#endif
+
 @end
-
-
-
-

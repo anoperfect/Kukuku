@@ -34,6 +34,7 @@
 
 
 @property (nonatomic, strong) MBProgressHUD *messageIndicationHUD;
+@property (nonatomic, strong) MBProgressHUD *popupHUD;
 @end
 
 @implementation CustomViewController
@@ -75,8 +76,8 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
     // Do any additional setup after loading the view.
     
     self.messageIndication = [[UILabel alloc] init];
-    self.messageIndication.backgroundColor = [UIColor colorWithName:@"messageIndicationBackground"];
-    self.messageIndication.textColor = [UIColor colorWithName:@"messageIndicationText"];
+    self.messageIndication.backgroundColor = [UIColor colorWithName:@"CustomIndicationBackground"];
+    self.messageIndication.textColor = [UIColor colorWithName:@"CustomIndicationText"];
     self.messageIndication.textAlignment = NSTextAlignmentCenter;
     [self.view addSubview:self.messageIndication];
     
@@ -413,6 +414,24 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
     
     [containerView removeFromSuperview];
     containerView = nil;
+}
+
+
+- (void)showPopupView:(UIView *)view inTime:(NSTimeInterval)secs
+{
+    if(!self.popupHUD) {
+        self.popupHUD = [MBProgressHUD showHUDAddedTo:self.view animated:YES];
+        self.popupHUD.mode = MBProgressHUDModeCustomView;
+        self.popupHUD.userInteractionEnabled = NO;
+        self.popupHUD.delegate = self;
+        self.popupHUD.removeFromSuperViewOnHide = NO; //设置这个.
+        self.popupHUD.margin = 0;
+    }
+    
+    self.popupHUD.customView = view;
+    [self.popupHUD show:YES];
+    
+    [self.popupHUD hide:YES afterDelay:secs];
 }
 
 
