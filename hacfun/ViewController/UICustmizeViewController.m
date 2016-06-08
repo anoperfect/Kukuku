@@ -177,7 +177,7 @@
         
         if(!item.imageData) {
             switchView.on = NO;
-            [self showIndicationText:@"请先点击设置图片"];
+            [self showIndicationText:@"请先点击设置图片" inTime:1.0];
         }
         else {
             item.onUse = YES;
@@ -187,7 +187,7 @@
             }
             else {
                 switchView.on = NO;
-                [self showIndicationText:@"启动背景图片出错"];
+                [self showIndicationText:@"启动背景图片出错" inTime:1.0];
                 NSLog(@"#error - ");
             }
         }

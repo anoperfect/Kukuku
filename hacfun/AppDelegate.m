@@ -14,6 +14,10 @@
 
 
 
+
+
+
+
 @interface AppDelegate ()
 
 @end
@@ -25,7 +29,9 @@
     // Override point for customization after application launch.
     [[NSLogn sharedNSLogn] connect];
     [AppConfig sharedConfigDB];
-
+    
+    
+    
     //MainVC *mainVC = [[MainVC alloc] init];
     BonJoYiViewController *vc = [[BonJoYiViewController alloc] init];
     UINavigationController *startNVC = [[UINavigationController alloc] initWithRootViewController:vc];
@@ -36,8 +42,93 @@
     
     [self.window makeKeyAndVisible];
     
+    [self test];
+    
     return YES;
 }
+
+
+- (void)test
+{
+    CGSize viewSize = self.window.bounds.size;
+    NSString *viewOrientation = @"Portrait";    //横屏请设置成 @"Landscape"
+    NSString *launchImage = nil;
+    
+    NSArray* imagesDict = [[[NSBundle mainBundle] infoDictionary] valueForKey:@"UILaunchImages"];
+    NSLog(@"imagesDict :%@", imagesDict);
+    for (NSDictionary* dict in imagesDict)
+    {
+        CGSize imageSize = CGSizeFromString(dict[@"UILaunchImageSize"]);
+        
+        if (CGSizeEqualToSize(imageSize, viewSize) && [viewOrientation isEqualToString:dict[@"UILaunchImageOrientation"]])
+        {
+            launchImage = dict[@"UILaunchImageName"];
+        }
+    }
+    
+    NSLog(@"launchImage :%@", launchImage);
+    
+    launchImage = @"LaunchImage1";
+    
+    UIImageView *launchView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:launchImage]];
+    launchView.frame = self.window.bounds;
+    launchView.contentMode = UIViewContentModeScaleAspectFill;
+    
+    NSLog(@"%@", launchView);
+    
+    [self.window addSubview:launchView];
+    
+    [UIView animateWithDuration:3.0f
+                          delay:0.0f
+                        options:UIViewAnimationOptionBeginFromCurrentState
+                     animations:^{
+                         
+                         launchView.alpha = 0.0f;
+                         launchView.layer.transform = CATransform3DScale(CATransform3DIdentity, 1.2, 1.2, 1);
+                         
+                     }
+                     completion:^(BOOL finished) {
+                         
+                         [launchView removeFromSuperview];
+                         
+                     }];
+    
+}
+
+
+
+- (BOOL)application1:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    // Override point for customization after application launch.
+    [[NSLogn sharedNSLogn] connect];
+    [AppConfig sharedConfigDB];
+    
+    [[AppConfig sharedConfigDB] authAsync:nil];
+    
+    NSInteger waitTimes = 0;
+    while(![AppConfig sharedConfigDB].authResult && waitTimes < 20) {
+        [NSThread sleepForTimeInterval:0.1];
+        waitTimes ++;
+        NSLog(@"wait for auth : %zd", waitTimes);
+    }
+    
+    UINavigationController *startNVC = nil;
+    if(![AppConfig sharedConfigDB].authResult) {
+        NSLog(@"#error - auth failed.");
+        BonJoYiViewController *vc = [[BonJoYiViewController alloc] init];
+        startNVC = [[UINavigationController alloc] initWithRootViewController:vc];
+    }
+    else {
+        MainVC *mainVC = [[MainVC alloc] init];
+        startNVC = [[UINavigationController alloc] initWithRootViewController:mainVC];
+    }
+    
+    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+    self.window.rootViewController = startNVC;
+    [self.window makeKeyAndVisible];
+    
+    return YES;
+}
+
 
 - (void)applicationWillResignActive:(UIApplication *)application {
     // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.

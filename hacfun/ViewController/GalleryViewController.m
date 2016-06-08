@@ -183,7 +183,7 @@
 
 - (void)reloadDownloadedImage
 {
-    [self showIndicationText:@"正整理图片数据, 请稍等. "];
+    [self showProgressText:@"正整理图片数据, 请稍等. " inTime:2.0];
     [self.imageDisplay setDisplayedImages:nil];
     
     dispatch_queue_t concurrentQueue = dispatch_queue_create("my.concurrent.queue", DISPATCH_QUEUE_CONCURRENT);
@@ -200,7 +200,7 @@
                                             outputFilePathsM:self.filePaths
                                              outputAdditonal:additional
                                                     progress:^(NSInteger number){
-                                                        [self showIndicationText:[NSString stringWithFormat:@"已整理图片 : %zd", number]];
+                                                        [self showProgressText:[NSString stringWithFormat:@"已整理图片 : %zd", number] inTime:2.0];
                                                     }
          
          ];
@@ -208,9 +208,9 @@
         self.totalImagesNumber = [[additional objectForKey:@"totalNumber"] integerValue];
         
         dispatch_async(dispatch_get_main_queue(), ^{
-            [self showIndicationText:[NSString stringWithFormat:@"共有图片%zd张", self.totalImagesNumber]];
+            [self showProgressText:[NSString stringWithFormat:@"共有图片%zd张", self.totalImagesNumber] inTime:2.0];
             [self.imageDisplay setDisplayedImages:self.thumbs];
-            
+    
             
         });
         
@@ -248,36 +248,10 @@
     }
     else {
         NSLog(@"#error : row error.");
-        [self showIndicationText:@"读取图片数据错误."];
+        [self showIndicationText:@"读取图片数据错误." inTime:1.0];
     }
 }
 
-
-#if 0
-- (void)showImagesNumberAfterDelay:(NSInteger)sec
-{
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(sec * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        NSString *indicationString = [NSString stringWithFormat:@"共有图片%zd张", self.totalImagesNumber];
-        if(0 == [self.images count]) {
-            indicationString = [NSString stringWithFormat:@"暂无缓存图片"];
-        }
-        [self showIndicationText:indicationString];
-        
-        NSLog(@"--- %@", [self.view subviews]);
-        
-    });
-}
-#endif
-
-
-#if 0
-- (void)setDisplayedImages:(NSArray*)images andNames:(NSArray*)filePaths
-{
-    self.images = images;
-    self.filePaths = filePaths;
-    [self.imageDisplay setDisplayedImages:self.images];
-}
-#endif
 
 - (void)actionViaString:(NSString *)string
 {
@@ -423,10 +397,10 @@
     }
     
     if(saveToAlbumNumber > 0) {
-        [self showIndicationText:[NSString stringWithFormat:@"已保存图片到相册 : %zd", saveToAlbumNumber]];
+        [self showIndicationText:[NSString stringWithFormat:@"已保存图片到相册 : %zd", saveToAlbumNumber] inTime:2.0];
     }
     else {
-        [self showIndicationText:[NSString stringWithFormat:@"未选择保存图片"]];
+        [self showIndicationText:[NSString stringWithFormat:@"未选择保存图片"] inTime:1.0];
     }
 }
 
@@ -448,10 +422,10 @@
     }
     
     if(deleteNumber > 0) {
-        [self showIndicationText:[NSString stringWithFormat:@"已删除图片 : %zd", deleteNumber]];
+        [self showIndicationText:[NSString stringWithFormat:@"已删除图片 : %zd", deleteNumber] inTime:1.0];
     }
     else {
-        [self showIndicationText:[NSString stringWithFormat:@"未选择删除图片"]];
+        [self showIndicationText:[NSString stringWithFormat:@"未选择删除图片"] inTime:1.0];
     }
     
     //取消多选模式.

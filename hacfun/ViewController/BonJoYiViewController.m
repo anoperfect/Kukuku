@@ -33,9 +33,9 @@
 
 
 
-@property (nonatomic, strong) UIView        *bonJoYiView;
-@property (nonatomic, strong) UIImageView   *bonJoYiIcon;
-@property (nonatomic, strong) UILabel       *bonJoYiLabel;
+//@property (nonatomic, strong) UIView        *bonJoYiView;
+//@property (nonatomic, strong) UIImageView   *bonJoYiIcon;
+//@property (nonatomic, strong) UILabel       *bonJoYiLabel;
 
 
 @end
@@ -58,6 +58,19 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    
+    NSLog(@"qqq%@", [UIApplication sharedApplication].windows);
+    
+    UIWindow *keyWindow = [UIApplication sharedApplication].keyWindow;
+    NSLog(@"qqq%@", keyWindow.subviews);
+    
+    
+    
+    
+    
+    [self auth];
+    
+    
     
     self.buttonAuth = [[PushButton alloc] init];
     [self.view addSubview:self.buttonAuth];
@@ -102,24 +115,25 @@
     self.labelInfo.numberOfLines = 0;
     self.labelInfo.textColor = [UIColor colorWithName:@"CustomLabelText"];
     
-    self.bonJoYiView = [[UIView alloc] initWithFrame:self.view.bounds];
-    self.bonJoYiView.backgroundColor = [UIColor colorWithName:@"CustomBackground"];
+//    self.bonJoYiView = [[UIView alloc] initWithFrame:self.view.bounds];
+//    self.bonJoYiView.backgroundColor = [UIColor colorWithName:@"CustomBackground"];
+//    
+//    UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 160, 160)];
+//    imageView.image = [UIImage imageNamed:@"appicon1024x1024"];
+//    imageView.center = self.bonJoYiView.center;
+//    #define bonJoYiView_imageview_tag 100
+//    imageView.tag = bonJoYiView_imageview_tag;
+//    [self.bonJoYiView addSubview:imageView];
+//    
+//    [self.view addSubview:self.bonJoYiView];
+//    
+//    //[self showPopupView:self.bonJoYiView inTime:3];
     
-    UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 160, 160)];
-    imageView.image = [UIImage imageNamed:@"appicon1024x1024"];
-    imageView.center = self.bonJoYiView.center;
-    #define bonJoYiView_imageview_tag 100
-    imageView.tag = bonJoYiView_imageview_tag;
-    [self.bonJoYiView addSubview:imageView];
+    [self hiddenViews];
     
-    [self.view addSubview:self.bonJoYiView];
-    
-    //[self showPopupView:self.bonJoYiView inTime:3];
-    
-    
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self auth];
+    __weak typeof(self) weakSelf = self;
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [weakSelf showViews];
     });
 }
 
@@ -150,22 +164,22 @@
     self.buttonEnter.frame      = [layout getCGRect:@"buttonUpdate"];
     self.labelInfo.frame        = [layout getCGRect:@"labelInfo"];
  
-    self.bonJoYiView.frame = self.view.bounds;
-    UIView *imageview = [self.bonJoYiView viewWithTag:bonJoYiView_imageview_tag];
-    imageview.center = self.bonJoYiView.center;
+//    self.bonJoYiView.frame = self.view.bounds;
+//    UIView *imageview = [self.bonJoYiView viewWithTag:bonJoYiView_imageview_tag];
+//    imageview.center = self.bonJoYiView.center;
+//    
+//    [layout setCGRect:self.view.bounds toName:@"bonJoYi"];
+//    
+//    [layout arrangeInHerizonIn:@"bonJoYi" toNameAndPercentageHeights:@[
+//                                                                       @{@"bonJoYiTop":@0.1},
+//                                                                       @{@"bonJoYiIcon":@0.3},
+//                                                                       @{@"bonJoYiLabel":@0.2}
+//                                                                       ]
+//     ];
+//    
+//    self.bonJoYiIcon.frame = [layout getCGRect:@"bonJoYiIcon"];
+//    self.bonJoYiLabel.frame = [layout getCGRect:@"bonJoYiLabel"];
     
-    [layout setCGRect:self.view.bounds toName:@"bonJoYi"];
-    
-    [layout arrangeInHerizonIn:@"bonJoYi" toNameAndPercentageHeights:@[
-                                                                       @{@"bonJoYiTop":@0.1},
-                                                                       @{@"bonJoYiIcon":@0.3},
-                                                                       @{@"bonJoYiLabel":@0.2}
-                                                                       ]
-     ];
-    
-    self.bonJoYiIcon.frame = [layout getCGRect:@"bonJoYiIcon"];
-    self.bonJoYiLabel.frame = [layout getCGRect:@"bonJoYiLabel"];
-     
     
     
     
@@ -173,16 +187,39 @@
 }
 
 
-- (void)viewWillAppear:(BOOL)animated
+- (void)hiddenViews
 {
-    [super viewWillAppear:animated];
-    
+    NSLog(@"BJY : hiddenViews");
+    self.buttonAuth.hidden      = YES;
+    self.buttonUpdate.hidden    = YES;
+    self.labelInfo.hidden       = YES;
+}
 
+
+- (void)showViews
+{
+    NSLog(@"BJY : showViews");
+    self.buttonAuth.hidden      = NO;
+    self.buttonUpdate.hidden    = NO;
+    self.labelInfo.hidden       = NO;
+}
+
+
+- (void)viewDidAppear:(BOOL)animated
+{
+    UIWindow *keyWindow = [UIApplication sharedApplication].keyWindow;
+    NSLog(@"qqq%@", keyWindow.subviews);
+    
+    for(UIView *v in keyWindow.subviews) {
+        NSLog(@"qqq %@ -> %@", v, v.subviews);
+        
+        
+        
+    }
     
     
     
 }
-
 
 
 
@@ -207,16 +244,26 @@
     [[AppConfig sharedConfigDB] authAsync:^(BOOL result){
         self.onAuth = NO;
         if(result) {
-            [self showIndicationText:@"鉴权OK."];
+            if(!self.view.hidden) {
+                [self showIndicationText:@"欢迎登录kukuku.cc" inTime:2.0];
+            }
             [self appendInfo:@"鉴权OK.\n"];
             self.finishAuth = YES;
             
-            [self appendInfo:@"准备更新栏目信息.\n"];
-            [self updateCategory];
+            //1是获取栏目失败.
+            if([AppConfig sharedConfigDB].categories.count > 1) {
+                [self enter];
+            }
+            else {
+                [self appendInfo:@"准备更新栏目信息.\n"];
+                [self updateCategory];
+            }
         }
         else {
             [self appendInfo:@"鉴权失败.\n"];
-            [self showIndicationText:@"鉴权失败."];
+            
+            self.view.hidden = NO;
+            [self showIndicationText:@"鉴权失败." inTime:3.0];
         }
     }];
 }

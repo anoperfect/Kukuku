@@ -357,6 +357,14 @@
                         
                         NS0Log(@"to   %d:%d", (int)width, (int)height);
                         
+                        
+                        if([[pd.image lowercaseString] hasSuffix:@"gif"]) {
+                            scale = 0.25;
+                        }
+                        else if([[pd.image lowercaseString] hasSuffix:@"bmp"]) {
+                            scale = 0.5;
+                        }
+                        
                         pd.thumb = [NSString stringWithFormat:@"%@?op=imageView2&mode=1&width=%d&height=%d&quality=60", pd.image, (int)(width*scale), (int)(height*scale)];
                     }
                     else {
@@ -1657,7 +1665,7 @@ NSMutableDictionary *dictPost = [[NSMutableDictionary alloc] init];
         [mutableRequest setHTTPBody:postBody];
         NSString *contentType = @"application/json";
         [mutableRequest setValue:contentType forHTTPHeaderField:@"Content-Type"];
-        NSString *contentLength = [NSString stringWithFormat:@"%lu", postBody.length];
+        NSString *contentLength = [NSString stringWithFormat:@"%zd", postBody.length];
         [mutableRequest setValue:contentLength forHTTPHeaderField:@"Content-Length"];
         [NSURLConnection connectionWithRequest:mutableRequest delegate:self];
     }
@@ -1884,7 +1892,7 @@ NSMutableDictionary *dictPost = [[NSMutableDictionary alloc] init];
                     [mutableRequest setHTTPBody:postBody];
                     NSString *contentType = @"application/json";
                     [mutableRequest setValue:contentType forHTTPHeaderField:@"Content-Type"];
-                    NSString *contentLength = [NSString stringWithFormat:@"%lu", postBody.length];
+                    NSString *contentLength = [NSString stringWithFormat:@"%zd", postBody.length];
                     [mutableRequest setValue:contentLength forHTTPHeaderField:@"Content-Length"];
                     [NSURLConnection connectionWithRequest:mutableRequest delegate:self];
                 });

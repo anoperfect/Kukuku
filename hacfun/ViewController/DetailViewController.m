@@ -200,7 +200,7 @@
     
     if([string isEqualToString:@"加载全部"]) {
         [self hiddenToolBar];
-        [self showIndicationText:[NSString stringWithFormat:@"开始加载全部回复"]];
+        [self showProgressText:[NSString stringWithFormat:@"开始加载全部回复"] inTime:2.0];
         
         [self downloadAllDetail];
         
@@ -209,7 +209,7 @@
     
     if([string isEqualToString:@"停止加载全部"]) {
         [self hiddenToolBar];
-        [self showIndicationText:[NSString stringWithFormat:@"停止自动加载全部回复"]];
+        [self showProgressText:[NSString stringWithFormat:@"停止自动加载全部回复"] inTime:1.0];
         [self stopDownloadAllDetail];
         
         return ;
@@ -217,7 +217,7 @@
     
     if([string isEqualToString:@"onlyShowPo"] && !self.isOnlyShowPo){
         [self hiddenToolBar];
-        [self showIndicationText:@"当前为只看Po模式"];
+        [self showIndicationText:@"当前为只看Po模式" inTime:2.0];
         
         self.isOnlyShowPo = YES;
 #if 0
@@ -239,7 +239,7 @@
     
     if([string isEqualToString:@"onlyShowPo"] && self.isOnlyShowPo){
         [self hiddenToolBar];
-        [self showIndicationText:@"已关闭只看Po模式"];
+        [self showIndicationText:@"已关闭只看Po模式" inTime:2.0];
         
         self.isOnlyShowPo = NO;
 #if 0
@@ -255,15 +255,14 @@
     
     if([string isEqualToString:@"lastpage"]) {
         [self hiddenToolBar];
-        [self showIndicationText:@"加载最后一页"];
         
         if(self.pageSize > 0) {
-            [self showIndicationText:@"加载最后一页"];
+            [self showIndicationText:@"加载最后一页" inTime:2.0];
             self.pageDescMode = YES;
             [self refreshPostDataToPage:self.pageSize];
         }
         else {
-            [self showIndicationText:@"未加载到详细回复信息"];
+            [self showIndicationText:@"未加载到详细回复信息" inTime:1.0];
         }
         
         return ;
@@ -370,13 +369,7 @@
 
 - (void)collection {
     if(!self.topic) {
-        PopupView *popupView = [[PopupView alloc] init];
-        popupView.numofTapToClose = 1;
-        popupView.secondsOfAutoClose = 2;
-        popupView.titleLabel = @"主题未加载成功";
-        popupView.borderLabel = 30;
-        popupView.line = 3;
-        [popupView popupInSuperView:self.view];
+        [self showIndicationText:@"主题未加载成功" inTime:3.0];
         return;
     }
     
@@ -384,16 +377,8 @@
     Collection *collection = [[AppConfig sharedConfigDB] configDBCollectionGetByTid:self.tid];
     NSLog(@"collection : %@", collection);
     if(collection) {
-        
         NSLog(@"duplicate");
-        PopupView *popupView = [[PopupView alloc] init];
-        popupView.numofTapToClose = 1;
-        popupView.secondsOfAutoClose = 2;
-        popupView.titleLabel = @"该主题已收藏";
-        popupView.borderLabel = 30;
-        popupView.line = 3;
-        [popupView popupInSuperView:self.view];
-        
+        [self showIndicationText:@"该主题已收藏" inTime:2.0];
         return;
     }
     
@@ -408,23 +393,11 @@
     
     BOOL result = [[AppConfig sharedConfigDB] configDBCollectionAdd:collection];
     if(result) {
-        PopupView *popupView = [[PopupView alloc] init];
-        popupView.numofTapToClose = 1;
-        popupView.secondsOfAutoClose = 2;
-        popupView.titleLabel = @"收藏成功";
-        popupView.borderLabel = 30;
-        popupView.line = 3;
-        [popupView popupInSuperView:self.view];
+        [self showIndicationText:@"收藏成功" inTime:2.0];
     }
     else {
         NSLog(@"error- ");
-        PopupView *popupView = [[PopupView alloc] init];
-        popupView.numofTapToClose = 1;
-        popupView.secondsOfAutoClose = 2;
-        popupView.titleLabel = @"主题收藏失败";
-        popupView.borderLabel = 30;
-        popupView.line = 3;
-        [popupView popupInSuperView:self.view];
+        [self showIndicationText:@"主题收藏失败" inTime:3.0];
     }
     
     //添加record记录.

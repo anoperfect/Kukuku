@@ -640,26 +640,9 @@
     self.dataSend.content = _textView.text;
     self.dataSend.postImage = self.postImage;
     
-    PopupView *popupView = [[PopupView alloc] init];
+    __weak typeof(self) selfBlock = self;
     
-    __weak typeof(popupView) popupViewBlock = popupView;
-    __weak typeof(self)     selfBlock = self;
-    
-    popupView.rectPadding = 10;
-    popupView.rectCornerRadius = 2;
-    popupView.numofTapToClose = 0;
-    popupView.secondsOfAutoClose = 0;
-    popupView.titleLabel = @"发送服务器中";
-    popupView.borderLabel = 3;
-    popupView.line = 3;
-    popupView.stringIncrease = @".";
-    popupView.secondsOfstringIncrease = 1;
-    popupView.finish = ^(void) {
-        NSLog(@"-=-=-=%@", self);
-        [selfBlock focusToInput];
-    };
-    [popupView setTag:(NSInteger)@"PopupView"];
-    [popupView popupInSuperView:self.view];
+    [self showProgressText:@"发送服务器中" inTime:60.0];
     
     [self.dataSend aysncPostToCategory:self.category
                                replyTo:self.topicTid
@@ -668,17 +651,16 @@
                         }
      
                        progrossHandler:^(NSString *status, BOOL continuous) {
-                           popupViewBlock.titleLabel = status;
-                           popupViewBlock.numofTapToClose = 1;
-                           
+                           [self showProgressText:status inTime:60.0];
                            if(continuous) {
-                               popupViewBlock.secondsOfstringIncrease = 1;
+                               
                            }
                        }
      
                      completionHandler:^(NSURLResponse *response, NSData *data, NSError *connectionError) {
                          if(!connectionError && data.length > 0) {
                              [selfBlock responseData:data onHostName:hostname];
+                             
                          }
                          
                          
@@ -689,10 +671,6 @@
 
 - (void)responseData:(NSData*)data onHostName:(NSString*)hostname
 {
-    PopupView *popupView = (PopupView*)[self.view viewWithTag:(NSInteger)@"PopupView"];
-    popupView.numofTapToClose = 1;
-    popupView.secondsOfstringIncrease = 0;
-    
     NSObject *obj;
     NSDictionary *dict;
     obj = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableLeaves error:nil];
@@ -705,7 +683,7 @@
         
         if(200 == code || success){
             NSLog(@"post successfully.");
-            popupView.titleLabel = @"发送成功";
+            [self showProgressText:@"发送成功" inTime:2.0];
             
             NSDictionary *dictPostData = [dict objectForKey:@"result"];
             PostData *postData = nil;
@@ -720,10 +698,9 @@
                     
                     [[AppConfig sharedConfigDB] configDBPostAdd:post];
                     
-                    popupView.finish = ^(void) {
+                    dispatch_async(dispatch_get_main_queue(), ^{
                         [self createTopicFinishedWithTid:postData.tid andPostData:postData];
-
-                    };
+                    });
                 }
                 else { // 回复帖.
                     Reply *reply = [[Reply alloc] init];
@@ -735,17 +712,15 @@
                     
                     [[AppConfig sharedConfigDB] configDBReplyAdd:reply];
                     
-                    popupView.finish = ^(void) {
-//                        [self.navigationController popViewControllerAnimated:YES];
-//                        [[NSNotificationCenter defaultCenter] postNotificationName:@"CreateReplyFinish" object:self userInfo:nil];
+                    dispatch_async(dispatch_get_main_queue(), ^{
                         [self createReplyFinishedWithTid:postData.tid andPostData:postData];
-                    };
+                    });
                 }
             }
             else {
-                popupView.finish = ^(void) {
+                dispatch_async(dispatch_get_main_queue(), ^{
                     [self.navigationController popViewControllerAnimated:YES];
-                };
+                });
             }
         }
         else {
@@ -753,22 +728,17 @@
             if(!msg) {
                 msg = (NSString*)[dict objectForKey:@"message"];
             }
-            popupView.titleLabel = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-            popupView.titleLabel = msg;
+
+            [self showProgressText:msg inTime:3.0];
         }
     }
     else {
         NSLog(@"obj [%@] nil or not NSDictionary class", @"JSONObjectWithData");
-        popupView.titleLabel = @"发送失败.数据错误或服务器响应异常.";
+        [self showProgressText:@"发送失败.数据错误或服务器响应异常." inTime:3.0];
     }
     
     [[CookieManage sharedCookieManage] showCookie:@"cookie after POST."];
 }
-
-
-
-
-
 
 
 - (void)clickSend {
@@ -777,6 +747,7 @@
 }
 
 
+#if 0
 - (void)clickSend0
 {
     
@@ -919,6 +890,7 @@
     [popupView setTag:(NSInteger)@"PopupView"];
     [popupView popupInSuperView:self.view];
 }
+#endif
 
 
 - (void)connection:(NSURLConnection*)connection didReceiveResponse:(NSURLResponse *)response {
@@ -942,8 +914,10 @@
 }
 
 
+
 - (void)responseData:(NSData*)data
 {
+#if 0
     PopupView *popupView = (PopupView*)[self.view viewWithTag:(NSInteger)@"PopupView"];
     popupView.numofTapToClose = 1;
     popupView.secondsOfstringIncrease = 0;
@@ -1014,6 +988,7 @@
     }
     
     [[CookieManage sharedCookieManage] showCookie:@"cookie after POST."];
+#endif
 }
 
 
@@ -1135,9 +1110,11 @@
 - (void)createReplyFinishedWithTid:(NSInteger)tid andPostData:(PostData*)postData
 {
     [self.navigationController popViewControllerAnimated:YES];
-    DetailViewController *newDetailViewController = [[DetailViewController alloc] init];
-    [newDetailViewController setDetailedTid:tid onCategory:self.category withData:postData];
-    [self.navigationController pushViewController:newDetailViewController animated:YES];
+//    DetailViewController *newDetailViewController = [[DetailViewController alloc] init];
+//    [newDetailViewController setDetailedTid:tid onCategory:self.category withData:postData];
+//    [self.navigationController pushViewController:newDetailViewController animated:YES];
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"CreateReplyFinish" object:self userInfo:nil];
 }
 
 
@@ -1147,21 +1124,15 @@
 totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
 {
     NSLog(@"%6zd, %6zd, %6zd", bytesWritten, totalBytesWritten, totalBytesExpectedToWrite);
-    PopupView *popupView = (PopupView*)[self.view viewWithTag:(NSInteger)@"PopupView"];
-    popupView.numofTapToClose = 1;
-    popupView.secondsOfstringIncrease = 0;
-    popupView.titleLabel = [NSString stringWithFormat:@"发送中 - %zd%%", totalBytesWritten * 100 / totalBytesExpectedToWrite];
+
+    [self showProgressText:[NSString stringWithFormat:@"发送中 - %zd%%", totalBytesWritten * 100 / totalBytesExpectedToWrite] inTime:60.0];
 }
 
 
 - (void)connection:(NSURLConnection*)connection didFailWithError:(NSError *)error {
     NSLog(@"%@数据传输失败,产生错误%s", [NSThread currentThread], __FUNCTION__);
     NSLog(@"error:%@", error);
-    
-    PopupView *popupView = (PopupView*)[self.view viewWithTag:(NSInteger)@"PopupView"];
-    popupView.numofTapToClose = 1;
-    popupView.secondsOfstringIncrease = 0;
-    popupView.titleLabel = @"数据传输失败";
+    [self showProgressText:@"数据传输失败" inTime:3.0];
 }
 
 

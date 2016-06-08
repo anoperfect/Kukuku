@@ -34,6 +34,7 @@
 
 
 @property (nonatomic, strong) MBProgressHUD *messageIndicationHUD;
+@property (nonatomic, strong) MBProgressHUD *progressHUD;
 @property (nonatomic, strong) MBProgressHUD *popupHUD;
 @end
 
@@ -190,11 +191,7 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
     [super viewWillAppear:animated];
     
     [self.navigationController setNavigationBarHidden:NO animated:YES];
-    
-    
-//    [self.navigationController.navigationBar setBackgroundImage:[UIImage imageNamed:@"bg"] forBarMetrics:UIBarMetricsDefault];
-    
-
+    [self.navigationItem setHidesBackButton:YES];
     
     [self.bannerView removeFromSuperview];
     self.bannerView = nil;
@@ -205,7 +202,6 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
     [self.bannerView setTextTopic:self.textTopic];
     [self layoutBannerView];
     
-    
     DISPATCH_ONCE_START
     NSLog(@"x %@- %@", self.navigationController.navigationBar, [self.navigationController.navigationBar subviews]);
     DISPATCH_ONCE_FINISH
@@ -214,24 +210,8 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
     
     self.navigationController.toolbarHidden = YES;
     
-#if 0
-    BackgroundViewItem *backgroundview = [[AppConfig sharedConfigDB] configDBBackgroundViewGetByName:@"NavigationBar"];
-    UIImage *image = nil;
-    if(backgroundview.onUse && backgroundview.imageData.length > 0 && nil != (image = [UIImage imageWithData:backgroundview.imageData])) {
-        [self.navigationController.navigationBar setBackgroundImage:image forBarMetrics:UIBarMetricsDefault];
-    }
-    else {
-        self.navigationController.navigationBar.barTintColor = [UIColor colorWithName:@"NavigationBarBackground"];
-        self.navigationController.navigationBar.translucent = NO;
-    }
-
-    self.navigationController.toolbar.backgroundColor = [UIColor colorWithName:@"ToolBarBackground"];
-#endif
-    
     [self custmizeBackgroundViewNavigationBar];
     [self custmizeBackgroundViewToolBar];
-    
-    [self.navigationItem setHidesBackButton:YES];
     
     return ;
 }
@@ -505,7 +485,7 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
 }
 
 
-- (void)showIndicationText:(NSString*)text
+- (void)showIndicationText:(NSString*)text inTime:(NSTimeInterval)secs;
 {
     NSLog(@"---xxx0 : >>>>>>IndicationText : %@", text);
     
@@ -515,11 +495,21 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
         self.messageIndicationHUD.userInteractionEnabled = NO;
         self.messageIndicationHUD.delegate = self;
         self.messageIndicationHUD.removeFromSuperViewOnHide = NO; //设置这个.
+        self.messageIndicationHUD.yOffset = 100 - self.view.bounds.size.height / 2;
     }
     
     self.messageIndicationHUD.labelText = text;
     [self.messageIndicationHUD show:YES];
-    [self.messageIndicationHUD hide:YES afterDelay:3.0];
+    
+    if(secs > 0.0) {
+        [self.messageIndicationHUD hide:YES afterDelay:secs];
+    }
+}
+
+
+- (void)dismissIndicationText
+{
+    [self.messageIndicationHUD hide:YES];
 }
 
 ////一直沿用self.messageIndicationHUD可能导致不能显示. 注意设置self.messageIndicationHUD.removeFromSuperViewOnHide = NO;
@@ -531,7 +521,31 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
 
 
 
+- (void)showProgressText:(NSString*)text inTime:(NSTimeInterval)secs
+{
+    NSLog(@"---xxx0 : >>>>>>ProgressText : %@", text);
+    
+    if(!self.progressHUD) {
+        self.progressHUD = [MBProgressHUD showHUDAddedTo:self.navigationController.view animated:YES];
+        self.progressHUD.mode = MBProgressHUDModeIndeterminate;
+        self.progressHUD.userInteractionEnabled = NO;
+        self.progressHUD.delegate = self;
+        self.progressHUD.removeFromSuperViewOnHide = NO; //设置这个.
+    }
+    
+    self.progressHUD.labelText = text;
+    [self.progressHUD show:YES];
+    
+    if(secs > 0.0) {
+        [self.progressHUD hide:YES afterDelay:secs];
+    }
+}
 
+
+- (void)dismissProgressText
+{
+    [self.progressHUD hide:YES];
+}
 
 
 
@@ -620,5 +634,8 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
+
+
+
 
 @end

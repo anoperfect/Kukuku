@@ -262,14 +262,12 @@
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     
     if([[self.arraySettingItem objectAtIndex:indexPath.row] isEqualToString:@"版块排序"]) {
-        PopupView *popupView = [[PopupView alloc] init];
-        popupView.titleLabel = @"版块排序依照版块点击次数自动排序";
-        [popupView popupInSuperView:self.view];
+        [self showIndicationText:@"版块排序依照版块点击次数自动排序" inTime:2.0];
     }
     
     if([[self.arraySettingItem objectAtIndex:indexPath.row] isEqualToString:@"清除缓存"]) {
         [ImageViewCache deleteCachesAsyncWithProgressHandle:^(NSInteger total, NSInteger index){
-            [self showIndicationText:[NSString stringWithFormat:@"已删除%zd, 共%zd张.", index+1, total]];
+            [self showIndicationText:[NSString stringWithFormat:@"已删除%zd, 共%zd张.", index+1, total] inTime:1.0];
         }];
     }
     

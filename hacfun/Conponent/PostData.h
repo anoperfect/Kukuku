@@ -131,6 +131,9 @@ typedef NS_ENUM(NSInteger, ThreadDataToViewType) {
 @property (nonatomic, strong) NSURLResponse *response;
 @property (nonatomic, strong) NSMutableData *responseData;
 
+
+
+//异步发送接口.
 - (void)aysncPostToCategory:(Category*)category
                     replyTo:(NSInteger)replyToTid
             responseHandler:(void (^)(NSURLResponse * response))responseHandler

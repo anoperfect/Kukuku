@@ -87,15 +87,26 @@
     [self setBeginRefreshing];
     
     //footview.
-    self.footView = [[PushButton alloc] init];
+    CGFloat heightFootView = 45;
+    self.footView = [[UILabel alloc] init];
     self.footView.backgroundColor = self.postView.backgroundColor;
-    [self.footView setTitleColor:[UIColor colorWithName:@"PostTableViewFootViewText"] forState:UIControlStateNormal];
+    self.footView.textColor = [UIColor colorWithName:@"PostTableViewFootViewText"];
     [self showfootViewWithTitle:[self getFooterViewTitleOnStatus:self.threadsStatus] andActivityIndicator:NO andDate:NO];
-    [self.footView.titleLabel setFont:[UIFont fontWithName:@"PostContent"]];
-    [self.footView addTarget:self action:@selector(clickFootView) forControlEvents:UIControlEventTouchDown];
-    self.postView.tableFooterView = self.footView;
+    [self.footView setFont:[UIFont fontWithName:@"PostContent"]];
+    self.footView.lineBreakMode = NSLineBreakByWordWrapping;
+    self.footView.textAlignment = NSTextAlignmentCenter;
+    self.footView.numberOfLines = 0;
+    self.footView.frame = CGRectMake(0, 0, self.postView.frame.size.width, heightFootView);
+    self.footView.userInteractionEnabled = YES;
     
-    UIActivityIndicatorView* activityIndicatorView = [[UIActivityIndicatorView alloc] initWithFrame:CGRectMake(40, 0, 36, 36)];
+    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(clickFootView)];
+    [self.footView addGestureRecognizer:tapGesture];
+    
+    //[self.footView addTarget:self action:@selector(clickFootView) forControlEvents:UIControlEventTouchDown];
+    self.postView.tableFooterView = self.footView;
+
+    UIActivityIndicatorView* activityIndicatorView = [[UIActivityIndicatorView alloc] init];
+    activityIndicatorView.frame = CGRectMake(heightFootView, 0, heightFootView, heightFootView);
     [activityIndicatorView setColor:[UIColor blackColor]];
     [activityIndicatorView setTag:1];
     [self.footView addSubview:activityIndicatorView];
@@ -150,10 +161,17 @@
         LOG_VIEW_REC0(self.postView, @"postView")
         [self reloadPostView];
         
-        //footview.
-        self.footView.titleLabel.lineBreakMode = NSLineBreakByWordWrapping;
-        [self.footView setFrame:CGRectMake(0, 0, self.view.frame.size.width, 36)];
+//        //footview.
+//        self.footView.titleLabel.lineBreakMode = NSLineBreakByWordWrapping;
+//        [self.footView setFrame:CGRectMake(0, 0, self.view.frame.size.width, 36)];
+//        self.postView.tableFooterView = self.footView;
+        
+        CGFloat heightFootView = 45;
+        self.footView.frame = CGRectMake(0, 0, self.postView.frame.size.width, heightFootView);
         self.postView.tableFooterView = self.footView;
+        
+        UIActivityIndicatorView* activityIndicatorView = (UIActivityIndicatorView*)[self.footView viewWithTag:1];
+        activityIndicatorView.frame = CGRectMake(36, 0, heightFootView, heightFootView);
     }
 }
 
@@ -195,7 +213,7 @@
         titleShow = [NSString stringWithFormat:@"%@\n%@", title, dateString];
     }
     
-    [self.footView setTitle:titleShow forState:UIControlStateNormal];
+    self.footView.text = titleShow;
     
     UIActivityIndicatorView* activityIndicatorView = (UIActivityIndicatorView*)[self.footView viewWithTag:1];
     if(isActive) {
@@ -204,15 +222,6 @@
     else {
         [activityIndicatorView stopAnimating];
     }
-}
-
-
-
-
-
-- (void)showStatusText:(NSString *)text
-{
-    [self showIndicationText:text];
 }
 
 
@@ -415,6 +424,23 @@
 }
 
 
+- (void)updateThreadById:(NSInteger)tid
+{
+    NSLog(@"update %zd", tid);
+    dispatch_queue_t concurrentQueue = dispatch_queue_create("my.concurrent.queue", DISPATCH_QUEUE_CONCURRENT);
+    dispatch_async(concurrentQueue, ^(void){
+        //获取last page的信息.
+        PostData *topic = [[PostData alloc] init];
+        NSMutableArray *replies = [[NSMutableArray alloc] init];
+        topic = [PostData sendSynchronousRequestByTid:tid atPage:-1 repliesTo:replies storeAdditional:nil];
+        
+        dispatch_async(dispatch_get_main_queue(), ^(void) {
+            [self updateDataSourceByPostData:topic];
+        });
+    });
+}
+
+
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     NSLog(@"------tableView cellForRowAtIndexPath : %@", [NSString stringFromTableIndexPath:indexPath]);
     
@@ -423,6 +449,10 @@
     [postData generatePostViewData:type];
     [self retreatPostViewData:postData onIndexPath:indexPath];
     [self retreatPostViewDataAdditional:postData onIndexPath:indexPath];//override.
+    
+    if(postData.type == PostDataTypeOnlyTid) {
+        [self updateThreadById:postData.tid];
+    }
     
     NSLog(@"tid [%zd] postViewDataRow : %@", postData.tid, [NSString stringFromNSDictionary:postData.postViewData]);
     
@@ -457,6 +487,9 @@
 
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    [tableView beginUpdates];
+    [tableView endUpdates];
     
     NS0Log(@"点击的行数是:%@", [NSString stringFromTableIndexPath:indexPath]);
     
@@ -800,7 +833,9 @@
     if(reload) {
         //设置后刷新.
         NSArray *indexArray=[NSArray arrayWithObject:indexPath];
+        [self.postView beginUpdates];
         [self.postView reloadRowsAtIndexPaths:indexArray withRowAnimation:UITableViewRowAnimationAutomatic];
+        [self.postView endUpdates];
     }
 }
 
@@ -812,12 +847,11 @@
     if(reload) {
         //设置后刷新.
         NSArray *indexArray=[NSArray arrayWithObject:indexPath];
+        [self.postView beginUpdates];
         [self.postView reloadRowsAtIndexPaths:indexArray withRowAnimation:UITableViewRowAnimationAutomatic];
+        [self.postView endUpdates];
     }
 }
-
-
-
 
 
 - (void)foldCellOnIndexPath:(NSIndexPath*)indexPath withInfo:(NSString*)info andReload:(BOOL)reload
@@ -946,7 +980,7 @@
     if([string isEqualToString:@"复制"]){
         UIPasteboard *pab = [UIPasteboard generalPasteboard];
         [pab setString:[NSString decodeWWWEscape:postDataRow.content]];
-        [self showStatusText:@"已复制到粘贴板"];
+        [self showIndicationText:@"已复制到粘贴板" inTime:2.0];
     }
     else if([string isEqualToString:@"举报"]){
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -960,10 +994,10 @@
     else if([string isEqualToString:@"加入草稿"]) {
         BOOL ret = [[AppConfig sharedConfigDB] configDBDraftAdd:[NSString decodeWWWEscape:postDataRow.content]];
         if(ret) {
-            [self showStatusText:@"已加入草稿"];
+            [self showIndicationText:@"已加入草稿" inTime:2.0];
         }
         else {
-            [self showStatusText:@"加入草稿失败"];
+            [self showIndicationText:@"加入草稿失败" inTime:1.0];
         }
     }
     else {
@@ -1135,7 +1169,9 @@
                     //更新对应的postViewData.
                     NSIndexPath *indexPath = [NSIndexPath indexPathForRow:row inSection:section];
                     NSArray *indexArray=[NSArray arrayWithObject:indexPath];
+                    [self.postView beginUpdates];
                     [self.postView reloadRowsAtIndexPaths:indexArray withRowAnimation:UITableViewRowAnimationAutomatic];
+                    [self.postView endUpdates];
                 }
                 
                 break;

@@ -16,7 +16,9 @@
 @interface AppConfig : NSObject
 
 
-
+@property (nonatomic, assign, readonly)     BOOL                authResult;
+@property (nonatomic, strong, readonly)     NSDate              *updateCategoryDate;
+@property (nonatomic, strong, readonly)     NSArray<Category*>  *categories;
 
 + (AppConfig*)sharedConfigDB;
 

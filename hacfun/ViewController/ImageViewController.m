@@ -168,7 +168,7 @@
 {
     [[NSLogn sharedNSLogn] sendLogContent:@"123"];
     UIImageWriteToSavedPhotosAlbum(self.imageDisplay, nil, nil, nil);
-    [self showIndicationText:@"已保存到相册"];
+    [self showIndicationText:@"已保存到相册" inTime:2.0];
 }
 
 
@@ -216,7 +216,7 @@
     if(bAutoSaveImageToAlbum) {
         UIImage *image = [UIImage imageWithData:imageDataDownload];
         UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil);
-        [self showIndicationText:@"自动存图到相册"];
+        [self showIndicationText:@"自动存图到相册" inTime:1.0];
     }
     
     [ImageViewCache setImageViewCache:self.stringUrl withData:imageDataDownload];

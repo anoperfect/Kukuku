@@ -58,6 +58,9 @@
 @property (strong,nonatomic) NSArray *hosts;
 @property (assign,nonatomic) NSInteger hostIndex ;
 
+//category缓存.
+@property (nonatomic, strong, readwrite) NSArray<Category*> *categories;
+
 //config缓存.
 @property (nonatomic, strong)   NSMutableArray *emoticons;
 @property (nonatomic, strong)   NSMutableArray *drafts;
@@ -73,7 +76,9 @@
 @property (nonatomic, strong)   NSString *hwid;
 @property (nonatomic, strong)   NSString *appSecret;
 @property (nonatomic, strong)   NSString *token;
-@property (nonatomic, assign)   BOOL      authResult;
+
+@property (nonatomic, assign, readwrite)    BOOL    authResult;
+@property (nonatomic, strong, readwrite)    NSDate  *updateCategoryDate;
 
 
 
@@ -171,7 +176,7 @@
 
 - (void)configDBInitReadHost
 {
-    //current not used.
+    self.categories = [self configDBCategoryGet];
 }
 
 
@@ -2102,8 +2107,6 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
 
 - (void)updateCategoryAsync:(void(^)(BOOL result, NSInteger total, NSInteger updateNumber))handle
 {
-    NSArray *categories = [self configDBCategoryGet];
-    
     __weak typeof(self) weakSelf = self;
     
     dispatch_queue_t concurrentQueue = dispatch_queue_create("my.auth.queue", DISPATCH_QUEUE_CONCURRENT);
@@ -2111,7 +2114,7 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
         NSMutableArray *categoriesUpdate = [[NSMutableArray alloc] init];
         NSMutableArray *categoriesInsert = [[NSMutableArray alloc] init];
         
-        NSInteger total         = categories.count;
+        NSInteger total         = self.categories.count;
         NSInteger updateNumber  = 0;
         BOOL result             = YES;
         
@@ -2141,7 +2144,7 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
                 }
                 
                 Category *categoryDB = nil;
-                for(Category *c in categories) {
+                for(Category *c in self.categories) {
                     if([c.name isEqualToString:category.name]) {
                         categoryDB = c;
                         break;
@@ -2173,13 +2176,19 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
         }
         
         dispatch_async(dispatch_get_main_queue(), ^{
+            BOOL refresh = NO;
+            
             if(categoriesInsert.count > 0) {
                 [weakSelf configDBCategoryInserts:categoriesInsert];
+                refresh = YES;
             }
             
             if(categoriesUpdate.count > 0) {
                 [weakSelf configDBCategoryUpdates:categoriesUpdate];
+                refresh = YES;
             }
+            
+            
         });
         
         NSLog(@"updateCategoryAsync result:%d, total:%zd, updateNumber:%zd", result, total, updateNumber);

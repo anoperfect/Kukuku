@@ -95,7 +95,7 @@
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error
 {
-    [self showIndicationText:@"加载失败. 请检查网络."];
+    [self showIndicationText:@"加载失败. 请检查网络." inTime:1.0];
     [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
 }
 

@@ -42,7 +42,12 @@
 
 
 //显示一个提示信息.
-- (void)showIndicationText:(NSString*)text;
+- (void)showIndicationText:(NSString*)text inTime:(NSTimeInterval)secs;
+- (void)dismissIndicationText;
+
+- (void)showProgressText:(NSString*)text inTime:(NSTimeInterval)secs;
+- (void)dismissProgressText;
+
 
 //用于某些响应selector.
 - (void)dismiss;

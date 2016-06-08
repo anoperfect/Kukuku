@@ -75,7 +75,7 @@
     //把图片转换为二进制的数据
     NSData *data = [NSData dataWithContentsOfURL:urlstr];//这一行操作会比较耗时
     if(data) {
-        NSLog(@"thumb image length : %zd", data.length);
+        NSLog(@"thumb image length : %zd <%@>", data.length, urlstr);
         [self performSelectorOnMainThread:@selector(updateImageByDownloadedData:) withObject:data waitUntilDone:NO];
     }
     else {

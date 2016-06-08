@@ -210,26 +210,37 @@
     //停止自动下载.
     if(self.autoRepeatDownload) {
         BOOL stopAutoRepeatDownload = NO;
-        if(postDataAppended.count <= 0) {
-            NSLog(@"stopAutoRepeatDownload due to : %@", @"none parsed.");
-            stopAutoRepeatDownload = YES;
-        }
-        else if([self isLastPage]) {
+        NSString *message = @"";
+        
+        if([self isLastPage]) {
             NSLog(@"stopAutoRepeatDownload due to : %@", @"last page.");
             stopAutoRepeatDownload = YES;
+            message = @"完成";
+        }
+        else if(postDataAppended.count <= 0) {
+            NSLog(@"stopAutoRepeatDownload due to : %@", @"none parsed.");
+            stopAutoRepeatDownload = YES;
+            
+            if(postDataParsed.count > 0) {
+                message = @"无新内容";
+            }
+            else {
+                message = @"获取失败";
+            }
         }
         else if( -- self.autoRepeatDownloadPages <= 0) {
             NSLog(@"stopAutoRepeatDownload due to : %@", @"reach setting download page.");
             stopAutoRepeatDownload = YES;
+            message = @"完成加载";
         }
         
         if(stopAutoRepeatDownload) {
-            [self showIndicationText:@"自动加载停止"];
+            [self showProgressText:[NSString stringWithFormat:@"自动加载停止: %@", message] inTime:1.0];
             self.autoRepeatDownload = NO;
             self.autoRepeatDownloadPages = 0;
         }
         else {
-            [self showIndicationText:[NSString stringWithFormat:@"已加载第%zd页, 共%zd条.", self.pageNumLoaded, [self numberOfPostDatasTotal]]];
+            [self showProgressText:[NSString stringWithFormat:@"已加载第%zd页, 共%zd条.", self.pageNumLoaded, [self numberOfPostDatasTotal]] inTime:2.0];
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self actionLoadMore];
             });

@@ -70,6 +70,7 @@
 		B57780D81CE9FBB900F60B6F /* folding.png in Resources */ = {isa = PBXBuildFile; fileRef = B57780D41CE9FBB900F60B6F /* folding.png */; };
 		B57780D91CE9FBB900F60B6F /* lastpage.png in Resources */ = {isa = PBXBuildFile; fileRef = B57780D51CE9FBB900F60B6F /* lastpage.png */; };
 		B57780DA1CE9FBB900F60B6F /* send.png in Resources */ = {isa = PBXBuildFile; fileRef = B57780D61CE9FBB900F60B6F /* send.png */; };
+		B57C1D8A1D087DAD00DF2915 /* LaunchImage1.png in Resources */ = {isa = PBXBuildFile; fileRef = B57C1D891D087DAD00DF2915 /* LaunchImage1.png */; };
 		B58D88201B85621500B9A1BA /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B58D881F1B85621500B9A1BA /* libsqlite3.dylib */; };
 		B5A058571B9DE86200370557 /* PostViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B5A058561B9DE86200370557 /* PostViewController.m */; };
 		B5A0585A1B9DE87A00370557 /* ReplyViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B5A058591B9DE87A00370557 /* ReplyViewController.m */; };
@@ -226,6 +227,7 @@
 		B57780D41CE9FBB900F60B6F /* folding.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = folding.png; sourceTree = "<group>"; };
 		B57780D51CE9FBB900F60B6F /* lastpage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = lastpage.png; sourceTree = "<group>"; };
 		B57780D61CE9FBB900F60B6F /* send.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = send.png; sourceTree = "<group>"; };
+		B57C1D891D087DAD00DF2915 /* LaunchImage1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = LaunchImage1.png; sourceTree = "<group>"; };
 		B58D87321B81F2AC00B9A1BA /* CustomViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomViewController.h; sourceTree = "<group>"; };
 		B58D881F1B85621500B9A1BA /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
 		B5A058551B9DE86200370557 /* PostViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PostViewController.h; sourceTree = "<group>"; };
@@ -545,6 +547,7 @@
 		B523C9FE1B78FDB100944004 /* images */ = {
 			isa = PBXGroup;
 			children = (
+				B57C1D891D087DAD00DF2915 /* LaunchImage1.png */,
 				B5E3C1511D03477100620E9C /* appicon1024x1024.png */,
 				B57780D31CE9FBB900F60B6F /* draft.png */,
 				B57780D41CE9FBB900F60B6F /* folding.png */,
@@ -892,6 +895,7 @@
 				B5BC10541B8988EE0006EDD4 /* emoticon.png in Resources */,
 				B55E9D801C9CFD7D00F581F5 /* yantext1.png in Resources */,
 				B5D8D4811B52060C0091DA20 /* Images.xcassets in Resources */,
+				B57C1D8A1D087DAD00DF2915 /* LaunchImage1.png in Resources */,
 				B5039B441CBA5C1100C7865F /* check2.png in Resources */,
 				B5DAFF241CC1D9B8000551B2 /* icon-menu@2x.png in Resources */,
 				B5AFCA0F1C9FFE5A00D9DDB5 /* bgright.png in Resources */,
@@ -1138,6 +1142,7 @@
 			baseConfigurationReference = F658D84C95E2C19EE9037065 /* Pods-hacfun.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = UILaunchImages;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEBUG_INFORMATION_FORMAT = dwarf;
@@ -1159,6 +1164,7 @@
 			baseConfigurationReference = 87BFC3AADD62AA5E2C26FF64 /* Pods-hacfun.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = UILaunchImages;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEBUG_INFORMATION_FORMAT = dwarf;

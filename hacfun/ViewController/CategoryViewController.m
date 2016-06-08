@@ -99,7 +99,7 @@
     
     if([string isEqualToString:@"load10"]) {
         [self hiddenToolBar];
-        [self showIndicationText:[NSString stringWithFormat:@"开始自动加载"]];
+        [self showProgressText:[NSString stringWithFormat:@"开始自动加载"] inTime:2.0];
         
         [self load10];
         
@@ -108,7 +108,7 @@
     
     if([string isEqualToString:@"load10stop"]) {
         [self hiddenToolBar];
-        [self showIndicationText:[NSString stringWithFormat:@"停止自动加载"]];
+        [self showProgressText:[NSString stringWithFormat:@"停止自动加载"] inTime:1.0];
         [self load10stop];
         
         return ;

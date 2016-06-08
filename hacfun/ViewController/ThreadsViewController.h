@@ -60,7 +60,7 @@ typedef NS_ENUM(NSInteger, ThreadsStatus) {
 
 
 
-@property (strong,nonatomic) PushButton *footView;
+@property (strong,nonatomic) UILabel *footView;
 //@property (assign,nonatomic) ThreadLoadStatus footViewStatus;
 
 //下拉刷新.
@@ -102,8 +102,7 @@ typedef NS_ENUM(NSInteger, ThreadsStatus) {
 //UITableView的foot view用于显示状态数据. 使用此接口具体设置.
 - (void)showfootViewWithTitle:(NSString*)title andActivityIndicator:(BOOL)isActive andDate:(BOOL)isShowDate;//###
 
-//显示状态信息.
-- (void)showStatusText:(NSString*)text;
+
 
 - (void)refreshPostData;
 - (void)refreshPostDataToPage:(NSInteger)page;

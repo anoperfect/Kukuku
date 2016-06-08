@@ -2750,3 +2750,74 @@ frame = (0 -36; 320 36); text = '111111'; userInteractionEnabled = NO; layer = <
 
 
 #endif
+
+
+
+#if 0
+#import "AppDelegate.h"
+#import "UIImageView+WebCache.h"
+@interface AppDelegate ()
+@property (strong, nonatomic) UIView *lunchView;
+@end
+
+@implementation AppDelegate
+@synthesize lunchView;
+
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    
+    NSLog(@"111");
+    
+    //    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+    //
+    //
+    //    lunchView = [[NSBundle mainBundle ]loadNibNamed:@"LaunchScreen" owner:nil options:nil][0];
+    //    lunchView.frame = CGRectMake(0, 0, self.window.screen.bounds.size.width, self.window.screen.bounds.size.height);
+    //    [self.window addSubview:lunchView];
+    //
+    //    UIImageView *imageV = [[UIImageView alloc] initWithFrame:CGRectMake(0, 50, 320, 300)];
+    ////    NSString *str = @"http://www.jerehedu.com/images/temp/logo.gif";
+    ////    [imageV sd_setImageWithURL:[NSURL URLWithString:str] placeholderImage:[UIImage imageNamed:@"zheshiluwei.jpg"]];
+    //    imageV.image = [UIImage imageNamed:@"zheshiluwei.jpg"];
+    //
+    //    NSLog(@"lunchView : %@", lunchView);
+    //    NSLog(@"image : %@", imageV.image);
+    //    NSLog(@"self.window : %@", self.window);
+    //    [lunchView addSubview:imageV];
+    //
+    //    //[self.window bringSubviewToFront:lunchView];
+    //
+    //    UIViewController *vc = [[UIViewController alloc] init];
+    //    //[vc.view addSubview:lunchView];
+    //    self.window.rootViewController = vc;
+    //
+    //    [self.window makeKeyAndVisible];
+    //    //[NSTimer scheduledTimerWithTimeInterval:3 target:self selector:@selector(removeLun) userInfo:nil repeats:NO];
+    
+    
+    [NSThread sleepForTimeInterval:10];
+    
+    return YES;
+}
+
+-(void)removeLun
+{
+    [lunchView removeFromSuperview];
+}
+#endif
+
+
+
+
+#if 0
+
+
+
+
+kukuku匿名版
+kukuku.cc
+
+Ku岛Fun @ 三百肥宅飞艇
+
+
+
+#endif
