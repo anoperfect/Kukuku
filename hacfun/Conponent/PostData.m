@@ -358,14 +358,16 @@
                         NS0Log(@"to   %d:%d", (int)width, (int)height);
                         
                         
-                        if([[pd.image lowercaseString] hasSuffix:@"gif"]) {
-                            scale = 0.25;
-                        }
-                        else if([[pd.image lowercaseString] hasSuffix:@"bmp"]) {
+                        
+                        if([[pd.image lowercaseString] hasSuffix:@"bmp"]) {
                             scale = 0.5;
                         }
                         
                         pd.thumb = [NSString stringWithFormat:@"%@?op=imageView2&mode=1&width=%d&height=%d&quality=60", pd.image, (int)(width*scale), (int)(height*scale)];
+                        
+                        if([[pd.image lowercaseString] hasSuffix:@"gif"]) {
+                            pd.thumb = [NSString stringWithFormat:@"%@?op=imageView2&mode=2&width=%d&height=%d&quality=60&format=jpg", pd.image, (int)(width*scale), (int)(height*scale)];
+                        }
                     }
                     else {
                         pd.thumb = [pd.image copy];

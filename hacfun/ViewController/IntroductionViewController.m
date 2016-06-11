@@ -15,6 +15,8 @@
 
 
 @property (nonatomic, strong) UIWebView *webView;
+@property (nonatomic, strong) UIScrollView *imageScrollViewContainer;
+@property (nonatomic, strong) UIImageView *imageIntroduction;
 
 @end
 
@@ -42,12 +44,32 @@
     dispatch_async(dispatch_get_main_queue(), ^{
         [self loadIntroduction];
     });
+    
+    [self.webView removeFromSuperview];
+    
+    self.imageScrollViewContainer = [[UIScrollView alloc] init];
+    [self.view addSubview:self.imageScrollViewContainer];
+    
+    self.imageIntroduction = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"Introduction_Kukuku.jpg"]];
+    [self.imageScrollViewContainer addSubview:self.imageIntroduction];
 }
 
 
 - (void)viewWillLayoutSubviews
 {
     self.webView.frame = self.view.bounds;
+    self.imageScrollViewContainer.frame = self.view.bounds;
+    
+    CGSize sizeImage = self.imageIntroduction.image.size;
+    NSLog(@"%f %f", sizeImage.width, sizeImage.height);
+    
+    CGFloat heightImage = self.view.bounds.size.width * (sizeImage.height/sizeImage.width);
+    
+    
+    
+    
+    self.imageIntroduction.frame = CGRectMake(0, 0, self.view.bounds.size.width, heightImage);
+    self.imageScrollViewContainer.contentSize = self.imageIntroduction.frame.size;
 }
 
 

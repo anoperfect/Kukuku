@@ -23,7 +23,7 @@
                          "COLUMNS":["sn", "hostname", "host", "imageHost", "urlString", "numberInCategoryPage", "numberInDetailPage"],
                          "VALUES":[
                                    [0, "hacfun", "http://hacfun.tv/api", "http://img1.nimingban.com/", "http://hacfun.tv", 20, 20],
-                                   [1, "kukuku", "http://h.koukuko.com/api", "", "http://kukuku.cc/m", 20, 20]
+                                   [1, "kukuku", "http://h.koukuko.com/api", "", "http://www.kukuku.cc/m", 20, 20]
                                    ]
                          }
                          }

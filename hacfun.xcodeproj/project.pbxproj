@@ -22,6 +22,7 @@
 		B50D38B91B7F4BE10024E464 /* SettingViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B50D38B81B7F4BE10024E464 /* SettingViewController.m */; };
 		B50F99801C109E5900240C9D /* EmoticonCharacterView.m in Sources */ = {isa = PBXBuildFile; fileRef = B50F997F1C109E5900240C9D /* EmoticonCharacterView.m */; };
 		B50F99831C12815700240C9D /* GridView.m in Sources */ = {isa = PBXBuildFile; fileRef = B50F99821C12815700240C9D /* GridView.m */; };
+		B52347161D0C03AC008A1C50 /* Introduction_Kukuku.jpg in Resources */ = {isa = PBXBuildFile; fileRef = B52347151D0C03AC008A1C50 /* Introduction_Kukuku.jpg */; };
 		B523C9D21B78FAB500944004 /* CategoryViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B523C9BD1B78FAB500944004 /* CategoryViewController.m */; };
 		B523C9D31B78FAB500944004 /* CreateViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B523C9BF1B78FAB500944004 /* CreateViewController.m */; };
 		B523C9D41B78FAB500944004 /* ImageViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B523C9C11B78FAB500944004 /* ImageViewController.m */; };
@@ -159,6 +160,7 @@
 		B50F997F1C109E5900240C9D /* EmoticonCharacterView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EmoticonCharacterView.m; sourceTree = "<group>"; };
 		B50F99811C12815700240C9D /* GridView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GridView.h; sourceTree = "<group>"; };
 		B50F99821C12815700240C9D /* GridView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GridView.m; sourceTree = "<group>"; };
+		B52347151D0C03AC008A1C50 /* Introduction_Kukuku.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = Introduction_Kukuku.jpg; sourceTree = "<group>"; };
 		B523C9BC1B78FAB500944004 /* CategoryViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CategoryViewController.h; sourceTree = "<group>"; };
 		B523C9BD1B78FAB500944004 /* CategoryViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CategoryViewController.m; sourceTree = "<group>"; };
 		B523C9BE1B78FAB500944004 /* CreateViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CreateViewController.h; sourceTree = "<group>"; };
@@ -547,6 +549,7 @@
 		B523C9FE1B78FDB100944004 /* images */ = {
 			isa = PBXGroup;
 			children = (
+				B52347151D0C03AC008A1C50 /* Introduction_Kukuku.jpg */,
 				B57C1D891D087DAD00DF2915 /* LaunchImage1.png */,
 				B5E3C1511D03477100620E9C /* appicon1024x1024.png */,
 				B57780D31CE9FBB900F60B6F /* draft.png */,
@@ -880,6 +883,7 @@
 				B564D0F71C9189C400E903B6 /* bg.png in Resources */,
 				B5AFCA0E1C9FFE5A00D9DDB5 /* bgleft.png in Resources */,
 				B5039B461CBA5C1100C7865F /* gallery.png in Resources */,
+				B52347161D0C03AC008A1C50 /* Introduction_Kukuku.jpg in Resources */,
 				B5039B451CBA5C1100C7865F /* delete.png in Resources */,
 				B57780DA1CE9FBB900F60B6F /* send.png in Resources */,
 				B5039B201CB7FF1E00C7865F /* buttonsave.png in Resources */,

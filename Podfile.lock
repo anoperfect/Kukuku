@@ -21,6 +21,7 @@ PODS:
     - CocoaAsyncSocket/RunLoop
   - CocoaAsyncSocket/GCD (7.4.3)
   - CocoaAsyncSocket/RunLoop (7.4.3)
+  - FLAnimatedImage (1.0.12)
   - FMDB (2.6.2):
     - FMDB/standard (= 2.6.2)
   - FMDB/standard (2.6.2)
@@ -38,6 +39,7 @@ PODS:
   - SDWebImage (3.7.6):
     - SDWebImage/Core (= 3.7.6)
   - SDWebImage/Core (3.7.6)
+  - SSKeychain (1.4.0)
   - TOWebViewController (2.2.4):
     - TOWebViewController/Core (= 2.2.4)
   - TOWebViewController/Core (2.2.4)
@@ -45,6 +47,7 @@ PODS:
 DEPENDENCIES:
   - AFNetworking
   - CocoaAsyncSocket
+  - FLAnimatedImage
   - FMDB
   - GPUImage
   - MBProgressHUD
@@ -52,11 +55,13 @@ DEPENDENCIES:
   - ReactiveCocoa
   - RESideMenu
   - SDWebImage
+  - SSKeychain
   - TOWebViewController
 
 SPEC CHECKSUMS:
   AFNetworking: 5e0e199f73d8626b11e79750991f5d173d1f8b67
   CocoaAsyncSocket: a18c75dca4b08723628a0bacca6e94803d90be91
+  FLAnimatedImage: 4a0b56255d9b05f18b6dd7ee06871be5d3b89e31
   FMDB: 854a0341b4726e53276f2a8996f06f1b80f9259a
   GPUImage: 733a5f0fab92df9de1c37ba9df520a833ccb406d
   MBProgressHUD: 1569cf7ace17a8bac47aabfbb8580a49690386d1
@@ -64,8 +69,9 @@ SPEC CHECKSUMS:
   ReactiveCocoa: e2db045570aa97c695e7aa97c2bcab222ae51f4a
   RESideMenu: f24c508404b49c667344c54aba7e590883533958
   SDWebImage: c325cf02c30337336b95beff20a13df489ec0ec9
+  SSKeychain: c71293fa57216a40ab06c23f4085387583293de4
   TOWebViewController: f6b234d2be45dbf81d2a71a1f9480f8f3cc6501a
 
-PODFILE CHECKSUM: 6ea14186d87a2134ed338f162dd1477f270947b5
+PODFILE CHECKSUM: 51349d84c3e4f5b40526c3568c00745f7420a5fc
 
 COCOAPODS: 1.0.0

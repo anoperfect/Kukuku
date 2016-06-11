@@ -30,7 +30,8 @@
 
 @property (nonatomic, strong) AlignTopLabel       *labelInfo;
 
-
+@property (nonatomic, assign) BOOL enableShow;
+@property (nonatomic, assign) BOOL couldEnter;
 
 
 //@property (nonatomic, strong) UIView        *bonJoYiView;
@@ -190,6 +191,7 @@
 - (void)hiddenViews
 {
     NSLog(@"BJY : hiddenViews");
+    self.enableShow             = NO;
     self.buttonAuth.hidden      = YES;
     self.buttonUpdate.hidden    = YES;
     self.labelInfo.hidden       = YES;
@@ -199,9 +201,14 @@
 - (void)showViews
 {
     NSLog(@"BJY : showViews");
+    self.enableShow             = YES;
     self.buttonAuth.hidden      = NO;
     self.buttonUpdate.hidden    = NO;
     self.labelInfo.hidden       = NO;
+    
+    if(self.couldEnter) {
+        self.buttonEnter.hidden = NO;
+    }
 }
 
 
@@ -251,13 +258,18 @@
             self.finishAuth = YES;
             
             //1是获取栏目失败.
-            if([AppConfig sharedConfigDB].categories.count > 1) {
-                [self enter];
-            }
-            else {
-                [self appendInfo:@"准备更新栏目信息.\n"];
-                [self updateCategory];
-            }
+            
+//            if([AppConfig sharedConfigDB].categories.count > 1) {
+//                [self enter];
+//            }
+//            else {
+//                [self appendInfo:@"准备更新栏目信息.\n"];
+//                [self updateCategory];
+//            }
+            
+            [self appendInfo:@"准备更新栏目信息.\n"];
+            [self updateCategory];
+            
         }
         else {
             [self appendInfo:@"鉴权失败.\n"];
@@ -292,7 +304,10 @@
         }
         
         if(total > 0) {
-            self.buttonEnter.hidden = NO;
+            if(self.enableShow) {
+                self.buttonEnter.hidden = NO;
+            }
+            self.couldEnter = YES;
             if(self.authTimes == 1) {
                 [self enter];
             }

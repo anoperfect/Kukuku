@@ -12,4 +12,6 @@ pod 'Reachability'
 pod 'TOWebViewController'
 pod 'FMDB'
 pod 'CocoaAsyncSocket'
+pod 'FLAnimatedImage'
+pod 'SSKeychain'
 end

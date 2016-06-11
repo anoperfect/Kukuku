@@ -694,7 +694,45 @@
 }
 
 
-
++ (CGRect)narrow:(CGSize)size inContainer:(CGRect)rectContainer withBroaden:(BOOL)broaden center:(BOOL)center
+{
+    CGRect frame;
+    CGSize newSize;
+    
+    CGPoint point = rectContainer.origin;
+    CGSize sizeContainer = rectContainer.size;
+    
+    if(size.width <= sizeContainer.width && size.height <= sizeContainer.height && !broaden) {
+        newSize = size;
+        if(center) {
+            point.x += (sizeContainer.width - size.width) / 2;
+            point.y += (sizeContainer.height - size.height) / 2;
+        }
+    }
+    else {
+        CGFloat proportion = size.width / size.height ;
+        CGFloat proportionContainer = sizeContainer.width / sizeContainer.height;
+        
+        if(proportion >= proportionContainer) {
+            newSize.width = sizeContainer.width;
+            newSize.height = newSize.width / proportion;
+            if(center) {
+                point.x += 0;
+                point.y += (sizeContainer.height - newSize.height) / 2;
+            }
+        }
+        else {
+            newSize.height = sizeContainer.height;
+            newSize.width = newSize.height * proportion;
+            point.y += 0;
+            point.x += (sizeContainer.width - newSize.width) / 2;
+        }
+    }
+    
+    frame.origin = point;
+    frame.size = newSize;
+    return frame;
+}
 
 
 

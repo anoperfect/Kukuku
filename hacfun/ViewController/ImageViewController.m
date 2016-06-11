@@ -13,6 +13,7 @@
 #import "ImageViewCache.h"
 #import "PopupView.h"
 #import "NSLogn.h"
+#import "FLAnimatedImage.h"
 @interface ImageViewController ()
 
 //@property (strong,nonatomic) UIImageView *imageView;
@@ -28,6 +29,8 @@
 @property (strong,nonatomic) UIImage *directDisplayedImage;
 
 @property (nonatomic, strong) UIImage *imageDisplay;
+@property (nonatomic, strong) NSData *gifData;
+
 
 //用于数据下载过程中.
 @property (strong,nonatomic) NSMutableData *imageDataDownload;
@@ -97,7 +100,7 @@
         NSLog(@"%zi", [dataRead length]);
         if([dataRead length] > 0) {
             NSLog(@"------ use downloaded image.");
-            [self updateImageViewByImage:[UIImage imageWithData:dataRead]];
+            [self updateImageViewByDownloadOrCachedData:dataRead];
         }
         else {
             //显示下载完成之前的预制image.
@@ -144,23 +147,18 @@
     }
     
     //数组中放 UIImage. 之前是方 NSData.
-    UIActivityViewController *activiryViewController = [[UIActivityViewController alloc] initWithActivityItems:@[self.imageDisplay] applicationActivities:nil];
-    [self presentViewController:activiryViewController animated:YES completion:^(void){
-        
-    }];
-    
-#if 0
-    UIImage *image = [UIImage imageWithData:self.imageData];
-    UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil);
-    
-    PopupView *popupView = [[PopupView alloc] init];
-    popupView.numofTapToClose = 1;
-    popupView.secondsOfAutoClose = 2;
-    popupView.titleLabel = @"图片已经保存至相册";
-    popupView.borderLabel = 30;
-    popupView.line = 3;
-    [popupView popupInSuperView:self.view];
-#endif
+    if(!self.gifData) {
+        UIActivityViewController *activiryViewController = [[UIActivityViewController alloc] initWithActivityItems:@[self.imageDisplay] applicationActivities:nil];
+        [self presentViewController:activiryViewController animated:YES completion:^(void){
+            
+        }];
+    }
+    else {
+        UIActivityViewController *activiryViewController = [[UIActivityViewController alloc] initWithActivityItems:@[self.gifData] applicationActivities:nil];
+        [self presentViewController:activiryViewController animated:YES completion:^(void){
+            
+        }];
+    }
 }
 
 
@@ -220,7 +218,7 @@
     }
     
     [ImageViewCache setImageViewCache:self.stringUrl withData:imageDataDownload];
-    [self updateImageViewByImage:[UIImage imageWithData:[NSData dataWithData:self.imageDataDownload]]];
+    [self updateImageViewByDownloadOrCachedData:self.imageDataDownload];
 }
 
 
@@ -234,15 +232,49 @@
 - (void)updateImageViewByImage:(UIImage*)image
 {
     CGFloat y = self.yBolowView ;
+    CGRect imageframe = CGRectMake(0, y, self.view.frame.size.width, self.view.frame.size.height - y);
+    self.imageDisplay = image;
     
     [self.imageView removeFromSuperview];
     self.imageView = nil;
     
-    self.imageView = [[VIPhotoView alloc] initWithFrame:CGRectMake(0, y, self.view.frame.size.width, self.view.frame.size.height - y) andImage:image];
+    self.imageView = [[VIPhotoView alloc] initWithFrame:imageframe andImage:image];
     self.imageView.autoresizingMask = (1 << 6) - 1;
     [self.view addSubview:self.imageView];
+}
+
+
+- (void)updateImageViewByDownloadOrCachedData:(NSData*)imageData
+{
+    if(![self.stringUrl hasSuffix:@".gif"]) {
+        [self updateImageViewByImage:[UIImage imageWithData:imageData]];
+    }
+    else {
+        [self updateImageViewByGifData:imageData];
+    }
+}
+
+
+- (void)updateImageViewByGifData:(NSData*)imageData
+{
+    [[self.view viewWithTag:1000] removeFromSuperview];
     
-    self.imageDisplay = image;
+    CGFloat y = self.yBolowView ;
+    CGRect imageframe = CGRectMake(0, y, self.view.frame.size.width, self.view.frame.size.height - y);
+    self.gifData = imageData;
+    
+    FLAnimatedImage *image = [FLAnimatedImage animatedImageWithGIFData:imageData];
+    FLAnimatedImageView *imageView = [[FLAnimatedImageView alloc] init];
+    imageView.tag = 1000;
+    imageView.animatedImage = image;
+    
+    imageView.frame = [FrameLayout narrow:image.size inContainer:imageframe withBroaden:NO center:YES];
+    
+//    CGSize size = [FuncDefine ConstrainSize:image.size fitTo:imageframe.size];
+//    imageView.frame = CGRectMake(0, 0, size.width, size.height);
+//    imageView.center = self.view.center;
+    
+    [self.view addSubview:imageView];
 }
 
 

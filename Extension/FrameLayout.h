@@ -149,6 +149,9 @@ typedef NS_ENUM(NSInteger, FrameLayoutPosition) {
 
 + (void)setViewToCenter:(UIView *)view;
 
+
++ (CGRect)narrow:(CGSize)size inContainer:(CGRect)rectContainer withBroaden:(BOOL)broaden center:(BOOL)center;
+
 @end
 
 
