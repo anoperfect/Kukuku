@@ -807,8 +807,13 @@ PostView 接收的字段字段
     //判断是否设置无图模式.
     NSString *value = [[AppConfig sharedConfigDB] configDBSettingKVGet:@"disableimageshow"] ;
     BOOL b = [value isEqualToString:@"bool1"];
-    if(nil == self.thumb || [self.thumb isEqualToString:@""] || b) {
+    if(nil == self.thumb || [self.thumb isEqualToString:@""]) {
         
+        
+    }
+    else if(b) {
+        content = [content stringByAppendingString:@"\n[图片未显示: 无图模式]"];
+        [dict setObject:content?content:@"无正文" forKey:@"content"];
     }
     else {
         Host *host = [[AppConfig sharedConfigDB] configDBHostsGetCurrent];
@@ -946,10 +951,12 @@ PostView 接收的字段字段
     //NSData转 NSString.
     NSString *jsonstring = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
     NSLog(@"json data string : \n%@", jsonstring);
+    jsonstring = nil;
     
     //NSString转NSData.
     NSData *jsonData = [jsonstring dataUsingEncoding:NSUTF8StringEncoding];
     NSLog(@"compare result : %d", [jsonData isEqual:data]);
+    jsonData = nil;
     
     obj = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableLeaves error:nil];
     if(!(obj && [obj isKindOfClass:[NSDictionary class]])){
@@ -1073,6 +1080,7 @@ PostView 接收的字段字段
     //NSString转NSData.
     NSData *jsonData = [jsonstring dataUsingEncoding:NSUTF8StringEncoding];
     NSLog(@"compare result : %d", [jsonData isEqual:data]);
+    jsonData = nil;
     
     obj = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableLeaves error:nil];
     if(!(obj && [obj isKindOfClass:[NSDictionary class]])){
@@ -1210,6 +1218,7 @@ PostView 接收的字段字段
     //NSData转 NSString.
     NSString *jsonstring = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
     NSLog(@"json data string : \n%@", jsonstring);
+    jsonstring = nil;
     
     //NSObject *obj;
     NSDictionary *dict;
@@ -1330,6 +1339,7 @@ PostView 接收的字段字段
     //NSData转 NSString.
     NSString *jsonstring = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
     NSLog(@"json data string : \n%@", jsonstring);
+    jsonstring = nil;
     
     //NSObject *obj;
     NSDictionary *dict;
@@ -1467,13 +1477,36 @@ PostView 接收的字段字段
         return nil;
     }
     
+    NSString *urlString = nil;
+    
+#if 0
     Host *host = [[AppConfig sharedConfigDB] configDBHostsGetCurrent];
     
-    NSString *urlString = nil;
     urlString = [NSString stringWithFormat:@"%@/t/%lld?page=%@",
                  host.host,
                  tid,
                  page!=-1?[NSNumber numberWithInteger:page]:@"last"];
+#endif
+    
+    if(page == -1) {
+        urlString = [[AppConfig sharedConfigDB] generateRequestURL:@"v2/topic/getTopicReplyPage"
+                                                             andArgument:@{
+                                                                           @"page":@1,
+                                                                           @"pageSize":@20,
+                                                                           @"asc":@NO,
+                                                                           @"topicId":[NSNumber numberWithLongLong:tid]
+                                                                           }];
+    }
+    else {
+        urlString = [[AppConfig sharedConfigDB] generateRequestURL:@"v2/topic/getTopicReplyPage"
+                                                       andArgument:@{
+                                                                     @"page":@1,
+                                                                     @"pageSize":@20,
+                                                                     @"asc":@YES,
+                                                                     @"topicId":[NSNumber numberWithLongLong:tid]
+                                                                     }];
+    }
+    
     NSLog(@"sync thread download url : %@", urlString);
     
     NSURL *url = [[NSURL alloc]initWithString:urlString];
@@ -1488,7 +1521,7 @@ PostView 接收的字段字段
     
     if (responseData && ([urlResponse statusCode] >= 200 && [urlResponse statusCode] < 300)) {
         //        NSString *responseText = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
-        return [PostData parseFromDetailedJsonData:responseData atPage:page repliesTo:replies storeAdditional:additonal];
+        return [PostData parseFromDetailedJsonData:responseData atPage:page repliesTo:replies storeAdditional:additonal onHostName:HOSTNAME];
     }
     else {
         return nil;
@@ -1999,14 +2032,3 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
 @end
 
 
-@implementation PostViewDataPage
-- (instancetype)init
-{
-    self = [super init];
-    if (self) {
-        self.page = NSNotFound;
-        self.postViewDatas = [[NSMutableArray alloc] init];
-    }
-    return self;
-}
-@end

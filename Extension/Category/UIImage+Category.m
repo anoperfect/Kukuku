@@ -9,7 +9,7 @@
 #import "UIImage+Category.h"
 #import "NSDate+Category.h"
 #import "FuncDefine.h"
-#import "NSLogn.h"
+#import "Extension.pch"
 
 
 

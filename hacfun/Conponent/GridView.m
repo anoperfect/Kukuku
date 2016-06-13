@@ -8,7 +8,7 @@
 
 #import "GridView.h"
 #import "FuncDefine.h"
-#import "NSLogn.h"
+
 @interface GridView () {
     CGSize _size;
     CGSize _sizeFitCell;

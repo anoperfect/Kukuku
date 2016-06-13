@@ -64,14 +64,9 @@
     
     UIWindow *keyWindow = [UIApplication sharedApplication].keyWindow;
     NSLog(@"qqq%@", keyWindow.subviews);
-    
-    
-    
-    
+    keyWindow = nil;
     
     [self auth];
-    
-    
     
     self.buttonAuth = [[PushButton alloc] init];
     [self.view addSubview:self.buttonAuth];
@@ -216,16 +211,11 @@
 {
     UIWindow *keyWindow = [UIApplication sharedApplication].keyWindow;
     NSLog(@"qqq%@", keyWindow.subviews);
+    keyWindow = nil;
     
-    for(UIView *v in keyWindow.subviews) {
-        NSLog(@"qqq %@ -> %@", v, v.subviews);
-        
-        
-        
-    }
-    
-    
-    
+//    for(UIView *v in keyWindow.subviews) {
+//        NSLog(@"qqq %@ -> %@", v, v.subviews);
+//    }
 }
 
 

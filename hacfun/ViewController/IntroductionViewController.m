@@ -13,10 +13,10 @@
 
 
 
-
-@property (nonatomic, strong) UIWebView *webView;
 @property (nonatomic, strong) UIScrollView *imageScrollViewContainer;
 @property (nonatomic, strong) UIImageView *imageIntroduction;
+@property (nonatomic, strong) UIWebView *webView;
+
 
 @end
 
@@ -42,7 +42,7 @@
     self.webView.delegate = self;
     
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self loadIntroduction];
+        //[self loadIntroduction];
     });
     
     [self.webView removeFromSuperview];
@@ -65,14 +65,12 @@
     
     CGFloat heightImage = self.view.bounds.size.width * (sizeImage.height/sizeImage.width);
     
-    
-    
-    
     self.imageIntroduction.frame = CGRectMake(0, 0, self.view.bounds.size.width, heightImage);
     self.imageScrollViewContainer.contentSize = self.imageIntroduction.frame.size;
 }
 
 
+//# 使用UIWebView则左右滑动不能使用. 导致内存泄漏.
 - (void)loadIntroduction
 {
     Host *host = [[AppConfig sharedConfigDB] configDBHostsGetCurrent];
@@ -112,7 +110,6 @@
 - (void)webViewDidFinishLoad:(UIWebView *)webView
 {
     [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:NO];
-    
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error

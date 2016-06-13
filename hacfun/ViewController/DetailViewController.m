@@ -116,6 +116,15 @@
     }
     
     NSLog(@"Detail history get : %@", self.detailHistory);
+    
+    DetailRecord *detailrecord = [[DetailRecord alloc] init];
+    detailrecord.tid = self.tid;
+    NSTimeInterval t = [[NSDate date] timeIntervalSince1970];
+    //使用msec.
+    long long browseredAt = t * 1000.0;
+    detailrecord.browseredAt = browseredAt;
+    
+    [[AppConfig sharedConfigDB] configDBDetailRecordAdd:detailrecord];
 }
 
 
@@ -260,6 +269,7 @@
             [self showIndicationText:@"加载最后一页" inTime:2.0];
             self.pageDescMode = YES;
             [self refreshPostDataToPage:self.pageSize];
+            self.showSection = YES;
         }
         else {
             [self showIndicationText:@"未加载到详细回复信息" inTime:1.0];

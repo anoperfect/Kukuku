@@ -6,7 +6,7 @@
 //  Copyright (c) 2015年 Ben. All rights reserved.
 //
 #import "FuncDefine.h"
-#import "NSLogn.h"
+
 @implementation FuncDefine
 
 

@@ -46,7 +46,10 @@
 
 
 - (NSString *)calculateMD5;
+#if ENABLE_IDFA
 + (NSString *)deviceIdfa;
+#endif
++ (NSString*)deviceUuid;
 
 @end
 

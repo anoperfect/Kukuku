@@ -39,6 +39,7 @@
 #define TABLENAME_SETTINGKV                 @"settingkv"
 #define TABLENAME_CATEGORY                  @"category"
 #define TABLENAME_DETAILHISTORY             @"detailhistory"
+#define TABLENAME_DETAILRECORD              @"detailrecord"
 #define TABLENAME_RECORD                    @"record"
 #define TABLENAME_COLLECTION                @"collection"
 #define TABLENAME_POST                      @"post"
@@ -907,10 +908,10 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
         }
         va_end(params);         //置空
     }
-    for (NSString *str in argsArray)
-    {
-        NSLog(@"%@",str);
-    }
+//    for (NSString *str in argsArray)
+//    {
+//        NSLog(@"%@",str);
+//    }
 }
 
 
@@ -934,9 +935,9 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
         //置空
         va_end(params);
         //这里循环 将看到所有参数
-        for (NSNumber *num in argsArray) {
-            NSLog(@"%d", [num intValue]);
-        }
+//        for (NSNumber *num in argsArray) {
+//            NSLog(@"%d", [num intValue]);
+//        }
     }
     return argsArray;
 }
@@ -954,7 +955,7 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
                                                      withLimit:@{DBDATA_STRING_ORDER:@"ORDER BY click DESC"}];
     NSInteger count = [self.dbData DBDataCheckRowsInDictionary:queryResult];
     
-    NSLog(@"zzz:%@", queryResult);
+    NS0Log(@"zzz:%@", queryResult);
     
     NSArray *arrayReturn = nil ;
     if(count > 0) {
@@ -1264,6 +1265,108 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
     
     return result;
 }
+
+
+//DetailHistory
+- (NSArray<DetailRecord*> *)configDBDetailRecordGet
+{
+    //从数据库查询.
+    NSDictionary *queryResult = [self.dbData DBDataQueryDBName:DBNAME_HOST
+                                                       toTable:TABLENAME_DETAILRECORD
+                                                   columnNames:nil
+                                                     withQuery:nil
+                                                     withLimit:nil];
+    NSInteger count = [self.dbData DBDataCheckRowsInDictionary:queryResult];
+    
+    NSArray *arrayReturn = nil ;
+    if(count > 0) {
+        NSArray *tidArray           = queryResult[@"tid"];
+        NSArray *browseredAtArray   = queryResult[@"browseredAt"];
+        
+        if(![self.dbData DBDataCheckCountOfArray:@[tidArray, browseredAtArray] withCount:count]) {
+            return nil;
+        }
+        
+        NSMutableArray *arrayReturnM = [[NSMutableArray alloc] init];
+        
+        for(NSInteger index = 0; index < count; index++) {
+            
+            DetailRecord *detailrecord = [[DetailRecord alloc] init];
+            ASSIGN_INTEGER_VALUE_FROM_ARRAYMEMBER(detailrecord.tid, tidArray, index, 0)
+            ASSIGN_LONGLONG_VALUE_FROM_ARRAYMEMBER(detailrecord.browseredAt, browseredAtArray, index, 0)
+            
+            [arrayReturnM addObject:detailrecord];
+        }
+        
+        arrayReturn = [NSArray arrayWithArray:arrayReturnM];
+    }
+    
+    return arrayReturn;
+}
+
+
+- (BOOL)configDBDetailRecordAdd:(DetailRecord*)detailrecord
+{
+    BOOL result = YES;
+    
+    //#如果更新的话, 则click会刷新到0.
+    NSDictionary *infoInsert = @{
+                                 DBDATA_STRING_COLUMNS:@[@"tid", @"browseredAt"],
+                                 DBDATA_STRING_VALUES:@[@[[NSNumber numberWithInteger:detailrecord.tid], [NSNumber numberWithLongLong:detailrecord.browseredAt]]]
+                                 };
+    
+    NSInteger retDBData = [self.dbData DBDataInsertDBName:DBNAME_HOST toTable:TABLENAME_DETAILRECORD withInfo:infoInsert orReplace:NO];
+    if(DB_EXECUTE_OK != retDBData) {
+        NSLog(@"#error - ");
+        result = NO;
+    }
+    
+    return result;
+}
+
+
+- (BOOL)configDBDetailRecordDelete:(DetailRecord*)detailrecord
+{
+    BOOL result = YES;
+    NSLog(@"#error - not implemented.");
+    return result;
+}
+
+
+- (BOOL)configDBDetailRecordDeleteByTid:(NSInteger)tid
+{
+    BOOL result = YES;
+    NSLog(@"#error - not implemented.");
+    return result;
+}
+
+
+- (BOOL)configDBDetailRecordDeleteByLastDay:(NSInteger)days
+{
+    BOOL result = YES;
+    NSLog(@"#error - not implemented.");
+    return result;
+}
+
+
+
+- (BOOL)configDBDetailRecordDeleteByDateAtYear:(NSInteger)year month:(NSInteger)month day:(NSInteger)day
+{
+    BOOL result = YES;
+    NSLog(@"#error - not implemented.");
+    return result;
+}
+
+
+
+
+
+
+
+
+
+
+
 
 
 //Collection.
@@ -2039,13 +2142,41 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
 }
 
 
+#if 0
++ (NSString*)deviceUuid
+{
+    NSString *deviceUuid = @"Uuidnotdefine";
+    
+    NSString *uuidkeychain = [SSKeychain passwordForService:@"app.Ku岛Fun" account:@"uuid"];
+    if(uuidkeychain) {
+        NSLog(@"deviceUuid use keychain <%@>.", uuidkeychain);
+        deviceUuid = uuidkeychain;
+    }
+    else {
+        NSString * result = [NSString deviceUuid];
+
+        [SSKeychain setPassword:result forService:@"app.Ku岛Fun" account:@"uuid"];
+        NSLog(@"deviceUuid generate and set keychain <%@>", result);
+        
+        deviceUuid = result;
+    }
+    
+    return deviceUuid;
+}
+#endif
+
+
+
+
 - (void)authAsync:(void(^)(BOOL result))handle
 {
     //当前未开启sign校验. 随意写一个. token校验同样未开启.
-
-    NSString *idfa = [NSString deviceIdfa];
-    
-    self.hwid = [idfa calculateMD5];
+#if ENABLE_IDFA
+    NSString *hwidraw = [NSString deviceIdfa];
+#else 
+    NSString *hwidraw = [NSString deviceUuid];
+#endif
+    self.hwid = [hwidraw calculateMD5];
     
     self.token = [self configDBSettingKVGet:@"token"];
     

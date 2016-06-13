@@ -81,13 +81,21 @@
 - (BOOL)configDBDetailHistoryUpdate:(DetailHistory*)detailHistory;
 
 
+//DetailRecord
+- (NSArray<DetailRecord*> *)configDBDetailRecordGet;
+- (BOOL)configDBDetailRecordAdd:(DetailRecord*)detailrecord;
+- (BOOL)configDBDetailRecordDelete:(DetailRecord*)detailrecord;
+- (BOOL)configDBDetailRecordDeleteByTid:(NSInteger)tid;
+- (BOOL)configDBDetailRecordDeleteByLastDay:(NSInteger)days;
+- (BOOL)configDBDetailRecordDeleteByDateAtYear:(NSInteger)year month:(NSInteger)month day:(NSInteger)day;
+
+
 //Collection.
 - (NSArray*)configDBCollectionGets;
 - (Collection*)configDBCollectionGetByTid:(NSInteger)tid;
 - (BOOL)configDBCollectionAdd:(Collection*)collection;
 - (BOOL)configDBCollectionRemove:(NSInteger)tid;
 - (BOOL)configDBCollectionRemoveByTidArray:(NSArray*)tidArray;
-
 
 
 //Post.
@@ -113,6 +121,40 @@
 
 //清除数据库. 需仅适用于开发者环境.
 - (void)removeAll;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 - (NSString*)generateRequestURL:(NSString*)query andArgument:(NSDictionary*)argument;

@@ -88,6 +88,15 @@
 @end
 
 
+@interface DetailRecord : NSObject
+
+@property (nonatomic, assign) NSInteger     tid;
+@property (nonatomic, assign) long long     browseredAt;
+
+@end
+
+
+
 
 //record . PostData.
 

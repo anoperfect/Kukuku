@@ -254,7 +254,6 @@
                         [NSString stringsCombine:columnNames withConnector:@","]
                         ];
     
-    NSInteger countOfValues = values.count;
     BOOL addJoiner = NO;
     for(NSArray *value in values) {
         //执行语句.
@@ -272,7 +271,7 @@
     BOOL executeResult = [db executeUpdate:insert withArgumentsInArray:infoInsertValuesM];
     NSLog(@"INSERT executeUpdate [%@] with arguments [%@].", insert, [NSString combineArray:infoInsertValuesM withInterval:@"," andPrefix:@"" andSuffix:@""]);
     if(executeResult) {
-        NSLog(@"insert table %@ [%zd] OK.", tableAttribute.tableName, countOfValues);
+        NSLog(@"insert table %@ [%zd] OK.", tableAttribute.tableName, values.count);
     }
     else {
         NSLog(@"#error- insert table %@ FAILED (executeUpdate [%@] error).", tableAttribute.tableName, insert);
@@ -357,7 +356,7 @@
 //删
 - (NSInteger)DBDataDelete:(FMDatabase*)db toTable:(DBTableAttribute*)tableAttribute withQuery:(NSDictionary*)infoQuery
 {
-    NSMutableString *deletem ;
+    
     BOOL executeResult ;
     
 #if 0
@@ -383,13 +382,14 @@
     
     NSMutableArray *arguments = [[NSMutableArray alloc] init];
     NSString *queryString = [self DBDataGenerateQueryString:infoQuery andArgumentsInArray:arguments];
-    executeResult = [db executeUpdate:[NSString stringWithFormat:@"DELETE FROM %@ %@", tableAttribute.tableName, queryString] withArgumentsInArray:arguments];
+    NSString *deleteString = [NSString stringWithFormat:@"DELETE FROM %@ %@", tableAttribute.tableName, queryString];
+    executeResult = [db executeUpdate:deleteString withArgumentsInArray:arguments];
     
     if(executeResult) {
         NSLog(@"delete table %@ OK.", tableAttribute.tableName);
     }
     else {
-        NSLog(@"error --- delete table %@ FAILED (executeUpdate [%@] error).", tableAttribute.tableName, deletem);
+        NSLog(@"error --- delete table %@ FAILED (executeUpdate [%@] error).", tableAttribute.tableName, deleteString);
         return DB_EXECUTE_ERROR_SQL;
     }
     
@@ -1169,7 +1169,7 @@
             }
             
             if(tableAttribute.primaryKeys.count > 0) {
-                [createStringm appendFormat:@", PRIMARY KEY(%@)", [NSString combineArray:tableAttribute.primaryKeys withInterval:@"\", " andPrefix:@"\"" andSuffix:@"\""]];
+                [createStringm appendFormat:@", PRIMARY KEY(%@)", [NSString combineArray:tableAttribute.primaryKeys withInterval:@"\", \"" andPrefix:@"\"" andSuffix:@"\""]];
             }
             
             [createStringm appendString:@")"];

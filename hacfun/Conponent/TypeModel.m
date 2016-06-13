@@ -92,6 +92,20 @@
 @end
 
 
+@implementation DetailRecord
+
+- (NSString*)description
+{
+    return [NSString stringWithFormat:@"tid : %zd . browseredAt : %lld, %@ .",
+            self.tid,
+            self.browseredAt,
+            self.browseredAt  ==0?@"0":[NSString stringFromMSecondInterval:self.browseredAt andTimeZoneAdjustSecondInterval:0]
+            ];
+}
+
+@end
+
+
 @implementation Collection
 @end
 

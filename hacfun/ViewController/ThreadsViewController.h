@@ -97,7 +97,7 @@ typedef NS_ENUM(NSInteger, ThreadsStatus) {
 //总的page数量. 可在解析中根据解析的数据更新.
 @property (nonatomic, assign) NSInteger pageSize;
 
-
+@property (nonatomic, assign) BOOL showSection;
 
 //UITableView的foot view用于显示状态数据. 使用此接口具体设置.
 - (void)showfootViewWithTitle:(NSString*)title andActivityIndicator:(BOOL)isActive andDate:(BOOL)isShowDate;//###
@@ -106,6 +106,7 @@ typedef NS_ENUM(NSInteger, ThreadsStatus) {
 
 - (void)refreshPostData;
 - (void)refreshPostDataToPage:(NSInteger)page;
+
 
 
 - (BOOL)updateDataSourceByPostData:(PostData*)postDataUpdate;
@@ -126,8 +127,10 @@ typedef NS_ENUM(NSInteger, ThreadsStatus) {
 - (void)setStatusInfoOnIndexPath:(NSIndexPath*)indexPath withInfo:(NSString*)info andReload:(BOOL)reload;
 - (void)setStatusInfoOnTid:(NSInteger)tid withInfo:(NSString*)info andReload:(BOOL)reload;
 
-- (void)reloadSectionViaAppend:(NSInteger)section;
-- (void)reloadPostView;
+
+- (void)postViewReloadSectionViaAppend:(NSInteger)section;
+- (void)postViewReload;
+- (void)postViewReloadRow:(NSIndexPath*)indexPath;
 
 
 - (NSIndexPath*)indexPathWithTid:(NSInteger)tid;

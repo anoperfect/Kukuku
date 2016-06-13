@@ -113,7 +113,7 @@
     
     //[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(layoutCellView:) name:@"CellViewFrameChanged" object:nil];
     
-    [self reloadPostView];
+    [self postViewReload];
     
     double delayInSeconds = 0.1;
     dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
@@ -159,7 +159,7 @@
         
         LOG_VIEW_REC0(self.view, @"view")
         LOG_VIEW_REC0(self.postView, @"postView")
-        [self reloadPostView];
+        [self postViewReload];
         
 //        //footview.
 //        self.footView.titleLabel.lineBreakMode = NSLineBreakByWordWrapping;
@@ -255,7 +255,7 @@
     [self clearPostData];
     
     [self resetPostViewData];
-    [self reloadPostView];
+    [self postViewReload];
     [self loadMore];
 }
 
@@ -268,7 +268,7 @@
     [self showfootViewWithTitle:@"" andActivityIndicator:NO andDate:NO];
     
     [self resetPostViewData];
-    [self reloadPostView];
+    [self postViewReload];
     
     [self showfootViewWithTitle:@"" andActivityIndicator:NO andDate:NO];
     [self loadPage:page];
@@ -278,7 +278,7 @@
 - (void)clearPostData
 {
     self.postDataPages = [[NSMutableArray alloc] init];
-    [self reloadPostView];
+    [self postViewReload];
 }
 
 
@@ -416,8 +416,6 @@
     PostDataPage *postDataPage = self.postDataPages[section];
     NSInteger rows = postDataPage.postDatas.count;
 
-    //NSLog(@"------tableView numberOfRowsInSection : section:%zd, page:%zd, rows:%zd", section, postViewDataPage.page, rows);
-    //PostDataPage *postDataPage = self.postDataPages[section];
     NSLog(@"------ section %zd , rows : %zd", section, rows);
     
     return rows;
@@ -615,21 +613,22 @@
 
 - (NSString*)headerStringOnSection:(NSInteger)section
 {
-    return nil;
+    PostDataPage *postDataPage = self.postDataPages[section];
+    return postDataPage.sectionTitle;
 }
 
 
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
 {
     NSString * headerString = [self headerStringOnSection:section];
-    return headerString.length > 0 ? 36 : 0;
+    return (!self.showSection || headerString.length == 0) ? 0.0 : 36.0;
 }
 
 
 - (UIView*)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
 {
     NSString * headerString = [self headerStringOnSection:section];
-    if(headerString.length == 0) {
+    if(!self.showSection || headerString.length == 0) {
         return nil;
     }
     
@@ -804,8 +803,6 @@
     LOG_POSTION
     //当PostView的高度比superView的高度的一定比例高的时候, 加入UIScrollView.
     if(postView.frame.size.height > (postView.superview.frame.size.height * 0.8)) {
-        UIView *superView = postView.superview;
-        
         LOG_POSTION
         CGRect frameScrollView = postView.superview.bounds;
         frameScrollView.size.height = frameScrollView.size.height * 0.8;
@@ -821,8 +818,17 @@
         postView.frame = framePostView;
         [scrollView addSubview:postView];
         
-        NSLog(@"qaz %@", superView.subviews);
+        NSLog(@"qaz %@", postView.superview.subviews);
     }
+}
+
+
+- (void)postViewReloadRow:(NSIndexPath*)indexPath
+{
+    NSArray *indexArray=[NSArray arrayWithObject:indexPath];
+    [self.postView beginUpdates];
+    [self.postView reloadRowsAtIndexPaths:indexArray withRowAnimation:UITableViewRowAnimationAutomatic];
+    [self.postView endUpdates];
 }
 
 
@@ -832,10 +838,7 @@
     
     if(reload) {
         //设置后刷新.
-        NSArray *indexArray=[NSArray arrayWithObject:indexPath];
-        [self.postView beginUpdates];
-        [self.postView reloadRowsAtIndexPaths:indexArray withRowAnimation:UITableViewRowAnimationAutomatic];
-        [self.postView endUpdates];
+        [self postViewReloadRow:indexPath];
     }
 }
 
@@ -846,10 +849,7 @@
     
     if(reload) {
         //设置后刷新.
-        NSArray *indexArray=[NSArray arrayWithObject:indexPath];
-        [self.postView beginUpdates];
-        [self.postView reloadRowsAtIndexPaths:indexArray withRowAnimation:UITableViewRowAnimationAutomatic];
-        [self.postView endUpdates];
+        [self postViewReloadRow:indexPath];
     }
 }
 
@@ -873,8 +873,7 @@
     
     if(reload) {
         //设置后刷新.
-        NSArray *indexArray=[NSArray arrayWithObject:indexPath];
-        [self.postView reloadRowsAtIndexPaths:indexArray withRowAnimation:UITableViewRowAnimationAutomatic];
+        [self postViewReloadRow:indexPath];
     }
 }
 
@@ -923,8 +922,7 @@
     
     if(reload) {
         //设置后刷新.
-        NSArray *indexArray=[NSArray arrayWithObject:indexPath];
-        [self.postView reloadRowsAtIndexPaths:indexArray withRowAnimation:UITableViewRowAnimationAutomatic];
+        [self postViewReloadRow:indexPath];
     }
     
     
@@ -942,8 +940,7 @@
     
     if(reload) {
         //设置后刷新.
-        NSArray *indexArray=[NSArray arrayWithObject:indexPath];
-        [self.postView reloadRowsAtIndexPaths:indexArray withRowAnimation:UITableViewRowAnimationAutomatic];
+        [self postViewReloadRow:indexPath];
     }
 }
 
@@ -961,8 +958,7 @@
         
         NSIndexPath *indexPath = [self indexPathWithTid:tid];
         if(indexPath) {
-            NSArray *indexArray=[NSArray arrayWithObject:indexPath];
-            [self.postView reloadRowsAtIndexPaths:indexArray withRowAnimation:UITableViewRowAnimationAutomatic];
+            [self postViewReloadRow:indexPath];
         }
     }
 }
@@ -1168,10 +1164,7 @@
                     
                     //更新对应的postViewData.
                     NSIndexPath *indexPath = [NSIndexPath indexPathForRow:row inSection:section];
-                    NSArray *indexArray=[NSArray arrayWithObject:indexPath];
-                    [self.postView beginUpdates];
-                    [self.postView reloadRowsAtIndexPaths:indexArray withRowAnimation:UITableViewRowAnimationAutomatic];
-                    [self.postView endUpdates];
+                    [self postViewReloadRow:indexPath];
                 }
                 
                 break;
@@ -1258,18 +1251,18 @@
     }
     
     if(reload) {
-        [self reloadPostView];
+        [self postViewReload];
     }
 }
 
 
-- (void)reloadSectionViaAppend:(NSInteger)section
+- (void)postViewReloadSectionViaAppend:(NSInteger)section
 {
     NSLog(@"###### UITableView reload.");
     [self.postView reloadData];
 }
 
-- (void)reloadPostView
+- (void)postViewReload
 {
     NSLog(@"###### UITableView reload.");
     dispatch_async(dispatch_get_main_queue(), ^{

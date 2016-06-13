@@ -332,8 +332,8 @@
                                    ["NavigationBar", "导航栏", 0, 0, "NavigationBar"],
                                    ["Content"      , "内容区", 1, 0, "Content"],
                                    ["ToolBar"      , "工具栏", 0, 0, "ToolBar"],
-                                   ["LeftMenu"     , "左设置", 1, 0, "LeftMenu"],
-                                   ["RightMenu"    , "右栏目", 1, 0, "RightMenu"],
+                                   ["LeftMenu"     , "左设置", 0, 0, "LeftMenu"],
+                                   ["RightMenu"    , "右栏目", 0, 0, "RightMenu"],
                                    ["Popup"        , "弹出区", 0, 0, "Popup"]
                                    ]
                          }
@@ -518,6 +518,18 @@
                                     {"columnName":"createdAtForLoaded" , "dataType":"longlong", "isNeedForInsert":true, "isAutoIncrement":false }
                                     ],
                "primaryKeys":["tid"],
+               "preset":[],
+               "comment":"浏览历史"
+               },
+               
+               {
+               "tableName":"detailrecord",
+               "databaseNames":["kukuku","hacfun"],
+               "columnAttributes": [
+                                    {"columnName":"tid"        , "dataType":"integer" , "isNeedForInsert":true, "isAutoIncrement":false },
+                                    {"columnName":"browseredAt", "dataType":"longlong", "isNeedForInsert":true, "isAutoIncrement":false }
+                                    ],
+               "primaryKeys":["tid","browseredAt"],
                "preset":[],
                "comment":"浏览记录"
                },

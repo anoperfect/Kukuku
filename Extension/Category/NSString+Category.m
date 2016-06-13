@@ -8,8 +8,9 @@
 
 #import "NSString+Category.h"
 #import <CommonCrypto/CommonDigest.h>
+#if ENABLE_IDFA
 #import <AdSupport/AdSupport.h>
-
+#endif
 
 
 
@@ -411,6 +412,7 @@ else { v = -1; }
 }
 
 
+#if ENABLE_IDFA
 + (NSString *)deviceIdfa
 {
     NSString *deviceIdfa = @"Idfanotdefine";
@@ -427,33 +429,25 @@ else { v = -1; }
     
     return deviceIdfa;
 }
+#endif
 
 
-#if 0
+
 + (NSString*)deviceUuid
 {
     NSString *deviceUuid = @"Uuidnotdefine";
     
-    NSString *uuidkeychain = [SSKeychain passwordForService:@"app.Ku岛Fun" account:@"uuid"];
-    if(uuidkeychain) {
-        NSLog(@"deviceUuid use keychain <%@>.", uuidkeychain);
-        deviceUuid = uuidkeychain;
-    }
-    else {
-        CFUUIDRef puuid = CFUUIDCreate( nil );
-        CFStringRef uuidString = CFUUIDCreateString( nil, puuid );
-        NSString * result = (NSString *)CFBridgingRelease(CFStringCreateCopy( NULL, uuidString));
-        CFRelease(puuid);
-        CFRelease(uuidString);
-        
-        [SSKeychain setPassword:result forService:@"app.Ku岛Fun" account:@"uuid"];
-        NSLog(@"deviceUuid generate and set keychain <%@>", result);
-        
-        deviceUuid = result;
-    }
+    CFUUIDRef puuid = CFUUIDCreate( nil );
+    CFStringRef uuidString = CFUUIDCreateString( nil, puuid );
+    NSString * result = (NSString *)CFBridgingRelease(CFStringCreateCopy( NULL, uuidString));
+    CFRelease(puuid);
+    CFRelease(uuidString);
     
+    deviceUuid = result ;
+  
     return deviceUuid;
 }
-#endif
+
+
 
 @end

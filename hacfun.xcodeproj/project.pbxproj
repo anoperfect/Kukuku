@@ -205,6 +205,7 @@
 		B523CA0E1B78FDB100944004 /* reply1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = reply1.png; sourceTree = "<group>"; };
 		B523CA0F1B78FDB100944004 /* reply2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = reply2.png; sourceTree = "<group>"; };
 		B523CA101B78FDB100944004 /* zheshiluwei.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = zheshiluwei.jpg; sourceTree = "<group>"; };
+		B525792B1D0D1BB2007558B6 /* PrefixHeader.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PrefixHeader.pch; path = ../PrefixHeader.pch; sourceTree = "<group>"; };
 		B55E9D751C9B091400F581F5 /* FrameLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FrameLayout.h; sourceTree = "<group>"; };
 		B55E9D761C9B091400F581F5 /* FrameLayout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FrameLayout.m; sourceTree = "<group>"; };
 		B55E9D7B1C9CFD7D00F581F5 /* capture.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = capture.png; sourceTree = "<group>"; };
@@ -671,6 +672,7 @@
 				B5D8D4771B52060C0091DA20 /* AppDelegate.h */,
 				B5D8D4781B52060C0091DA20 /* AppDelegate.m */,
 				B5D8D4801B52060C0091DA20 /* Images.xcassets */,
+				B525792B1D0D1BB2007558B6 /* PrefixHeader.pch */,
 				B5D8D4821B52060C0091DA20 /* LaunchScreen.xib */,
 				B58D881F1B85621500B9A1BA /* libsqlite3.dylib */,
 				B523C9FD1B78FDB100944004 /* Source */,
@@ -1151,7 +1153,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_BITCODE = NO;
-				GCC_PREFIX_HEADER = "Vendor/AMSlideMenu/AMSlideMenuWithoutStoryboard-Prefix.pch";
+				GCC_PREFIX_HEADER = PrefixHeader.pch;
 				INFOPLIST_FILE = hacfun/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -1173,7 +1175,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_BITCODE = NO;
-				GCC_PREFIX_HEADER = "Vendor/AMSlideMenu/AMSlideMenuWithoutStoryboard-Prefix.pch";
+				GCC_PREFIX_HEADER = PrefixHeader.pch;
 				INFOPLIST_FILE = hacfun/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";

@@ -303,9 +303,10 @@ static NSInteger kcountObject = 0;
                                          withEdge:UIEdgeInsetsMake(5, 5, 5, 5)
                                    andSubViewEdge:UIEdgeInsetsMake(5, 0, 5, 0)];
             LOG_RECT(self.repliesView.frame, @"replies1")
-            for(UIView *postView in self.repliesView.subviews) {
-                LOG_RECT(postView.frame, @"postView1")
-            }
+            
+            [self.repliesView.subviews enumerateObjectsUsingBlock:^(UIView *view, NSUInteger idx, BOOL *stop) {
+                LOG_RECT(view.frame, @"postView1")
+            }];
             
             self.repliesView.backgroundColor = [UIColor colorWithName:@"PostViewRepliesBackground"];
         }
@@ -555,9 +556,9 @@ static NSInteger kcountObject = 0;
     self.actionButtons0.frame       = frameActionButtons;
     
     LOG_RECT(self.repliesView.frame, @"replies1")
-    for(UIView *postView in self.repliesView.subviews) {
-        LOG_RECT(postView.frame, @"postView1")
-    }
+//    for(UIView *postView in self.repliesView.subviews) {
+//        LOG_RECT(postView.frame, @"postView1")
+//    }
     
     NS0Log(@"rty : %@", layout);
     
@@ -634,7 +635,7 @@ static NSInteger kcountObject = 0;
 
 
 - (void)dealloc {
-    NSLog(@"dealloc %@", self);
+    NS0Log(@"dealloc %@", self);
     
     kcountObject --;
 }

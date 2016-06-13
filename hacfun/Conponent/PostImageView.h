@@ -18,7 +18,7 @@
 
 @property (nonatomic, strong) NSString *linkImageString;
 
-//- (void)setDidSelectedResponseTarget : (id) target selector:(SEL)selector;
+
 
 
 @end

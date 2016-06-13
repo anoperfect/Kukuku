@@ -12,7 +12,7 @@
 #import "AppConfig.h"
 #import "ImageViewCache.h"
 #import "PopupView.h"
-#import "NSLogn.h"
+
 #import "FLAnimatedImage.h"
 @interface ImageViewController ()
 
@@ -164,7 +164,6 @@
 
 - (void)storeToAlbum
 {
-    [[NSLogn sharedNSLogn] sendLogContent:@"123"];
     UIImageWriteToSavedPhotosAlbum(self.imageDisplay, nil, nil, nil);
     [self showIndicationText:@"已保存到相册" inTime:2.0];
 }

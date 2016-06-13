@@ -207,6 +207,16 @@
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:nil];
         cell.detailTextLabel.text = @"V0.1";
         
+        NSDictionary *infoDictionary = [[NSBundle mainBundle] infoDictionary];
+        NSString *name = [infoDictionary objectForKey:@"CFBundleDisplayName"];
+        NSString *version = [infoDictionary objectForKey:@"CFBundleShortVersionString"];
+        NSString *build = [infoDictionary objectForKey:@"CFBundleVersion"];
+        NSString *label = [NSString stringWithFormat:@"%@ v%@ (build %@)", name, version, build];
+        NSLog(@"%@",label);
+        label = nil;
+        
+        cell.detailTextLabel.text = version;
+        
         UISegmentedControl *view = [[UISegmentedControl alloc] initWithFrame:CGRectMake(0, 0, cell.frame.size.width * 0.45, 36)];
         
         NSArray *hostnames = [[AppConfig sharedConfigDB] configDBHostsGetHostnames];

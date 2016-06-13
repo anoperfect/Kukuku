@@ -156,18 +156,13 @@ typedef NS_ENUM(NSInteger, ThreadDataToViewType) {
 
 @property (nonatomic, assign) NSInteger page;
 @property (nonatomic, assign) NSInteger section;
+@property (nonatomic, strong) NSString  *sectionTitle;
 @property (nonatomic, strong) NSMutableArray *postDatas;
 
 @end
 
 
-@interface PostViewDataPage : NSObject
 
-@property (nonatomic, assign) NSInteger page;
-@property (nonatomic, assign) NSInteger section;
-@property (nonatomic, strong) NSMutableArray *postViewDatas;
-
-@end
 
 
 

@@ -7,7 +7,7 @@
 //
 #import "FuncDefine.h"
 #import "ImagesDisplay.h"
-#import "NSLogn.h"
+#import "Extension.pch"
 
 
 
@@ -102,8 +102,8 @@
 {
     UICollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"myCell" forIndexPath:indexPath];
     
-    NSString *name = [NSString stringWithFormat:@"cell%zd", indexPath.row];
-    LOG_RECT(cell.frame, name);
+//    NSString *name = [NSString stringWithFormat:@"cell%zd", indexPath.row];
+//    LOG_RECT(cell.frame, name);
     
     UIImageView *imageView = [cell viewWithTag:10000000];
     if(!imageView) {

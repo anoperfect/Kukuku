@@ -191,10 +191,6 @@
         [self updateToCellData:tid withInfo:@{@"message":@"无更新."}];
     }
     else {
-        //最后一条reply信息跟之前的Loaded记录, Display记录对比.
-        PostData *pdLastReply = [replies lastObject];
-        NSLog(@"tid [%zd] last reply createdAt : %lld.", tid, pdLastReply.createdAt);
-        
         //读取之前的加载与显示记录.
         //获取加载记录和浏览记录. (只记录加载记录和浏览记录的最大值.)
         BOOL isComparedOK = false;
@@ -212,16 +208,29 @@
         
         isComparedOK = YES;
         
-        if(pdLastReply.createdAt > detailHistory.createdAtForLoaded) {
+        //最新一条reply信息跟之前的Loaded记录, Display记录对比.
+        //replies可能是顺序,可能是反序. 直接比较.
+        PostData *pdLastReply = nil;
+        
+        for(PostData *pd in replies) {
+            if(pd.tid > pdLastReply.tid) {
+                pdLastReply = pd;
+            }
+        }
+        
+        NSLog(@"tid [%zd] last reply createdAt : %lld.", tid, pdLastReply.createdAt);
+        long long comparedTimestamp = pdLastReply.createdAt;
+        
+        if(comparedTimestamp > detailHistory.createdAtForLoaded) {
             NSLog(@"tid [%zd] atleast newest loaded timestamp updated.", tid);
             NSString *messge = [NSString stringWithFormat:@"更新于%@",
-                                [NSString stringFromMSecondInterval:pdLastReply.createdAt andTimeZoneAdjustSecondInterval:0]];
+                                [NSString stringFromMSecondInterval:comparedTimestamp andTimeZoneAdjustSecondInterval:0]];
             [self updateToCellData:tid withInfo:@{@"message":messge}];
         }
-        else if(pdLastReply.createdAt > detailHistory.createdAtForDisplay) {
+        else if(comparedTimestamp > detailHistory.createdAtForDisplay) {
             NSLog(@"tid [%zd] latest displayed timestamp updated.", tid);
             NSString *messge = [NSString stringWithFormat:@"更新于%@",
-                                [NSString stringFromMSecondInterval:pdLastReply.createdAt andTimeZoneAdjustSecondInterval:0]];
+                                [NSString stringFromMSecondInterval:comparedTimestamp andTimeZoneAdjustSecondInterval:0]];
             [self updateToCellData:tid withInfo:@{@"message":messge}];
         }
         else {
@@ -237,7 +246,7 @@
         
         if([self.indexPathsDisplaying indexOfObject:indexPath] != NSNotFound) {
             NSLog(@"update indexPath [%@] for tid [%zd]", [NSString stringFromTableIndexPath:indexPath], tid);
-            [self.postView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];
+            [self postViewReloadRow:indexPath];
         }
         else {
             NSLog(@"update indexPath [%@] for tid [%zd], current not update.", [NSString stringFromTableIndexPath:indexPath], tid);
