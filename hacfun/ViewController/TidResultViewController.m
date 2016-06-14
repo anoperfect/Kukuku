@@ -45,7 +45,15 @@
     }
     
     self.allTid = [NSArray arrayWithArray:allTidM];
-    self.postDatasAll = [[AppConfig sharedConfigDB] configDBRecordGets:self.allTid];
+    NSArray<PostData*> *postDatas = [[AppConfig sharedConfigDB] configDBRecordGets:self.allTid];
+    
+    PostDataPage *page = [[PostDataPage alloc] init];
+    page.page = 0;
+    page.section = 0;
+    page.sectionTitle = [NSString stringWithFormat:@"共%zd条", postDatas.count];
+    page.postDatas = [[NSMutableArray alloc] initWithArray:postDatas];
+
+    [self appendPostDataPage:page andReload:NO]; 
 }
 
 

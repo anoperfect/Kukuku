@@ -252,10 +252,12 @@
 - (void)refreshPostData {
     LOG_POSTION
     
+    //
     [self clearPostData];
-    
     [self resetPostViewData];
     [self postViewReload];
+    
+    
     [self loadMore];
 }
 
@@ -1256,6 +1258,15 @@
 }
 
 
+- (void)appendPostDataPage:(PostDataPage*)postDataPage andReload:(BOOL)reload
+{
+    [self.postDataPages addObject:postDataPage];
+    if(reload) {
+        [self postViewReload];
+    }
+}
+
+
 - (void)postViewReloadSectionViaAppend:(NSInteger)section
 {
     NSLog(@"###### UITableView reload.");
@@ -1285,6 +1296,29 @@
     }
 
     return [NSArray arrayWithArray:indexPathsM];
+}
+
+
+- (void)enumerateObjectsUsingBlock:(void (^_Nonnull)(PostData * _Nonnull postData, NSIndexPath * _Nonnull indexPath, BOOL * _Nonnull stop))block
+{
+    if(!block) {
+        NSLog(@"#error - ");
+        return;
+    }
+    
+    BOOL stop = NO;
+    NSInteger sectionTotal = self.postDataPages.count;
+    for(NSInteger section = 0; section < sectionTotal && !stop; section ++) {
+        PostDataPage *postDataPage = self.postDataPages[section];
+        NSInteger rowTotal = postDataPage.postDatas.count;
+        for(NSInteger row = 0; row < rowTotal && !stop; row ++) {
+            PostData * postData = postDataPage.postDatas[row];
+            NSIndexPath *indexPath = [NSIndexPath indexPathForRow:row inSection:section];
+            if(block) {
+                block(postData, indexPath, &stop);
+            }
+        }
+    }
 }
 
 

@@ -16,6 +16,7 @@
 @interface ReplyViewController ()
 
 @property (nonatomic, strong) NSArray *repliesTidNumbers;
+@property (nonatomic, strong) NSArray<PostData*> *topics;
 
 @end
 
@@ -60,18 +61,28 @@
         }
     }
     
-    NSArray *postDatasTopic = [[AppConfig sharedConfigDB] configDBRecordGets:[NSArray arrayWithArray:topicsM]];
+    self.topics = [[AppConfig sharedConfigDB] configDBRecordGets:[NSArray arrayWithArray:topicsM]];
 
-    self.repliesTidNumbers = [NSArray arrayWithArray:allTidM];
-    self.allTid = [NSArray arrayWithArray:topicsM];
-    self.postDatasAll = [[AppConfig sharedConfigDB] configDBRecordGets:self.allTid];
-    self.postDatasAll = postDatasTopic;
+    PostDataPage *page = [[PostDataPage alloc] init];
+    page.page = 0;
+    page.section = 0;
+    page.sectionTitle = [NSString stringWithFormat:@"共%zd条", self.topics.count];
+    page.postDatas = [[NSMutableArray alloc] initWithArray:self.topics];
+    
+    [self appendPostDataPage:page andReload:NO];
 }
 
 
-- (void)removeRecordsWithTids:(NSArray*)tids
+- (PostData *)getTopicsOnIndexPath:(NSIndexPath*)indexPath
 {
-    [[AppConfig sharedConfigDB] configDBReplyRemoveByTidArray:tids];
+    return self.topics[indexPath.row];
+}
+
+
+- (void)removeRecordsWithIndexPath:(NSIndexPath*)indexPath
+{
+    PostData *topic = [self getTopicsOnIndexPath:indexPath];
+    [[AppConfig sharedConfigDB] configDBReplyRemoveByTopicTidArray:@[[NSNumber numberWithInteger:topic.tid]]];
 }
 
 
@@ -94,7 +105,6 @@
         NSLog(@"#error ")
     }
 }
-
 
 
 

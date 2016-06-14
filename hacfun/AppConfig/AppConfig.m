@@ -1268,14 +1268,14 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
 
 
 //DetailHistory
-- (NSArray<DetailRecord*> *)configDBDetailRecordGet
+- (NSArray<DetailRecord*> *)configDBDetailRecordGets
 {
     //从数据库查询.
     NSDictionary *queryResult = [self.dbData DBDataQueryDBName:DBNAME_HOST
                                                        toTable:TABLENAME_DETAILRECORD
                                                    columnNames:nil
                                                      withQuery:nil
-                                                     withLimit:nil];
+                                                     withLimit:@{DBDATA_STRING_ORDER:@"ORDER BY browseredAt DESC"}];
     NSInteger count = [self.dbData DBDataCheckRowsInDictionary:queryResult];
     
     NSArray *arrayReturn = nil ;
@@ -1328,7 +1328,17 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
 - (BOOL)configDBDetailRecordDelete:(DetailRecord*)detailrecord
 {
     BOOL result = YES;
-    NSLog(@"#error - not implemented.");
+    
+    NSInteger retDBData = [self.dbData DBDataDeleteDBName:DBNAME_HOST
+                                                  toTable:TABLENAME_DETAILRECORD
+                                                withQuery:@{@"tid":[NSNumber numberWithInteger:detailrecord.tid],
+                                                            @"browseredAt":[NSNumber numberWithLongLong:detailrecord.browseredAt]
+                                                            }];
+    if(DB_EXECUTE_OK != retDBData) {
+        NSLog(@"#error - ");
+        result = NO;
+    }
+    
     return result;
 }
 
@@ -1336,7 +1346,14 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
 - (BOOL)configDBDetailRecordDeleteByTid:(NSInteger)tid
 {
     BOOL result = YES;
-    NSLog(@"#error - not implemented.");
+    NSInteger retDBData = [self.dbData DBDataDeleteDBName:DBNAME_HOST
+                                                  toTable:TABLENAME_DETAILRECORD
+                                                withQuery:@{@"tid":[NSNumber numberWithInteger:tid]}];
+    if(DB_EXECUTE_OK != retDBData) {
+        NSLog(@"#error - ");
+        result = NO;
+    }
+    
     return result;
 }
 
@@ -1344,29 +1361,20 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
 - (BOOL)configDBDetailRecordDeleteByLastDay:(NSInteger)days
 {
     BOOL result = YES;
-    NSLog(@"#error - not implemented.");
+
+    long long msec = MSEC_NOW;
+    msec = msec / MSEC_1DAY * MSEC_1DAY;
+    msec -= days * MSEC_1DAY;
+    
+    NSString *sql = [NSString stringWithFormat:@"DELETE FROM %@ WHERE browseredAt<%lld", TABLENAME_DETAILRECORD, msec];
+    NSInteger retDBData = [self.dbData DBDataUpdateDBName:DBNAME_HOST withSqlString:sql andArgumentsInArray:nil];
+    if(DB_EXECUTE_OK != retDBData) {
+        NSLog(@"#error - ");
+        result = NO;
+    }
+    
     return result;
 }
-
-
-
-- (BOOL)configDBDetailRecordDeleteByDateAtYear:(NSInteger)year month:(NSInteger)month day:(NSInteger)day
-{
-    BOOL result = YES;
-    NSLog(@"#error - not implemented.");
-    return result;
-}
-
-
-
-
-
-
-
-
-
-
-
 
 
 //Collection.
@@ -1719,7 +1727,23 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
 {
     BOOL result = YES;
     
+    NSLog(@"tidArray:%@", tidArray);
     NSInteger retDBData = [self.dbData DBDataDeleteDBName:DBNAME_HOST toTable:TABLENAME_REPLY withQuery:@{@"tid":tidArray}];
+    if(DB_EXECUTE_OK != retDBData) {
+        NSLog(@"#error - ");
+        result = NO;
+    }
+    
+    return result;
+}
+
+
+- (BOOL)configDBReplyRemoveByTopicTidArray:(NSArray*)tidArray
+{
+    BOOL result = YES;
+    
+    NSLog(@"tidArray:%@", tidArray);
+    NSInteger retDBData = [self.dbData DBDataDeleteDBName:DBNAME_HOST toTable:TABLENAME_REPLY withQuery:@{@"tidBelongTo":tidArray}];
     if(DB_EXECUTE_OK != retDBData) {
         NSLog(@"#error - ");
         result = NO;

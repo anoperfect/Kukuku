@@ -17,3 +17,10 @@
 
 
 @end
+
+
+
+#define MSEC_NOW    ([[NSDate date] timeIntervalSince1970] * 1000.0)
+#define MSEC_1DAY   (24 * 3600 * 1000)
+
+

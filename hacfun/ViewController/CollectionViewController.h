@@ -13,3 +13,8 @@
 
 
 
+
+
+@interface DetailRecordViewController : LocaleViewController
+
+@end

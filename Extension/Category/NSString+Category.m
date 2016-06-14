@@ -7,6 +7,7 @@
 //
 
 #import "NSString+Category.h"
+#import "NSDate+Category.h"
 #import <CommonCrypto/CommonDigest.h>
 #if ENABLE_IDFA
 #import <AdSupport/AdSupport.h>
@@ -75,6 +76,31 @@
     NSString *string = [dateFormatter stringFromDate:date];
     
     return string;
+}
+
+
++ (NSString*)stringFromRelativeDescriptorOfDateForMSec:(long long)msec
+{
+    long long msecNow = MSEC_NOW;
+    NSString *stringDescriptor = [self stringFromMSecondInterval:msec andTimeZoneAdjustSecondInterval:0];
+    
+    if(msecNow - msec >= 0) {
+        long long secSub = (msecNow - msec) / 1000;
+        if(secSub < 60) {
+            stringDescriptor = [NSString stringWithFormat:@"%zd秒前", secSub>0?secSub:1];
+        }
+        else if(secSub < 3600) {
+            stringDescriptor = [NSString stringWithFormat:@"%zd分钟前", secSub/60];
+        }
+        else if(secSub < 24 * 3600) {
+            stringDescriptor = [NSString stringWithFormat:@"%zd小时前", secSub/3600];
+        }
+        else if(secSub < 10 * 24 * 3600) {
+            stringDescriptor = [NSString stringWithFormat:@"%zd天前", secSub/(24*3600)];
+        }
+    }
+       
+    return stringDescriptor;
 }
 
 

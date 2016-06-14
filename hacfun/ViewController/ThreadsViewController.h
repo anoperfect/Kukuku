@@ -113,6 +113,8 @@ typedef NS_ENUM(NSInteger, ThreadsStatus) {
 //- (NSInteger)addPostDatas:(NSMutableArray*)appendPostDatas onPage:(NSInteger)page;
 - (void)appendDataOnPage:(NSInteger)page with:(NSArray<PostData*>*)postDatas removeDuplicate:(BOOL)remove andReload:(BOOL)reload;
 
+- (void)appendPostDataPage:(PostDataPage*)postDataPage andReload:(BOOL)reload;
+
 - (NSInteger)numberOfPostDatasTotal;
 - (PostData*)postDataLastObject;
 
@@ -137,6 +139,8 @@ typedef NS_ENUM(NSInteger, ThreadsStatus) {
 - (NSArray*)indexPathsPostData;
 - (PostData*)postDataOnIndexPath:(NSIndexPath*)indexPath;//###
 
+
+- (void)enumerateObjectsUsingBlock:(void (^)(PostData * postData, NSIndexPath * indexPath, BOOL *stop))block;
 
 
 - (void)resetPostViewData;

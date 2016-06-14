@@ -229,18 +229,7 @@
         [self showIndicationText:@"当前为只看Po模式" inTime:2.0];
         
         self.isOnlyShowPo = YES;
-#if 0
-        NSArray *indexPaths = [self indexPathsPostData];
-        for(NSIndexPath *indexPath in indexPaths) {
-            PostData *postData = [self postDataOnIndexPath:indexPath];
-            if([postData.uid isEqualToString:self.topic.uid]) {
-                [self unfoldCellOnIndexPath:indexPath withInfo:@"只看Po" andReload:NO];
-            }
-            else {
-                [self foldCellOnIndexPath:indexPath withInfo:@"只看Po" andReload:NO];
-            }
-        }
-#endif
+
         [self.postView reloadData];
         
         return ;
@@ -251,12 +240,7 @@
         [self showIndicationText:@"已关闭只看Po模式" inTime:2.0];
         
         self.isOnlyShowPo = NO;
-#if 0
-        NSArray *indexPaths = [self indexPathsPostData];
-        for(NSIndexPath *indexPath in indexPaths) {
-            [self unfoldCellOnIndexPath:indexPath withInfo:@"只看Po" andReload:NO];
-        }
-#endif
+
         [self.postView reloadData];
         
         return ;
@@ -780,19 +764,6 @@
     
     if([string isEqualToString:@"开启只看Po"]){
         self.isOnlyShowPo = YES;
-
-#if 0
-        NSArray *indexPaths = [self indexPathsPostData];
-        for(NSIndexPath *indexPath in indexPaths) {
-            PostData *postData = [self postDataOnIndexPath:indexPath];
-            if(postData.uid == self.topic.uid) {
-                [self unfoldCellOnIndexPath:indexPath withInfo:@"只看Po" andReload:NO];
-            }
-            else {
-                [self foldCellOnIndexPath:indexPath withInfo:@"只看Po" andReload:NO];
-            }
-        }
-#endif
         
         [self.postView reloadData];
         
@@ -802,12 +773,6 @@
     else if([string isEqualToString:@"关闭只看Po"]){
         self.isOnlyShowPo = NO;
         
-#if 0
-        NSArray *indexPaths = [self indexPathsPostData];
-        for(NSIndexPath *indexPath in indexPaths) {
-            [self unfoldCellOnIndexPath:indexPath withInfo:@"只看Po" andReload:NO];
-        }
-#endif
         [self.postView reloadData];
         
         [self showfootViewWithTitle:[NSString stringWithFormat:@"已关闭只看Po模式"]

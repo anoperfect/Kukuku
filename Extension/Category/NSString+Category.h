@@ -21,6 +21,7 @@
 + (NSString*)stringFromCGRect:(CGRect)rect;
 + (NSString*)stringFromViewFrame:(UIView*)view;
 + (NSString*)stringFromMSecondInterval:(long long) msecs andTimeZoneAdjustSecondInterval:(NSInteger)adjustSeconds;
++ (NSString*)stringFromRelativeDescriptorOfDateForMSec:(long long)msec;
 
 
 + (NSString*)stringsCombine:(NSArray*)strings withConnector:(NSString*)stringConnector;

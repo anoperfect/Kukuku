@@ -24,7 +24,9 @@
 
 
 //override. 
-- (void)removeRecordsWithTids:(NSArray*)tids;
+- (void)removeRecordsWithIndexPath:(NSIndexPath*)indexPath;
+
+
 
 
 @end

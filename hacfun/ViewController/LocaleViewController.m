@@ -14,7 +14,7 @@
 
 
 @interface LocaleViewController ()
-@property (nonatomic, strong) NSMutableDictionary *updateResult;
+@property (nonatomic, strong) NSMutableDictionary *updateResult; //not use. 之前是全部更新完成后刷新, 修改为单条刷新.
 
 
 
@@ -54,30 +54,23 @@
 }
 
 
-- (void)startAction
+- (void)loadLocalData
 {
-    [self loadPage:1];
+    [self showfootViewWithTitle:[NSString stringWithFormat:@"加载数据中."] andActivityIndicator:YES andDate:NO];
+    
+    //继承类需在此接口中完成self.postDataPages的填写.
+    [self getLocaleRecords];
+    
+    [self postViewReload];
+    
+    [self showfootViewWithTitle:[NSString stringWithFormat:@"已加载%zi条", [self numberOfPostDatasTotal]]
+           andActivityIndicator:NO andDate:NO];
 }
 
 
-- (void)loadPage:(NSInteger)page
+- (void)startAction
 {
-    LOG_POSTION
-    
-    [self getLocaleRecords];
-    
-    NSMutableArray *appendPostDatas = [NSMutableArray arrayWithArray:self.postDatasAll];
-    
-    for(NSInteger index = 0; index < appendPostDatas.count; index ++) {
-        NSLog(@"index%zd : %@", index, appendPostDatas[index]);
-    }
-    
-
-    [self appendDataOnPage:self.pageNumLoading with:appendPostDatas removeDuplicate:NO andReload:YES];
-    [self showfootViewWithTitle:[NSString stringWithFormat:@"共%zd条, 已加载%zi条", self.allTid.count, [self numberOfPostDatasTotal]]
-           andActivityIndicator:NO andDate:NO];
-    
-    NSLog(@"appendPostDatas %@", appendPostDatas);
+    [self loadLocalData];
 }
 
 
@@ -120,30 +113,21 @@
     //将所有需更新的tid记录.
     self.updateResult = [[NSMutableDictionary alloc] init];
     
-    //所有显示更新中提示.
-    NSArray *indexPaths = [self indexPathsPostData];
-    for(NSIndexPath *indexPath in indexPaths) {
+    
+    [self enumerateObjectsUsingBlock:^(PostData *postData, NSIndexPath *indexPath, BOOL * stop) {
+        //所有显示更新中提示.
         [self setStatusInfoOnIndexPath:indexPath withInfo:@"更新中" andReload:NO];
-    }
+        [self updateThreadById:postData.tid];
+    }];
     
     [self.postView reloadData];
-    
-    for(NSNumber *tidNumber in self.allTid) {
-        if(![tidNumber isKindOfClass:[NSNumber class]]) {
-            NSLog(@"#error not expected class %@", tidNumber);
-            break;
-        }
-        
-        [self.updateResult setObject:[NSNumber numberWithBool:NO] forKey:tidNumber];
-        [self updateThreadById:[tidNumber integerValue]];
-    }
 }
 
 
 - (void)updateThreadById:(NSInteger)tid
 {
     NSLog(@"update %zd", tid);
-    dispatch_queue_t concurrentQueue = dispatch_queue_create("my.concurrent.queue", DISPATCH_QUEUE_CONCURRENT);
+    dispatch_queue_t concurrentQueue = dispatch_queue_create("local.concurrent.queue", DISPATCH_QUEUE_CONCURRENT);
     dispatch_async(concurrentQueue, ^(void){
         //获取last page的信息.
         PostData *topic = [[PostData alloc] init];
@@ -224,13 +208,13 @@
         if(comparedTimestamp > detailHistory.createdAtForLoaded) {
             NSLog(@"tid [%zd] atleast newest loaded timestamp updated.", tid);
             NSString *messge = [NSString stringWithFormat:@"更新于%@",
-                                [NSString stringFromMSecondInterval:comparedTimestamp andTimeZoneAdjustSecondInterval:0]];
+                                [NSString stringFromRelativeDescriptorOfDateForMSec:comparedTimestamp]];
             [self updateToCellData:tid withInfo:@{@"message":messge}];
         }
         else if(comparedTimestamp > detailHistory.createdAtForDisplay) {
             NSLog(@"tid [%zd] latest displayed timestamp updated.", tid);
             NSString *messge = [NSString stringWithFormat:@"更新于%@",
-                                [NSString stringFromMSecondInterval:comparedTimestamp andTimeZoneAdjustSecondInterval:0]];
+                                [NSString stringFromRelativeDescriptorOfDateForMSec:comparedTimestamp]];
             [self updateToCellData:tid withInfo:@{@"message":messge}];
         }
         else {
@@ -284,6 +268,18 @@
 }
 
 
+- (void)actionLoadMore
+{
+    if([self numberOfPostDatasTotal] == 0) {
+        [self loadLocalData];
+    }
+    else {
+        NSLog(@"Local mode load all data.")
+        self.threadsStatus = ThreadsStatusLoadSuccessful;
+    }
+}
+
+
 //重载以定义row行为.
 - (BOOL)actionForRowAtIndexPath:(NSIndexPath*)indexPath viaString:(NSString*)string
 {
@@ -294,14 +290,14 @@
     
     finishAction = YES;
 
-    PostData *postDataRow = [self postDataOnIndexPath:indexPath];
     if([string isEqualToString:@"删除"]){
         
         LOG_POSTION
-        [self removeRecordsWithTids:@[[NSNumber numberWithInteger:postDataRow.tid]]];
+        [self removeRecordsWithIndexPath:indexPath];
         LOG_POSTION
         
         self.allTid = nil;
+        
         [self refreshPostData];
     }
     else {
@@ -332,7 +328,7 @@
 }
 
 
-- (void)removeRecordsWithTids:(NSArray*)tids
+- (void)removeRecordsWithIndexPath:(NSIndexPath*)indexPath
 {
     NSLog(@"#error - should be override.");
 }

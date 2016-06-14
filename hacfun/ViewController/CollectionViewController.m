@@ -48,15 +48,95 @@
     }
     
     self.allTid = [NSArray arrayWithArray:allTidM];
-    self.postDatasAll = [[AppConfig sharedConfigDB] configDBRecordGets:self.allTid];
+    NSArray<PostData*> *postDatas = [[AppConfig sharedConfigDB] configDBRecordGets:self.allTid];
+    
+    PostDataPage *page = [[PostDataPage alloc] init];
+    page.page = 0;
+    page.section = 0;
+    page.sectionTitle = [NSString stringWithFormat:@"共%zd条", postDatas.count];
+    page.postDatas = [[NSMutableArray alloc] initWithArray:postDatas];
+    
+    [self appendPostDataPage:page andReload:NO];
 }
 
 
-- (void)removeRecordsWithTids:(NSArray*)tids
+- (Collection *)getCollectionOnIndexPath:(NSIndexPath*)indexPath
 {
-    [[AppConfig sharedConfigDB] configDBCollectionRemoveByTidArray:tids];
+    return self.concreteDatas[indexPath.row];
 }
 
+
+- (void)removeRecordsWithIndexPath:(NSIndexPath*)indexPath
+{
+    Collection *collection = [self getCollectionOnIndexPath:indexPath];
+    [[AppConfig sharedConfigDB] configDBCollectionRemoveByTidArray:@[[NSNumber numberWithInteger:collection.tid]]];
+}
+
+
+
+
+
+
+
+@end
+
+@interface DetailRecordViewController()
+
+
+@end
+
+@implementation DetailRecordViewController
+
+
+
+
+- (instancetype)init {
+    
+    self = [super init];
+    if(self) {
+        self.textTopic = @"收藏";
+        
+        
+    }
+    
+    return self;
+}
+
+
+- (void)getLocaleRecords
+{
+    NSMutableArray *allTidM = [[NSMutableArray alloc] init];
+    
+    self.concreteDatas = [[AppConfig sharedConfigDB] configDBDetailRecordGets];
+    self.concreteDatasClass = [DetailRecord class];
+    for(DetailRecord *DetailRecord in self.concreteDatas) {
+        [allTidM addObject:[NSNumber numberWithInteger:DetailRecord.tid]];
+    }
+    
+    self.allTid = [NSArray arrayWithArray:allTidM];
+    NSArray<PostData*> *postDatas = [[AppConfig sharedConfigDB] configDBRecordGets:self.allTid];
+    
+    PostDataPage *page = [[PostDataPage alloc] init];
+    page.page = 0;
+    page.section = 0;
+    page.sectionTitle = [NSString stringWithFormat:@"共%zd条", postDatas.count];
+    page.postDatas = [[NSMutableArray alloc] initWithArray:postDatas];
+    
+    [self appendPostDataPage:page andReload:NO];
+}
+
+
+- (DetailRecord *)getDetailRecordOnIndexPath:(NSIndexPath*)indexPath
+{
+    return self.concreteDatas[indexPath.row];
+}
+
+
+- (void)removeRecordsWithIndexPath:(NSIndexPath*)indexPath
+{
+    DetailRecord *detailrecord = [self getDetailRecordOnIndexPath:indexPath];
+    [[AppConfig sharedConfigDB] configDBDetailRecordDelete:detailrecord];
+}
 
 
 

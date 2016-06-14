@@ -32,6 +32,12 @@
 
 @property (nonatomic, strong) NSMutableDictionary *optumizeHeights;
 
+
+@property (strong,nonatomic) UILabel *footView;
+@property (strong,nonatomic)  UIActivityIndicatorView *activityView;
+
+
+
 @end
 
 
@@ -50,11 +56,87 @@
         self.backgroundColor = [UIColor purpleColor];
         [self addSubview:self.tableView];
         
+        //footview.
+        CGFloat heightFootView = 45;
+        self.footView = [[UILabel alloc] init];
+        self.footView.backgroundColor = self.tableView.backgroundColor;
+        self.footView.textColor = [UIColor colorWithName:@"PostTableViewFootViewText"];
+        //[self showfootViewWithTitle:[self getFooterViewTitleOnStatus:self.threadsStatus] andActivityIndicator:NO andDate:NO];
+        [self.footView setFont:[UIFont fontWithName:@"PostContent"]];
+        self.footView.lineBreakMode = NSLineBreakByWordWrapping;
+        self.footView.textAlignment = NSTextAlignmentCenter;
+        self.footView.numberOfLines = 0;
+        self.footView.frame = CGRectMake(0, 0, self.tableView.frame.size.width, heightFootView);
+        
+        UIActivityIndicatorView* activityIndicatorView = [[UIActivityIndicatorView alloc] init];
+        activityIndicatorView.frame = CGRectMake(heightFootView, 0, heightFootView, heightFootView);
+        [activityIndicatorView setColor:[UIColor blackColor]];
+        [activityIndicatorView setTag:1];
+        [self.footView addSubview:activityIndicatorView];
+        
+        self.footView.userInteractionEnabled = YES;
+        UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(clickFootView)];
+        [self.footView addGestureRecognizer:tapGesture];
+        
+        //[self.footView addTarget:self action:@selector(clickFootView) forControlEvents:UIControlEventTouchDown];
+        self.tableView.tableFooterView = self.footView;
+        
         self.type = ThreadDataToViewTypeCustom;
+        
+        self.footView.frame = CGRectMake(0, 0, self.tableView.frame.size.width, heightFootView);
+        self.tableView.tableFooterView = self.footView;
+        activityIndicatorView.frame = CGRectMake(36, 0, heightFootView, heightFootView);
         
         [self initMemberData];
     }
     return self;
+}
+
+
+- (void)layoutSubviews
+{
+    [super layoutSubviews];
+
+    CGRect framePostView = self.bounds;
+    
+    NSLog(@"mnb - %@", [NSString stringFromCGRect:self.frame]);
+    NSLog(@"mnb - %@", [NSString stringFromCGRect:self.bounds]);
+    
+    if(FRAMELAYOUT_IS_EQUAL(framePostView, self.tableView.frame) && 0) {
+        NSLog(@"postView frame not changed.");
+    }
+    else {
+        NSLog(@"postView frame changed.")
+        [self.tableView setFrame:framePostView];
+        
+        LOG_VIEW_REC0(self.view, @"view")
+        LOG_VIEW_REC0(self.postView, @"postView")
+        [self reloadPostGroupView];
+        
+        //        //footview.
+        //        self.footView.titleLabel.lineBreakMode = NSLineBreakByWordWrapping;
+        //        [self.footView setFrame:CGRectMake(0, 0, self.view.frame.size.width, 36)];
+        //        self.postView.tableFooterView = self.footView;
+        
+        CGFloat heightFootView = 45;
+        self.footView.frame = CGRectMake(0, 0, self.tableView.frame.size.width, heightFootView);
+        self.tableView.tableFooterView = self.footView;
+        
+        UIActivityIndicatorView* activityIndicatorView = (UIActivityIndicatorView*)[self.footView viewWithTag:1];
+        activityIndicatorView.frame = CGRectMake(36, 0, heightFootView, heightFootView);
+        
+        NSLog(@"*** %@", activityIndicatorView);
+        
+        for(UIView *view in self.footView.subviews) {
+            NSLog(@"%@", view);
+        }
+    }
+}
+
+
+- (void)clickFootView
+{
+    
 }
 
 
@@ -69,23 +151,6 @@
     self.dynamicPostViewDataStatusInfo          = [[NSMutableDictionary alloc] init];
     self.dynamicTidStatusInfo                   = [[NSMutableDictionary alloc] init];
 }
-
-
-
-
-
-- (void)layoutSubviews
-{
-    CGRect frameTableView = self.bounds;
-    if(FRAMELAYOUT_IS_EQUAL(frameTableView, self.tableView.frame)) {
-        
-    }
-    else {
-        self.tableView.frame = self.bounds;
-        [self.tableView reloadData];
-    }
-}
-
 
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -282,7 +347,32 @@
 
 - (void)showfooterViewWithTitle:(NSString*)title andActivityIndicator:(BOOL)isActive andDate:(BOOL)isShowDate
 {
+    [self setNeedsLayout];
+    NSString *titleShow = title;
+    if(isShowDate) {
+        
+        NSDate *  freshDate=[NSDate date];
+        NSDateFormatter *dateformatter=[[NSDateFormatter alloc] init];
+        [dateformatter setDateFormat:@"YYYY/MM/dd HH:mm"];
+        NSString * dateString=[dateformatter stringFromDate:freshDate];
+        titleShow = [NSString stringWithFormat:@"%@\n%@", title, dateString];
+    }
     
+    self.footView.text = titleShow;
+    
+    UIActivityIndicatorView* activityIndicatorView = (UIActivityIndicatorView*)[self.footView viewWithTag:1];
+    
+    if(isActive) {
+        activityIndicatorView.backgroundColor = [UIColor yellowColor];
+        [activityIndicatorView setTintColor:[UIColor blueColor]];
+        [activityIndicatorView startAnimating];
+        activityIndicatorView.hidden = NO;
+    }
+    else {
+        [activityIndicatorView stopAnimating];
+        activityIndicatorView.hidden = YES;
+    }
+
 }
 
 
@@ -293,8 +383,27 @@
 }
 
 
-
-
+- (void)asyncLoadRecentRepliesFromTid:(NSInteger)tid
+{
+    __weak typeof(self) __weakSelf = self;
+    dispatch_queue_t concurrentQueue = dispatch_queue_create("recentreplies.concurrent.queue", DISPATCH_QUEUE_CONCURRENT);
+    dispatch_async(concurrentQueue, ^(void){
+        //获取last page的信息.
+        PostData *topic = [[PostData alloc] init];
+        NSMutableArray *replies = [[NSMutableArray alloc] init];
+        topic = [PostData sendSynchronousRequestByTid:tid atPage:-1 repliesTo:replies storeAdditional:nil];
+        
+        dispatch_async(dispatch_get_main_queue(), ^(void) {
+            if(replies.count > 0) {
+                [__weakSelf showfooterViewWithTitle:[NSString stringWithFormat:@"最新回复%zd条", replies.count] andActivityIndicator:NO andDate:NO];
+                [__weakSelf appendDataOnPage:0 with:replies removeDuplicate:NO andReload:NO];
+            }
+            else {
+                [__weakSelf showfooterViewWithTitle:@"无最新回复" andActivityIndicator:NO andDate:NO];
+            }
+        });
+    });
+}
 
 
 - (void)appendDataOnPage:(NSInteger)page with:(NSArray<PostData*>*)postDatas removeDuplicate:(BOOL)remove andReload:(BOOL)reload

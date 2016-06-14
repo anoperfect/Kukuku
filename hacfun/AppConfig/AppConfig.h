@@ -82,12 +82,11 @@
 
 
 //DetailRecord
-- (NSArray<DetailRecord*> *)configDBDetailRecordGet;
+- (NSArray<DetailRecord*> *)configDBDetailRecordGets;
 - (BOOL)configDBDetailRecordAdd:(DetailRecord*)detailrecord;
 - (BOOL)configDBDetailRecordDelete:(DetailRecord*)detailrecord;
 - (BOOL)configDBDetailRecordDeleteByTid:(NSInteger)tid;
 - (BOOL)configDBDetailRecordDeleteByLastDay:(NSInteger)days;
-- (BOOL)configDBDetailRecordDeleteByDateAtYear:(NSInteger)year month:(NSInteger)month day:(NSInteger)day;
 
 
 //Collection.
@@ -112,7 +111,7 @@
 - (BOOL)configDBReplyAdd:(Reply*)reply;
 - (BOOL)configDBReplyRemove:(NSInteger)tid;
 - (BOOL)configDBReplyRemoveByTidArray:(NSArray*)tidArray;
-
+- (BOOL)configDBReplyRemoveByTopicTidArray:(NSArray*)tidArray;
 
 
 //Record.

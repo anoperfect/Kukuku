@@ -377,8 +377,6 @@ CGPathRef NewPathWithRoundRect(CGRect rect, CGFloat cornerRadius)
     UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     [aSuperview addSubview:popupView];
     
-    
-    
     // Set up the fade-in animation
     CATransition *animation = [CATransition animation];
     [animation setType:kCATransitionFade];

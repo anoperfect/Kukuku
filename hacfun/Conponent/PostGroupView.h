@@ -54,7 +54,7 @@
 - (CGFloat)optumizeHeight;
 
 
-
+- (void)asyncLoadRecentRepliesFromTid:(NSInteger)tid;
 
 
 @end

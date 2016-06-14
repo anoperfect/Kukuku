@@ -48,13 +48,28 @@
     }
     
     self.allTid = [NSArray arrayWithArray:allTidM];
-    self.postDatasAll = [[AppConfig sharedConfigDB] configDBRecordGets:self.allTid];
+    NSArray<PostData*> *postDatas = [[AppConfig sharedConfigDB] configDBRecordGets:self.allTid];
+    
+    PostDataPage *page = [[PostDataPage alloc] init];
+    page.page = 0;
+    page.section = 0;
+    page.sectionTitle = [NSString stringWithFormat:@"共%zd条", postDatas.count];
+    page.postDatas = [[NSMutableArray alloc] initWithArray:postDatas];
+    
+    [self appendPostDataPage:page andReload:NO];
 }
 
 
-- (void)removeRecordsWithTids:(NSArray*)tids
+- (Post *)getCollectionOnIndexPath:(NSIndexPath*)indexPath
 {
-    [[AppConfig sharedConfigDB] configDBPostRemoveByTidArray:tids];
+    return self.concreteDatas[indexPath.row];
+}
+
+
+- (void)removeRecordsWithIndexPath:(NSIndexPath*)indexPath
+{
+    Post *post = [self getCollectionOnIndexPath:indexPath];
+    [[AppConfig sharedConfigDB] configDBCollectionRemoveByTidArray:@[[NSNumber numberWithInteger:post.tid]]];
 }
 
 

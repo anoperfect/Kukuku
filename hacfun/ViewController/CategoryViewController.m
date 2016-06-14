@@ -263,7 +263,7 @@
         return @[@"复制", @"举报", @"最近回复"];
     }
     else {
-        return @[@"复制", @"举报"]; 
+        return @[@"复制", @"举报", @"最近回复"];
     }
 }
 
@@ -278,17 +278,18 @@
         PostData *postData = [self postDataOnIndexPath:indexPath];
         
         NSLog(@"recentReply : %@", postData.recentReply);
-        NSArray *postDatasRecentReply = [[AppConfig sharedConfigDB] configDBRecordGets:postData.recentReply];
+        //NSArray *postDatasRecentReply = [[AppConfig sharedConfigDB] configDBRecordGets:postData.recentReply];
         
         PostGroupView *view = [[PostGroupView alloc] init];
         CGFloat widthPercentage = 0.8;
         view.frame = CGRectMake(self.view.frame.size.width * (1-widthPercentage), 0, self.view.frame.size.width * widthPercentage, self.view.frame.size.height);
-        [view appendDataOnPage:0 with:postDatasRecentReply removeDuplicate:NO andReload:YES];
+        //[view appendDataOnPage:0 with:postDatasRecentReply removeDuplicate:NO andReload:YES];
+        [view showfooterViewWithTitle:@"加载最新回复中" andActivityIndicator:YES andDate:NO];
+        [view asyncLoadRecentRepliesFromTid:postData.tid];
         [self showPopupView:view];
         
         return YES;
     }
-    
     
     return NO;
 }
@@ -304,7 +305,12 @@
 //显示之前的特殊定制.
 - (void)retreatPostViewDataAdditional:(PostData*)postData onIndexPath:(NSIndexPath*)indexPath
 {
-    
+//    //用于collection测试.
+//    Collection *collection = [[Collection alloc] init];
+//    collection.tid = postData.tid;
+//    collection.collectedAt = MSEC_NOW;
+//    
+//    [[AppConfig sharedConfigDB] configDBCollectionAdd:collection];
 }
 
 
