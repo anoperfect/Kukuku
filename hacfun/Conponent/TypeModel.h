@@ -126,3 +126,47 @@
 
 @end
 
+
+@interface NotShowUid : NSObject
+
+@property (nonatomic, strong) NSString      *uid;
+@property (nonatomic, assign) long long     commitedAt;
+@property (nonatomic, strong) NSString      *comment;
+
+
+- (instancetype)initWithDictionary:(NSDictionary*)dict;
++ (instancetype)NotShowUidWithDictionary:(NSDictionary*)dict;
+
+@end
+
+@interface NotShowTid : NSObject
+
+@property (nonatomic, assign) NSInteger     tid;
+@property (nonatomic, assign) long long     commitedAt;
+@property (nonatomic, strong) NSString      *comment;
+
+- (instancetype)initWithDictionary:(NSDictionary*)dict;
++ (instancetype)NotShowUidWithDictionary:(NSDictionary*)dict;
+
+@end
+
+
+
+@interface Attent : NSObject
+
+@property (nonatomic, strong) NSString      *uid;
+@property (nonatomic, assign) long long     commitedAt;
+@property (nonatomic, strong) NSString      *comment;
+
+- (instancetype)initWithDictionary:(NSDictionary*)dict;
++ (instancetype)NotShowUidWithDictionary:(NSDictionary*)dict;
+
+
+@end
+
+
+
+
+
+
+

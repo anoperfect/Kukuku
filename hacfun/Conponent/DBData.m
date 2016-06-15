@@ -175,7 +175,7 @@
                 NSInteger countValue = value.count;
                 //＃检查value值个数和属性是否跟对应的ColumnAttribute匹配.
                 if(countValue != columnNames.count) {
-                    NSLog(@"#error - value count is not fit to %@ count.", DBDATA_STRING_COLUMNS);
+                    NSLog(@"#error - value count is not fit to %@ count.<%@><%@>", DBDATA_STRING_COLUMNS, value, columnNames);
                     valuesChecked = NO;
                     break;
                 }
@@ -1222,6 +1222,32 @@
             }
         }
     }
+}
+
+
+- (NSArray<NSDictionary*>*)queryResultDictionaryToArray:(NSDictionary*)queryResult
+{
+    if(!queryResult || queryResult.count == 0) {
+        return nil;
+    }
+    
+    NSInteger count = [self DBDataCheckRowsInDictionary:queryResult];
+    if(count == 0 || count == NSNotFound) {
+        return nil;
+    }
+    
+    NSMutableArray *queryResultArrayM = [[NSMutableArray alloc] init];
+    NSArray *allkeys = queryResult.allKeys;
+    for(NSInteger index = 0; index < count; index ++) {
+        NSMutableDictionary *queryResult1 = [[NSMutableDictionary alloc] init];
+        for(NSString *key in allkeys) {
+            queryResult1[key] = queryResult[key][index];
+        }
+        
+        [queryResultArrayM addObject:[NSDictionary dictionaryWithDictionary:queryResult1]];
+    }
+    
+    return [NSArray arrayWithArray:queryResultArrayM];
 }
 
 

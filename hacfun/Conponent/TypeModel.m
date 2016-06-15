@@ -120,3 +120,102 @@
     return [NSString stringWithFormat:@"%zd : %zd , repliedAt : %@", self.tidBelongTo, self.tid, [NSString stringFromMSecondInterval:self.repliedAt andTimeZoneAdjustSecondInterval:0]];
 }
 @end
+
+
+
+#define ASSIGN_INTEGER_VALUE_FROM_DICTIONARYMEMBER(varqwe, dictasd, keyzxc, defaultqaz) \
+//if([dictasd[keyzxc] isKindOfClass:[NSNumber class]]) {varqwe = [dictasd[keyzxc] integerValue];}\
+//else {NSLog(@"#error - obj (%@) is not NSNumber class.", [dictasd[keyzxc]);varqwe = defaultqaz;}
+
+
+#define ASSIGN_LONGLONG_VALUE_FROM_DICTIONARYMEMBER(varqwe, dictasd, keyzxc, defaultqaz) \
+if([dictasd[keyzxc] isKindOfClass:[NSNumber class]]) {varqwe = [dictasd[keyzxc] longLongValue];}\
+else {NSLog(@"#error - obj (%@) is not NSNumber class.", dictasd[keyzxc]);varqwe = defaultqaz;}
+
+#define ASSIGN_STRING_VALUE_FROM_DICTIONARYMEMBER(varqwe, dictasd, keyzxc, defaultqaz) \
+if([dictasd[keyzxc] isKindOfClass:[NSString class]]) {varqwe = [dictasd[keyzxc] copy];}\
+else {NSLog(@"#error - obj (%@) is not NSString class.", dictasd[keyzxc]);varqwe = defaultqaz;}
+
+
+
+
+
+
+@implementation NotShowUid
+
+
+- (instancetype)initWithDictionary:(NSDictionary*)dict
+{
+    self = [super init];
+    if (self) {
+        ASSIGN_STRING_VALUE_FROM_DICTIONARYMEMBER(self.uid, dict, @"uid", @"");
+        ASSIGN_LONGLONG_VALUE_FROM_DICTIONARYMEMBER(self.commitedAt, dict, @"commitedAt", 0);
+        ASSIGN_STRING_VALUE_FROM_DICTIONARYMEMBER(self.comment, dict, @"comment", @"");
+    }
+    return self;
+}
+
+
++ (instancetype)NotShowUidWithDictionary:(NSDictionary*)dict
+{
+    NotShowUid *notShowUid = [[NotShowUid alloc] initWithDictionary:dict];
+    return notShowUid;
+}
+
+
+
+@end
+
+
+@implementation NotShowTid
+
+- (instancetype)initWithDictionary:(NSDictionary*)dict
+{
+    self = [super init];
+    if (self) {
+        ASSIGN_INTEGER_VALUE_FROM_DICTIONARYMEMBER(self.tid, dict, @"tid", 0);
+        ASSIGN_INTEGER_VALUE_FROM_DICTIONARYMEMBER(self.tid, dict, @"tid", 0)
+        ASSIGN_LONGLONG_VALUE_FROM_DICTIONARYMEMBER(self.commitedAt, dict, @"commitedAt", 0);
+        ASSIGN_STRING_VALUE_FROM_DICTIONARYMEMBER(self.comment, dict, @"comment", @"");
+    }
+    return self;
+}
+
+
++ (instancetype)NotShowUidWithDictionary:(NSDictionary*)dict
+{
+    NotShowTid *notShowTid = [[NotShowTid alloc] initWithDictionary:dict];
+    return notShowTid;
+}
+
+
+@end
+
+
+
+@implementation Attent
+
+
+
+
+
+- (instancetype)initWithDictionary:(NSDictionary*)dict
+{
+    self = [super init];
+    if (self) {
+        ASSIGN_STRING_VALUE_FROM_DICTIONARYMEMBER(self.uid, dict, @"uid", @"");
+        ASSIGN_LONGLONG_VALUE_FROM_DICTIONARYMEMBER(self.commitedAt, dict, @"commitedAt", 0);
+        ASSIGN_STRING_VALUE_FROM_DICTIONARYMEMBER(self.comment, dict, @"comment", @"");
+    }
+    return self;
+}
+
+
++ (instancetype)NotShowUidWithDictionary:(NSDictionary*)dict
+{
+    Attent *attent = [[Attent alloc] initWithDictionary:dict];
+    return attent;
+}
+
+
+@end

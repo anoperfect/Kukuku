@@ -104,6 +104,9 @@ typedef NS_ENUM(NSInteger, DBDataColumnType) {
 - (NSInteger)DBDataUpdateAdd1DBName:(NSString*)databaseName toTable:(NSString*)tableName withColumnName:(NSString*)columnName withInfoQuery:(NSDictionary*)infoQuery;
 
 
+//查询出的NSDictionary数据转为NSArray<NSDictionary*>*, 方便单个NSDictionary转model.
+- (NSArray<NSDictionary*>*)queryResultDictionaryToArray:(NSDictionary*)queryResult;
+
 
 //对Insert, Update的输入数据, Query的输出数据进行检测. 返回行数. 执行时检测所有key对应的value array的个数相同.
 //错误时返回 NSNotFound.

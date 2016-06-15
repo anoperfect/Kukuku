@@ -73,6 +73,12 @@
 
 
 
+@property (nonatomic, strong)   NSMutableArray *notShowUids;
+@property (nonatomic, strong)   NSMutableArray *notShowTids;
+@property (nonatomic, strong)   NSMutableArray *attents;
+
+
+
 @property (nonatomic, strong)   NSString *appkey;
 @property (nonatomic, strong)   NSString *hwid;
 @property (nonatomic, strong)   NSString *appSecret;
@@ -178,6 +184,10 @@
 - (void)configDBInitReadHost
 {
     self.categories = [self configDBCategoryGet];
+    
+    
+    self.notShowUids = [NSMutableArray arrayWithArray:[self configDBNotShowUidGets]];
+    
 }
 
 
@@ -197,6 +207,10 @@
     NSString *strAddPostTest = @"INSERT OR IGNORE INTO Post(tid,postedAt) VALUES(6624990,0)";
     [self.dbData DBDataUpdateDBName:DBNAME_HOST withSqlString:strAddPostTest andArgumentsInArray:nil];
 }
+
+
+
+
 
 
 
@@ -1907,6 +1921,311 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
     
     return arrayReturn;
 }
+
+
+- (NSArray<NotShowUid*> *)configDBNotShowUidGets
+{
+    //从数据库查询.
+    NSDictionary *queryResult = [self.dbData DBDataQueryDBName:DBNAME_HOST
+                                                       toTable:TABLENAME_NOTSHOWUID
+                                                   columnNames:nil
+                                                     withQuery:nil
+                                                     withLimit:nil];
+    NSArray<NSDictionary*> *queryResultArray = [self.dbData queryResultDictionaryToArray:queryResult];
+    
+    NSMutableArray<NotShowUid*> *notShowUidsM = [[NSMutableArray alloc] init];
+    
+    if(queryResultArray.count > 0) {
+        NotShowUid *notShowUid = nil;
+        notShowUid = [[NotShowUid alloc] initWithDictionary:queryResultArray[0]];
+        [notShowUidsM addObject:notShowUid];
+    }
+    
+    return [NSArray arrayWithArray:notShowUidsM];
+}
+
+
+- (NotShowUid*)configDBNotShowUidGet:(NSString*)uid
+{
+    if(!uid) {
+        return nil;
+    }
+    
+    if(self.notShowUids) {
+        for(NotShowUid *obj in self.notShowUids) {
+            if([obj.uid isEqualToString:uid]) {
+                return obj;
+            }
+        }
+        
+        return nil;
+    }
+    
+    //从数据库查询.
+    NSDictionary *queryResult = [self.dbData DBDataQueryDBName:DBNAME_HOST
+                                                       toTable:TABLENAME_NOTSHOWUID
+                                                   columnNames:nil
+                                                     withQuery:@{@"uid":uid}
+                                                     withLimit:nil];
+    NSArray<NSDictionary*> *queryResultArray = [self.dbData queryResultDictionaryToArray:queryResult];
+    
+    NotShowUid *notShowUid = nil;
+    if(queryResultArray.count == 1) {
+        notShowUid = [[NotShowUid alloc] initWithDictionary:queryResultArray[0]];
+    }
+    
+    return notShowUid;
+}
+
+
+- (BOOL)configDBNotShowUidAdd:(NotShowUid*)notShowUid
+{
+    BOOL result = YES;
+    
+    NSDictionary *infoInsert = @{
+                                 DBDATA_STRING_COLUMNS:@[@"uid", @"commitedAt", @"comment"],
+                                 DBDATA_STRING_VALUES:@[@[notShowUid.uid, [NSNumber numberWithLongLong:notShowUid.commitedAt], notShowUid.comment]]
+                                 };
+    
+    NSInteger retDBData = [self.dbData DBDataInsertDBName:DBNAME_HOST toTable:TABLENAME_NOTSHOWUID withInfo:infoInsert];
+    if(DB_EXECUTE_OK != retDBData) {
+        NSLog(@"#error - ");
+        result = NO;
+    }
+    
+    [self.notShowUids addObject:notShowUid];
+    
+    return result;
+}
+
+
+- (BOOL)configDBNotShowUidRemove:(NSString*)uid
+{
+    if(!uid) {
+        return NO;
+    }
+    
+    BOOL result = YES;
+    
+    NSInteger retDBData = [self.dbData DBDataDeleteDBName:DBNAME_HOST toTable:TABLENAME_NOTSHOWUID withQuery:@{@"uid":uid}];
+    if(DB_EXECUTE_OK != retDBData) {
+        NSLog(@"#error - ");
+        result = NO;
+    }
+    
+    for(NotShowUid *obj in self.notShowUids) {
+        if([obj.uid isEqualToString:uid]) {
+            [self.notShowUids removeObject:obj];
+            break;
+        }
+    }
+    
+    return result;
+}
+
+
+- (NSArray<NotShowTid*> *)configDBNotShowTidGets
+{
+    //从数据库查询.
+    NSDictionary *queryResult = [self.dbData DBDataQueryDBName:DBNAME_HOST
+                                                       toTable:TABLENAME_NOTSHOWTID
+                                                   columnNames:nil
+                                                     withQuery:nil
+                                                     withLimit:nil];
+    NSArray<NSDictionary*> *queryResultArray = [self.dbData queryResultDictionaryToArray:queryResult];
+    
+    NSMutableArray<NotShowTid*> *notShowTidsM = [[NSMutableArray alloc] init];
+    
+    if(queryResultArray.count > 0) {
+        NotShowTid *notShowTid = nil;
+        notShowTid = [[NotShowTid alloc] initWithDictionary:queryResultArray[0]];
+        [notShowTidsM addObject:notShowTid];
+    }
+    
+    return [NSArray arrayWithArray:notShowTidsM];
+}
+
+
+
+- (NotShowTid*)configDBNotShowTidGet:(NSInteger)tid
+{
+    if(self.notShowTids) {
+        for(NotShowTid *obj in self.notShowTids) {
+            if(obj.tid == tid) {
+                return obj;
+            }
+        }
+        
+        return nil;
+    }
+    
+    //从数据库查询.
+    NSDictionary *queryResult = [self.dbData DBDataQueryDBName:DBNAME_HOST
+                                                       toTable:TABLENAME_NOTSHOWTID
+                                                   columnNames:nil
+                                                     withQuery:@{@"tid":[NSNumber numberWithInteger:tid]}
+                                                     withLimit:nil];
+    NSArray<NSDictionary*> *queryResultArray = [self.dbData queryResultDictionaryToArray:queryResult];
+    
+    NotShowTid *notShowTid = nil;
+    if(queryResultArray.count == 1) {
+        notShowTid = [[NotShowTid alloc] initWithDictionary:queryResultArray[0]];
+    }
+    
+    return notShowTid;
+}
+
+
+- (BOOL)configDBNotShowTidAdd:(NotShowTid*)notShowTid
+{
+    BOOL result = YES;
+    
+    NSDictionary *infoInsert = @{
+                                 DBDATA_STRING_COLUMNS:@[@"tid", @"commitedAt", @"comment"],
+                                 DBDATA_STRING_VALUES:@[@[[NSNumber numberWithInteger:notShowTid.tid], [NSNumber numberWithLongLong:notShowTid.commitedAt], notShowTid.comment]]
+                                 };
+    
+    NSInteger retDBData = [self.dbData DBDataInsertDBName:DBNAME_HOST toTable:TABLENAME_NOTSHOWTID withInfo:infoInsert];
+    if(DB_EXECUTE_OK != retDBData) {
+        NSLog(@"#error - ");
+        result = NO;
+    }
+    
+    [self.notShowTids addObject:notShowTid];
+    
+    return result;
+}
+
+
+- (BOOL)configDBNotShowTidRemove:(NSInteger)tid
+{
+    BOOL result = YES;
+    
+    NSInteger retDBData = [self.dbData DBDataDeleteDBName:DBNAME_HOST toTable:TABLENAME_NOTSHOWTID withQuery:@{@"tid":[NSNumber numberWithInteger:tid]}];
+    if(DB_EXECUTE_OK != retDBData) {
+        NSLog(@"#error - ");
+        result = NO;
+    }
+    
+    for(NotShowTid *obj in self.notShowTids) {
+        if(obj.tid == tid) {
+            [self.notShowTids removeObject:obj];
+            break;
+        }
+    }
+
+    
+    return result;
+}
+
+
+- (NSArray<Attent*> *)configDBAttentGets
+{
+    //从数据库查询.
+    NSDictionary *queryResult = [self.dbData DBDataQueryDBName:DBNAME_HOST
+                                                       toTable:TABLENAME_ATTENT
+                                                   columnNames:nil
+                                                     withQuery:nil
+                                                     withLimit:nil];
+    NSArray<NSDictionary*> *queryResultArray = [self.dbData queryResultDictionaryToArray:queryResult];
+    
+    NSMutableArray<Attent*> *attentsM = [[NSMutableArray alloc] init];
+    
+    if(queryResultArray.count > 0) {
+        Attent *attent = nil;
+        attent = [[Attent alloc] initWithDictionary:queryResultArray[0]];
+        [attentsM addObject:attent];
+    }
+    
+    return [NSArray arrayWithArray:attentsM];
+}
+
+
+
+- (Attent*)configDBAttentGet:(NSString*)uid
+{
+    if(!uid) {
+        return nil;
+    }
+    
+    if(self.attents) {
+        for(Attent *obj in self.attents) {
+            if([obj.uid isEqualToString:uid]) {
+                return obj;
+            }
+        }
+        
+        return nil;
+    }
+    
+    //从数据库查询.
+    NSDictionary *queryResult = [self.dbData DBDataQueryDBName:DBNAME_HOST
+                                                       toTable:TABLENAME_ATTENT
+                                                   columnNames:nil
+                                                     withQuery:@{@"uid":uid}
+                                                     withLimit:nil];
+    NSArray<NSDictionary*> *queryResultArray = [self.dbData queryResultDictionaryToArray:queryResult];
+    
+    Attent *attent = nil;
+    if(queryResultArray.count == 1) {
+        attent = [[Attent alloc] initWithDictionary:queryResultArray[0]];
+    }
+    
+    return attent;
+}
+
+
+- (BOOL)configDBAttentAdd:(Attent*)attent
+{
+    BOOL result = YES;
+    
+    NSDictionary *infoInsert = @{
+                                 DBDATA_STRING_COLUMNS:@[@"uid", @"commitedAt", @"comment"],
+                                 DBDATA_STRING_VALUES:@[@[attent.uid, [NSNumber numberWithLongLong:attent.commitedAt], attent.comment]]
+                                 };
+    
+    NSInteger retDBData = [self.dbData DBDataInsertDBName:DBNAME_HOST toTable:TABLENAME_ATTENT withInfo:infoInsert];
+    if(DB_EXECUTE_OK != retDBData) {
+        NSLog(@"#error - ");
+        result = NO;
+    }
+    
+    [self.attents addObject:attent];
+
+    return result;
+}
+
+
+- (BOOL)configDBAttentRemove:(NSString*)uid
+{
+    if(!uid) {
+        return NO;
+    }
+    
+    BOOL result = YES;
+    
+    NSInteger retDBData = [self.dbData DBDataDeleteDBName:DBNAME_HOST toTable:TABLENAME_ATTENT withQuery:@{@"uid":uid}];
+    if(DB_EXECUTE_OK != retDBData) {
+        NSLog(@"#error - ");
+        result = NO;
+    }
+    
+    for(Attent *obj in self.attents) {
+        if([obj.uid isEqualToString:uid]) {
+            [self.attents removeObject:obj];
+            break;
+        }
+    }
+    
+    return result;
+}
+
+
+
+
+
+
+
 
 
 //清除数据库. 需仅适用于开发者环境.

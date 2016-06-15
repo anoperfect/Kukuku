@@ -31,9 +31,11 @@
 - (NSArray*)configDBHostsGetHostnames;
 #define HOSTNAME ([[AppConfig sharedConfigDB] configDBHostsGetCurrent].hostname)
 
+
 //hostindex.
 - (NSInteger)configDBHostIndexGet;
 - (BOOL)configDBHostIndexSet:(NSInteger)hostIndex;
+
 
 //emoticon
 - (NSArray*)configDBEmoticonGet;
@@ -117,6 +119,22 @@
 //Record.
 - (BOOL)configDBRecordAdds:(NSArray*)postDatas;
 - (NSArray*)configDBRecordGets:(NSArray*)tidArray;
+
+
+
+- (NotShowUid*)configDBNotShowUidGet:(NSString*)uid;
+- (BOOL)configDBNotShowUidAdd:(NotShowUid*)notShowUid;
+- (BOOL)configDBNotShowUidRemove:(NSString*)uid;
+
+
+- (NotShowTid*)configDBNotShowTidGet:(NSInteger)tid;
+- (BOOL)configDBNotShowTidAdd:(NotShowTid*)notShowTid;
+- (BOOL)configDBNotShowTidRemove:(NSInteger)tid;
+
+
+- (Attent*)configDBAttentGet:(NSString*)uid;
+- (BOOL)configDBAttentAdd:(Attent*)attent;
+- (BOOL)configDBAttentRemove:(NSString*)uid;
 
 //清除数据库. 需仅适用于开发者环境.
 - (void)removeAll;

@@ -291,3 +291,130 @@
 
 
 @end
+
+
+
+
+@interface TextButtonLine ()
+
+@property (nonatomic, strong) void (^action)(NSString* text);
+
+@end
+
+@implementation TextButtonLine
+
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        _buttonBackgroundColor = [UIColor whiteColor];
+        _buttonBorderColor = [UIColor blackColor];
+        _buttonTextColor = [UIColor blackColor];
+        _buttonBorderWidth = 1.7;
+    }
+    return self;
+}
+
+
+-(instancetype)initWithFrame:(CGRect)frame
+{
+    self = [super initWithFrame:frame];
+    if (self) {
+        _buttonBackgroundColor = [UIColor whiteColor];
+        _buttonBorderColor = [UIColor blackColor];
+        _buttonTextColor = [UIColor blackColor];
+        _buttonBorderWidth = 1.7;
+    }
+    return self;
+}
+
+
+- (void)setTexts:(NSArray<NSString*>*)texts
+{
+    _buttonTexts = texts;
+    [self startDisplay];
+}
+
+
+- (void)startDisplay
+{
+    NSInteger index = 0;
+    NSInteger count = _buttonTexts.count;
+    CGFloat buttonWidth = self.frame.size.width;
+    CGFloat buttonHeight = self.frame.size.width;
+    CGFloat widthInterval = (self.frame.size.width - buttonWidth) / (count - 1);
+    
+    CGFloat heightInterval = buttonHeight * 1.27;
+    for(NSString *text in _buttonTexts) {
+        
+        PushButton *button = [[PushButton alloc] init];
+        button.frame = CGRectMake(0, 0, buttonWidth, buttonHeight);
+        [button setTitle:text forState:UIControlStateNormal];
+        button.center = CGPointMake(buttonWidth/2, buttonHeight/2);
+#define TEXTBUTTONLINE_BUTTON_TAG      6000
+        button.tag = index + TEXTBUTTONLINE_BUTTON_TAG;
+        //button.backgroundColor = [UIColor blueColor];
+        [button addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchDown];
+        button.layer.borderColor = self.buttonBorderColor.CGColor;
+        button.layer.borderWidth = self.buttonBorderWidth;
+        button.layer.cornerRadius = button.frame.size.width / 2;
+        [button setTitleColor:self.buttonTextColor forState:UIControlStateNormal];
+        button.backgroundColor = self.buttonBackgroundColor;
+        button.titleLabel.lineBreakMode = NSLineBreakByWordWrapping;
+        button.titleLabel.font = [UIFont systemFontOfSize:[UIFont smallSystemFontSize]];
+        //button.edgeTitleLabel = UIEdgeInsetsMake(12, 12, 12, 12);
+        button.contentEdgeInsets = UIEdgeInsetsMake(0, 10, 0, 10);
+        
+        [self addSubview:button];
+        
+        index ++;
+    }
+    
+    widthInterval = 0;
+    
+    [UIView animateWithDuration:0.6
+                     animations:^{
+                         for(NSInteger index = 0; index < count ; index ++) {
+                             UIView *view = [self viewWithTag:index+TEXTBUTTONLINE_BUTTON_TAG];
+                             view.center = CGPointMake(buttonWidth/2, buttonHeight/2 + index * (heightInterval+6));
+                         }
+                     }
+     
+                     completion:^(BOOL finished) {
+                         [UIView animateWithDuration:0.2
+                                          animations:^{
+                                              for(NSInteger index = 0; index < count ; index ++) {
+                                                  UIView *view = [self viewWithTag:index+TEXTBUTTONLINE_BUTTON_TAG];
+                                                  view.center = CGPointMake(buttonWidth/2, buttonHeight/2 + index * heightInterval);
+                                              }
+                                          }
+                          
+                                          completion:^(BOOL finished) {
+                                              
+                                              
+                                              
+                                          }
+                          ];
+
+                         
+                         
+                     }
+     ];
+}
+
+
+- (void)setButtonActionByText:(void (^)(NSString* text))action
+{
+    self.action = [action copy];
+}
+
+
+- (void)buttonClick:(UIButton*)button
+{
+    NSInteger index = button.tag - TEXTBUTTONLINE_BUTTON_TAG;
+    if(index >= 0 && index < _buttonTexts.count && self.action) {
+        self.action(_buttonTexts[index]);
+    }
+}
+
+@end

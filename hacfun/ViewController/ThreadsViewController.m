@@ -22,7 +22,7 @@
 @interface ThreadsViewController () <UITableViewDataSource, UITableViewDelegate, UIActionSheetDelegate, PostViewDelegate>
 
 
-
+@property (nonatomic, strong) NSIndexPath *longPressIndexPath;
 
 @end
 
@@ -356,6 +356,23 @@
     if([statusMessageTid isKindOfClass:[NSString class]]) {
         [dict setObject:statusMessage forKey:@"statusInfo"];
     }
+    
+    NotShowUid *notShowUid = [[AppConfig sharedConfigDB] configDBNotShowUidGet:postData.uid];
+    if(notShowUid) {
+        [postData updatePostViewDataViaAddFoldInfo:notShowUid.comment];
+    }
+    
+    NotShowTid *notShowTid = [[AppConfig sharedConfigDB] configDBNotShowTidGet:postData.tid];
+    if(notShowTid) {
+        [postData updatePostViewDataViaAddFoldInfo:notShowTid.comment];
+    }
+    
+    Attent *attent = [[AppConfig sharedConfigDB] configDBAttentGet:postData.uid];
+    if(attent) {
+        [dict setObject:[UIColor colorWithName:@"Attent"] forKey:@"colorUidSign"];
+        
+    }
+
 }
 
 
@@ -450,6 +467,7 @@
     [self retreatPostViewData:postData onIndexPath:indexPath];
     [self retreatPostViewDataAdditional:postData onIndexPath:indexPath];//override.
     
+    //后台刷新获取新内容.
     if(postData.type == PostDataTypeOnlyTid) {
         [self updateThreadById:postData.tid];
     }
@@ -973,7 +991,7 @@
     PostDataPage *postDataPage = self.postDataPages[indexPath.section];
     PostData *postDataRow = postDataPage.postDatas[indexPath.row];
     
-    [self hiddenCellActionButtonsOnIndexPath:indexPath andReload:YES];
+    //[self hiddenCellActionButtonsOnIndexPath:indexPath andReload:YES];
     
     if([string isEqualToString:@"复制"]){
         UIPasteboard *pab = [UIPasteboard generalPasteboard];
@@ -1051,6 +1069,8 @@
         else {
             NSLog(@"long press not at tableview");
         }
+        
+
     }
 }
 
@@ -1061,7 +1081,21 @@
     LOG_POSTION
     
     //标记需显示 cell栏的action.
-    [self showCellActionButtonsOnIndexPath:indexPath andReload:YES];
+    //[self showCellActionButtonsOnIndexPath:indexPath andReload:YES];
+    
+    self.longPressIndexPath = indexPath;
+    
+    CGFloat width = 45;
+    TextButtonLine *v = [[TextButtonLine alloc] initWithFrame:CGRectMake(self.view.frame.size.width - width - 10, 10, width, self.view.frame.size.height - 10 * 2)];
+    v.layoutMode = TextButtonLineLayoutModeVertical;
+    [v setTexts:[self actionStringsForRowAtIndexPath:indexPath]];
+    __weak typeof(self) weakSelf = self;
+    [v setButtonActionByText:^(NSString* actionText) {
+        [weakSelf dismissPopupView];
+        [weakSelf actionForRowAtIndexPath:self.longPressIndexPath viaString:actionText];
+    }];
+    
+    [self showPopupView:v];
     
     
 #if 0
