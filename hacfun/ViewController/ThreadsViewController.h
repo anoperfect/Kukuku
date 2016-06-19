@@ -92,7 +92,7 @@ typedef NS_ENUM(NSInteger, ThreadsStatus) {
 
 @property (nonatomic, assign) ThreadsStatus threadsStatus;
 
-@property (nonatomic, strong) NSMutableArray *indexPathsDisplaying;
+
 
 //总的page数量. 可在解析中根据解析的数据更新.
 @property (nonatomic, assign) NSInteger pageSize;
@@ -129,6 +129,11 @@ typedef NS_ENUM(NSInteger, ThreadsStatus) {
 - (void)setStatusInfoOnIndexPath:(NSIndexPath*)indexPath withInfo:(NSString*)info andReload:(BOOL)reload;
 - (void)setStatusInfoOnTid:(NSInteger)tid withInfo:(NSString*)info andReload:(BOOL)reload;
 
+- (void)reloadThreadByTid:(NSInteger)tid
+                   onPage:(NSInteger)page
+                  success:(void(^)(PostData* topic, NSArray* replies))successHandle
+                  failure:(void(^)(NSError * error))failureHandle;
+
 
 - (void)postViewReloadSectionViaAppend:(NSInteger)section;
 - (void)postViewReload;
@@ -146,12 +151,20 @@ typedef NS_ENUM(NSInteger, ThreadsStatus) {
 - (void)resetPostViewData;
 
 
+- (NSMutableArray*)actionStringsForRowAtIndexPathStaple:(NSIndexPath*)indexPath;
+
 
 //override.
 
 - (void)loadPage:(NSInteger)page;
 - (void)startAction ;
 - (void)actionLoadMore;
+
+
+- (void)clickFootView;
+
+- (void)autoActionAfterRefreshPostData;
+
 
 //一个满的page是多少. 用于判断是否进入下一个page的加载.
 - (NSInteger)numberExpectedInPage:(NSInteger)page;

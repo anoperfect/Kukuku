@@ -14,10 +14,10 @@
 
 
 - (UIImage*)getDisplayingImage;
-- (void)setDownloadUrlString:(NSString*)downloadString;
 
-@property (nonatomic, strong) NSString *linkImageString;
 
+@property (nonatomic, strong) NSString *linkImageString; //点击后的链接地址.
+@property (nonatomic, strong) NSString *downloadString ;
 
 
 

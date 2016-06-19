@@ -231,7 +231,6 @@
 //if use url. it can not running on main thread.
 +(UIColor*)colorFromString:(NSString*)string
 {
-    LOG_POSTION
     if(!string || string.length == 0) {
         NSLog(@"#error - invlid color string [%@].", string);
         return [UIColor orangeColor];

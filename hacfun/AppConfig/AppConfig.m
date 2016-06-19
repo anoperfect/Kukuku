@@ -95,6 +95,7 @@
 //@property (nonatomic, strong)   NSMutableArray *categories;
 
 
+@property (nonatomic, strong) AFHTTPSessionManager *session;
 
 @end
 
@@ -137,6 +138,8 @@
         
         //开始鉴权.
         //[self authAsync:nil];
+        
+        [self HTTPSessionManager];
     }
     
     return self;
@@ -185,9 +188,9 @@
 {
     self.categories = [self configDBCategoryGet];
     
-    
-    self.notShowUids = [NSMutableArray arrayWithArray:[self configDBNotShowUidGets]];
-    
+    self.notShowUids    = [NSMutableArray arrayWithArray:[self configDBNotShowUidGets]];
+    self.notShowTids    = [NSMutableArray arrayWithArray:[self configDBNotShowTidGets]];
+    self.attents        = [NSMutableArray arrayWithArray:[self configDBAttentGets]];
 }
 
 
@@ -204,8 +207,8 @@
 //    [self.dbData DBDataUpdateDBName:DBNAME_CONFIG withSqlString:strDropTable andArgumentsInArray:nil];
     
     //Post测试数据.
-    NSString *strAddPostTest = @"INSERT OR IGNORE INTO Post(tid,postedAt) VALUES(6624990,0)";
-    [self.dbData DBDataUpdateDBName:DBNAME_HOST withSqlString:strAddPostTest andArgumentsInArray:nil];
+    //NSString *strAddPostTest = @"INSERT OR IGNORE INTO Post(tid,postedAt) VALUES(6624990,0)";
+    //[self.dbData DBDataUpdateDBName:DBNAME_HOST withSqlString:strAddPostTest andArgumentsInArray:nil];
 }
 
 
@@ -458,15 +461,17 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
     
     NSArray *arrayReturn = nil ;
     if(count > 0) {
-        NSArray *contentArray      = queryResult[@"content"];
-        NSArray *clickArray = queryResult[@"click"];
+        NSArray *snArray            = queryResult[@"sn"];
+        NSArray *contentArray       = queryResult[@"content"];
+        NSArray *clickArray         = queryResult[@"click"];
         
-        if([self.dbData DBDataCheckCountOfArray:@[contentArray, clickArray] withCount:count]) {
+        if([self.dbData DBDataCheckCountOfArray:@[snArray, contentArray, clickArray] withCount:count]) {
             NSMutableArray *arrayReturnM = [NSMutableArray arrayWithCapacity:count];
             
             for(NSInteger index = 0; index < count ;  index ++) {
                 Draft *draft = [[Draft alloc] init];
                 
+                ASSIGN_INTEGER_VALUE_FROM_ARRAYMEMBER(draft.sn, snArray, index, 0)
                 ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER(draft.content, contentArray, index, @"NAN")
                 ASSIGN_INTEGER_VALUE_FROM_ARRAYMEMBER(draft.click, clickArray, index, 0)
                 
@@ -1790,8 +1795,6 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
         NSArray *tidArray           = queryResult[@"tid"];
         NSArray *jsonstringkArray   = queryResult[@"jsonstring"];
         
-
-        
         if([self.dbData DBDataCheckCountOfArray:@[tidArray, jsonstringkArray] withCount:count]) {
             NSInteger indexPostData = 0;
             for(PostData *postData in postDatas) {
@@ -1802,13 +1805,14 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
                     ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER(jsonstring, jsonstringkArray, index, @"NAN");
                     
                     if(postData.tid == tid) {
-                        NSLog(@"---RECORD : [%zd] found.", postData.tid);
+                        //NSLog(@"---RECORD : [%zd] found.", postData.tid);
                         if([postData.jsonstring isEqualToString:jsonstring]) {
                             NSLog(@"---RECORD : [%zd] found and equal.", postData.tid);
                             [indexSetKeep removeIndex:indexPostData];
                         }
                         else {
-                            NSLog(@"---RECORD : [%zd] found xxx not equal. \n[%zd]%@\n[%zd]%@", postData.tid, postData.jsonstring.length, postData.jsonstring, jsonstring.length, jsonstring);
+                            NSLog(@"---RECORD : [%zd] found xxx not equal.", postData.tid);
+                            NSLog(@"--- diff info : %@", [NSString diffFromString:postData.jsonstring toString:jsonstring referentceLineNumber:3]);
                         }
                         
                         break;
@@ -2373,7 +2377,7 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
     [signRAW appendString:self.appSecret];
     NSString *sign = [signRAW calculateMD5];
     
-    NSLog(@"sign : [%@] -> [%@]", signRAW, sign);
+    NS0Log(@"sign : [%@] -> [%@]", signRAW, sign);
     
     return sign;
 }
@@ -2675,6 +2679,337 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
     });
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+- (AFHTTPSessionManager *)HTTPSessionManager
+{
+    if(!self.session) {
+        self.session = [AFHTTPSessionManager manager];
+        [self.session setResponseSerializer:[AFHTTPResponseSerializer serializer]];
+    }
+    
+    
+    
+    return self.session;
+}
+   
 
 
 

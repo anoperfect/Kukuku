@@ -25,6 +25,18 @@
 
 #import "AMSlideMenuWithoutStoryboard-Prefix.pch"
 
+#import "AFNetworking.h"
+#define AFNETWORKING_SESSION_ALLOC AFHTTPSessionManager *sessionqweryu = [AFHTTPSessionManager manager];[sessionqweryu setResponseSerializer:[AFHTTPResponseSerializer serializer]];
+#define AFNETWORKING_SESSION sessionqweryu
+#import "TTTAttributedLabel.h"
+
+
+
+
+
+
+
+
 #endif /* PrefixHeader_pch */
 
 

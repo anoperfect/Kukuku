@@ -181,5 +181,12 @@
 - (NSDictionary*)sendSynchronousRequestAndJsonParseTo:(NSString*)query andArgument:(NSDictionary*)argument;
 
 
+- (AFHTTPSessionManager *)HTTPSessionManager;
+#define HTTPMANAGE [[AppConfig sharedConfigDB] HTTPSessionManager]
 
 @end
+
+
+
+
+

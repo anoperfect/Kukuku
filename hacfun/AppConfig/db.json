@@ -242,6 +242,7 @@
                                    ["Po", "", 0,                                                  "blue", "blue"],
                                    ["Post", "", 0,                                                "purple", "purple"],
                                    ["Reply", "", 0,                                               "orange", "orange"],
+                                   ["Attent", "", 0,                                              "#000090", "#000090"],
                                    ["orange", "", 0,                                              "orange", "orange"]
                                    
                                    
@@ -590,7 +591,7 @@
                "tableName":"notshowuid",
                "databaseNames":["kukuku", "hacfun"],
                "columnAttributes": [
-                                    {"columnName":"uid"       , "dataType":"longlong", "isNeedForInsert":true , "isAutoIncrement":false },
+                                    {"columnName":"uid"       , "dataType":"string"  , "isNeedForInsert":true , "isAutoIncrement":false },
                                     {"columnName":"commitedAt", "dataType":"longlong", "isNeedForInsert":false, "isAutoIncrement":false, "defaultValue":0 },
                                     {"columnName":"comment"   , "dataType":"string"  , "isNeedForInsert":false, "isAutoIncrement":false, "defaultValue":"commentnotdefine" }
                                     ],
@@ -616,7 +617,7 @@
                "tableName":"attent",
                "databaseNames":["kukuku", "hacfun"],
                "columnAttributes": [
-                                    {"columnName":"uid"       , "dataType":"longlong", "isNeedForInsert":true , "isAutoIncrement":false },
+                                    {"columnName":"uid"       , "dataType":"string"  , "isNeedForInsert":true , "isAutoIncrement":false },
                                     {"columnName":"commitedAt", "dataType":"longlong", "isNeedForInsert":false, "isAutoIncrement":false, "defaultValue":0 },
                                     {"columnName":"comment"   , "dataType":"string"  , "isNeedForInsert":false, "isAutoIncrement":false, "defaultValue":"commentnotdefine" }
                                     ],

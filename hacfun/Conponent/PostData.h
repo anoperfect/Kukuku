@@ -73,7 +73,6 @@ typedef NS_ENUM(NSInteger, ThreadDataToViewType) {
 
 
 //PostData显示在View上的时候, 先转为一个ui元素显示内容的dictionary. 使用mutable时因为方便具体ui显示时的微调.
-- (NSMutableDictionary*)toViewDisplayData:(ThreadDataToViewType)type;
 - (void)generatePostViewData:(ThreadDataToViewType)type;
 
 - (void)updatePostViewDataViaAddFoldInfo:(NSString*)info;
@@ -98,7 +97,11 @@ typedef NS_ENUM(NSInteger, ThreadDataToViewType) {
 + (PostData*)fromString:(NSString*)jsonstring atPage:(NSInteger)page;
 + (PostData*)fromOnlyTid:(NSInteger)tid;
 
+- (NSString*)descriptionDifferentFrom:(PostData*)dest;
 
+- (NSString*)contentString;
+
+- (NSString*)descriptionPostViewData;
 
 //page=-1时取最后一页.
 //下载内容为空或者解析出错时返回nil.

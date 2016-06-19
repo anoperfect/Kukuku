@@ -175,7 +175,7 @@
         dispatch_async(concurrentQueue, ^(void){
             
             NSInteger pn = 1;
-            while(1) {
+            while(pn <= 20) {
                 [self appendInfo:[NSString stringWithFormat:@"\n第%2zd页 : ", pn]];
                 
                 NSString *urlString = [NSString stringWithFormat:@"https://www.so.com/s?q=%@+site:kukuku.cc&pn=%zd", self.textView.text, pn];
@@ -195,7 +195,7 @@
                 }
                 
                 NSString *parseContent = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-                NS0Log(@"page:%zd\n%@", pn, parseContent);
+                NSLog(@"page:%zd\n%@", pn, parseContent);
                 
                 NSArray* tidParsed = [self parseTidFromWWWContent:parseContent useEngine:@"so.com"];
                 if(tidParsed.count == 0) {
@@ -203,7 +203,6 @@
                     break;
                 }
                 else {
-                    
                     NSInteger add = 0;
                     NSInteger dup = 0;
                     for(NSNumber *tidNumber in tidParsed) {
@@ -248,7 +247,7 @@
     NSRange rangeSearch = NSMakeRange(0, searchText.length);
     
     while(1) {
-        NSString *regexString = @"No.[0-9]+ - 匿名版";
+        NSString *regexString = @"No.[0-9]+ - ";
         
         rangeResult = [searchText rangeOfString:regexString options:NSRegularExpressionSearch range:rangeSearch];
         if (rangeResult.location == NSNotFound || rangeResult.length == 0) {

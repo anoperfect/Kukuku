@@ -23,6 +23,8 @@
 + (NSString*)stringFromMSecondInterval:(long long) msecs andTimeZoneAdjustSecondInterval:(NSInteger)adjustSeconds;
 + (NSString*)stringFromRelativeDescriptorOfDateForMSec:(long long)msec;
 
++(NSString*)diffFromString:(NSString*)s1 toString:(NSString*)s2 referentceLineNumber:(NSInteger)lineNumber;
+
 
 + (NSString*)stringsCombine:(NSArray*)strings withConnector:(NSString*)stringConnector;
 + (NSString*)stringPaste:(NSString*)string onTimes:(NSInteger)times withConnector:(NSString*)stringConnector;

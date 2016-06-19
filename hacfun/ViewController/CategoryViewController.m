@@ -6,11 +6,11 @@
 //  Copyright (c) 2015年 Ben. All rights reserved.
 //
 #import "CategoryViewController.h"
-#import "FuncDefine.h"
 #import "CreateViewController.h"
 #import "DetailViewController.h"
 #import "AppConfig.h"
 #import "MainVC.h"
+
 
 
 @interface CategoryViewController ()
@@ -259,45 +259,18 @@
 - (NSArray*)actionStringsForRowAtIndexPath:(NSIndexPath*)indexPath
 {
     PostData *postData = [self postDataOnIndexPath:indexPath];
-//    if(postData.recentReply.count > 0) {
-//        return @[@"复制", @"举报", @"最近回复"];
-//    }
-//    else {
-//        return @[@"复制", @"举报", @"最近回复"];
-//    }
     
-    NSMutableArray *arrayM = [NSMutableArray arrayWithArray:@[@"复制", @"加入草稿", @"举报", @"最近回复"]];
-    if([[AppConfig sharedConfigDB] configDBAttentGet:postData.uid]) {
-        [arrayM insertObject:@"取消关注" atIndex:2];
-    }
-    else {
-        [arrayM insertObject:@"关注" atIndex:2];
-    }
+    NSMutableArray *arrayM = [self actionStringsForRowAtIndexPathStaple:indexPath];
+    [arrayM addObject:@"最近回复"];
     
-    if([[AppConfig sharedConfigDB] configDBNotShowUidGet:postData.uid]) {
-        [arrayM insertObject:@"取消屏蔽id" atIndex:2];
-    }
-    else {
-        [arrayM insertObject:@"屏蔽id" atIndex:2];
-    }
-    
-    if([[AppConfig sharedConfigDB] configDBNotShowTidGet:postData.tid]) {
-        [arrayM insertObject:@"取消屏蔽" atIndex:2];
-    }
-    else {
-        [arrayM insertObject:@"屏蔽" atIndex:2];
-    }
-    
+    postData = nil;
+
     return [NSArray arrayWithArray:arrayM];
 }
 
 
 - (BOOL)actionForRowAtIndexPath:(NSIndexPath *)indexPath viaString:(NSString *)string
 {
-    if([super actionForRowAtIndexPath:indexPath viaString:string]) {
-        return YES;
-    }
-    
     if([string isEqualToString:@"最近回复"]) {
         PostData *postData = [self postDataOnIndexPath:indexPath];
         
@@ -315,85 +288,7 @@
         return YES;
     }
     
-    if([string isEqualToString:@"屏蔽"]) {
-        PostData *postData = [self postDataOnIndexPath:indexPath];
-        NSLog(@"NotShowTid : %zd", postData.tid);
-        
-        NotShowTid *notShwoTid = [[NotShowTid alloc] init];
-        notShwoTid.tid = postData.tid;
-        notShwoTid.commitedAt = MSEC_NOW;
-        notShwoTid.comment = @"屏蔽";
-        [[AppConfig sharedConfigDB] configDBNotShowTidAdd:notShwoTid];
-        
-        [self postViewReloadRow:indexPath];
-        
-        return YES;
-    }
-    
-    if([string isEqualToString:@"取消屏蔽"]) {
-        PostData *postData = [self postDataOnIndexPath:indexPath];
-        NSLog(@"disable NotShowTid : %zd", postData.tid);
-        
-        [[AppConfig sharedConfigDB] configDBNotShowTidRemove:postData.tid];
-        
-        [self postViewReloadRow:indexPath];
-        
-        return YES;
-    }
-    
-    if([string isEqualToString:@"屏蔽id"]) {
-        PostData *postData = [self postDataOnIndexPath:indexPath];
-        NSLog(@"NotShowUid : %@", postData.uid);
-        
-        NotShowUid *notShwoUid = [[NotShowUid alloc] init];
-        notShwoUid.uid = postData.uid;
-        notShwoUid.commitedAt = MSEC_NOW;
-        notShwoUid.comment = @"屏蔽";
-        [[AppConfig sharedConfigDB] configDBNotShowUidAdd:notShwoUid];
-        
-        [self postViewReloadRow:indexPath];
-        
-        return YES;
-    }
-    
-    if([string isEqualToString:@"取消屏蔽id"]) {
-        PostData *postData = [self postDataOnIndexPath:indexPath];
-        NSLog(@"disable NotShowUid : %@", postData.uid);
-        
-        [[AppConfig sharedConfigDB] configDBNotShowUidRemove:postData.uid];
-        
-        [self postViewReloadRow:indexPath];
-        
-        return YES;
-    }
-    
-    if([string isEqualToString:@"关注"]) {
-        PostData *postData = [self postDataOnIndexPath:indexPath];
-        NSLog(@"Attent : %@", postData.uid);
-        
-        Attent *attent = [[Attent alloc] init];
-        attent.uid = postData.uid;
-        attent.commitedAt = MSEC_NOW;
-        attent.comment = @"关注";
-        [[AppConfig sharedConfigDB] configDBAttentAdd:attent];
-        
-        [self postViewReloadRow:indexPath];
-        
-        return YES;
-    }
-    
-    if([string isEqualToString:@"取消关注"]) {
-        PostData *postData = [self postDataOnIndexPath:indexPath];
-        NSLog(@"disable Attent : %@", postData.uid);
-        
-        [[AppConfig sharedConfigDB] configDBAttentRemove:postData.uid];
-        
-        [self postViewReloadRow:indexPath];
-        
-        return YES;
-    }
-    
-    return NO;
+    return [super actionForRowAtIndexPath:indexPath viaString:string];
 }
 
 

@@ -175,6 +175,27 @@
 }
 
 
+- (void)testGeneratePostViewDataPerformance
+{
+    printf("start.\n");
+    
+    dispatch_async(dispatch_get_global_queue(0, 0), ^{
+  
+    NSDate *date1 = [NSDate date];
+    
+    [self enumerateObjectsUsingBlock:^(PostData *postData, NSIndexPath *indexPath, BOOL *stop) {
+        [postData generatePostViewData:ThreadDataToViewTypeAdditionalInfoUseReplyCount];
+    }];
+    
+    NSDate *date2 = [NSDate date];
+    printf("test111 :%lf\n", [date2 timeIntervalSinceDate:date1]);
+        
+    });
+    
+}
+
+
+
 - (void)actionViaString:(NSString*)string
 {
     NSLog(@"action string : %@", string);
@@ -639,7 +660,15 @@
 //    cell.backgroundColor = postView.backgroundColor;
     [postView setBackgroundColor:[UIColor whiteColor]];
     
-    [postView.layer removeAllAnimations];
+    //[postView.layer removeAllAnimations];
+    //[postView.layer.sublayers makeObjectsPerformSelector:@selector(removeFromSuperlayer)];
+    
+    for(CALayer *layer in postView.layer.sublayers) {
+        if([[layer valueForKey:@"DetailViewControllerCellBorder"] isEqual:@100]) {
+            [layer removeFromSuperlayer];
+            break;
+        }
+    }
     
     CALayer *border = [CALayer layer];
     if(0 == indexPath.section && 0 == indexPath.row) {
@@ -658,7 +687,7 @@
                                   postView.frame.size.width,
                                   borderHeight);
     }
-    
+    [border setValue:@100 forKey:@"DetailViewControllerCellBorder"];
     [postView.layer addSublayer:border];
 }
 
@@ -740,14 +769,11 @@
 {
     PostData *postData = [self postDataOnIndexPath:indexPath];
     NSArray<NSString*> *urlStrings = [postData contentURLStrings];
-    if(urlStrings.count > 0) {
-        
-//        return @[@"复制", @"举报", @"链接"];
-        return @[@"复制", @"举报"];
-    }
-    else {
-        return @[@"复制", @"举报"];
-    }
+    postData = nil;
+    urlStrings = nil;
+    
+    NSMutableArray *arrayM = [self actionStringsForRowAtIndexPathStaple:indexPath];
+    return [NSArray arrayWithArray:arrayM];
 }
 
 

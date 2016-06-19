@@ -125,11 +125,12 @@
         UIActivityIndicatorView* activityIndicatorView = (UIActivityIndicatorView*)[self.footView viewWithTag:1];
         activityIndicatorView.frame = CGRectMake(36, 0, heightFootView, heightFootView);
         
+        //#footview的UIActivityIndicatorView不显示. 
         NSLog(@"*** %@", activityIndicatorView);
-        
-        for(UIView *view in self.footView.subviews) {
-            NSLog(@"%@", view);
-        }
+//        
+//        for(UIView *view in self.footView.subviews) {
+//            NSLog(@"%@", view);
+//        }
     }
 }
 

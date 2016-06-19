@@ -13,12 +13,21 @@
 
 
 
+#define ENABLE_LOG_SQLITE   1
+#if ENABLE_LOG_SQLITE
+#define NSLogSqlite NSLog
+#else
+#define NSLogSqlite(x...)
+#endif
+
 @implementation DBColumnAttribute
 - (NSString*)description
 {
     return [NSString stringWithFormat:@"%@ description not implemente", [self class]];
 }
 @end
+
+
 
 
 @implementation DBTableAttribute
@@ -269,7 +278,7 @@
     }
     
     BOOL executeResult = [db executeUpdate:insert withArgumentsInArray:infoInsertValuesM];
-    NSLog(@"INSERT executeUpdate [%@] with arguments [%@].", insert, [NSString combineArray:infoInsertValuesM withInterval:@"," andPrefix:@"" andSuffix:@""]);
+    NSLogSqlite(@"INSERT executeUpdate [%@] with arguments [%@].", insert, [NSString combineArray:infoInsertValuesM withInterval:@"," andPrefix:@"" andSuffix:@""]);
     if(executeResult) {
         NSLog(@"insert table %@ [%zd] OK.", tableAttribute.tableName, values.count);
     }
@@ -383,6 +392,8 @@
     NSMutableArray *arguments = [[NSMutableArray alloc] init];
     NSString *queryString = [self DBDataGenerateQueryString:infoQuery andArgumentsInArray:arguments];
     NSString *deleteString = [NSString stringWithFormat:@"DELETE FROM %@ %@", tableAttribute.tableName, queryString];
+    
+    NSLogSqlite(@"DELETE executeUpdate [%@] with arguments [%@].", deleteString, [NSString combineArray:arguments withInterval:@"," andPrefix:@"" andSuffix:@""]);
     executeResult = [db executeUpdate:deleteString withArgumentsInArray:arguments];
     
     if(executeResult) {
@@ -474,7 +485,7 @@
               withQuery:(NSDictionary*)infoQuery1
               withLimit:(NSDictionary*)infoLimit1
 {
-    NSLog(@"DBDataQuery : table:%@, columnNames:%@, infoQuery:%@, infoLimit:%@",
+    NSLogSqlite(@"DBDataQuery : table:%@, columnNames:%@, infoQuery:%@, infoLimit:%@",
           tableAttribute.tableName,
           [NSString combineArray:columnNames withInterval:@"," andPrefix:@"[" andSuffix:@"]"],
           [NSString stringLineFromNSDictionary:infoQuery1],
@@ -515,8 +526,8 @@
         [querym appendFormat:@" %@", [infoLimit1 objectForKey:DBDATA_STRING_ORDER]];
     }
     
-    NSLog(@"query string : [%@]", querym);
-    NSLog(@"query parameterm : [%@]", [NSString combineArray:arguments withInterval:@", " andPrefix:@"" andSuffix:@""]);
+    NSLogSqlite(@"query string : [%@]", querym);
+    NSLogSqlite(@"query parameterm : [%@]", [NSString combineArray:arguments withInterval:@", " andPrefix:@"" andSuffix:@""]);
     FMResultSet *rs = [db executeQuery:[NSString stringWithString:querym] withArgumentsInArray:arguments];
     
     for(NSString *columnName in queryColumnsNamesM) {
@@ -689,7 +700,7 @@
     NSString *queryString = [self DBDataGenerateQueryString:infoQuery andArgumentsInArray:arguments];
     [updatem appendString:queryString];
     
-    NSLog(@"UPDATE executeUpdate [%@] with arguments [%@].", updatem, [NSString combineArray:arguments withInterval:@"," andPrefix:@"" andSuffix:@""]);
+    NSLogSqlite(@"UPDATE executeUpdate [%@] with arguments [%@].", updatem, [NSString combineArray:arguments withInterval:@"," andPrefix:@"" andSuffix:@""]);
     retFMDB = [db executeUpdate:updatem withArgumentsInArray:arguments];
     if(retFMDB) {
         
@@ -759,7 +770,7 @@
         NSString *queryString = [self DBDataGenerateQueryString:infoQuery andArgumentsInArray:arguments];
         [updatem appendString:queryString];
         
-        NSLog(@"UPDATE executeUpdate [%@] with arguments [%@].", updatem, [NSString combineArray:arguments withInterval:@"," andPrefix:@"" andSuffix:@""]);
+        NSLogSqlite(@"UPDATE executeUpdate [%@] with arguments [%@].", updatem, [NSString combineArray:arguments withInterval:@"," andPrefix:@"" andSuffix:@""]);
         retFMDB = [db executeUpdate:updatem withArgumentsInArray:arguments];
         if(retFMDB) {
             
@@ -809,8 +820,8 @@
     NSString *queryString = [self DBDataGenerateQueryString:infoQuery andArgumentsInArray:arguments];
     [updatem appendString:queryString];
     
-    NSLog(@"query string : [%@]", updatem);
-    NSLog(@"query parameterm : [%@]", [NSString combineArray:arguments withInterval:@", " andPrefix:@"" andSuffix:@""]);
+    NSLogSqlite(@"query string : [%@]", updatem);
+    NSLogSqlite(@"query parameterm : [%@]", [NSString combineArray:arguments withInterval:@", " andPrefix:@"" andSuffix:@""]);
     retFMDB = [db executeUpdate:updatem withArgumentsInArray:arguments];
     if(retFMDB) {
         

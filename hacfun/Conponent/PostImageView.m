@@ -14,27 +14,11 @@
 
 
 @interface PostImageView ()
-
-
-
-
-@property (strong,nonatomic) NSString *downloadString ;
-
 @property (nonatomic, strong) UIImageView *embedImageView;
-
-@property (assign,nonatomic) id target;
-@property (assign,nonatomic) SEL selector;
-
-
 @end
 
 
-
-
 @implementation PostImageView
-
-
-
 
 
 - (id)embedImageView
@@ -48,10 +32,16 @@
 }
 
 
-- (void)setDownloadUrlString : (NSString*)downloadString {
+- (void)setDownloadString : (NSString*)downloadString {
+    if(!downloadString) {
+        _downloadString = nil;
+        //NSLog(@"#error - downloadString nil.");
+        return ;
+    }
+    
     NSLog(@"downloadString %@", downloadString);
     
-    self.downloadString = downloadString;
+    _downloadString = downloadString;
     
     NSData *dataRead = [ImageViewCache getImageViewCache:self.downloadString];
     NS0Log(@"%zi", [dataRead length]);
@@ -60,10 +50,49 @@
         [self updateImageByCachedData:dataRead];
     }
     else {
+        [self updateImage:[UIImage imageNamed:@"zheshiluweipng"]];
         NSLog(@"------ start download.");
-        [self performSelectorInBackground:@selector(setBackgroundDownload) withObject:nil];
-        [self updateImage:[UIImage imageNamed:@"zheshiluwei.jpg"]];
+        //[self performSelectorInBackground:@selector(setBackgroundDownload) withObject:nil];
+
+        __weak typeof(self) weakSelf = self;
+        [[PostImageView HTTPSessionManager] GET:downloadString
+                                     parameters:nil
+                                       progress:nil
+                                        success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                                            if([responseObject isKindOfClass:[NSData class]]) {
+                                                [ImageViewCache setImageViewCache:downloadString withData:responseObject];
+                                                
+                                                //因为cell重用的原因, 可能对同一个PostImageView设置多个download URL.因此显示的时候需判断一下.
+                                                if([downloadString isEqualToString:_downloadString]) {
+                                                    NSLog(@"PostImageView updateImageByDownloadedData. %@", downloadString);
+                                                    [weakSelf updateImageByDownloadedData:responseObject];
+                                                }
+                                                else {
+                                                    NSLog(@"...fossil PostImageView updateImageByDownloadedData.");
+                                                }
+                                            }
+                                        }
+                                        failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                                            NSLog(@"#error - PostImageView download error<%@>.", downloadString);
+                                        }
+         ];
     }
+}
+
+
++ (AFHTTPSessionManager *)HTTPSessionManager
+{
+
+    static dispatch_once_t once;
+    static AFHTTPSessionManager *kHTTPSessionManager = nil;
+    
+    dispatch_once(&once, ^{
+        kHTTPSessionManager = [AFHTTPSessionManager manager];
+        [kHTTPSessionManager setResponseSerializer:[AFHTTPResponseSerializer serializer]];
+        kHTTPSessionManager.requestSerializer.timeoutInterval = 10;
+    });
+    
+    return kHTTPSessionManager;
 }
 
 
@@ -99,12 +128,13 @@
     }
     
     self.embedImageView.frame = frameEmbedImageView;
+    
 }
 
 
 - (void)updateImageByDownloadedData:(NSData*)data
 {
-    [ImageViewCache setImageViewCache:self.downloadString withData:data];
+    
     
     UIImage *image = [UIImage imageWithData:data];
     [self updateImage:image];
@@ -165,13 +195,13 @@
 //}
 
 
-- (void)clickPostViewImage {
-    NSLog(@"click post view image.");
-    
-    if(nil != self.selector) {
-//        [self.target performSelector:self.selector withObject:nil];
-    }
-}
+//- (void)clickPostViewImage {
+//    NSLog(@"click post view image.");
+//    
+//    if(nil != self.selector) {
+////        [self.target performSelector:self.selector withObject:nil];
+//    }
+//}
 
 
 /*

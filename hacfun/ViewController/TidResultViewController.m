@@ -63,6 +63,17 @@
 }
 
 
+- (NSArray*)actionStringsForRowAtIndexPath:(NSIndexPath*)indexPath
+{
+    PostData *postData = [self postDataOnIndexPath:indexPath];
+    NSArray<NSString*> *urlStrings = [postData contentURLStrings];
+    postData = nil;
+    urlStrings = nil;
+    
+    NSMutableArray *arrayM = [self actionStringsForRowAtIndexPathStaple:indexPath];
+    return [NSArray arrayWithArray:arrayM];
+}
+
 
 
 

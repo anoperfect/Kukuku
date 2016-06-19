@@ -15,6 +15,12 @@
 
 @interface LocaleViewController ()
 @property (nonatomic, strong) NSMutableDictionary *updateResult; //not use. 之前是全部更新完成后刷新, 修改为单条刷新.
+@property (nonatomic, strong) NSMutableArray *updateTask; //not use. 之前是全部更新完成后刷新, 修改为单条刷新.
+@property (nonatomic, strong) NSMutableDictionary<NSNumber*, NSNumber*> *tidUpdatedAt; //not use. 之前是全部更新完成后刷新, 修改为单条刷新.
+@property (nonatomic, assign) BOOL onUpdate;
+
+@property (nonatomic, strong) NSMutableArray *autoLoadOnlyTidThreadTasks;
+
 
 
 
@@ -48,6 +54,29 @@
 }
 
 
+- (void)viewWillDisappear:(BOOL)animated
+{
+    [super viewWillDisappear:animated];
+    
+    NSLog(@"xxxxxxxxx");
+    
+    
+    
+}
+
+
+- (void)startAction
+{
+    [self refreshPostData];
+}
+
+
+- (void)autoActionAfterRefreshPostData
+{
+    [self loadLocalData];
+}
+
+
 - (NSInteger)numberExpectedInPage:(NSInteger)page
 {
     return 1000;
@@ -58,19 +87,50 @@
 {
     [self showfootViewWithTitle:[NSString stringWithFormat:@"加载数据中."] andActivityIndicator:YES andDate:NO];
     
-    //继承类需在此接口中完成self.postDataPages的填写.
-    [self getLocaleRecords];
-    
-    [self postViewReload];
-    
-    [self showfootViewWithTitle:[NSString stringWithFormat:@"已加载%zi条", [self numberOfPostDatasTotal]]
-           andActivityIndicator:NO andDate:NO];
+    //直接执行导致上一句footView不显示.
+    dispatch_async(dispatch_get_main_queue(), ^{
+        //继承类需在此接口中完成self.postDataPages的填写.
+        [self getLocaleRecords];
+        
+        [self postViewReload];
+        self.threadsStatus = ThreadsStatusLoadSuccessful;
+        
+        [self showfootViewWithTitle:[NSString stringWithFormat:@"已加载%zi条", [self numberOfPostDatasTotal]]
+               andActivityIndicator:NO andDate:NO];
+        
+        [self autoLoadOnlyTidThread];
+    });
 }
 
 
-- (void)startAction
+- (void)autoLoadOnlyTidThread
 {
-    [self loadLocalData];
+    self.autoLoadOnlyTidThreadTasks = [[NSMutableArray alloc] init];
+    
+    [self enumerateObjectsUsingBlock:^(PostData *postData, NSIndexPath *indexPath, BOOL *stop) {
+        if(postData.type == PostDataTypeOnlyTid) {
+            [self.autoLoadOnlyTidThreadTasks addObject:[NSNumber numberWithInteger:postData.tid]];
+            
+            [self reloadThreadByTid:postData.tid
+                             onPage:-1
+                            success:^(PostData *topic, NSArray *replies) {
+                                [self updateDataSourceByPostData:topic];
+                                [self.autoLoadOnlyTidThreadTasks removeObject:[NSNumber numberWithInteger:postData.tid]];
+                                if(self.autoLoadOnlyTidThreadTasks.count == 0) {
+                                    NSLog(@"LocalViewController : finish autoLoadOnlyTidThread. then postViewReload.");
+                                    [self postViewReload];
+                                }
+                            }
+                            failure:^(NSError *error) {
+                                [self.autoLoadOnlyTidThreadTasks removeObject:[NSNumber numberWithInteger:postData.tid]];
+                                if(self.autoLoadOnlyTidThreadTasks.count == 0) {
+                                    NSLog(@"LocalViewController : finish autoLoadOnlyTidThread. then postViewReload.");
+                                    [self postViewReload];
+                                }
+                            }
+             ];
+        }
+    }];
 }
 
 
@@ -84,7 +144,14 @@
 
 - (NSArray*)actionStringsForRowAtIndexPath:(NSIndexPath*)indexPath
 {
-    return @[@"复制", @"删除"];
+    PostData *postData = [self postDataOnIndexPath:indexPath];
+    NSArray<NSString*> *urlStrings = [postData contentURLStrings];
+    postData = nil;
+    urlStrings = nil;
+    
+    NSMutableArray *arrayM = [self actionStringsForRowAtIndexPathStaple:indexPath];
+    [arrayM addObject:@"删除"];
+    return [NSArray arrayWithArray:arrayM];
 }
 
 
@@ -103,7 +170,13 @@
 - (void)actionViaString:(NSString*)string
 {
     if([string isEqualToString:@"refresh"]) {
-        [self updateThreadsInfo];
+        if(!self.onUpdate) {
+            [self updateThreadsInfo];
+            self.onUpdate = YES;
+        }
+        else {
+            [self showIndicationText:@"请等待上次刷新完成" inTime:2.0];
+        }
     }
 }
 
@@ -112,57 +185,65 @@
 {
     //将所有需更新的tid记录.
     self.updateResult = [[NSMutableDictionary alloc] init];
-    
+    self.updateTask = [[NSMutableArray alloc] init];
     
     [self enumerateObjectsUsingBlock:^(PostData *postData, NSIndexPath *indexPath, BOOL * stop) {
-        //所有显示更新中提示.
+        [self.updateTask addObject:[NSNumber numberWithInteger:postData.tid]];
         [self setStatusInfoOnIndexPath:indexPath withInfo:@"更新中" andReload:NO];
-        [self updateThreadById:postData.tid];
+        
+        //设置一点延迟时间. 否则showProgressText可能部分不显示.
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [self updateThreadById:postData.tid];
+        });
     }];
     
     [self.postView reloadData];
+    [self showProgressText:[NSString stringWithFormat:@"检查更新中, 剩余%zd条", self.updateTask.count] inTime:60.0];
+    NSLog(@"finish updateThreadsInfo action.");
 }
+
+
+
 
 
 - (void)updateThreadById:(NSInteger)tid
 {
-    NSLog(@"update %zd", tid);
-    dispatch_queue_t concurrentQueue = dispatch_queue_create("local.concurrent.queue", DISPATCH_QUEUE_CONCURRENT);
-    dispatch_async(concurrentQueue, ^(void){
-        //获取last page的信息.
-        PostData *topic = [[PostData alloc] init];
-        NSMutableArray *replies = [[NSMutableArray alloc] init];
-        topic = [PostData sendSynchronousRequestByTid:tid atPage:-1 repliesTo:replies storeAdditional:nil];
-        
-        dispatch_async(dispatch_get_main_queue(), ^(void) {
-            [self checkUpdateTidResult:tid withReplyPostDatas:replies andTopic:topic];
-        });
-    });
+    NSLog(@"tid [%zd] start updateThreadById", tid);
+    
+    __weak typeof(self) weakSelf = self;
+    [self reloadThreadByTid:tid
+                    onPage:-1
+                   success:^(PostData* topic, NSArray* replies){
+                       [weakSelf checkUpdateTidResult:tid withReplyPostDatas:replies andTopic:topic];
+                   }
+                   failure:^(NSError * error) {
+                       [weakSelf checkUpdateTidResult:tid withReplyPostDatas:nil andTopic:nil];
+                   }
+     ];
 }
 
 
 //将数据更新到用于cell显示的data.
 - (void)updateToCellData:(NSInteger)tid withInfo:(NSDictionary*)info
 {
+    NSLog(@"tid [%zd] updateToCellData", tid);
     NSString *message = [info objectForKey:@"message"];
     if(![message isKindOfClass:[NSString class]]) {
         NSLog(@"#error - message not found.")
         return;
     }
     
-    NSIndexPath *indexPath = [self indexPathWithTid:tid];
-    if(indexPath) {
-        [self setStatusInfoOnIndexPath:indexPath withInfo:message andReload:NO];
-    }
-    else {
-        [self setStatusInfoOnTid:tid withInfo:message andReload:NO];
-    }
+    [self.updateResult setObject:message forKey:[NSNumber numberWithInteger:tid]];
+    NSLog(@"rty : updateResult count : %zd", self.updateResult.count);
 }
 
 
 //需在主线程执行.
 - (void)checkUpdateTidResult:(NSInteger)tid withReplyPostDatas:(NSArray*)replies andTopic:(PostData*)topic
 {
+    //return ;
+    
+    NSLog(@"tid [%zd] checkUpdateTidResult", tid);
     [self updateDataSourceByPostData:topic];
     
     if(nil == topic) {
@@ -225,58 +306,58 @@
         }
     }
     
+//频繁的刷新单行, 导致界面卡顿. 另导致出现蜜汁闪退.
+#if 0
     NSIndexPath *indexPath = [self indexPathWithTid:tid];
     if(indexPath) {
-        
         if([self.indexPathsDisplaying indexOfObject:indexPath] != NSNotFound) {
-            NSLog(@"update indexPath [%@] for tid [%zd]", [NSString stringFromTableIndexPath:indexPath], tid);
+            NSLog(@"tid [%zd] update indexPath %@", tid, [NSString stringFromTableIndexPath:indexPath]);
             [self postViewReloadRow:indexPath];
         }
         else {
-            NSLog(@"update indexPath [%@] for tid [%zd], current not update.", [NSString stringFromTableIndexPath:indexPath], tid);
+            NSLog(@"tid [%zd] update indexPath %@, current not update.", tid, [NSString stringFromTableIndexPath:indexPath]);
         }
     }
     else {
-        NSLog(@"#error - update indexPath tid [%zd] not found.", tid);
-    }
-    
-#if 0
-    NSNumber *number = [NSNumber numberWithInteger:tid];
-    //判断是否已经执行过全部更新.
-    BOOL isUpdateFinished = YES;
-    [self.updateResult setObject:[NSNumber numberWithBool:YES] forKey:number];
-    
-    //得到词典中所有KEY值
-    NSEnumerator * enumerator = [self.updateResult objectEnumerator];
-    
-    //快速枚举遍历所有KEY的值
-    for (NSNumber *boolNumber in enumerator) {
-        if(![ boolNumber boolValue]) {
-            isUpdateFinished = NO;
-            break;
-        }
-    }
-    
-    if(isUpdateFinished) {
-        NSLog(@"update finished.");
-        [self.postView reloadData];
-    }
-    else {
-        NSLog(@"update not finished. %@", self.updateResult);
+        NSLog(@"#error - tid [%zd] update indexPath  not found.", tid);
     }
 #endif
+    
+    NSLog(@"tid [%zd] check finish.", tid);
+    
+    NSNumber *number = [NSNumber numberWithInteger:tid];
+    [self.updateTask removeObject:number];
+    
+    if(self.updateTask.count == 0) {
+        self.onUpdate = NO;
+        NSLog(@"tid [%zd] update finished.", tid);
+        
+        [self showProgressText:@"检查更新完成" inTime:2.0];
+        NS0Log(@"rty%@", self.updateResult);
+        [self postViewReload];
+    }
+    else {
+        NSLog(@"tid [%zd] update not finished.", tid);
+        [self showProgressText:[NSString stringWithFormat:@"检查更新中, 剩余%zd条", self.updateTask.count] inTime:60.0];
+    }
 }
 
 
-- (void)actionLoadMore
+- (void)threadDisplayActionInCell:(UITableViewCell*)cell forRowAtIndexPath:(NSIndexPath*)indexPath
 {
-    if([self numberOfPostDatasTotal] == 0) {
-        [self loadLocalData];
-    }
-    else {
-        NSLog(@"Local mode load all data.")
-        self.threadsStatus = ThreadsStatusLoadSuccessful;
-    }
+//    //修改为当cell显示的时候开始执行刷新.
+//    if(self.onUpdate) {
+//        PostData *postData = [self postDataOnIndexPath:indexPath];
+//        
+//        //用updateTask标记以防止重复添加任务.
+//        if(NSNotFound != [self.updateTask indexOfObject:[NSNumber numberWithInteger:postData.tid]]) {
+//            NSLog(@"tid [%zd] update status to refreshing.", postData.tid);
+//            [self setStatusInfoOnIndexPath:indexPath withInfo:@"更新中" andReload:YES];
+//        
+//            NSLog(@"tid [%zd] start update.", postData.tid);
+//            [self updateThreadById:postData.tid];
+//        }
+//    }
 }
 
 
@@ -298,7 +379,7 @@
         
         self.allTid = nil;
         
-        [self refreshPostData];
+        [self startAction];
     }
     else {
         finishAction = NO;
@@ -324,7 +405,10 @@
 //显示之前的特殊定制.
 - (void)retreatPostViewDataAdditional:(PostData*)postData onIndexPath:(NSIndexPath*)indexPath
 {
-    
+    NSString *message = [self.updateResult objectForKey:[NSNumber numberWithInteger:postData.tid]];
+    if([message isKindOfClass:[NSString class]]) {
+        [postData.postViewData setObject:message forKey:@"statusInfo"];
+    }
 }
 
 
@@ -332,5 +416,6 @@
 {
     NSLog(@"#error - should be override.");
 }
+
 
 @end

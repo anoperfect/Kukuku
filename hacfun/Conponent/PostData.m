@@ -19,7 +19,7 @@
 
 @end
 
-
+#define ENABLE_LOG_JSON_CONTENT 0
 @implementation PostData
 
 
@@ -122,6 +122,133 @@
 }
 
 
+#define DICT_PARSE_GET_NSSTRING(key, item) { \
+obj = [dict objectForKey:key]; \
+if([obj isKindOfClass:[NSString class]]){ \
+item = [(NSString*)obj copy]; \
+}\
+else { \
+NSLog(@"----------------------------------------------%@ not get", key); \
+/*break;*/ \
+}\
+}
+
+#define DICT_PARSE_GET_NSSTRING_R(keyr, item) { \
+obj = dict;\
+for(NSString *key in [keyr componentsSeparatedByString:@"/"]) {\
+obj = [obj objectForKey:key];\
+NS0Log(@"obj after %@ : %@", key, obj); \
+}\
+if([obj isKindOfClass:[NSString class]]){ \
+item = [(NSString*)obj copy]; \
+}\
+else { \
+NSLog(@"----------------------------------------------%@ not get", keyr); \
+/*break;*/ \
+}\
+}
+
+
+#define DICT_PARSE_GET_NSINTEGER(key, item) { \
+obj = [dict objectForKey:key]; \
+if([obj isKindOfClass:[NSNumber class]]){ \
+item = [(NSNumber*)obj integerValue]; \
+} \
+else if([obj isKindOfClass:[NSString class]]){ \
+item = [(NSString*)obj integerValue]; \
+}\
+else { \
+NSLog(@"----------------------------------------------%@ not get", key); \
+/*break;*/ \
+} \
+}
+
+#define DICT_PARSE_GET_LONGLONG(key, item) { \
+obj = [dict objectForKey:key]; \
+if([obj isKindOfClass:[NSNumber class]]){ \
+item = [(NSNumber*)obj longLongValue]; \
+} \
+else { \
+NSLog(@"----------------------------------------------%@ not get", key); \
+/*break;*/ \
+} \
+}
+
+#define DICT_PARSE_GET_ARRAY(key, item) { \
+obj = [dict objectForKey:key]; \
+if([obj isKindOfClass:[NSArray class]]){ \
+item = [NSArray arrayWithArray:obj]; \
+} \
+else { \
+NSLog(@"----------------------------------------------%@ not get", key); \
+/*break;*/ \
+} \
+}
+
+
+
+
+
+
+
+#define DICT_PARSE_GET_NSSTRING_OPTION(key, item) { \
+obj = [dict objectForKey:key]; \
+if([obj isKindOfClass:[NSString class]]){ \
+item = [(NSString*)obj copy]; \
+}\
+else { \
+/*NSLog(@"----------------------------------------------%@ not get", key);*/ \
+/*break;*/ \
+}\
+}
+
+#define DICT_PARSE_GET_NSSTRING_R_OPTION(keyr, item) { \
+obj = dict;\
+for(NSString *key in [keyr componentsSeparatedByString:@"/"]) {\
+obj = [obj objectForKey:key];\
+NS0Log(@"obj after %@ : %@", key, obj); \
+}\
+if([obj isKindOfClass:[NSString class]]){ \
+item = [(NSString*)obj copy]; \
+}\
+else { \
+/*NSLog(@"----------------------------------------------%@ not get", keyr);*/ \
+/*break;*/ \
+}\
+}
+
+
+#define DICT_PARSE_GET_NSINTEGER_OPTION(key, item) { \
+obj = [dict objectForKey:key]; \
+if([obj isKindOfClass:[NSNumber class]]){ \
+item = [(NSNumber*)obj integerValue]; \
+} \
+else if([obj isKindOfClass:[NSString class]]){ \
+item = [(NSString*)obj integerValue]; \
+}\
+else { \
+/*NSLog(@"----------------------------------------------%@ not get", key);*/ \
+/*break;*/ \
+} \
+}
+
+#define DICT_PARSE_GET_LONGLONG_OPTION(key, item) { \
+obj = [dict objectForKey:key]; \
+if([obj isKindOfClass:[NSNumber class]]){ \
+item = [(NSNumber*)obj longLongValue]; \
+} \
+else { \
+/*NSLog(@"----------------------------------------------%@ not get", key); */\
+/*break;*/ \
+} \
+}
+
+
+
+
+
+
+
 + (PostData*)fromDictData:(NSDictionary *)dict atPage:(NSInteger)page {
     
     PostData *pd = [[PostData alloc] init];
@@ -142,68 +269,7 @@
     NS0Log(@"%@", dict);
     
     do {
-#define DICT_PARSE_GET_NSSTRING(key, item) { \
-        obj = [dict objectForKey:key]; \
-        if([obj isKindOfClass:[NSString class]]){ \
-            item = [(NSString*)obj copy]; \
-        }\
-        else { \
-            NSLog(@"----------------------------------------------%@ not get", key); \
-            /*break;*/ \
-        }\
-    }
-        
-#define DICT_PARSE_GET_NSSTRING_R(keyr, item) { \
-    obj = dict;\
-    for(NSString *key in [keyr componentsSeparatedByString:@"/"]) {\
-        obj = [obj objectForKey:key];\
-        NS0Log(@"obj after %@ : %@", key, obj); \
-    }\
-    if([obj isKindOfClass:[NSString class]]){ \
-        item = [(NSString*)obj copy]; \
-    }\
-    else { \
-        NSLog(@"----------------------------------------------%@ not get", keyr); \
-        /*break;*/ \
-    }\
-}
-        
-        
-#define DICT_PARSE_GET_NSINTEGER(key, item) { \
-        obj = [dict objectForKey:key]; \
-        if([obj isKindOfClass:[NSNumber class]]){ \
-            item = [(NSNumber*)obj integerValue]; \
-        } \
-        else if([obj isKindOfClass:[NSString class]]){ \
-            item = [(NSString*)obj integerValue]; \
-        }\
-        else { \
-            NSLog(@"----------------------------------------------%@ not get", key); \
-            /*break;*/ \
-        } \
-    }
-    
-#define DICT_PARSE_GET_LONGLONG(key, item) { \
-        obj = [dict objectForKey:key]; \
-        if([obj isKindOfClass:[NSNumber class]]){ \
-            item = [(NSNumber*)obj longLongValue]; \
-        } \
-        else { \
-            NSLog(@"----------------------------------------------%@ not get", key); \
-            /*break;*/ \
-        } \
-    }
-        
-#define DICT_PARSE_GET_ARRAY(key, item) { \
-        obj = [dict objectForKey:key]; \
-        if([obj isKindOfClass:[NSArray class]]){ \
-            item = [NSArray arrayWithArray:obj]; \
-        } \
-        else { \
-            NSLog(@"----------------------------------------------%@ not get", key); \
-            /*break;*/ \
-        } \
-    }
+
     
         DICT_PARSE_GET_NSSTRING(@"content", pd.content)
         DICT_PARSE_GET_LONGLONG(@"createdAt", pd.createdAt)
@@ -304,15 +370,21 @@
 //        DICT_PARSE_GET_NSINTEGER(@"forum", pd.forum)
         DICT_PARSE_GET_NSINTEGER(@"id", pd.tid)
 //        DICT_PARSE_GET_NSSTRING(@"image", pd.image)
-        DICT_PARSE_GET_NSINTEGER(@"replyLocked", pd.lock)
+        
 //        DICT_PARSE_GET_NSSTRING(@"name", pd.name)
-        DICT_PARSE_GET_NSINTEGER(@"replyCount", pd.replyCount)
+        
 //        DICT_PARSE_GET_ARRAY(@"recentReply", pd.recentReply)
-        DICT_PARSE_GET_NSINTEGER(@"sage", pd.sage)
+        
 //        DICT_PARSE_GET_NSSTRING(@"thumb", pd.thumb)
         DICT_PARSE_GET_NSSTRING(@"title", pd.title)
         DICT_PARSE_GET_NSSTRING(@"creator", pd.uid)
         DICT_PARSE_GET_LONGLONG(@"sortTime", pd.updatedAt)
+        
+        //reply没有这几个属性, 使用此方法避免打印警告.
+        DICT_PARSE_GET_NSINTEGER_OPTION(@"sage", pd.sage)
+        DICT_PARSE_GET_NSINTEGER_OPTION(@"replyLocked", pd.lock)
+        DICT_PARSE_GET_NSINTEGER_OPTION(@"replyCount", pd.replyCount)
+        
         
         NSNumber *hasImage = [dict objectForKey:@"hasImage"];
         NSDictionary *imageDict = [dict objectForKey:@"image"];
@@ -458,7 +530,7 @@
         return nil;
     }
     
-    NSLog(@"fromString:%@", jsonstring);
+    NS0Log(@"fromString:%@", jsonstring);
     
     id obj = [NSJSONSerialization JSONObjectWithData:[jsonstring dataUsingEncoding:NSUTF8StringEncoding] options:NSJSONReadingMutableLeaves error:nil];
     if(obj && [obj isKindOfClass:[NSDictionary class]]) {
@@ -500,6 +572,11 @@
     NSMutableArray *aryLength = [[NSMutableArray alloc] init];
     
     while(1) {
+        rangeResult = [searchText rangeOfString:@">>No.[0-9]+"];
+        if (rangeResult.location == NSNotFound || rangeResult.length == 0) {
+            break;
+        }
+        
         rangeResult = [searchText rangeOfString:@">>No.[0-9]+" options:NSRegularExpressionSearch range:rangeSearch];
         if (rangeResult.location == NSNotFound || rangeResult.length == 0) {
             break;
@@ -541,6 +618,11 @@
     NSMutableArray *aryLength = [[NSMutableArray alloc] init];
     
     while(1) {
+        rangeResult = [searchText rangeOfString:@"[ref tid="];
+        if (rangeResult.location == NSNotFound || rangeResult.length == 0) {
+            break;
+        }
+        
         rangeResult = [searchText rangeOfString:@"\\[ref tid=\"[0-9]+\"/\\]" options:NSRegularExpressionSearch range:rangeSearch];
         if (rangeResult.location == NSNotFound || rangeResult.length == 0) {
             break;
@@ -587,6 +669,10 @@
     NSMutableArray *aryLength = [[NSMutableArray alloc] init];
     
     while(1) {
+        rangeResult = [searchText rangeOfString:@"http"];
+        if (rangeResult.location == NSNotFound || rangeResult.length == 0) {
+            break;
+        }
         
         NSString * regexString = @"\\bhttps?://[a-zA-Z0-9\\-.]+(?::(\\d+))?(?:(?:/[a-zA-Z0-9\\-._?,'+\\&%$=~*!():@\\\\]*)+)?";
 //        NSString *urlReg = @"^(https?://)?(([0-9a-z_!~*'().&=+$%-]+:)?[0-9a-z_!~*'().&=+$%-]+@)?(([0-9]{1,3}\\.){3}[0-9]{1,3}|([0-9a-z_!~*'()-]+\\.)*([0-9a-z][0-9a-z-]{0,61})?[0-9a-z]\\.[a-z]{2,6})(:[0-9]{1,4})?((/?)|(/[0-9a-z_!~*'().;?:@&=+$,%#-]+)+/?)$";
@@ -634,6 +720,7 @@
 
 //字符转换.
 + (NSString*) postDataContentRetreat:(NSString*)content {
+    
     //一些www的关键字符信息需转义.
     content = [NSString decodeWWWEscape:content];
     
@@ -711,18 +798,25 @@
 }
 
 
+- (NSString*)descriptionDifferentFrom:(PostData*)dest
+{
+    NSString *selfDescription = [NSString stringWithFormat:@"%@", self];
+    NSString *destDescription = [NSString stringWithFormat:@"%@", dest];
+    
+    return [NSString stringWithFormat:@"PostData diff : %@", [NSString diffFromString:selfDescription toString:destDescription referentceLineNumber:3]];
+}
+
+
 /*
 PostView 接收的字段字段
 按照PostView中的说明.
 */
-- (NSMutableDictionary*)toVIewDisplayDataUseCustom {
-    LOG_POSTION
-    
-
-    
+- (void)generatePostViewDataUseCustom
+{
     NSString *uidRetreat = self.uid;
     
-    NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
+    self.postViewData = [[NSMutableDictionary alloc] init];
+    NSMutableDictionary *dict = self.postViewData;
     
     NSInteger intervalTimeZoneAdjust = 0;
     //计算时区差值.
@@ -731,41 +825,55 @@ PostView 接收的字段字段
     intervalTimeZoneAdjust = 0;
     NSString *stringCreatedAt = [NSString stringFromMSecondInterval:self.createdAt andTimeZoneAdjustSecondInterval:0];
     
-    if(self.uid.length > 8) {
+    if(self.uid.length > 10) {
         NSLog(@"long uid %@", self.uid);
-    }
     
-//    [self.uid rangeOfString:@"<font color=\"red">管理员1</font>" options:<#(NSStringCompareOptions)#> range:<#(NSRange)#>]
-    //uid可能已经有颜色标签.
-    NSRange range1 = [self.uid rangeOfString:@"<font color=\"[a-zA-Z]+\">" options:NSRegularExpressionSearch range:NSMakeRange(0, self.uid.length)];
-    if(range1.location == NSNotFound || range1.length == 0) {
-        
-    }
-    else {
-        NSRange range2 = [self.uid rangeOfString:@"</font>" options:0 range:NSMakeRange(range1.location + range1.length, self.uid.length - (range1.location + range1.length))];
-        
-        if(range2.location != NSNotFound && range2.length > 0) {
-            NSString *uid =  [self.uid substringWithRange:NSMakeRange(range1.location + range1.length,
-                                                                      range2.location - (range1.location + range1.length))];
-            NSLog(@"uid:%@", uid);
+        //uid可能已经有颜色标签.
+        NSRange range1 = [self.uid rangeOfString:@"<font color=\"[a-zA-Z]+\">" options:NSRegularExpressionSearch range:NSMakeRange(0, self.uid.length)];
+        if(range1.location == NSNotFound || range1.length == 0) {
             
-            NSString *fontString = [self.uid substringWithRange:range1];
-            uidRetreat = uid;
-            NSRange rangeFont1 = [fontString rangeOfString:@"<font color=\""];
-            if(rangeFont1.location != NSNotFound && rangeFont1.length > 0) {
-                NSRange rangeFont2 = [fontString rangeOfString:@"\"" options:0 range:NSMakeRange(rangeFont1.location + rangeFont1.length, fontString.length - (rangeFont1.location + rangeFont1.length))];
+        }
+        else {
+            NSRange range2 = [self.uid rangeOfString:@"</font>" options:0 range:NSMakeRange(range1.location + range1.length, self.uid.length - (range1.location + range1.length))];
+            
+            if(range2.location != NSNotFound && range2.length > 0) {
+                NSString *uid =  [self.uid substringWithRange:NSMakeRange(range1.location + range1.length,
+                                                                          range2.location - (range1.location + range1.length))];
+                NSLog(@"uid:%@", uid);
                 
-                if(rangeFont2.location != NSNotFound && rangeFont2.length > 0) {
-                    NSString *colorString =  [fontString substringWithRange:NSMakeRange(rangeFont1.location + rangeFont1.length,
-                                                                              rangeFont2.location - (rangeFont1.location + rangeFont1.length))];
-                    NSLog(@"color:%@", colorString);
-                    UIColor *color = [UIColor colorFromString:colorString];
-                    if(color) {
-                        [dict setObject:color forKey:@"colorUid"];
+                NSString *fontString = [self.uid substringWithRange:range1];
+                uidRetreat = uid;
+                NSRange rangeFont1 = [fontString rangeOfString:@"<font color=\""];
+                if(rangeFont1.location != NSNotFound && rangeFont1.length > 0) {
+                    NSRange rangeFont2 = [fontString rangeOfString:@"\"" options:0 range:NSMakeRange(rangeFont1.location + rangeFont1.length, fontString.length - (rangeFont1.location + rangeFont1.length))];
+                    
+                    if(rangeFont2.location != NSNotFound && rangeFont2.length > 0) {
+                        NSString *colorString =  [fontString substringWithRange:NSMakeRange(rangeFont1.location + rangeFont1.length,
+                                                                                            rangeFont2.location - (rangeFont1.location + rangeFont1.length))];
+                        NSLog(@"color:%@", colorString);
+                        UIColor *color = [UIColor colorFromString:colorString];
+                        if(color) {
+                            [dict setObject:color forKey:@"colorUid"];
+                        }
                     }
                 }
             }
         }
+    }
+
+    NotShowUid *notShowUid = [[AppConfig sharedConfigDB] configDBNotShowUidGet:self.uid];
+    if(notShowUid) {
+        [self updatePostViewDataViaAddFoldInfo:notShowUid.comment];
+    }
+    
+    NotShowTid *notShowTid = [[AppConfig sharedConfigDB] configDBNotShowTidGet:self.tid];
+    if(notShowTid) {
+        [self updatePostViewDataViaAddFoldInfo:notShowTid.comment];
+    }
+    
+    Attent *attent = [[AppConfig sharedConfigDB] configDBAttentGet:self.uid];
+    if(attent) {
+        [dict setObject:[UIColor colorWithName:@"Attent"] forKey:@"colorUidSign"];
     }
     
     NSMutableString *titleText = [NSMutableString stringWithFormat:@"%@  %@ ", stringCreatedAt, uidRetreat];
@@ -781,14 +889,21 @@ PostView 接收的字段字段
     [dict setObject:@"" forKey:@"otherInfo"];
     
     //正文.
+
+    NSString *content = @"";
+    
+    //这个测试转换占用时间. 执行4000次的generatePostViewDataUseCustom大概是41s. 去掉后为1s.
+    //去掉后界面流畅许多.
+#if 0
     //htm转换. 更新的接口response中有NCR. 可以用这种方法转换.
     //会导致其他元素丢失. 暂时不适用这种方法.
     NSDictionary *options = @{NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType};
     NSAttributedString *attributedString = [[NSAttributedString alloc] initWithData:[self.content dataUsingEncoding:NSUnicodeStringEncoding] options:options documentAttributes:nil error:nil];
     NS0Log(@"%@", attributedString);
     NS0Log(@"%@", [attributedString string]);
+    content = [attributedString string];
+#endif
     
-    NSString * content = [attributedString string];
     content = self.content;
     
     if(self.name.length > 0) {
@@ -820,20 +935,18 @@ PostView 接收的字段字段
         NSString *imageHost = host.imageHost;
         [dict setObject:[NSString stringWithFormat:@"%@%@", imageHost, self.thumb] forKey:@"thumb"];
     }
-    
-    return dict;
 }
 
 
-- (NSMutableDictionary*)toViewDisplayData:(ThreadDataToViewType)type
+- (void)generatePostViewData:(ThreadDataToViewType)type
 {
     if(self.type == PostDataTypeOnlyTid) {
-        NSMutableDictionary *dictm = [[NSMutableDictionary alloc] init];
-        [dictm setObject:[NSString stringWithFormat:@"NO.%zd", self.tid]    forKey:@"title"];
-        return dictm;
+        self.postViewData = [[NSMutableDictionary alloc] init];
+        [self.postViewData setObject:[NSString stringWithFormat:@"NO.%zd", self.tid] forKey:@"title"];
     }
     
-    NSMutableDictionary *dictm = [self toVIewDisplayDataUseCustom];
+    [self generatePostViewDataUseCustom];
+    NSMutableDictionary *dictm = self.postViewData;
     switch (type) {
         case ThreadDataToViewTypeCustom:
             break;
@@ -863,19 +976,47 @@ PostView 接收的字段字段
         default:
             break;
     }
-    
-    return dictm;
 }
 
 
-- (void)generatePostViewData:(ThreadDataToViewType)type
+- (NSString*)descriptionPostViewData
 {
-    self.postViewData = [self toViewDisplayData:type];
+    NSMutableString *strm = [NSMutableString stringWithString:@"{\n"];
+    NSArray *keys = self.postViewData.allKeys;
+    keys = [keys sortedArrayUsingSelector:@selector(compare:)];
+
+    for(NSString *key in keys) {
+        if([key isEqualToString:@"content"]) {
+            NSString *content = self.postViewData[key];
+            NSArray *contentLines = [content componentsSeparatedByString:@"\n"];
+            if(contentLines.count == 1 && content.length <= 80) {
+                [strm appendFormat:@"    %10s : %@\n", [key UTF8String], content];
+            }
+            else {
+                content = contentLines[0];
+                if(content.length > 80) {
+                    content = [content substringWithRange:NSMakeRange(0, 80)];
+                }
+                
+                [strm appendFormat:@"    %10s : %@ ...\n", [key UTF8String], content];
+            }
+        }
+        else {
+            [strm appendFormat:@"    %10s : %@\n", [key UTF8String], self.postViewData[key]];
+        }
+    }
+    
+    [strm appendString:@"}"];
+    
+    return [NSString stringWithString:strm];
 }
 
 
 - (void)updatePostViewDataViaAddFoldInfo:(NSString*)info
 {
+    NSLog(@"updatePostViewDataViaAddFoldInfo : %@ %zd - %@ <before : %@>", self.uid, self.tid, info, self.postViewData[@"fold"]);
+    NSLog(@"%@", self.postViewData);
+    
     NSString *foldInfo = [self.postViewData objectForKey:@"fold"];
     if(foldInfo.length > 0) {
         NSArray *foldInfos = [foldInfo componentsSeparatedByString:@","];
@@ -889,11 +1030,17 @@ PostView 接收的字段字段
     else {
         [self.postViewData setObject:[NSString stringWithFormat:@"%@", info] forKey:@"fold"];
     }
+    
+    NSLog(@"updatePostViewDataViaAddFoldInfo : %@ %zd - <after : %@>", self.uid, self.tid, self.postViewData[@"fold"]);
+    NSLog(@"%@", self.postViewData);
 }
 
 
 - (void)updatePostViewDataViaRemoveFoldInfo:(NSString*)info
 {
+
+    NSLog(@"updatePostViewDataViaRemoveFoldInfo : %@ %zd - %@ <before : %@>", self.uid, self.tid, info, self.postViewData[@"fold"]);
+    
     NSString *foldInfo = [self.postViewData objectForKey:@"fold"];
     if(foldInfo.length > 0) {
         NSArray *foldInfos = [foldInfo componentsSeparatedByString:@","];
@@ -913,12 +1060,12 @@ PostView 接收的字段字段
         else {
             NSLog(@"remove fold info %@ , not found.", info);
         }
-        
-        [self.postViewData setObject:[NSString stringWithFormat:@"%@,%@", foldInfo, info] forKey:@"fold"];
     }
     else {
         NSLog(@"#remove fold info %@ , not found, fold info empty", info);
     }
+    
+    NSLog(@"updatePostViewDataViaRemoveFoldInfo : %@ %zd - <after : %@>", self.uid, self.tid, self.postViewData[@"fold"]);
 }
 
 
@@ -950,7 +1097,9 @@ PostView 接收的字段字段
     
     //NSData转 NSString.
     NSString *jsonstring = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+#if ENABLE_LOG_JSON_CONTENT
     NSLog(@"json data string : \n%@", jsonstring);
+#endif
     jsonstring = nil;
     
     //NSString转NSData.
@@ -1075,7 +1224,9 @@ PostView 接收的字段字段
     
     //NSData转 NSString.
     NSString *jsonstring = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    #if ENABLE_LOG_JSON_CONTENT
     NSLog(@"json data string : \n%@", jsonstring);
+    #endif
     
     //NSString转NSData.
     NSData *jsonData = [jsonstring dataUsingEncoding:NSUTF8StringEncoding];
@@ -1217,7 +1368,9 @@ PostView 接收的字段字段
     
     //NSData转 NSString.
     NSString *jsonstring = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    #if ENABLE_LOG_JSON_CONTENT
     NSLog(@"json data string : \n%@", jsonstring);
+    #endif
     jsonstring = nil;
     
     //NSObject *obj;
@@ -1338,7 +1491,9 @@ PostView 接收的字段字段
     
     //NSData转 NSString.
     NSString *jsonstring = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    #if ENABLE_LOG_JSON_CONTENT
     NSLog(@"json data string : \n%@", jsonstring);
+    #endif
     jsonstring = nil;
     
     //NSObject *obj;
@@ -1537,6 +1692,21 @@ PostView 接收的字段字段
     else {
         return [str stringByReplacingOccurrencesOfString:@"\"" withString:@"\\\""];
     }
+}
+
+
+- (NSString*)contentString
+{
+    //return [NSString decodeWWWEscape:postData.content];
+
+    NSDictionary *options = @{NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType};
+    NSAttributedString *attributedString = [[NSAttributedString alloc] initWithData:[self.content dataUsingEncoding:NSUnicodeStringEncoding] options:options documentAttributes:nil error:nil];
+    
+    NSLog(@"attributedString : %@", attributedString);
+    NSLog(@"attributedString string: %@", attributedString.string);
+    
+    
+    return attributedString.string;
 }
 
 

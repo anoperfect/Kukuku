@@ -106,6 +106,7 @@
     NSString *str = [self getDownloadUrlString];
     NSLog(@"threads download str=%@", str);
     
+#if 0
     //    NSURL *url=[[NSURL alloc] initWithString:[str stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
     NSURL *url=[[NSURL alloc] initWithString:str];
     NSMutableURLRequest *mutableRequest = [[NSMutableURLRequest alloc] initWithURL:url cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:10];
@@ -115,9 +116,36 @@
     NS0Log(@"Request : \n\n%@\n\n", mutableRequest);
     
     [NSURLConnection connectionWithRequest:mutableRequest delegate:self];
+#endif
+    
+    __weak typeof(self) weakSelf = self;
+    [HTTPMANAGE GET:str
+      parameters:nil
+        progress:^(NSProgress * _Nonnull downloadProgress) {
+            
+        }
+     
+         success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+             NSData *data = responseObject;
+             weakSelf.postView.allowsSelection = YES;
+             NSLog(@"%@数据包传输完成%s", [NSThread currentThread], __FUNCTION__);
+             NS0Log(@"connection data : %@", [[NSString alloc] initWithData:self.jsonData encoding:NSUTF8StringEncoding]);
+             [weakSelf parseAndFresh:data onPage:self.pageNumLoading];
+         }
+     
+         failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+             weakSelf.postView.allowsSelection = YES;
+             NSLog(@"%@数据传输失败,产生错误%s<%@>", [NSThread currentThread], __FUNCTION__, error);
+             NSLog(@"error:%@", error);
+             [weakSelf parseAndFresh:nil onPage:self.pageNumLoading];
+         }
+     ];
+    
+    
 }
 
 
+#if 0
 - (void)connection:(NSURLConnection*)connection didReceiveResponse:(NSURLResponse *)response {
     NSLog(@"%@已经接收到响应%@", [NSThread currentThread], response);
     NSLog(@"------\n%@------\n", connection.description);
@@ -147,11 +175,37 @@
     NSLog(@"error:%@", error);
     [self parseAndFresh:nil onPage:self.pageNumLoading];
 }
-
+#endif
 
 //---override. different parse mothod.
 - (NSMutableArray*)parseDownloadedData:(NSData*)data {
     return nil;
+}
+
+
+- (void)autoActionAfterRefreshPostData
+{
+    [self loadMore];
+}
+
+
+- (void)clickFootView {
+    LOG_POSTION
+    
+    [self loadMore];
+}
+
+
+- (void)loadMore
+{
+    //判断一下状态.如果是正在reload的状态则进行reload.
+    if(self.threadsStatus != ThreadsStatusLoading) {
+        self.threadsStatus = ThreadsStatusLoading;
+        [self actionLoadMore];
+    }
+    else {
+        NSLog(@"in loading.");
+    }
 }
 
 

@@ -84,7 +84,7 @@
     [super viewWillLayoutSubviews];
     
     CGFloat heightLabelPercentage = 30;
-    [self.labelPercentage setFrame:CGRectMake((self.view.frame.size.width - 100) / 2, self.yBolowView, 100, heightLabelPercentage)];
+    [self.labelPercentage setFrame:CGRectMake((self.view.frame.size.width - 200) / 2, self.yBolowView, 200, heightLabelPercentage)];
     [self.labelPercentage setTextAlignment:NSTextAlignmentCenter];
 }
 
@@ -114,7 +114,62 @@
             NSMutableURLRequest *mutableRequest = [[NSMutableURLRequest alloc] initWithURL:self.url cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:10];
             
             mutableRequest.HTTPMethod = @"GET";
-            [NSURLConnection connectionWithRequest:mutableRequest delegate:self];
+            //[NSURLConnection connectionWithRequest:mutableRequest delegate:self];
+            
+            __weak typeof(self) weakSelf = self;
+            [HTTPMANAGE GET:[self.url absoluteString]
+                 parameters:nil
+                   progress:^(NSProgress * _Nonnull downloadProgress) {
+                       //NSLog(@"xxc%@", downloadProgress);
+                       
+                       
+                       dispatch_async(dispatch_get_main_queue(), ^{
+                           
+                           if(downloadProgress.totalUnitCount > 0) {
+                               long long percentage = downloadProgress.completedUnitCount * 100 / downloadProgress.totalUnitCount;
+                               NSString *sizeDescription = nil;
+                               if(downloadProgress.totalUnitCount > 1024 * 1024) {
+                                   sizeDescription = [NSString stringWithFormat:@"%.2lfM", (double)downloadProgress.totalUnitCount / (double)(1024.0*1024.0)];
+                               }
+                               else {
+                                   sizeDescription = [NSString stringWithFormat:@"%.2lfK", (double)downloadProgress.totalUnitCount / (double)(1024.0)];
+                               }
+                               
+                               [weakSelf.labelPercentage setText:[NSString stringWithFormat:@"加载中%2lld%% (共%@)", percentage, sizeDescription]];
+                           }
+                       });
+                   }
+             
+                    success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                        
+                        NSData *imageDataDownload = responseObject;
+                        NSLog(@"length : %zd", imageDataDownload.length);
+                        
+                        NSLog(@"%@数据包传输完成%s", [NSThread currentThread], __FUNCTION__);
+                        
+                        NSString *value = [[AppConfig sharedConfigDB] configDBSettingKVGet:@"autosaveimagetoalbum"] ;
+                        BOOL bAutoSaveImageToAlbum = [value isEqualToString:@"bool1"];
+                        if(bAutoSaveImageToAlbum) {
+                            UIImage *image = [UIImage imageWithData:imageDataDownload];
+                            UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil);
+                            [weakSelf showIndicationText:@"自动存图到相册" inTime:1.0];
+                        }
+                        
+                        [ImageViewCache setImageViewCache:self.stringUrl withData:imageDataDownload];
+                        [weakSelf updateImageViewByDownloadOrCachedData:imageDataDownload];
+                        
+                    }
+             
+                    failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                        [weakSelf.labelPercentage setText:@"加载不成功"];
+                        NSLog(@"%@数据传输失败,产生错误%s", [NSThread currentThread], __FUNCTION__);
+                        NSLog(@"error:%@", error);
+                        
+                    }
+             ];
+            
+            
+            
         }
     }
 }
@@ -245,6 +300,10 @@
 
 - (void)updateImageViewByDownloadOrCachedData:(NSData*)imageData
 {
+    UIImage *image = [UIImage imageWithData:imageData];
+    NSLog(@"image : %@", image);
+    image = nil;
+    
     if(![self.stringUrl hasSuffix:@".gif"]) {
         [self updateImageViewByImage:[UIImage imageWithData:imageData]];
     }

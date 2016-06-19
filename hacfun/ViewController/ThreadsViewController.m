@@ -55,7 +55,6 @@
     //###
     self.postDataPages = [[NSMutableArray alloc] init];
     
-    self.indexPathsDisplaying = [[NSMutableArray alloc] init];
     self.dynamicPostViewDataOptimumSizeHeight   = [[NSMutableDictionary alloc] init];
     self.dynamicPostViewDataShowActionButtons   = [[NSMutableDictionary alloc] init];
     self.dynamicPostViewDataFold                = [[NSMutableDictionary alloc] init];
@@ -77,7 +76,10 @@
     self.postView.dataSource = self;
     self.postView.tag = 1;
     self.postView.backgroundColor = [UIColor colorWithName:@"PostTableViewBackground"];
+    //self.postView.backgroundColor = [UIColor whiteColor];
+    
     self.postView.separatorStyle = UITableViewCellSeparatorStyleNone;
+    self.postView.hidden = NO;
     
     //增加cell长按功能.
     UILongPressGestureRecognizer *longPressGr = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(longPressToDo:)];
@@ -182,27 +184,12 @@
 
 
 - (void)clickFootView {
-    LOG_POSTION
-    
-    [self loadMore];
-}
-
-
-- (void)loadMore
-{
-    //判断一下状态.如果是正在reload的状态则进行reload.
-    if(self.threadsStatus != ThreadsStatusLoading) {
-        self.threadsStatus = ThreadsStatusLoading;
-        [self actionLoadMore];
-    }
-    else {
-        NSLog(@"in loading.");
-    }
+    NSLog(@"clickFootView. optional override.");
 }
 
 
 - (void)showfootViewWithTitle:(NSString*)title andActivityIndicator:(BOOL)isActive andDate:(BOOL)isShowDate {
-    
+
     NSString *titleShow = title;
     if(isShowDate) {
         
@@ -257,9 +244,17 @@
     [self resetPostViewData];
     [self postViewReload];
     
+    [self autoActionAfterRefreshPostData];
     
-    [self loadMore];
+    
 }
+
+
+- (void)autoActionAfterRefreshPostData
+{
+    NSLog(@"optional override.");
+}
+
 
 
 - (void)refreshPostDataToPage:(NSInteger)page
@@ -357,21 +352,7 @@
         [dict setObject:statusMessage forKey:@"statusInfo"];
     }
     
-    NotShowUid *notShowUid = [[AppConfig sharedConfigDB] configDBNotShowUidGet:postData.uid];
-    if(notShowUid) {
-        [postData updatePostViewDataViaAddFoldInfo:notShowUid.comment];
-    }
-    
-    NotShowTid *notShowTid = [[AppConfig sharedConfigDB] configDBNotShowTidGet:postData.tid];
-    if(notShowTid) {
-        [postData updatePostViewDataViaAddFoldInfo:notShowTid.comment];
-    }
-    
-    Attent *attent = [[AppConfig sharedConfigDB] configDBAttentGet:postData.uid];
-    if(attent) {
-        [dict setObject:[UIColor colorWithName:@"Attent"] forKey:@"colorUidSign"];
-        
-    }
+
 
 }
 
@@ -441,57 +422,108 @@
 }
 
 
-- (void)updateThreadById:(NSInteger)tid
+- (void)reloadThreadByTid:(NSInteger)tid
+                   onPage:(NSInteger)page
+                  success:(void(^)(PostData* topic, NSArray* replies))successHandle
+                  failure:(void(^)(NSError * _Nonnull error))failureHandle
 {
-    NSLog(@"update %zd", tid);
-    dispatch_queue_t concurrentQueue = dispatch_queue_create("my.concurrent.queue", DISPATCH_QUEUE_CONCURRENT);
-    dispatch_async(concurrentQueue, ^(void){
-        //获取last page的信息.
-        PostData *topic = [[PostData alloc] init];
-        NSMutableArray *replies = [[NSMutableArray alloc] init];
-        topic = [PostData sendSynchronousRequestByTid:tid atPage:-1 repliesTo:replies storeAdditional:nil];
-        
-        dispatch_async(dispatch_get_main_queue(), ^(void) {
-            [self updateDataSourceByPostData:topic];
-        });
-    });
+    NSLog(@"tid [%zd] start reloadThreadByTid", tid);
+    
+    NSString *urlString = nil;
+    if(page == -1) {
+        urlString = [[AppConfig sharedConfigDB] generateRequestURL:@"v2/topic/getTopicReplyPage"
+                                                       andArgument:@{
+                                                                     @"page":@1,
+                                                                     @"pageSize":@20,
+                                                                     @"asc":@NO,
+                                                                     @"topicId":[NSNumber numberWithLongLong:tid]
+                                                                     }];
+    }
+    else {
+        urlString = [[AppConfig sharedConfigDB] generateRequestURL:@"v2/topic/getTopicReplyPage"
+                                                       andArgument:@{
+                                                                     @"page":@1,
+                                                                     @"pageSize":@20,
+                                                                     @"asc":@YES,
+                                                                     @"topicId":[NSNumber numberWithLongLong:tid]
+                                                                     }];
+    }
+    
+    [HTTPMANAGE GET:urlString
+         parameters:nil
+           progress:nil
+            success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                PostData *topic = [[PostData alloc] init];
+                NSMutableArray *replies = [[NSMutableArray alloc] init];
+                topic = [PostData parseFromDetailedJsonData:responseObject atPage:-1 repliesTo:replies storeAdditional:nil onHostName:HOSTNAME];
+                if(topic) {
+                    if(successHandle) {
+                        successHandle(topic, replies);
+                    }
+                }
+                else {
+                    if(failureHandle) {
+                        NSError *error = [[NSError alloc] initWithDomain:@"Topic parse error" code:500 userInfo:nil];
+                        failureHandle(error);
+                    }
+                }
+            }
+            failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                if(failureHandle) {
+                    failureHandle(error);
+                }
+            }
+     ];
 }
+
+
+
+
 
 
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     NSLog(@"------tableView cellForRowAtIndexPath : %@", [NSString stringFromTableIndexPath:indexPath]);
     
     PostData *postData = [self postDataOnIndexPath:indexPath];
+    //if(!postData.postViewData) {
+    
     ThreadDataToViewType type = [self postViewPresendTypeOnIndexPath:indexPath withPostData:postData]; //override.
     [postData generatePostViewData:type];
     [self retreatPostViewData:postData onIndexPath:indexPath];
     [self retreatPostViewDataAdditional:postData onIndexPath:indexPath];//override.
-    
-    //后台刷新获取新内容.
+    //}
+        
+    //后台刷新获取新内容. 针对TidViewController, 在此处加不适很合适. 加到LocalViewController.
     if(postData.type == PostDataTypeOnlyTid) {
-        [self updateThreadById:postData.tid];
+        
     }
     
-    NSLog(@"tid [%zd] postViewDataRow : %@", postData.tid, [NSString stringFromNSDictionary:postData.postViewData]);
+    NSLog(@"tid [%zd] postViewDataRow : \n%@", postData.tid, [postData descriptionPostViewData]);
+    CGFloat heightPostView = self.view.frame.size.height;
     
+    PostView *v = nil;
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"cell"];
     if (cell == nil) {
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"cell"];
         CGRect frame = cell.frame;
         frame.size.width = tableView.frame.size.width;
         [cell setFrame:frame];
+        
+        v = [[PostView alloc] initWithFrame:CGRectMake(0, 0, cell.frame.size.width, heightPostView)];
+        [cell addSubview:v];
+        [v setTag:TAG_PostView];
     }
     else {
-        [cell.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
+        //[cell.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
+        v = [cell viewWithTag:TAG_PostView];
+        v.frame = CGRectMake(0, 0, cell.frame.size.width, heightPostView);
     }
-    cell.tag = indexPath.row;
     
-    PostView *v = [PostView PostViewWith:postData andFrame:CGRectMake(0, 0, cell.frame.size.width, 100)];
-    [cell addSubview:v];
-    [v setTag:TAG_PostView];
+    cell.tag = indexPath.row;
     
     v.delegate = self;
     v.indexPath = indexPath;
+    [v setPostData:postData];
     
     //记录变长高度.
     [self.dynamicPostViewDataOptimumSizeHeight setObject:[NSNumber numberWithFloat:v.frame.size.height] forKey:indexPath];
@@ -500,8 +532,6 @@
     
     return cell;
 }
-
-
 
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -521,10 +551,10 @@
 }
 
 
-- (NSString*)indexPathsDisplayingDescription
+- (NSString*)indexPathsDescription:(NSArray <NSIndexPath*> *)indexPaths
 {
     NSMutableString *strm = [[NSMutableString alloc] init];
-    for(NSIndexPath *indexPath in self.indexPathsDisplaying) {
+    for(NSIndexPath *indexPath in indexPaths) {
         [strm appendString:[NSString stringFromTableIndexPath:indexPath]];
         [strm appendString:@" "];
     }
@@ -535,15 +565,12 @@
 
 - (void)tableView:(UITableView *)tableView didEndDisplayingCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    [self.indexPathsDisplaying removeObject:indexPath];
-    NSLog(@"remove %@, now displaying %@.", [NSString stringFromTableIndexPath:indexPath], [self indexPathsDisplayingDescription]);
+    NSLog(@"------tableView[%@] didEndDisplayingCell", [NSString stringFromTableIndexPath:indexPath]);
 }
 
 
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
     NSLog(@"------tableView[%@] willDisplayCell", [NSString stringFromTableIndexPath:indexPath]);
-    [self.indexPathsDisplaying addObject:indexPath];
-    NSLog(@"add    %@, now displaying %@.", [NSString stringFromTableIndexPath:indexPath], [self indexPathsDisplayingDescription]);
     
     //关于优化后台加载数据后的延迟刷新. 未完成合适方案.
 #if UITABLEVIEW_INSERT_OPTUMIZE
@@ -843,14 +870,6 @@
 }
 
 
-- (void)postViewReloadRow:(NSIndexPath*)indexPath
-{
-    NSArray *indexArray=[NSArray arrayWithObject:indexPath];
-    [self.postView beginUpdates];
-    [self.postView reloadRowsAtIndexPaths:indexArray withRowAnimation:UITableViewRowAnimationAutomatic];
-    [self.postView endUpdates];
-}
-
 
 - (void)showCellActionButtonsOnIndexPath:(NSIndexPath*)indexPath andReload:(BOOL)reload
 {
@@ -987,46 +1006,155 @@
 //重载以定义row行为.
 - (BOOL)actionForRowAtIndexPath:(NSIndexPath*)indexPath viaString:(NSString*)string
 {
-    BOOL finishAction = YES;
-    PostDataPage *postDataPage = self.postDataPages[indexPath.section];
-    PostData *postDataRow = postDataPage.postDatas[indexPath.row];
-    
     //[self hiddenCellActionButtonsOnIndexPath:indexPath andReload:YES];
+    PostData *postData = [self postDataOnIndexPath:indexPath];
     
     if([string isEqualToString:@"复制"]){
-        UIPasteboard *pab = [UIPasteboard generalPasteboard];
-        [pab setString:[NSString decodeWWWEscape:postDataRow.content]];
-        [self showIndicationText:@"已复制到粘贴板" inTime:2.0];
+        NSString *content = [postData contentString];
+        if(content) {
+            UIPasteboard *pab = [UIPasteboard generalPasteboard];
+            [pab setString:[postData contentString]];
+            [self showIndicationText:@"已复制到粘贴板" inTime:2.0];
+        }
+        else {
+            [self showIndicationText:@"内容空" inTime:2.0];
+        }
+        
+        return YES;
     }
-    else if([string isEqualToString:@"举报"]){
+    
+    if([string isEqualToString:@"加入草稿"]) {
+        NSString *content = [postData contentString];
+        if(content) {
+            BOOL ret = [[AppConfig sharedConfigDB] configDBDraftAdd:[postData contentString]];
+            if(ret) {
+                [self showIndicationText:@"已加入草稿" inTime:2.0];
+            }
+            else {
+                [self showIndicationText:@"加入草稿失败" inTime:1.0];
+            }
+        }
+        else {
+            [self showIndicationText:@"内容空" inTime:2.0];
+        }
+        
+        return YES;
+    }
+    
+    if([string isEqualToString:@"屏蔽"]) {
+        NSLog(@"NotShowTid : %zd", postData.tid);
+        
+        NotShowTid *notShwoTid = [[NotShowTid alloc] init];
+        notShwoTid.tid = postData.tid;
+        notShwoTid.commitedAt = MSEC_NOW;
+        notShwoTid.comment = @"屏蔽";
+        [[AppConfig sharedConfigDB] configDBNotShowTidAdd:notShwoTid];
+        
+        [self postViewReloadRow:indexPath];
+        
+        return YES;
+    }
+    
+    if([string isEqualToString:@"取消屏蔽"]) {
+        NSLog(@"disable NotShowTid : %zd", postData.tid);
+        [[AppConfig sharedConfigDB] configDBNotShowTidRemove:postData.tid];
+        [self postViewReloadRow:indexPath];
+        
+        return YES;
+    }
+    
+    if([string isEqualToString:@"屏蔽id"]) {
+        NSLog(@"NotShowUid : %@", postData.uid);
+        NotShowUid *notShwoUid = [[NotShowUid alloc] init];
+        notShwoUid.uid = postData.uid;
+        notShwoUid.commitedAt = MSEC_NOW;
+        notShwoUid.comment = @"屏蔽";
+        [[AppConfig sharedConfigDB] configDBNotShowUidAdd:notShwoUid];
+        [self postViewReloadRow:indexPath];
+        
+        return YES;
+    }
+    
+    if([string isEqualToString:@"取消屏蔽id"]) {
+        NSLog(@"disable NotShowUid : %@", postData.uid);
+        [[AppConfig sharedConfigDB] configDBNotShowUidRemove:postData.uid];
+        [self postViewReloadRow:indexPath];
+        
+        return YES;
+    }
+    
+    if([string isEqualToString:@"关注"]) {
+        NSLog(@"Attent : %@", postData.uid);
+        Attent *attent = [[Attent alloc] init];
+        attent.uid = postData.uid;
+        attent.commitedAt = MSEC_NOW;
+        attent.comment = @"关注";
+        [[AppConfig sharedConfigDB] configDBAttentAdd:attent];
+        
+        [self postViewReloadRow:indexPath];
+        
+        return YES;
+    }
+    
+    if([string isEqualToString:@"取消关注"]) {
+        NSLog(@"disable Attent : %@", postData.uid);
+        [[AppConfig sharedConfigDB] configDBAttentRemove:postData.uid];
+        [self postViewReloadRow:indexPath];
+        
+        return YES;
+    }
+    
+    if([string isEqualToString:@"举报"]){
         dispatch_async(dispatch_get_main_queue(), ^{
             CreateViewController *createViewController = [[CreateViewController alloc]init];
-            NSString *content = [NSString stringWithFormat:@">>No.%zd\n", postDataRow.tid];
+            NSString *content = [NSString stringWithFormat:@">>No.%zd\n", postData.tid];
             Category *categoryAdmin = [[AppConfig sharedConfigDB] configDBCategoryGetByName:@"值班室"];
             [createViewController setCreateCategory:categoryAdmin replyTid:NSNotFound withOriginalContent:content];
             [self.navigationController pushViewController:createViewController animated:YES];
         });
-    }
-    else if([string isEqualToString:@"加入草稿"]) {
-        BOOL ret = [[AppConfig sharedConfigDB] configDBDraftAdd:[NSString decodeWWWEscape:postDataRow.content]];
-        if(ret) {
-            [self showIndicationText:@"已加入草稿" inTime:2.0];
-        }
-        else {
-            [self showIndicationText:@"加入草稿失败" inTime:1.0];
-        }
-    }
-    else {
-        finishAction = NO;
+        
+        return YES;
     }
     
-    return finishAction;
+    return NO;
+}
+
+
+- (NSMutableArray*)actionStringsForRowAtIndexPathStaple:(NSIndexPath*)indexPath
+{
+    PostData *postData = [self postDataOnIndexPath:indexPath];
+    NSMutableArray *arrayM = [NSMutableArray arrayWithArray:@[@"复制", @"加入草稿", ]];
+    
+    if([[AppConfig sharedConfigDB] configDBNotShowTidGet:postData.tid]) {
+        [arrayM addObject:@"取消屏蔽"];
+    }
+    else {
+        [arrayM addObject:@"屏蔽"];
+    }
+    
+    if([[AppConfig sharedConfigDB] configDBNotShowUidGet:postData.uid]) {
+        [arrayM addObject:@"取消屏蔽id"];
+    }
+    else {
+        [arrayM addObject:@"屏蔽id"];
+    }
+    
+    if([[AppConfig sharedConfigDB] configDBAttentGet:postData.uid]) {
+        [arrayM addObject:@"取消关注"];
+    }
+    else {
+        [arrayM addObject:@"关注"];
+    }
+    
+    [arrayM addObject:@"举报"];
+
+    return arrayM;
 }
 
 
 - (NSArray*)actionStringsForRowAtIndexPath:(NSIndexPath*)indexPath
 {
-    return @[@"复制", @"加入草稿"];
+    return [NSArray arrayWithArray:[self actionStringsForRowAtIndexPathStaple:indexPath]];
 }
 
 
@@ -1173,51 +1301,61 @@
 }
 
 
-//根据postData的
-- (BOOL)updateDataSourceByPostData:(PostData*)postDataUpdate
+- (PostData*)postDataWithTid:(NSInteger)tid
 {
-    BOOL updateToNew = NO;
-    
-    BOOL found = NO;
     NSInteger section = 0;
     for(PostDataPage *page in self.postDataPages) {
         NSInteger row = 0;
         for(PostData *postData in page.postDatas) {
-            if(postData.tid == postDataUpdate.tid) {
-                found = YES;
-                
-                if([postData isEqual:postDataUpdate]) {
-                    NSLog(@"tid [%zd] data is the same.", postDataUpdate.tid);
-                }
-                else {
-                    NSLog(@"tid [%zd] data is NOT the same, update.", postDataUpdate.tid);
-                    NSLog(@"%@", postData);
-                    NSLog(@"%@", postDataUpdate);
-                    updateToNew = YES;
-                    
-                    //更新对应的postData.
-                    [postData copyFrom:postDataUpdate];
-                    
-                    //更新对应的postViewData.
-                    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:row inSection:section];
-                    [self postViewReloadRow:indexPath];
-                }
-                
-                break;
+            if(postData.tid == tid) {
+                return postData;
             }
             
             row ++;
         }
         
-        if(updateToNew) {
-            break;
-        }
-        
         section ++;
     }
     
-    NSLog(@"finish.");
+    return nil;
+}
+
+
+//根据postData的
+- (BOOL)updateDataSourceByPostData:(PostData*)postDataUpdate
+{
+    BOOL updateToNew = NO;
     
+    PostData *postData = [self postDataWithTid:postDataUpdate.tid];
+    if(postData) {
+        if([postData isEqual:postDataUpdate]) {
+            NSLog(@"tid [%zd] data is the same.", postDataUpdate.tid);
+        }
+        else {
+            NSLog(@"tid [%zd] data is NOT the same. update.", postDataUpdate.tid);
+            NSLog(@"tid [%zd] data diff : %@.", postDataUpdate.tid, [postData descriptionDifferentFrom:postDataUpdate]);
+            
+            updateToNew = YES;
+            
+            //更新对应的postData.
+            [postData copyFrom:postDataUpdate];
+            
+#if 0
+            //更新对应的postViewData.
+            NSIndexPath *indexPath = [NSIndexPath indexPathForRow:row inSection:section];
+            [self postViewReloadRow:indexPath];
+#endif
+        }
+
+        
+        
+        
+    }
+    else {
+        NSLog(@"#error - tid [%zd] not found.", postDataUpdate.tid);
+    }
+    
+
     return updateToNew;
 }
 
@@ -1303,16 +1441,33 @@
 
 - (void)postViewReloadSectionViaAppend:(NSInteger)section
 {
-    NSLog(@"###### UITableView reload.");
+    NSLog(@"###### UITableView ReloadSectionViaAppend. reload");
     [self.postView reloadData];
 }
 
 - (void)postViewReload
 {
     NSLog(@"###### UITableView reload.");
-    dispatch_async(dispatch_get_main_queue(), ^{
+    
+    if([NSThread currentThread] == [NSThread mainThread]) {
         [self.postView reloadData];
-    });
+    }
+    else {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.postView reloadData];
+        });
+    }
+}
+
+
+- (void)postViewReloadRow:(NSIndexPath*)indexPath
+{
+    NSLog(@"###### UITableView reloadRowsAtIndexPaths : %@", indexPath);
+    
+    NSArray *indexArray=[NSArray arrayWithObject:indexPath];
+    [self.postView beginUpdates];
+    [self.postView reloadRowsAtIndexPaths:indexArray withRowAnimation:UITableViewRowAnimationNone];
+    [self.postView endUpdates];
 }
 
 
@@ -1358,7 +1513,6 @@
 
 - (PostData*)postDataOnIndexPath:(NSIndexPath*)indexPath
 {
-    LOG_POSTION
     PostData *postData = nil;
     
     if(indexPath.section >=0 && indexPath.section < self.postDataPages.count) {
@@ -1411,10 +1565,11 @@
 - (void)PostView:(PostView*)postView didSelectThumb:(UIImage*)imageThumb withImageLink:(NSString*)imageString
 {
     ImageViewController *vc = [[ImageViewController alloc] init];
-    NSURL *url=[[NSURL alloc] initWithString:[imageString stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+    NSString *linkString = postView.data.image;
+    
+    NSURL *url=[[NSURL alloc] initWithString:[linkString stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
     [vc sd_setImageWithURL:url placeholderImage:imageThumb];
     [self.navigationController pushViewController:vc animated:YES];
-    
 }
 
 

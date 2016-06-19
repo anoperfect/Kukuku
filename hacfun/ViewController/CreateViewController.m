@@ -1163,7 +1163,7 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
     NSMutableDictionary *attrs = [NSMutableDictionary dictionary];
     attrs[NSFontAttributeName] = [UIFont fontWithName:@"draftCellText"];
     
-    CGSize maxSize = CGSizeMake(self.draftView.frame.size.width, MAXFLOAT);
+    CGSize maxSize = CGSizeMake(self.draftView.frame.size.width - 20, MAXFLOAT);
     CGSize optimizeSize = [text boundingRectWithSize:maxSize options:NSStringDrawingUsesLineFragmentOrigin attributes:attrs context:nil].size;
     height = optimizeSize.height + 36;
 

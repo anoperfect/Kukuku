@@ -65,12 +65,11 @@ static NSInteger kcountObject = 0;
 
 @implementation PostView
 
-- (instancetype)initWithFrame1:(CGRect)frame
+- (instancetype)initWithFrame:(CGRect)frame
 {
     self = [super initWithFrame:frame];
     
     if (self) {
-        
         kcountObject ++;
         self.row = -1;
         self.backgroundColor = [UIColor colorWithName:@"PostViewBackground"];
@@ -163,6 +162,18 @@ static NSInteger kcountObject = 0;
 }
 
 
+- (void)setPostData:(PostData *)postData
+{
+    _data = postData;
+    
+    //设置各空间的现实内容.
+    [self setContent];
+    
+    //调整layout.
+    [self layoutContent];
+}
+
+
 - (void)clickViewThumb:(id)sender
 {
     PostImageView *postImageView = (PostImageView*)sender;
@@ -197,7 +208,7 @@ static NSInteger kcountObject = 0;
 
 - (void)setContent
 {
-    NS0Log(@"PostView data : %@", [NSString stringFromNSDictionary:self.data]);
+    NS0Log(@"PostView data : %@", [NSString stringFromNSDictionary:self.data.postViewData]);
     
     NSString *title = [self.data.postViewData objectForKey:@"title"];
     title = title?title:@"TITLE NAN";
@@ -274,12 +285,15 @@ static NSInteger kcountObject = 0;
         NSString *thumb = [self.data.postViewData objectForKey:@"thumb"];
         if([thumb isKindOfClass:[NSString class]] && thumb.length > 0) {
             self.imageView.hidden = NO;
-            [self.imageView setDownloadUrlString:thumb];
+            self.imageView.downloadString = thumb;
+        }
+        else {
+            self.imageView.downloadString = nil;
         }
         
         self.repliesView.hidden = YES;
         NSArray *postDataReplies = [self.data.postViewData objectForKey:@"replies"];
-        LOG_POSTION
+        //LOG_POSTION
         if(postDataReplies.count > 0) {
             self.repliesView.hidden = NO;
             LOG_POSTION
@@ -354,7 +368,7 @@ static NSInteger kcountObject = 0;
         
     }
     else {
-        NSLog(@"NOT show actions");
+        //NSLog(@"NOT show actions");
     }
 }
 
@@ -370,7 +384,7 @@ static NSInteger kcountObject = 0;
 
 - (void)layoutContent
 {
-    NSLog(@"PostView layoutContent . width = %f", self.frame.size.width);
+    NSLog(@"tid [%zd] PostView layoutContent . width = %f", self.data.tid, self.frame.size.width);
     
     //标记自适应高度.
     CGFloat heightAdjust = 0.0;
@@ -399,8 +413,6 @@ static NSInteger kcountObject = 0;
     //设置外边框.
     [layout setUseEdge:@"LayoutAll" in:FRAMELAYOUT_NAME_MAIN withEdgeValue:edge];
     [layout setUseIncludedMode:@"LineInit" includedTo:@"LayoutAll" withPostion:FrameLayoutPositionTop andSizeValue:0.0];
-    
-    
     
     if(self.titleLabel.text.length > 0 || self.infoLabel.text.length > 0) {
         [layout setUseBesideMode:@"PaddingLineTitle" besideTo:@"LineInit" withDirection:FrameLayoutDirectionBelow andSizeValue:heightPaddingLineTitle];
@@ -555,7 +567,7 @@ static NSInteger kcountObject = 0;
     self.repliesView.frame          = frameRepliesView;
     self.actionButtons0.frame       = frameActionButtons;
     
-    LOG_RECT(self.repliesView.frame, @"replies1")
+    //LOG_RECT(self.repliesView.frame, @"replies1")
 //    for(UIView *postView in self.repliesView.subviews) {
 //        LOG_RECT(postView.frame, @"postView1")
 //    }
@@ -566,13 +578,14 @@ static NSInteger kcountObject = 0;
     //heightAdjust = 500;
     
     FRAMELAYOUT_SET_HEIGHT(self, heightAdjust);
-    NSLog(@"adjust height to %f.", heightAdjust);
+    NSLog(@"tid [%zd] adjust height to %f.", self.data.tid, heightAdjust);
+    //LOG_RECT(self.frame, @"p1")
 }
 
 
 + (PostView*)PostViewWith:(PostData*)postData andFrame:(CGRect)frame
 {
-    PostView *postView = [[PostView alloc] initWithFrame1:frame];
+    PostView *postView = [[PostView alloc] initWithFrame:frame];
     postView.data = postData;
     
     //设置各空间的现实内容.
@@ -628,6 +641,19 @@ static NSInteger kcountObject = 0;
 }
 
 
+- (NSString*)desc
+{
+    
+    NSMutableString *s = [NSMutableString stringWithFormat:@"--------------------------------------------\n%@\n", self];
+    for(UIView *view in self.subviews) {
+        [s appendFormat:@"    %@\n", view];
+    }
+    [s appendFormat:@"--------------------------------------------\n"];
+    
+     return s;
+}
+
+
 + (NSInteger)countObject
 {
     return kcountObject;
@@ -635,7 +661,7 @@ static NSInteger kcountObject = 0;
 
 
 - (void)dealloc {
-    NS0Log(@"dealloc %@", self);
+    NSLog(@"dealloc %@", self);
     
     kcountObject --;
 }

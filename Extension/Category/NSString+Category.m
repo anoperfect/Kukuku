@@ -277,6 +277,31 @@
 }
 
 
++(NSString*)diffFromString:(NSString*)s1 toString:(NSString*)s2 referentceLineNumber:(NSInteger)lineNumber
+{
+    NSArray *a1 = [s1 componentsSeparatedByString:@"\n"];
+    NSArray *a2 = [s2 componentsSeparatedByString:@"\n"];
+    
+    NSInteger index = 0;
+    for(index = 0; index < a1.count && index < a2.count ; index ++) {
+        if([a1[index] isEqualToString:a2[index]]) {
+            
+        }
+        else {
+            return [NSString stringWithFormat:@"line : %zd .\n1 : [%@]\n2 : [%@]\n", index + 1, a1[index], a2[index]];
+        }
+    }
+    
+    if(a1.count > index) {
+        return [NSString stringWithFormat:@"1:more strings : %@ ...", a1[index]];
+    }
+    else {
+        return [NSString stringWithFormat:@"2:more strings : %@ ...", a2[index]];
+    }
+}
+
+
+
 
 #define HEXCHAR_TO_INT(ch, v) \
 if(ch >= '0' && ch <= '9')      { v = ch - '0'; } \
