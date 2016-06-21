@@ -14,7 +14,7 @@
 
 
 @interface LocaleViewController ()
-@property (nonatomic, strong) NSMutableDictionary *updateResult; //not use. 之前是全部更新完成后刷新, 修改为单条刷新.
+@property (nonatomic, strong, readwrite) NSMutableDictionary *updateResult; //not use. 之前是全部更新完成后刷新, 修改为单条刷新.
 @property (nonatomic, strong) NSMutableArray *updateTask; //not use. 之前是全部更新完成后刷新, 修改为单条刷新.
 @property (nonatomic, strong) NSMutableDictionary<NSNumber*, NSNumber*> *tidUpdatedAt; //not use. 之前是全部更新完成后刷新, 修改为单条刷新.
 @property (nonatomic, assign) BOOL onUpdate;
@@ -39,8 +39,8 @@
         ButtonData *actionData = nil;
         
         actionData = [[ButtonData alloc] init];
-        actionData.keyword      = @"refresh";
-        actionData.imageName    = @"refresh";
+        actionData.keyword      = @"checkupdate";
+        actionData.imageName    = @"checkupdate";
         [self actionAddData:actionData];
     }
     
@@ -111,26 +111,40 @@
         if(postData.type == PostDataTypeOnlyTid) {
             [self.autoLoadOnlyTidThreadTasks addObject:[NSNumber numberWithInteger:postData.tid]];
             
+            __weak typeof(self) _self = self;
             [self reloadThreadByTid:postData.tid
                              onPage:-1
                             success:^(PostData *topic, NSArray *replies) {
-                                [self updateDataSourceByPostData:topic];
-                                [self.autoLoadOnlyTidThreadTasks removeObject:[NSNumber numberWithInteger:postData.tid]];
-                                if(self.autoLoadOnlyTidThreadTasks.count == 0) {
+                                [_self updateDataSourceByPostData:topic];
+                                [_self.autoLoadOnlyTidThreadTasks removeObject:[NSNumber numberWithInteger:postData.tid]];
+                                if(_self.autoLoadOnlyTidThreadTasks.count == 0) {
                                     NSLog(@"LocalViewController : finish autoLoadOnlyTidThread. then postViewReload.");
-                                    [self postViewReload];
+                                    [_self postViewReload];
                                 }
                             }
                             failure:^(NSError *error) {
-                                [self.autoLoadOnlyTidThreadTasks removeObject:[NSNumber numberWithInteger:postData.tid]];
-                                if(self.autoLoadOnlyTidThreadTasks.count == 0) {
+                                [_self.autoLoadOnlyTidThreadTasks removeObject:[NSNumber numberWithInteger:postData.tid]];
+                                if(_self.autoLoadOnlyTidThreadTasks.count == 0) {
                                     NSLog(@"LocalViewController : finish autoLoadOnlyTidThread. then postViewReload.");
-                                    [self postViewReload];
+                                    [_self postViewReload];
                                 }
                             }
              ];
         }
     }];
+}
+
+
+- (void)stopCheckUpdate
+{
+    [HTTPMANAGE.operationQueue cancelAllOperations];
+    for(NSNumber *tidNumber in self.updateResult.allKeys) {
+        if([[self.updateResult objectForKey:tidNumber] isEqualToString:@"更新中"]) {
+            [self.updateResult setObject:@"更新停止" forKey:tidNumber];
+        }
+    }
+    
+    [self postViewReload];
 }
 
 
@@ -169,19 +183,53 @@
 
 - (void)actionViaString:(NSString*)string
 {
-    if([string isEqualToString:@"refresh"]) {
+    if([string isEqualToString:@"checkupdate"]) {
         if(!self.onUpdate) {
-            [self updateThreadsInfo];
+            [self checkUpdate];
             self.onUpdate = YES;
+            
+            //修改选择为取消.
+//            [self actionRemoveDataByKeyString:@"checkupdate"];
+            [self actionClear];
+            //[self actionRefresh];
+            
+            ButtonData *actionData = nil;
+            
+            actionData = [[ButtonData alloc] init];
+            actionData.keyword      = @"stopcheckupdate";
+            actionData.imageName    = @"stopcheckupdate";
+            [self actionAddData:actionData];
+            [self actionRefresh];
+            
+            return ;
         }
         else {
             [self showIndicationText:@"请等待上次刷新完成" inTime:2.0];
+            return ;
         }
+    }
+    
+    if([string isEqualToString:@"stopcheckupdate"]) {
+        [self stopCheckUpdate];
+        self.onUpdate = NO;
+        
+        //修改选择为刷新.
+//        [self actionRemoveDataByKeyString:@"stopcheckupdate"];
+        [self actionClear];
+        //[self actionRefresh];
+        
+        ButtonData *actionData = nil;
+        
+        actionData = [[ButtonData alloc] init];
+        actionData.keyword      = @"checkupdate";
+        actionData.imageName    = @"checkupdate";
+        [self actionAddData:actionData];
+        [self actionRefresh];
     }
 }
 
 
-- (void)updateThreadsInfo
+- (void)checkUpdate
 {
     //将所有需更新的tid记录.
     self.updateResult = [[NSMutableDictionary alloc] init];
@@ -199,7 +247,7 @@
     
     [self.postView reloadData];
     [self showProgressText:[NSString stringWithFormat:@"检查更新中, 剩余%zd条", self.updateTask.count] inTime:60.0];
-    NSLog(@"finish updateThreadsInfo action.");
+    NSLog(@"finish checkupdate command.");
 }
 
 
@@ -210,14 +258,14 @@
 {
     NSLog(@"tid [%zd] start updateThreadById", tid);
     
-    __weak typeof(self) weakSelf = self;
+    __weak typeof(self) _self = self;
     [self reloadThreadByTid:tid
                     onPage:-1
                    success:^(PostData* topic, NSArray* replies){
-                       [weakSelf checkUpdateTidResult:tid withReplyPostDatas:replies andTopic:topic];
+                       [_self checkUpdateTidResult:tid withReplyPostDatas:replies andTopic:topic];
                    }
                    failure:^(NSError * error) {
-                       [weakSelf checkUpdateTidResult:tid withReplyPostDatas:nil andTopic:nil];
+                       [_self checkUpdateTidResult:tid withReplyPostDatas:nil andTopic:nil];
                    }
      ];
 }
@@ -335,6 +383,17 @@
         [self showProgressText:@"检查更新完成" inTime:2.0];
         NS0Log(@"rty%@", self.updateResult);
         [self postViewReload];
+        
+        //修改选择为刷新.
+        [self actionClear];
+        
+        ButtonData *actionData = nil;
+        
+        actionData = [[ButtonData alloc] init];
+        actionData.keyword      = @"checkupdate";
+        actionData.imageName    = @"checkupdate";
+        [self actionAddData:actionData];
+        [self actionRefresh];
     }
     else {
         NSLog(@"tid [%zd] update not finished.", tid);

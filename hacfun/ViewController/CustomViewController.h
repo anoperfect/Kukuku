@@ -33,6 +33,7 @@
 //设置导航栏右上的内容.
 - (void)actionAddData:(ButtonData*)actionData;
 - (void)actionRemoveDataByKeyString:(NSString*)string;
+- (void)actionClear;
 - (void)actionRefresh;
 
 //Override.

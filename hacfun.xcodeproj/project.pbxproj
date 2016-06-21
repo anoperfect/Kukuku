@@ -74,6 +74,8 @@
 		B57780DA1CE9FBB900F60B6F /* send.png in Resources */ = {isa = PBXBuildFile; fileRef = B57780D61CE9FBB900F60B6F /* send.png */; };
 		B57C1D8A1D087DAD00DF2915 /* LaunchImage1.png in Resources */ = {isa = PBXBuildFile; fileRef = B57C1D891D087DAD00DF2915 /* LaunchImage1.png */; };
 		B58D88201B85621500B9A1BA /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B58D881F1B85621500B9A1BA /* libsqlite3.dylib */; };
+		B58EF9131D1848B50021A842 /* checkupdate.png in Resources */ = {isa = PBXBuildFile; fileRef = B58EF9111D1848B50021A842 /* checkupdate.png */; };
+		B58EF9141D1848B50021A842 /* stopcheckupdate.png in Resources */ = {isa = PBXBuildFile; fileRef = B58EF9121D1848B50021A842 /* stopcheckupdate.png */; };
 		B5A058571B9DE86200370557 /* PostViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B5A058561B9DE86200370557 /* PostViewController.m */; };
 		B5A0585A1B9DE87A00370557 /* ReplyViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B5A058591B9DE87A00370557 /* ReplyViewController.m */; };
 		B5A803401CA6A7C500F88EC7 /* collection.png in Resources */ = {isa = PBXBuildFile; fileRef = B5A8033D1CA6A7C500F88EC7 /* collection.png */; };
@@ -235,6 +237,8 @@
 		B57C1D891D087DAD00DF2915 /* LaunchImage1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = LaunchImage1.png; sourceTree = "<group>"; };
 		B58D87321B81F2AC00B9A1BA /* CustomViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomViewController.h; sourceTree = "<group>"; };
 		B58D881F1B85621500B9A1BA /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
+		B58EF9111D1848B50021A842 /* checkupdate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = checkupdate.png; sourceTree = "<group>"; };
+		B58EF9121D1848B50021A842 /* stopcheckupdate.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = stopcheckupdate.png; sourceTree = "<group>"; };
 		B5A058551B9DE86200370557 /* PostViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PostViewController.h; sourceTree = "<group>"; };
 		B5A058561B9DE86200370557 /* PostViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PostViewController.m; sourceTree = "<group>"; };
 		B5A058581B9DE87A00370557 /* ReplyViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReplyViewController.h; sourceTree = "<group>"; };
@@ -552,6 +556,8 @@
 		B523C9FE1B78FDB100944004 /* images */ = {
 			isa = PBXGroup;
 			children = (
+				B58EF9111D1848B50021A842 /* checkupdate.png */,
+				B58EF9121D1848B50021A842 /* stopcheckupdate.png */,
 				B52347151D0C03AC008A1C50 /* Introduction_Kukuku.jpg */,
 				B57C1D891D087DAD00DF2915 /* LaunchImage1.png */,
 				B5E3C1511D03477100620E9C /* appicon1024x1024.png */,
@@ -859,6 +865,7 @@
 				B523CA161B78FDB100944004 /* back1.png in Resources */,
 				B57780D71CE9FBB900F60B6F /* draft.png in Resources */,
 				B5DAFF391CC1E4AF000551B2 /* Default-568h@2x.png in Resources */,
+				B58EF9141D1848B50021A842 /* stopcheckupdate.png in Resources */,
 				B523CA1F1B78FDB100944004 /* reply.png in Resources */,
 				B523CA1D1B78FDB100944004 /* new1.png in Resources */,
 				B55E9D7E1C9CFD7D00F581F5 /* capture.png in Resources */,
@@ -874,6 +881,7 @@
 				B523CA111B78FDB100944004 /* 1.gif in Resources */,
 				B5039B1F1CB7FF1E00C7865F /* buttondelete.png in Resources */,
 				B5718D5D1D012FB200B6E5E0 /* rule.png in Resources */,
+				B58EF9131D1848B50021A842 /* checkupdate.png in Resources */,
 				B57780D91CE9FBB900F60B6F /* lastpage.png in Resources */,
 				B55E9D7F1C9CFD7D00F581F5 /* photolibrary.png in Resources */,
 				B523CA121B78FDB100944004 /* appicon1.png in Resources */,

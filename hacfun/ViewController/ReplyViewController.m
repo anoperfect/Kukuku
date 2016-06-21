@@ -104,6 +104,11 @@
     else {
         NSLog(@"#error ")
     }
+    
+    NSString *message = [self.updateResult objectForKey:[NSNumber numberWithInteger:postData.tid]];
+    if([message isKindOfClass:[NSString class]]) {
+        [postData.postViewData setObject:message forKey:@"statusInfo"];
+    }
 }
 
 

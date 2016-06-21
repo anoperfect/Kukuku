@@ -322,6 +322,12 @@ static NSMutableArray *kstatisticsCustomViewController = nil;
 }
 
 
+- (void)actionClear
+{
+    self.actionDatas = [[NSMutableArray alloc] init];
+}
+
+
 - (void)actionRefresh
 {
     [self layoutRightActions];

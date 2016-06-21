@@ -1131,7 +1131,7 @@
     else {
         [arrayM addObject:@"屏蔽"];
     }
-    
+#if 0
     if([[AppConfig sharedConfigDB] configDBNotShowUidGet:postData.uid]) {
         [arrayM addObject:@"取消屏蔽id"];
     }
@@ -1145,7 +1145,7 @@
     else {
         [arrayM addObject:@"关注"];
     }
-    
+#endif
     [arrayM addObject:@"举报"];
 
     return arrayM;

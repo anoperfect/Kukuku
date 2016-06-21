@@ -118,7 +118,7 @@
     [NSURLConnection connectionWithRequest:mutableRequest delegate:self];
 #endif
     
-    __weak typeof(self) weakSelf = self;
+    __weak typeof(self) _self = self;
     [HTTPMANAGE GET:str
       parameters:nil
         progress:^(NSProgress * _Nonnull downloadProgress) {
@@ -127,17 +127,17 @@
      
          success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
              NSData *data = responseObject;
-             weakSelf.postView.allowsSelection = YES;
+             _self.postView.allowsSelection = YES;
              NSLog(@"%@数据包传输完成%s", [NSThread currentThread], __FUNCTION__);
              NS0Log(@"connection data : %@", [[NSString alloc] initWithData:self.jsonData encoding:NSUTF8StringEncoding]);
-             [weakSelf parseAndFresh:data onPage:self.pageNumLoading];
+             [_self parseAndFresh:data onPage:self.pageNumLoading];
          }
      
          failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-             weakSelf.postView.allowsSelection = YES;
+             _self.postView.allowsSelection = YES;
              NSLog(@"%@数据传输失败,产生错误%s<%@>", [NSThread currentThread], __FUNCTION__, error);
              NSLog(@"error:%@", error);
-             [weakSelf parseAndFresh:nil onPage:self.pageNumLoading];
+             [_self parseAndFresh:nil onPage:self.pageNumLoading];
          }
      ];
     
