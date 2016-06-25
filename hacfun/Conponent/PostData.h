@@ -16,6 +16,7 @@
 
 
 @property (strong, nonatomic) NSString * content;
+@property (strong, nonatomic) id contentAsysncTreat;
 @property (nonatomic) long long createdAt ; //=1436622610000;
 @property (strong, nonatomic) NSString * email ;//= "";
 @property (nonatomic) NSInteger forum ; //= 4;
@@ -59,7 +60,8 @@ typedef enum {
 - (BOOL)isIdInArray:(NSArray*)array;
 
 
-+ (NSString*) postDataContentRetreat:(NSString*)content ;
+
+
 
 
 typedef NS_ENUM(NSInteger, ThreadDataToViewType) {
@@ -102,6 +104,9 @@ typedef NS_ENUM(NSInteger, ThreadDataToViewType) {
 - (NSString*)contentString;
 
 - (NSString*)descriptionPostViewData;
+
+
+
 
 //page=-1时取最后一页.
 //下载内容为空或者解析出错时返回nil.

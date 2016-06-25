@@ -375,9 +375,16 @@ else { v = -1; }
         else {
             NSString *v = [self substringFromIndex:2];
             NSInteger value = [v integerValue];
-            cstr[1] = value  & 0x00FF;
-            cstr[0] = (value >>8) &0x00FF;
-            toStr = [NSString stringWithCString:cstr encoding:NSUnicodeStringEncoding];
+            if(value > 0xff) {
+                cstr[1] = value  & 0x00FF;
+                cstr[0] = (value >>8) &0x00FF;
+                toStr = [NSString stringWithCString:cstr encoding:NSUnicodeStringEncoding];
+            }
+            else {
+                cstr[0] = value;
+                cstr[1] = '\0';
+                toStr = [NSString stringWithCString:cstr encoding:NSASCIIStringEncoding];
+            }
         }
     }
     else {
@@ -497,6 +504,23 @@ else { v = -1; }
     deviceUuid = result ;
   
     return deviceUuid;
+}
+
+
+
++ (NSURL*)stringToNSURL:(NSString*)urlString
+{
+    //NSURL *url = [[NSURL alloc] initWithString:[urlString stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+    NSURL *url = [[NSURL alloc] initWithString:[urlString stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
+    return url;
+}
+
+
++ (NSString*)stringFromNSURL:(NSURL*)url
+{
+    //NSString *urlString = [[url absoluteString] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+    NSString *urlString = [[url absoluteString] stringByRemovingPercentEncoding];
+    return urlString;
 }
 
 

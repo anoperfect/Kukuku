@@ -9,7 +9,7 @@
 #import "PostImageView.h"
 #import "FuncDefine.h"
 #import "ImageViewCache.h"
-
+#import "NSString+Category.h"
 
 
 
@@ -98,7 +98,10 @@
 
 - (void)setBackgroundDownload {
     
-    NSURL *urlstr=[[NSURL alloc] initWithString:[self.downloadString stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+//    NSURL *urlstr=[[NSURL alloc] initWithString:[self.downloadString stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+    
+    
+    NSURL *urlstr = [NSString stringToNSURL:self.downloadString];
     NS0Log(@"url:%@", urlstr);
     
     //把图片转换为二进制的数据

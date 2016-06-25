@@ -54,5 +54,8 @@
 #endif
 + (NSString*)deviceUuid;
 
++ (NSURL*)stringToNSURL:(NSString*)urlString;
++ (NSString*)stringFromNSURL:(NSURL*)url;
+
 @end
 

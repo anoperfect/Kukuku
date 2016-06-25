@@ -181,6 +181,29 @@
 }
 
 
+//收藏可以使用一些方法快速增加数据用于测试TableViewCell的计算过程中使用的CPU时间.
+- (void)testPostDataTreat
+{
+    NSDate *s = [NSDate date];
+    
+    //NSString *content = nil;
+    __block NSInteger count = 0;
+    [self enumerateObjectsUsingBlock:^(PostData *postData, NSIndexPath *indexPath, BOOL *stop) {
+        NSString *content = [PostView contentLabelContentRetreat:postData.content];
+        if(![content isEqualToString:postData.content]) {
+            count ++;
+        }
+         
+        
+    }];
+    
+    
+    NSDate *e = [NSDate date];
+    NSLog(@"------%lf", [e timeIntervalSinceDate:s]);
+    NSLog(@"count : %zd", count);
+}
+
+
 - (void)actionViaString:(NSString*)string
 {
     if([string isEqualToString:@"checkupdate"]) {

@@ -14,7 +14,7 @@
 
 
 @interface PostData () <NSURLConnectionDelegate>
-
+//@property (strong, nonatomic) id contentAsysncTreat;
 
 
 @end
@@ -63,6 +63,8 @@
 - (void)copyFrom:(PostData*)postDataFrom
 {
     self.content        = [postDataFrom.content copy];
+    [PostView postDataContentAsyncTreat:self];
+    
     self.createdAt      = postDataFrom.createdAt; //=1436622610000;
     self.email          = [postDataFrom.email copy];//= "";
     self.forum          = postDataFrom.forum; //= 4;
@@ -365,6 +367,12 @@ else { \
     
     do {
         DICT_PARSE_GET_NSSTRING_R(@"ext/content", pd.content)
+        if(pd.content.length == 0) {
+            pd.content = @"无正文";
+        }
+        
+        [PostView postDataContentAsyncTreat:pd];
+        
         DICT_PARSE_GET_LONGLONG(@"createTime", pd.createdAt)
 //        DICT_PARSE_GET_NSSTRING(@"email", pd.email)
 //        DICT_PARSE_GET_NSINTEGER(@"forum", pd.forum)
@@ -563,184 +571,7 @@ else { \
 }
 
 
-+ (NSString*)addLinkForReferenceNumber:(NSString*)stringFrom {
-    
-    NSString *searchText = stringFrom;
-    NSRange rangeResult;
-    NSRange rangeSearch = NSMakeRange(0, searchText.length);
-    NSMutableArray *aryLocation = [[NSMutableArray alloc] init];
-    NSMutableArray *aryLength = [[NSMutableArray alloc] init];
-    
-    while(1) {
-        rangeResult = [searchText rangeOfString:@">>No.[0-9]+"];
-        if (rangeResult.location == NSNotFound || rangeResult.length == 0) {
-            break;
-        }
-        
-        rangeResult = [searchText rangeOfString:@">>No.[0-9]+" options:NSRegularExpressionSearch range:rangeSearch];
-        if (rangeResult.location == NSNotFound || rangeResult.length == 0) {
-            break;
-        }
-        
-        [aryLocation addObject:[NSNumber numberWithInteger:rangeResult.location]];
-        [aryLength addObject:[NSNumber numberWithInteger:rangeResult.length]];
-        
-        rangeSearch.location = rangeResult.location + rangeResult.length;
-        rangeSearch.length = searchText.length - rangeSearch.location;
-    }
-    
-    NSInteger num = [aryLocation count];
-    for(NSInteger i = num-1; i>=0 ; i--) {
-        
-        NS0Log(@"%zi %zi",
-              [((NSNumber*)[aryLocation objectAtIndex:i]) integerValue],
-              [((NSNumber*)[aryLength objectAtIndex:i]) integerValue]);
-        
-        NSRange range = NSMakeRange(
-                                    [((NSNumber*)[aryLocation objectAtIndex:i]) integerValue],
-                                    [((NSNumber*)[aryLength objectAtIndex:i]) integerValue]);
-        
-        NSString *sub = [searchText substringWithRange:NSMakeRange(range.location+2, range.length-2)];
-        NSString *replacement = [NSString stringWithFormat:@"<a href='%@'>>>%@</a>", sub, sub];
-        searchText = [searchText stringByReplacingCharactersInRange:range withString:replacement];
-    }
-    
-    return searchText;
-}
 
-
-+ (NSString*)addLinkForRefTag:(NSString*)stringFrom {
-    
-    NSString *searchText = stringFrom;
-    NSRange rangeResult;
-    NSRange rangeSearch = NSMakeRange(0, searchText.length);
-    NSMutableArray *aryLocation = [[NSMutableArray alloc] init];
-    NSMutableArray *aryLength = [[NSMutableArray alloc] init];
-    
-    while(1) {
-        rangeResult = [searchText rangeOfString:@"[ref tid="];
-        if (rangeResult.location == NSNotFound || rangeResult.length == 0) {
-            break;
-        }
-        
-        rangeResult = [searchText rangeOfString:@"\\[ref tid=\"[0-9]+\"/\\]" options:NSRegularExpressionSearch range:rangeSearch];
-        if (rangeResult.location == NSNotFound || rangeResult.length == 0) {
-            break;
-        }
-        
-        [aryLocation addObject:[NSNumber numberWithInteger:rangeResult.location]];
-        [aryLength addObject:[NSNumber numberWithInteger:rangeResult.length]];
-        
-        rangeSearch.location = rangeResult.location + rangeResult.length;
-        rangeSearch.length = searchText.length - rangeSearch.location;
-    }
-    
-    NSInteger num = [aryLocation count];
-    for(NSInteger i = num-1; i>=0 ; i--) {
-        
-        NSLog(@"%zi %zi",
-               [((NSNumber*)[aryLocation objectAtIndex:i]) integerValue],
-               [((NSNumber*)[aryLength objectAtIndex:i]) integerValue]);
-        
-        NSRange range = NSMakeRange(
-                                    [((NSNumber*)[aryLocation objectAtIndex:i]) integerValue],
-                                    [((NSNumber*)[aryLength objectAtIndex:i]) integerValue]);
-        
-        NSString *keyString = @"[ref tid=\"";
-        NSString *tidString = [searchText substringWithRange:NSMakeRange(range.location+keyString.length, range.length-keyString.length)];
-        NSInteger tid = [tidString integerValue];
-
-        NSString *replacement = [NSString stringWithFormat:@"<a href='No.%zd'>>>No.%zd</a>", tid, tid];
-        searchText = [searchText stringByReplacingCharactersInRange:range withString:replacement];
-    }
-    
-    return searchText;
-}
-
-
-
-
-+ (NSString*)addLinkForWebAddr:(NSString*)stringFrom {
-    
-    NSString *searchText = stringFrom;
-    NSRange rangeResult;
-    NSRange rangeSearch = NSMakeRange(0, searchText.length);
-    NSMutableArray *aryLocation = [[NSMutableArray alloc] init];
-    NSMutableArray *aryLength = [[NSMutableArray alloc] init];
-    
-    while(1) {
-        rangeResult = [searchText rangeOfString:@"http"];
-        if (rangeResult.location == NSNotFound || rangeResult.length == 0) {
-            break;
-        }
-        
-        NSString * regexString = @"\\bhttps?://[a-zA-Z0-9\\-.]+(?::(\\d+))?(?:(?:/[a-zA-Z0-9\\-._?,'+\\&%$=~*!():@\\\\]*)+)?";
-//        NSString *urlReg = @"^(https?://)?(([0-9a-z_!~*'().&=+$%-]+:)?[0-9a-z_!~*'().&=+$%-]+@)?(([0-9]{1,3}\\.){3}[0-9]{1,3}|([0-9a-z_!~*'()-]+\\.)*([0-9a-z][0-9a-z-]{0,61})?[0-9a-z]\\.[a-z]{2,6})(:[0-9]{1,4})?((/?)|(/[0-9a-z_!~*'().;?:@&=+$,%#-]+)+/?)$";
-        
-        rangeResult = [searchText rangeOfString:regexString options:NSRegularExpressionSearch range:rangeSearch];
-        if (rangeResult.location == NSNotFound || rangeResult.length == 0) {
-            break;
-        }
-        
-        //已经添加链接的不添加.
-        NSLog(@"zxc %zd %zd", rangeResult.location, rangeResult.length);
-        NSString *subString = [searchText substringFromIndex:(rangeResult.location+rangeResult.length)];
-        if([subString hasPrefix:@"</a>"] || [subString hasPrefix:@"\""]) {
-            NSLog(@"ignore link");
-        }
-        else {
-            [aryLocation addObject:[NSNumber numberWithInteger:rangeResult.location]];
-            [aryLength addObject:[NSNumber numberWithInteger:rangeResult.length]];
-        }
-    
-        rangeSearch.location = rangeResult.location + rangeResult.length;
-        rangeSearch.length = searchText.length - rangeSearch.location;
-    }
-    
-    NSInteger num = [aryLocation count];
-    for(NSInteger i = num-1; i>=0 ; i--) {
-        
-        NS0Log(@"%zi %zi",
-               [((NSNumber*)[aryLocation objectAtIndex:i]) integerValue],
-               [((NSNumber*)[aryLength objectAtIndex:i]) integerValue]);
-        
-        NSRange range = NSMakeRange(
-                                    [((NSNumber*)[aryLocation objectAtIndex:i]) integerValue],
-                                    [((NSNumber*)[aryLength objectAtIndex:i]) integerValue]);
-        
-        NSString *sub = [searchText substringWithRange:NSMakeRange(range.location, range.length)];
-        
-        NSString *replacement = [NSString stringWithFormat:@"<a href='%@'>%@</a>", sub, sub];
-        searchText = [searchText stringByReplacingCharactersInRange:range withString:replacement];
-    }
-    
-    return searchText;
-}
-
-
-//字符转换.
-+ (NSString*) postDataContentRetreat:(NSString*)content {
-    
-    //一些www的关键字符信息需转义.
-    content = [NSString decodeWWWEscape:content];
-    
-    //新版本使用NCR显示部分字符. 修改.
-    content = [content NCRDecode];
-    
-    //font属性由RTLabel显示大小不合适. 手动修改成这样.
-    content = [content stringByReplacingOccurrencesOfString:@"font size=\"5\"" withString:@"font size=\"16\""];
-    
-    //对No.xxx加载超链接.
-    content = [self addLinkForReferenceNumber:content];
-    
-    //对[ref tid="123456"/]进行处理.
-    content = [self addLinkForRefTag:content];
-    
-    //对http地址加载超链接.
-    content = [self addLinkForWebAddr:content];
-    
-    return content;
-}
 
 
 - (void)encodeWithCoder:(NSCoder*)encode {
@@ -890,8 +721,6 @@ PostView 接收的字段字段
     
     //正文.
 
-    NSString *content = @"";
-    
     //这个测试转换占用时间. 执行4000次的generatePostViewDataUseCustom大概是41s. 去掉后为1s.
     //去掉后界面流畅许多.
 #if 0
@@ -901,22 +730,26 @@ PostView 接收的字段字段
     NSAttributedString *attributedString = [[NSAttributedString alloc] initWithData:[self.content dataUsingEncoding:NSUnicodeStringEncoding] options:options documentAttributes:nil error:nil];
     NS0Log(@"%@", attributedString);
     NS0Log(@"%@", [attributedString string]);
-    content = [attributedString string];
+    //content = [attributedString string];
+    attributedString = nil;
 #endif
     
-    content = self.content;
-    
+    NSMutableString *contentPrefix = [[NSMutableString alloc] init];
     if(self.name.length > 0) {
-        content = [NSString stringWithFormat:@"名称: %@\n%@", self.name, content];
+        [contentPrefix appendFormat:@"名称: %@\n", self.name];
     }
     if(self.email.length > 0 && ![self.email isEqualToString:@"sage"]) { //email的sage表示世嘉. 不用显示.
-        content = [NSString stringWithFormat:@"E-mail: %@\n%@", self.email, content];
+        [contentPrefix appendFormat:@"E-mail: %@\n", self.email];
     }
     if(self.title.length > 0) {
-        content = [NSString stringWithFormat:@"标题: %@\n%@", self.title, content];
+        [contentPrefix appendFormat:@"标题: %@\n", self.title];
+    }
+    if(contentPrefix.length > 0) {
+        //去除最后的一个\n.
+        [dict setObject:[contentPrefix substringWithRange:NSMakeRange(0, contentPrefix.length-1)] forKey:@"contentPrefix"];
     }
     
-    content = [PostData postDataContentRetreat:content];
+    NSString *content = self.content;
     [dict setObject:content?content:@"无正文" forKey:@"content"];
     
     //判断是否设置无图模式.
@@ -927,8 +760,8 @@ PostView 接收的字段字段
         
     }
     else if(b) {
-        content = [content stringByAppendingString:@"\n[图片未显示: 无图模式]"];
-        [dict setObject:content?content:@"无正文" forKey:@"content"];
+        NSString *contentSuffix = @"[图片未显示: 无图模式]";
+        [dict setObject:contentSuffix forKey:@"contentSuffix"];
     }
     else {
         Host *host = [[AppConfig sharedConfigDB] configDBHostsGetCurrent];
@@ -1860,7 +1693,8 @@ NSMutableDictionary *dictPost = [[NSMutableDictionary alloc] init];
         dictPost[@"groupName"] = @"";
         dictPost[@"sortTime"] = @0;
         
-        NSURL *url=[[NSURL alloc] initWithString:[urlString stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+//        NSURL *url=[[NSURL alloc] initWithString:[urlString stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+        NSURL *url = [NSString stringToNSURL:urlString];
         NSMutableURLRequest *mutableRequest = [[NSMutableURLRequest alloc] initWithURL:url cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:60];
         
         NSData *postBody = [NSJSONSerialization dataWithJSONObject:dictPost options:NSJSONWritingPrettyPrinted error:nil];
@@ -1918,7 +1752,8 @@ NSMutableDictionary *dictPost = [[NSMutableDictionary alloc] init];
             //2.图片上传.
             if(result) {
             
-                NSURL *url = [[NSURL alloc] initWithString:[uploadUrl stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+//                NSURL *url = [[NSURL alloc] initWithString:[uploadUrl stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+                NSURL *url = [NSString stringToNSURL:uploadUrl];
                 NSMutableURLRequest *mutableRequest = [[NSMutableURLRequest alloc] initWithURL:url cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:60];
                 
                 //分界线的标识符
@@ -2087,7 +1922,8 @@ NSMutableDictionary *dictPost = [[NSMutableDictionary alloc] init];
                     dictPost[@"groupName"] = @"";
                     dictPost[@"sortTime"] = @0;
                     
-                    NSURL *url=[[NSURL alloc] initWithString:[urlString stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+//                    NSURL *url=[[NSURL alloc] initWithString:[urlString stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+                    NSURL *url = [NSString stringToNSURL:urlString];
                     NSMutableURLRequest *mutableRequest = [[NSMutableURLRequest alloc] initWithURL:url cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:60];
                     
                     NSData *postBody = [NSJSONSerialization dataWithJSONObject:dictPost options:NSJSONWritingPrettyPrinted error:nil];

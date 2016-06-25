@@ -172,17 +172,31 @@
 
 
 
+- (void)GET:(NSString*)query
+andArgument:(NSDictionary*)argument
+   progress:(void (^)(NSProgress *downloadProgress))downloadProgressHandle
+    success:(void (^)(NSURLSessionDataTask *task, NSData * responseData, NSDictionary * dictionary))successHandle
+    failure:(void (^)(NSURLSessionDataTask *task, NSError *error))failureHandle;
+
+
 
 
 - (NSString*)generateRequestURL:(NSString*)query andArgument:(NSDictionary*)argument;
+
 - (void)authAsync:(void(^)(BOOL result))handle;
+
 - (void)updateCategoryAsync:(void(^)(BOOL result, NSInteger total, NSInteger updateNumber))handle;
+
+
 - (NSData*)sendSynchronousRequestTo:(NSString*)query andArgument:(NSDictionary*)argument;
 - (NSDictionary*)sendSynchronousRequestAndJsonParseTo:(NSString*)query andArgument:(NSDictionary*)argument;
 
 
 - (AFHTTPSessionManager *)HTTPSessionManager;
 #define HTTPMANAGE [[AppConfig sharedConfigDB] HTTPSessionManager]
+
+
+- (dispatch_queue_t)postDataRetreatQueue;
 
 @end
 

@@ -249,7 +249,11 @@
 
     NSInteger tid = postData.tid;
     NSLog(@"tid = %zi", tid);
-    [vc setDetailedTid:tid onCategory:self.category withData:postData];
+    
+    PostData *postDataDetail = [[PostData alloc] init];
+    [postDataDetail copyFrom:postData];
+    
+    [vc setDetailedTid:tid onCategory:self.category withData:postDataDetail];
 
     [self.navigationController pushViewController:vc animated:YES];
 }

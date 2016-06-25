@@ -33,6 +33,15 @@
 
 
 
+#define CONTENT_USE_RTLabel                 1
+#define CONTENT_USE_TTTAttributedLabel      0
+
+
+
+
+
+
+
 
 
 

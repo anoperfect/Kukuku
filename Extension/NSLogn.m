@@ -63,7 +63,7 @@
 {
     double interval = [NSDate timeIntervalCountWithRecount:false];
     NSMutableString *str = [[NSMutableString alloc] init];
-    [str appendFormat:@"%90s %6ld %3.6f: %@", function, line, interval, content];
+    [str appendFormat:@"%90s %6ld %3.6f:%s %@", function, line, interval, [NSThread isMainThread]?" ":"-", content];
     printf("%s\n", [str UTF8String]);
 }
 

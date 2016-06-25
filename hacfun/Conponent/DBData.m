@@ -13,7 +13,7 @@
 
 
 
-#define ENABLE_LOG_SQLITE   1
+#define ENABLE_LOG_SQLITE   0
 #if ENABLE_LOG_SQLITE
 #define NSLogSqlite NSLog
 #else

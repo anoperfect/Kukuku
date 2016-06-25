@@ -400,7 +400,7 @@
         height = [numberHeight floatValue];
     }
     
-    NSLog(@"------tableView[%@] heightForRowAtIndexPath return %.1f", [NSString stringFromTableIndexPath:indexPath], height);
+    NS0Log(@"------tableView[%@] heightForRowAtIndexPath return %.1f", [NSString stringFromTableIndexPath:indexPath], height);
     return height;
 }
 
@@ -1224,32 +1224,6 @@
     }];
     
     [self showPopupView:v];
-    
-    
-#if 0
-    UIActionSheet* mySheet = [[UIActionSheet alloc]
-                              initWithTitle:@"ActionChoose"
-                              delegate:self
-                              cancelButtonTitle:@"Cancel"
-                              destructiveButtonTitle:@"Destroy"
-                              otherButtonTitles:@"OK", nil];
-    
-    [mySheet addButtonWithTitle:@"111"];
-    [mySheet showInView:self.view];
-#endif
-}
-
-- (void)actionSheetCancel:(UIActionSheet *)actionSheet{
-        //
-}
-- (void) actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex{
-//
-}
--(void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex{
-//
-}
--(void)actionSheet:(UIActionSheet *)actionSheet willDismissWithButtonIndex:(NSInteger)buttonIndex{
-//
 }
 
 
@@ -1339,6 +1313,8 @@
             
             //更新对应的postData.
             [postData copyFrom:postDataUpdate];
+            //重建显示数据.
+            postData.postViewData = nil;
             
 #if 0
             //更新对应的postViewData.
@@ -1346,10 +1322,6 @@
             [self postViewReloadRow:indexPath];
 #endif
         }
-
-        
-        
-        
     }
     else {
         NSLog(@"#error - tid [%zd] not found.", postDataUpdate.tid);
@@ -1464,6 +1436,9 @@
 {
     NSLog(@"###### UITableView reloadRowsAtIndexPaths : %@", indexPath);
     
+    PostData *postData = [self postDataOnIndexPath:indexPath];
+    postData.postViewData = nil;
+    
     NSArray *indexArray=[NSArray arrayWithObject:indexPath];
     [self.postView beginUpdates];
     [self.postView reloadRowsAtIndexPaths:indexArray withRowAnimation:UITableViewRowAnimationNone];
@@ -1567,7 +1542,9 @@
     ImageViewController *vc = [[ImageViewController alloc] init];
     NSString *linkString = postView.data.image;
     
-    NSURL *url=[[NSURL alloc] initWithString:[linkString stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+//    NSURL *url=[[NSURL alloc] initWithString:[linkString stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+    NSURL *url = [NSString stringToNSURL:linkString];
+    
     [vc sd_setImageWithURL:url placeholderImage:imageThumb];
     [self.navigationController pushViewController:vc animated:YES];
 }

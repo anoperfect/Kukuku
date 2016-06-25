@@ -174,7 +174,7 @@
     UIGraphicsEndImageContext();
     return image;
     
-    //    [UIColor colorWithPatternImage:[UIImage imageNamed:@"bg.png"]];
+    //    [UIColor colorWithPatternImage:[UIImage imageNamed:@"imagename"]];
 }
 
 

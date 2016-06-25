@@ -8,7 +8,13 @@
 
 #import "PostView.h"
 #import "AppConfig.h"
-@interface PostView () <RTLabelDelegate> {
+#import "NSAttributedString+HTML.h"
+@interface PostView () <RTLabelDelegate, TTTAttributedLabelDelegate> {
+    
+    
+    
+    
+    
 };
 
 
@@ -33,7 +39,11 @@
 @property (nonatomic, strong) UILabel       *manageInfoLabel;
 @property (nonatomic, strong) UILabel       *otherInfoLabel;
 @property (nonatomic, strong) UILabel       *statusInfoLabel;
-@property (nonatomic, strong) RTLabel       *contentLabel;
+@property (nonatomic, strong) UILabel       *contentPrefixLabel;
+@property (nonatomic, strong) UILabel       *contentSuffixLabel;
+
+@property (nonatomic, strong) UIView        *contentLabel;
+
 @property (nonatomic, strong) ViewContainer *repliesView;
 @property (strong,nonatomic) PostImageView  *imageView;
 @property (nonatomic, strong) UIToolbar     *actionButtons0;
@@ -124,18 +134,29 @@ static NSInteger kcountObject = 0;
             [self addSubview:self.statusInfoLabel];
         }
         
+        if(!self.contentPrefixLabel) {
+            self.contentPrefixLabel = [[UILabel alloc] init];
+            self.contentPrefixLabel.text = @"";
+            self.contentPrefixLabel.font = [UIFont fontWithName:@"PostTitle"];
+            self.contentPrefixLabel.textColor = [UIColor colorWithName:@"PostViewLightText"];
+            self.contentPrefixLabel.textAlignment = NSTextAlignmentLeft;
+            
+            [self addSubview:self.contentPrefixLabel];
+        }
+        
+        if(!self.contentSuffixLabel) {
+            self.contentSuffixLabel = [[UILabel alloc] init];
+            self.contentSuffixLabel.text = @"";
+            self.contentSuffixLabel.font = [UIFont fontWithName:@"PostTitle"];
+            self.contentSuffixLabel.textColor = [UIColor colorWithName:@"PostViewLightText"];
+            self.contentSuffixLabel.textAlignment = NSTextAlignmentLeft;
+            
+            [self addSubview:self.contentSuffixLabel];
+        }
+        
         if(!self.contentLabel) {
-            self.contentLabel = [[RTLabel alloc] init];
+            self.contentLabel = [self contentLabelBuild];
             [self addSubview:self.contentLabel];
-            
-            self.contentLabel.text = @"content\n内容\n示范";
-            
-            self.contentLabel.lineBreakMode = NSLineBreakByWordWrapping;
-            self.contentLabel.font = [UIFont fontWithName:@"PostContent"];
-            self.contentLabel.textColor = [UIColor colorWithName:@"PostViewText"];
-            self.contentLabel.textColor = [UIColor blackColor];
-            
-            self.contentLabel.delegate = self;
         }
         
         if(!self.repliesView) {
@@ -259,6 +280,8 @@ static NSInteger kcountObject = 0;
         [self.infoLabel setText:foldReason];
         self.manageInfoLabel.hidden = YES;
         self.otherInfoLabel.hidden = YES;
+        self.contentPrefixLabel.hidden = YES;
+        self.contentSuffixLabel.hidden = YES;
         self.contentLabel.hidden = YES;
         self.imageView.hidden = YES;
     }
@@ -276,11 +299,12 @@ static NSInteger kcountObject = 0;
         [self.statusInfoLabel setText:statusInfoString?statusInfoString:@""];
         self.statusInfoLabel.hidden = NO;
         
-        NSString *content = [self.data.postViewData objectForKey:@"content"];
-        content = content?content:@"无正文...";
-        [self.contentLabel setText:content];
-        self.contentLabel.hidden = NO;
+        [self.contentPrefixLabel setText:[self.data.postViewData objectForKey:@"contentPrefix"]];
+        [self.contentSuffixLabel setText:[self.data.postViewData objectForKey:@"contentSuffix"]];
         
+        //可能更换content控件.
+        [self contentLabelSet];
+
         self.imageView.hidden = YES;
         NSString *thumb = [self.data.postViewData objectForKey:@"thumb"];
         if([thumb isKindOfClass:[NSString class]] && thumb.length > 0) {
@@ -355,7 +379,7 @@ static NSInteger kcountObject = 0;
                                                                         action:@selector(cellAction:)];
                 
                 //item.image = [UIImage imageNamed:@"edit"];
-                item.style = UIBarButtonItemStyleBordered;
+                item.style = UIBarButtonItemStylePlain;
                 
                 [items addObject:item];
             }
@@ -371,6 +395,9 @@ static NSInteger kcountObject = 0;
         //NSLog(@"NOT show actions");
     }
 }
+
+
+
 
 
 - (void)cellAction:(UIBarButtonItem*)sender
@@ -394,6 +421,8 @@ static NSInteger kcountObject = 0;
     CGRect frameManageInfo          = CGRectZero;
     CGRect frameOtherInfo           = CGRectZero;
     CGRect frameStatusInfo          = CGRectZero;
+    CGRect frameContentPrefixLabel  = CGRectZero;
+    CGRect frameContentSuffixLabel  = CGRectZero;
     CGRect frameContentLabel        = CGRectZero;
     CGRect frameRepliesView         = CGRectZero;
     CGRect frameImageViewContent    = CGRectZero;
@@ -470,10 +499,17 @@ static NSInteger kcountObject = 0;
         [layout setUseBesideMode:@"PaddingLineStatus" besideTo:@"LineOther" withDirection:FrameLayoutDirectionBelow andSizeValue:heightPaddingLineStatus];
         [layout setUseBesideMode:@"LineStatus" besideTo:@"PaddingLineStatus" withDirection:FrameLayoutDirectionBelow andSizeValue:0.0];
         
-        [layout setUseBesideMode:@"PaddingLineContent" besideTo:@"LineStatus" withDirection:FrameLayoutDirectionBelow andSizeValue:heightPaddingLineContent];
+        [layout setUseBesideMode:@"PaddingLineContentPrefix" besideTo:@"LineStatus" withDirection:FrameLayoutDirectionBelow andSizeValue:heightPaddingLineContent];
+        [layout setUseBesideMode:@"LineContentPrefix" besideTo:@"PaddingLineContentPrefix" withDirection:FrameLayoutDirectionBelow andSizeValue:0.0];
+        
+        
+        [layout setUseBesideMode:@"PaddingLineContent" besideTo:@"LineContentPrefix" withDirection:FrameLayoutDirectionBelow andSizeValue:heightPaddingLineContent];
         [layout setUseBesideMode:@"LineContent" besideTo:@"PaddingLineContent" withDirection:FrameLayoutDirectionBelow andSizeValue:0.0];
         
-        [layout setUseBesideMode:@"PaddingLineImage" besideTo:@"LineContent" withDirection:FrameLayoutDirectionBelow andSizeValue:heightPaddingLineImage];
+        [layout setUseBesideMode:@"PaddingLineContentSuffix" besideTo:@"PaddingLineContent" withDirection:FrameLayoutDirectionBelow andSizeValue:heightPaddingLineContent];
+        [layout setUseBesideMode:@"LineContentSuffix" besideTo:@"PaddingLineContentSuffix" withDirection:FrameLayoutDirectionBelow andSizeValue:0.0];
+        
+        [layout setUseBesideMode:@"PaddingLineImage" besideTo:@"LineContentSuffix" withDirection:FrameLayoutDirectionBelow andSizeValue:heightPaddingLineImage];
         [layout setUseBesideMode:@"LineImage" besideTo:@"PaddingLineImage" withDirection:FrameLayoutDirectionBelow andSizeValue:0.0];
         
         [layout setUseBesideMode:@"PaddingLineReply" besideTo:@"LineImage" withDirection:FrameLayoutDirectionBelow andSizeValue:heightPaddingLineReply];
@@ -505,21 +541,68 @@ static NSInteger kcountObject = 0;
             [layout setUseBesideMode:@"PaddingLineStatus" besideTo:@"LineOther" withDirection:FrameLayoutDirectionBelow andSizeValue:0.0];
             [layout setUseBesideMode:@"LineStatus" besideTo:@"PaddingLineStatus" withDirection:FrameLayoutDirectionBelow andSizeValue:0.0];
         }
+        
+        if(self.contentPrefixLabel.text.length > 0) {
+            [layout setUseBesideMode:@"PaddingContentPrefixLabel" besideTo:@"LineStatus" withDirection:FrameLayoutDirectionBelow andSizeValue:0.0];
+            [layout setUseBesideMode:@"ContentPrefixLabel" besideTo:@"PaddingContentPrefixLabel" withDirection:FrameLayoutDirectionBelow andSizeValue:10.0];
+            frameContentPrefixLabel = [layout getCGRect:@"ContentPrefixLabel"];
+            
+            self.contentPrefixLabel.frame = frameContentPrefixLabel;
+            CGSize size = [self.contentPrefixLabel sizeThatFits:self.contentPrefixLabel.frame.size];
+            if(size.height <= 10.0) {
+                
+            }
+            else {
+                [layout setUseBesideMode:@"ContentPrefixLabel" besideTo:@"PaddingContentPrefixLabel" withDirection:FrameLayoutDirectionBelow andSizeValue:size.height];
+                frameContentPrefixLabel = [layout getCGRect:@"ContentPrefixLabel"];
+            }
+            
+            heightPaddingLineContent = 16;
+        }
+        else {
+            [layout setUseBesideMode:@"PaddingContentPrefixLabel" besideTo:@"LineOther" withDirection:FrameLayoutDirectionBelow andSizeValue:0.0];
+            [layout setUseBesideMode:@"ContentPrefixLabel" besideTo:@"PaddingContentPrefixLabel" withDirection:FrameLayoutDirectionBelow andSizeValue:0.0];
+        }
+        
         //正文和title之间有间隔.
-        [layout setUseBesideMode:@"PaddingLineContent" besideTo:@"LineStatus" withDirection:FrameLayoutDirectionBelow andSizeValue:heightPaddingLineContent];
+        [layout setUseBesideMode:@"PaddingLineContent" besideTo:@"PaddingContentPrefixLabel" withDirection:FrameLayoutDirectionBelow andSizeValue:heightPaddingLineContent];
         //设置正文.
         [layout setUseBesideMode:@"LineContent" besideTo:@"PaddingLineContent" withDirection:FrameLayoutDirectionBelow andSizeValue:20.0];
         //contentLabel需自调整高度.
         frameContentLabel = [layout getCGRect:@"LineContent"];
         self.contentLabel.frame = frameContentLabel;
-        CGSize size = [self.contentLabel optimumSize];
-        frameContentLabel.size.height = size.height;
+        
+        
+        
+        
+        frameContentLabel.size.height = [self optumizeHeightOfContent];
         //重新设置
         [layout setCGRect:frameContentLabel toName:@"LineContent"];
         
+        
+        if(self.contentSuffixLabel.text.length > 0) {
+            [layout setUseBesideMode:@"PaddingContentSuffixLabel" besideTo:@"LineContent" withDirection:FrameLayoutDirectionBelow andSizeValue:6.0];
+            [layout setUseBesideMode:@"ContentSuffixLabel" besideTo:@"PaddingContentSuffixLabel" withDirection:FrameLayoutDirectionBelow andSizeValue:10.0];
+            frameContentSuffixLabel = [layout getCGRect:@"ContentSuffixLabel"];
+            
+            self.contentSuffixLabel.frame = frameContentSuffixLabel;
+            CGSize size = [self.contentSuffixLabel sizeThatFits:self.contentSuffixLabel.frame.size];
+            if(size.height <= 10.0) {
+                
+            }
+            else {
+                [layout setUseBesideMode:@"ContentSuffixLabel" besideTo:@"PaddingContentSuffixLabel" withDirection:FrameLayoutDirectionBelow andSizeValue:size.height];
+                frameContentSuffixLabel = [layout getCGRect:@"ContentSuffixLabel"];
+            }
+        }
+        else {
+            [layout setUseBesideMode:@"PaddingContentSuffixLabel" besideTo:@"LineContent" withDirection:FrameLayoutDirectionBelow andSizeValue:0.0];
+            [layout setUseBesideMode:@"ContentSuffixLabel" besideTo:@"PaddingContentSuffixLabel" withDirection:FrameLayoutDirectionBelow andSizeValue:0.0];
+        }
+        
         //Image.
         if(self.imageView.hidden) {
-            [layout setUseBesideMode:@"PaddingLineImage" besideTo:@"LineContent" withDirection:FrameLayoutDirectionBelow andSizeValue:0.0];
+            [layout setUseBesideMode:@"PaddingLineImage" besideTo:@"ContentSuffixLabel" withDirection:FrameLayoutDirectionBelow andSizeValue:0.0];
             [layout setUseBesideMode:@"LineImage" besideTo:@"PaddingLineImage" withDirection:FrameLayoutDirectionBelow andSizeValue:0.0];
         }
         else {
@@ -562,6 +645,8 @@ static NSInteger kcountObject = 0;
     self.manageInfoLabel.frame      = frameManageInfo;
     self.otherInfoLabel.frame       = frameOtherInfo;
     self.statusInfoLabel.frame      = frameStatusInfo;
+    self.contentPrefixLabel.frame   = frameContentPrefixLabel;
+    self.contentSuffixLabel.frame   = frameContentSuffixLabel;
     self.contentLabel.frame         = frameContentLabel;
     self.imageView.frame            = frameImageViewContent;
     self.repliesView.frame          = frameRepliesView;
@@ -583,6 +668,9 @@ static NSInteger kcountObject = 0;
 }
 
 
+
+
+
 + (PostView*)PostViewWith:(PostData*)postData andFrame:(CGRect)frame
 {
     PostView *postView = [[PostView alloc] initWithFrame:frame];
@@ -597,11 +685,6 @@ static NSInteger kcountObject = 0;
     return postView;
 }
 
-
-- (void)rtLabel:(id)rtLabel didSelectLinkWithURL:(NSURL*)url {
-    NSLog(@"url = %@", url);
-    [self.delegate PostView:self didSelectLinkWithURL:url];
-}
 
 
 + (PostView*)PostDatalViewWithTid:(NSInteger)tid
@@ -665,5 +748,422 @@ static NSInteger kcountObject = 0;
     
     kcountObject --;
 }
+
+
+
+//字符转换.
++ (NSString*) contentLabelContentRetreat:(NSString*)content
+{
+    //一些www的关键字符信息需转义.
+    content = [NSString decodeWWWEscape:content];
+    
+    //新版本使用NCR显示部分字符. 修改.
+    content = [content NCRDecode];
+    
+    //font属性由RTLabel显示大小不合适. 手动修改成这样.
+    content = [content stringByReplacingOccurrencesOfString:@"font size=\"5\"" withString:@"font size=\"16\""];
+    
+    //对No.xxx加载超链接.
+    content = [self addLinkForReferenceNumber:content];
+    
+    //对[ref tid="123456"/]进行处理.
+    content = [self addLinkForRefTag:content];
+    
+    //对http地址加载超链接. 对link的标签处置的有问题, 另外那个正则表达式有bug.
+    //content = [self addLinkForWebAddr:content];
+    
+    return content;
+}
+
+
+#if CONTENT_USE_RTLabel
+
+
++ (id)postDataContentTreat:(PostData*)postData
+{
+    NSString *content = [PostView addLinkForRefTag:postData.content];
+    content = [PostView contentLabelContentRetreatRTLabel:content];
+    return content;
+}
+
+
++ (void)postDataContentAsyncTreat:(PostData*)postData
+{
+    return ;
+    
+    //    dispatch_async([[AppConfig sharedConfigDB] postDataRetreatQueue], ^{
+    //        self.contentAsysncTreat = [self postDataContentTreat];
+    //    });
+}
+
+
+//字符转换.
++ (NSString*) contentLabelContentRetreatRTLabel:(NSString*)content
+{
+    //一些www的关键字符信息需转义.
+    content = [NSString decodeWWWEscape:content];
+    
+    //新版本使用NCR显示部分字符. 修改.
+    content = [content NCRDecode];
+    
+    //font属性由RTLabel显示大小不合适. 手动修改成这样.
+    content = [content stringByReplacingOccurrencesOfString:@"font size=\"5\"" withString:@"font size=\"16\""];
+    
+    //对No.xxx加载超链接.
+    content = [self addLinkForReferenceNumber:content];
+    
+    //对[ref tid="123456"/]进行处理.
+    //content = [self addLinkForRefTag:content];
+    
+    //对http地址加载超链接. 对link的标签处置的有问题, 另外那个正则表达式有bug.
+    //content = [self addLinkForWebAddr:content];
+    
+    return content;
+}
+
+
+
+- (UIView*)contentLabelBuild
+{
+    RTLabel *label = [[RTLabel alloc] init];
+    label.text = @"content\n内容\n示范";
+    label.lineBreakMode = NSLineBreakByWordWrapping;
+    label.font = [UIFont fontWithName:@"PostContent"];
+    label.textColor = [UIColor colorWithName:@"PostViewText"];
+    label.textColor = [UIColor blackColor];
+    label.delegate = self;
+    
+    return label;
+}
+
+
+- (void)rtLabel:(id)rtLabel didSelectLinkWithURL:(NSURL*)url {
+    NSLog(@"url = %@", url);
+    [self.delegate PostView:self didSelectLinkWithURL:url];
+}
+
+
+- (void)contentLabelSet
+{
+//    NSString *content = [self.data.postViewData objectForKey:@"content"];
+//    content = [PostView contentLabelContentRetreat:content];
+    
+    RTLabel *label = (RTLabel*)(self.contentLabel);
+    
+    if(self.data.contentAsysncTreat) {
+        [label setText:self.data.contentAsysncTreat];
+    }
+    else {
+        NSString *s = [PostView postDataContentTreat:self.data];
+        NSLog(@"s = %@, <%@>", s, self.data.content);
+        if([s isKindOfClass:[NSString class]]) {
+            [label setText:s];
+        }
+        else {
+            [label setText:@"NAN"];
+        }
+    }
+    
+    self.contentLabel.hidden = NO;
+}
+
+
+- (CGFloat)optumizeHeightOfContent
+{
+    RTLabel *label = (RTLabel*)(self.contentLabel);
+    
+    CGSize size = [label optimumSize];
+    return size.height;
+}
+
+
+
+
+#endif
+
+
+
+#if CONTENT_USE_TTTAttributedLabel
+
+#define LINE_SPACING    9.0
+
+
++ (id)postDataContentTreat:(PostData*)postData
+{
+    NSString *content = [self addLinkForRefTag:postData.content];
+    NS0Log(@"----------content : \n%@", content);
+    //系统解析方法占用／等待main thread的资源. 主副线程同时执行到此api会产生阻塞.
+    //    NSDictionary *options = @{NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType};
+    //    NSAttributedString *attributedString = [[NSAttributedString alloc] initWithData:[content dataUsingEncoding:NSUnicodeStringEncoding] options:options documentAttributes:nil error:nil];
+    
+    //使用DTCoreText的解析方法.
+    NSAttributedString *attributedString = [[NSAttributedString alloc] initWithHTMLData:[content dataUsingEncoding:NSUTF8StringEncoding] documentAttributes:nil];
+    
+    return attributedString;
+}
+
+
++ (void)postDataContentAsyncTreat:(PostData*)postData
+{
+    dispatch_async([[AppConfig sharedConfigDB] postDataRetreatQueue], ^{
+        postData.contentAsysncTreat = [self postDataContentTreat:postData];
+    });
+}
+
+
+- (UIView*)contentLabelBuild
+{
+    TTTAttributedLabel *label = [[TTTAttributedLabel alloc] initWithFrame:CGRectMake(0, 0, 100, 100)];
+    label.text = @"content\n内容\n示范";
+    label.lineBreakMode = NSLineBreakByWordWrapping;
+    label.font = [UIFont fontWithName:@"PostContent"];
+    label.textColor = [UIColor colorWithName:@"PostViewText"];
+    label.textColor = [UIColor blackColor];
+    label.numberOfLines = 0;
+    label.lineSpacing = LINE_SPACING;
+    label.delegate = self;
+    
+    return label;
+}
+
+
+- (void)attributedLabel:(TTTAttributedLabel *)label didSelectLinkWithURL:(NSURL *)url
+{
+    NSLog(@"URL%@", url);
+}
+
+
+- (void)setAttributedStringTo:(NSAttributedString*)attributedString
+{
+    TTTAttributedLabel *label = (TTTAttributedLabel*)(self.contentLabel);
+
+    NSMutableAttributedString *attributedStringModify = [[NSMutableAttributedString alloc] initWithAttributedString:attributedString];
+    [attributedStringModify addAttribute:NSFontAttributeName value:[UIFont fontWithName:@"PostContent"] range:NSMakeRange(0, attributedStringModify.length)];
+    [attributedStringModify addAttribute:NSForegroundColorAttributeName value:[UIColor colorWithName:@"PostViewText"] range:NSMakeRange(0, attributedStringModify.length)];
+    
+    NSMutableParagraphStyle * paragraphStyle = [[NSMutableParagraphStyle alloc] init];
+    [paragraphStyle setLineSpacing:LINE_SPACING];
+//    [paragraphStyle setParagraphSpacing:-3];
+//    [paragraphStyle setLineHeightMultiple:1];
+    [attributedStringModify addAttribute:NSParagraphStyleAttributeName value:paragraphStyle range:NSMakeRange(0, attributedStringModify.length)];
+
+    label.linkAttributes = [NSDictionary dictionaryWithObject:[NSNumber numberWithBool:YES] forKey:(__bridge NSString *)kCTUnderlineStyleAttributeName];
+    
+    NSMutableDictionary *mutableActiveLinkAttributes = [NSMutableDictionary dictionary];
+    [mutableActiveLinkAttributes setValue:[NSNumber numberWithBool:NO] forKey:(NSString *)kCTUnderlineStyleAttributeName];
+    [mutableActiveLinkAttributes setValue:(__bridge id)[[UIColor redColor] CGColor] forKey:(NSString *)kCTForegroundColorAttributeName];
+    [mutableActiveLinkAttributes setValue:(__bridge id)[[UIColor colorWithRed:1.0f green:0.0f blue:0.0f alpha:0.1f] CGColor] forKey:(NSString *)kTTTBackgroundFillColorAttributeName];
+    [mutableActiveLinkAttributes setValue:(__bridge id)[[UIColor colorWithRed:1.0f green:0.0f blue:0.0f alpha:0.25f] CGColor] forKey:(NSString *)kTTTBackgroundStrokeColorAttributeName];
+    [mutableActiveLinkAttributes setValue:[NSNumber numberWithFloat:1.0f] forKey:(NSString *)kTTTBackgroundLineWidthAttributeName];
+    [mutableActiveLinkAttributes setValue:[NSNumber numberWithFloat:5.0f] forKey:(NSString *)kTTTBackgroundCornerRadiusAttributeName];
+    label.activeLinkAttributes = mutableActiveLinkAttributes;
+    
+    label.attributedText = attributedStringModify;
+    
+
+}
+
+
+- (void)contentLabelSet
+{
+    TTTAttributedLabel *label = (TTTAttributedLabel*)(self.contentLabel);
+    self.contentLabel.hidden = NO;
+    
+    if(self.data.contentAsysncTreat) {
+        if([self.data.contentAsysncTreat isKindOfClass:[NSAttributedString class]]) {
+
+            [self setAttributedStringTo:self.data.contentAsysncTreat];
+        }
+        else if([self.data.contentAsysncTreat isKindOfClass:[NSString class]]) {
+            label.text = self.data.contentAsysncTreat;
+        }
+        else {
+            label.text = @"NAN";
+        }
+    }
+    else {
+        NSLog(@"main thread treat content data.");
+        NSAttributedString *attrString = [PostView postDataContentTreat:self.data];
+        NSLog(@"main thread treat content data. %@", attrString);
+        
+        if([attrString isKindOfClass:[NSAttributedString class]]) {
+            [self setAttributedStringTo:attrString];
+        }
+        else if([attrString isKindOfClass:[NSString class]]) {
+            label.text = attrString;
+        }
+        else {
+            [label setText:@"NAN"];
+        }
+    }
+    
+    NSLog(@"ert : %@", label.attributedText);
+}
+
+
+- (CGFloat)optumizeHeightOfContent
+{
+    TTTAttributedLabel *label = (TTTAttributedLabel*)(self.contentLabel);
+    
+    CGSize size = [label sizeThatFits:label.frame.size];
+    return size.height;
+}
+
+#endif
+
+
++ (NSString*)addLinkForReferenceNumber:(NSString*)stringFrom {
+    
+    NSString *searchText = stringFrom;
+    NSRange rangeResult;
+    NSRange rangeSearch = NSMakeRange(0, searchText.length);
+    NSMutableArray *aryLocation = [[NSMutableArray alloc] init];
+    NSMutableArray *aryLength = [[NSMutableArray alloc] init];
+    
+    while(1) {
+        rangeResult = [searchText rangeOfString:@">>No.[0-9]+"];
+        if (rangeResult.location == NSNotFound || rangeResult.length == 0) {
+            break;
+        }
+        
+        rangeResult = [searchText rangeOfString:@">>No.[0-9]+" options:NSRegularExpressionSearch range:rangeSearch];
+        if (rangeResult.location == NSNotFound || rangeResult.length == 0) {
+            break;
+        }
+        
+        [aryLocation addObject:[NSNumber numberWithInteger:rangeResult.location]];
+        [aryLength addObject:[NSNumber numberWithInteger:rangeResult.length]];
+        
+        rangeSearch.location = rangeResult.location + rangeResult.length;
+        rangeSearch.length = searchText.length - rangeSearch.location;
+    }
+    
+    NSInteger num = [aryLocation count];
+    for(NSInteger i = num-1; i>=0 ; i--) {
+        
+        NS0Log(@"%zi %zi",
+               [((NSNumber*)[aryLocation objectAtIndex:i]) integerValue],
+               [((NSNumber*)[aryLength objectAtIndex:i]) integerValue]);
+        
+        NSRange range = NSMakeRange(
+                                    [((NSNumber*)[aryLocation objectAtIndex:i]) integerValue],
+                                    [((NSNumber*)[aryLength objectAtIndex:i]) integerValue]);
+        
+        NSString *sub = [searchText substringWithRange:NSMakeRange(range.location+2, range.length-2)];
+        NSString *replacement = [NSString stringWithFormat:@"<a href='%@'>>>%@</a>", sub, sub];
+        searchText = [searchText stringByReplacingCharactersInRange:range withString:replacement];
+    }
+    
+    return searchText;
+}
+
+
++ (NSString*)addLinkForRefTag:(NSString*)stringFrom {
+    
+    NSString *searchText = stringFrom;
+    NSRange rangeResult;
+    NSRange rangeSearch = NSMakeRange(0, searchText.length);
+    NSMutableArray *aryLocation = [[NSMutableArray alloc] init];
+    NSMutableArray *aryLength = [[NSMutableArray alloc] init];
+    
+    while(1) {
+        rangeResult = [searchText rangeOfString:@"[ref tid="];
+        if (rangeResult.location == NSNotFound || rangeResult.length == 0) {
+            break;
+        }
+        
+        rangeResult = [searchText rangeOfString:@"\\[ref tid=\"[0-9]+\"/\\]" options:NSRegularExpressionSearch range:rangeSearch];
+        if (rangeResult.location == NSNotFound || rangeResult.length == 0) {
+            break;
+        }
+        
+        [aryLocation addObject:[NSNumber numberWithInteger:rangeResult.location]];
+        [aryLength addObject:[NSNumber numberWithInteger:rangeResult.length]];
+        
+        rangeSearch.location = rangeResult.location + rangeResult.length;
+        rangeSearch.length = searchText.length - rangeSearch.location;
+    }
+    
+    NSInteger num = [aryLocation count];
+    for(NSInteger i = num-1; i>=0 ; i--) {
+        
+        NSLog(@"%zi %zi",
+              [((NSNumber*)[aryLocation objectAtIndex:i]) integerValue],
+              [((NSNumber*)[aryLength objectAtIndex:i]) integerValue]);
+        
+        NSRange range = NSMakeRange(
+                                    [((NSNumber*)[aryLocation objectAtIndex:i]) integerValue],
+                                    [((NSNumber*)[aryLength objectAtIndex:i]) integerValue]);
+        
+        NSString *keyString = @"[ref tid=\"";
+        NSString *tidString = [searchText substringWithRange:NSMakeRange(range.location+keyString.length, range.length-keyString.length)];
+        NSInteger tid = [tidString integerValue];
+        
+        NSString *replacement = [NSString stringWithFormat:@"<a href='No.%zd'>>>No.%zd</a>", tid, tid];
+        searchText = [searchText stringByReplacingCharactersInRange:range withString:replacement];
+    }
+    
+    return searchText;
+}
+
+
++ (NSString*)addLinkForWebAddr:(NSString*)stringFrom {
+    
+    NSString *searchText = stringFrom;
+    NSRange rangeResult;
+    NSRange rangeSearch = NSMakeRange(0, searchText.length);
+    NSMutableArray *aryLocation = [[NSMutableArray alloc] init];
+    NSMutableArray *aryLength = [[NSMutableArray alloc] init];
+    
+    while(1) {
+        rangeResult = [searchText rangeOfString:@"http"];
+        if (rangeResult.location == NSNotFound || rangeResult.length == 0) {
+            break;
+        }
+        
+        NSString * regexString = @"\\bhttps?://[a-zA-Z0-9\\-.]+(?::(\\d+))?(?:(?:/[a-zA-Z0-9\\-._?,'+\\&%$=~*!():@\\\\]*)+)?";
+        //        NSString *urlReg = @"^(https?://)?(([0-9a-z_!~*'().&=+$%-]+:)?[0-9a-z_!~*'().&=+$%-]+@)?(([0-9]{1,3}\\.){3}[0-9]{1,3}|([0-9a-z_!~*'()-]+\\.)*([0-9a-z][0-9a-z-]{0,61})?[0-9a-z]\\.[a-z]{2,6})(:[0-9]{1,4})?((/?)|(/[0-9a-z_!~*'().;?:@&=+$,%#-]+)+/?)$";
+        
+        rangeResult = [searchText rangeOfString:regexString options:NSRegularExpressionSearch range:rangeSearch];
+        if (rangeResult.location == NSNotFound || rangeResult.length == 0) {
+            break;
+        }
+        
+        //已经添加链接的不添加.
+        NSLog(@"zxc %zd %zd", rangeResult.location, rangeResult.length);
+        NSString *subString = [searchText substringFromIndex:(rangeResult.location+rangeResult.length)];
+        if([subString hasPrefix:@"</a>"] || [subString hasPrefix:@"\""]) {
+            NSLog(@"ignore link");
+        }
+        else {
+            [aryLocation addObject:[NSNumber numberWithInteger:rangeResult.location]];
+            [aryLength addObject:[NSNumber numberWithInteger:rangeResult.length]];
+        }
+        
+        rangeSearch.location = rangeResult.location + rangeResult.length;
+        rangeSearch.length = searchText.length - rangeSearch.location;
+    }
+    
+    NSInteger num = [aryLocation count];
+    for(NSInteger i = num-1; i>=0 ; i--) {
+        
+        NS0Log(@"%zi %zi",
+               [((NSNumber*)[aryLocation objectAtIndex:i]) integerValue],
+               [((NSNumber*)[aryLength objectAtIndex:i]) integerValue]);
+        
+        NSRange range = NSMakeRange(
+                                    [((NSNumber*)[aryLocation objectAtIndex:i]) integerValue],
+                                    [((NSNumber*)[aryLength objectAtIndex:i]) integerValue]);
+        
+        NSString *sub = [searchText substringWithRange:NSMakeRange(range.location, range.length)];
+        
+        NSString *replacement = [NSString stringWithFormat:@"<a href='%@'>%@</a>", sub, sub];
+        searchText = [searchText stringByReplacingCharactersInRange:range withString:replacement];
+    }
+    
+    return searchText;
+}
+
+
 
 @end

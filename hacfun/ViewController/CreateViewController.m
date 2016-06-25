@@ -23,54 +23,7 @@
 #define TAG_ACTION_VIEW     100002
 
 
-#if 0
-@interface PostDataSend : NSObject<NSURLConnectionDelegate>
 
-@property (nonatomic, strong) NSString  *name;
-@property (nonatomic, strong) NSString  *email;
-@property (nonatomic, strong) NSString  *title;
-@property (nonatomic, strong) NSString  *content;
-
-
-
-@property (nonatomic, strong) NSString  *imageType;
-@property (nonatomic, strong) NSString  *imageName;
-@property (nonatomic, strong) UIImage   *image;
-
-@property (nonatomic, strong) void (^responseHandler)(NSURLResponse * response);
-@property (nonatomic, strong) void (^progrossHandler)(NSString *status, BOOL continuous) ;
-@property (nonatomic, strong) void (^completionHandler)(NSURLResponse *response, NSData *data, NSError *connectionError);
-
-@property (nonatomic, strong) NSURLResponse *response;
-@property (nonatomic, strong) NSMutableData *responseData;
-
-- (void)aysncPostToUrlString:(NSString*)urlString
-             responseHandler:(void (^)(NSURLResponse * response))responseHandler
-             progrossHandler:(void (^)(NSString *status, BOOL continuous))progrossHandler
-           completionHandler:(void (^)(NSURLResponse *response,
-                                       NSData *data,
-                                       NSError *connectionError))completionHandler;
-@end
-
-
-
-
-
-@implementation PostDataSend
-
-- (void)aysncPostToUrlString:(NSString*)urlString
-             responseHandler:(void (^)(NSURLResponse * response))responseHandler
-             progrossHandler:(void (^)(NSString *status, BOOL continuous))progrossHandler
-           completionHandler:(void (^)(NSURLResponse *response,
-                                       NSData *data,
-                                       NSError *connectionError))completionHandler
-{
-    
-}
-
-
-@end
-#endif
 
 @interface CreateViewController ()
 <UITextViewDelegate, UIImagePickerControllerDelegate,UINavigationControllerDelegate, UITableViewDataSource, UITableViewDelegate> {
@@ -747,357 +700,6 @@
 }
 
 
-#if 0
-- (void)clickSend0
-{
-    
-    NSTimeInterval t = [[NSDate date] timeIntervalSince1970];
-    self.editedAt = t * 1000.0;
-    
-    [self notFocusToInput];
-    
-    Host *host = [[AppConfig sharedConfigDB] configDBHostsGetCurrent];
-    NSString *str = nil;
-    
-    if(self.topicTid == 0 || self.topicTid == NSNotFound) {
-        str = [NSString stringWithFormat:@"%@/t/%zi/create", host.host, self.topicTid];
-    }
-    else {
-        str =[NSString stringWithFormat:@"%@/%@/create", host.host, self.category.name];
-    }
-    
-    NSURL *url=[[NSURL alloc] initWithString:[str stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
-    
-    NSMutableURLRequest *mutableRequest = [[NSMutableURLRequest alloc] initWithURL:url cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:60];
-    
-    //分界线的标识符
-    //    NSString *TWITTERFON_FORM_BOUNDARY = @"----WebKitFormBoundaryJCYFNcctaaOtDHN2";
-    NSString *TWITTERFON_FORM_BOUNDARY = @"----WebKitFormBoundary2UCyBQVe8R5PwpHo";
-    
-    NSString *firstMPboundary=[[NSString alloc]initWithFormat:@"--%@\r\n", TWITTERFON_FORM_BOUNDARY];
-    //分界线 --AaB03x
-    NSString *MPboundary=[[NSString alloc]initWithFormat:@"\r\n--%@\r\n", TWITTERFON_FORM_BOUNDARY];
-    //结束符 AaB03x--
-    NSString *endMPboundary=[[NSString alloc]initWithFormat:@"\r\n--%@--\r\n", TWITTERFON_FORM_BOUNDARY];
-    //要上传的图片
-    //    UIImage *image=[params objectForKey:@"pic"];
-    //    //得到图片的data
-    //    NSData* data = UIImagePNGRepresentation(image);
-    //    //http body的字符串
-    NSMutableData *body = [[NSMutableData alloc]init];
-    //参数的集合的所有key的集合
-    NSMutableDictionary *dic = [NSMutableDictionary dictionaryWithCapacity:30];
-    [dic setObject:@"" forKey:@"name"];
-    [dic setObject:@"sage" forKey:@"email"]; //莫拉岛民的平均值.
-    [dic setObject:@"" forKey:@"email"];
-    [dic setObject:@"" forKey:@"title"];
-    NSString *contentInput = [NSString stringWithFormat:@"客户端测试.[%@]沉的快...", self.category.name];
-    contentInput = _textView.text;
-    [dic setObject:contentInput forKey:@"content"];
-    [dic setObject:@"" forKey:@"image"];
-    
-    NSMutableArray *ary = [[NSMutableArray alloc]init];
-    [ary addObject:@"name"];
-    [ary addObject:@"email"];
-    [ary addObject:@"title"];
-    [ary addObject:@"content"];
-    if(_imageDataPost) {
-        [ary addObject:@"image"];
-    }
-    
-    NSInteger idx = 0;
-    
-    for(id key in ary) {
-        NS0Log(@"key : %@    , value : %@", key, [dic objectForKey:key]);
-        
-        if(0 == idx) {
-            NS0Log(@"first boundary");
-            [body appendData:[[NSString stringWithFormat:@"%@", firstMPboundary] dataUsingEncoding:NSUTF8StringEncoding]];
-        }
-        else {
-            [body appendData:[[NSString stringWithFormat:@"%@", MPboundary] dataUsingEncoding:NSUTF8StringEncoding]];
-        }
-        idx ++;
-        
-        if([(NSString*)key isEqualToString:@"image"]) {
-            if(_imageDataPost) {
-                [body appendData:[[NSString stringWithFormat:@"Content-Disposition: form-data; name=\"%@\"; filename=\"1.jpg\"\r\nContent-Type: image/jpeg\r\n\r\n",key] dataUsingEncoding:NSUTF8StringEncoding]];
-                
-                NSData *imageData = _imageDataPost;
-                
-                NSLog(@"imageData : %zi", [imageData length]);
-                [body appendData:imageData];
-            }
-            else {
-                [body appendData:[[NSString stringWithFormat:@"Content-Disposition: form-data; name=\"%@\"; filename=\"\"\r\nContent-Type: image/jpeg\r\n\r\n",key] dataUsingEncoding:NSUTF8StringEncoding]];
-            }
-        }
-        else {
-            [body appendData:[[NSString stringWithFormat:@"Content-Disposition: form-data; name=\"%@\"\r\n\r\n",key] dataUsingEncoding:NSUTF8StringEncoding]];
-            NSString *strContent = (NSString*)[dic objectForKey:key];
-            [body appendData:[[NSString stringWithFormat:@"%@", strContent] dataUsingEncoding:NSUTF8StringEncoding]];
-        }
-    }
-    
-    [body appendData:[[NSString stringWithFormat:@"%@", endMPboundary] dataUsingEncoding:NSUTF8StringEncoding]];
-    
-    //声明结束符：--AaB03x--
-    //NSString *end=[[NSString alloc]initWithFormat:@"\r\n%@",endMPboundary];
-    //声明myRequestData，用来放入http body
-    NSMutableData *myRequestData=[NSMutableData data];
-    //将body字符串转化为UTF8格式的二进制
-    [myRequestData appendData:body];
-    //将image的data加入
-    //    [myRequestData appendData:data];
-    //加入结束符--AaB03x--
-    //[myRequestData appendData:[end dataUsingEncoding:NSUTF8StringEncoding]];
-    
-    //设置HTTPHeader中Content-Type的值
-    NSString *content=[[NSString alloc]initWithFormat:@"multipart/form-data; boundary=%@",TWITTERFON_FORM_BOUNDARY];
-    //设置HTTPHeader
-    [mutableRequest setValue:content forHTTPHeaderField:@"Content-Type"];
-    //设置Content-Length
-    [mutableRequest setValue:[NSString stringWithFormat:@"%lu", (unsigned long)[myRequestData length]] forHTTPHeaderField:@"Content-Length"];
-    NSLog(@"content-length : %zi", [myRequestData length]);
-    //设置http body
-    [mutableRequest setHTTPBody:myRequestData];
-    //http method
-    [mutableRequest setHTTPMethod:@"POST"];
-    
-    [[CookieManage sharedCookieManage] showCookie:@"cookie before POST."];
-    
-    [NSURLConnection connectionWithRequest:mutableRequest delegate:self];
-    
-    //NSString *stringRequestData = [[NSString alloc] initWithData:myRequestData encoding:NSUTF8StringEncoding];
-    NS0Log(@"%zi\n%@", stringRequestData.length, stringRequestData);
-    NS0Log(@"%zi\n%@", stringRequestData.length, myRequestData);
-    NS0Log(@"Request : \n\n%@\n\n", stringRequestData);
-    
-    PopupView *popupView = [[PopupView alloc] init];
-    popupView.rectPadding = 10;
-    popupView.rectCornerRadius = 2;
-    popupView.numofTapToClose = 0;
-    popupView.secondsOfAutoClose = 0;
-    popupView.titleLabel = @"发送服务器中";
-    popupView.borderLabel = 3;
-    popupView.line = 3;
-    popupView.stringIncrease = @".";
-    popupView.secondsOfstringIncrease = 1;
-    popupView.finish = ^(void) {
-        NSLog(@"-=-=-=%@", self);
-        [self focusToInput];
-    };
-    [popupView setTag:(NSInteger)@"PopupView"];
-    [popupView popupInSuperView:self.view];
-}
-#endif
-
-
-- (void)connection:(NSURLConnection*)connection didReceiveResponse:(NSURLResponse *)response {
-    NSLog(@"%@已经接收到响应%@", [NSThread currentThread], response);
-    NSLog(@"------\n%@------\n", connection.description);
-    
-    NSNumber *number = [[NSNumber alloc] initWithUnsignedInteger:(NSInteger)connection];
-    NSMutableData *connectionData = [[NSMutableData alloc] init];
-    [_dictConnectionData setObject:connectionData forKey:number];
-}
-
-
-- (void)connection:(NSURLConnection*)connection didReceiveData:(NSData *)data {
-    NSLog(@"%@已经接收到数据 %@", [NSThread currentThread], data);
-    
-    NSNumber *number = [[NSNumber alloc] initWithUnsignedInteger:(NSInteger)connection];
-    NSMutableData *connectionData = (NSMutableData*)[_dictConnectionData objectForKey:number];
-    [connectionData appendData:data];
-    
-    NSLog(@"1. %@", [[NSString alloc] initWithData:connectionData encoding:NSUTF8StringEncoding]);
-}
-
-
-
-- (void)responseData:(NSData*)data
-{
-#if 0
-    PopupView *popupView = (PopupView*)[self.view viewWithTag:(NSInteger)@"PopupView"];
-    popupView.numofTapToClose = 1;
-    popupView.secondsOfstringIncrease = 0;
-    
-    NSObject *obj;
-    NSDictionary *dict;
-    obj = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableLeaves error:nil];
-    if(obj && [obj isKindOfClass:[NSDictionary class]]) {
-        dict = (NSDictionary*)obj;
-        NSLog(@"dict : %@", [NSString stringFromNSDictionary:dict]);
-        NSInteger code = [(NSNumber*)[dict objectForKey:@"code"] integerValue];
-        BOOL success = [(NSNumber*)[dict objectForKey:@"success"] boolValue];
-        NSInteger newCommitedTid = [(NSNumber*)[dict objectForKey:@"threadsId"] integerValue];
-        NSLog(@"%zi, %d, %zi", code, success, newCommitedTid);
-        
-        if(200 == code && success){
-            NSLog(@"post successfully.");
-            popupView.titleLabel = @"发送成功";
-            if(newCommitedTid > 0) {
-                self.newCommitedTid = newCommitedTid;
-                
-                //主题贴.
-                if(self.topicTid == 0 || self.topicTid == NSNotFound) {
-                    Post *post = [[Post alloc] init];
-                    post.tid        = newCommitedTid;
-                    post.postedAt   = self.editedAt;
-                    
-                    [[AppConfig sharedConfigDB] configDBPostAdd:post];
-                    
-                    popupView.finish = ^(void) {
-                        [self createTopicFinishedWithTid:newCommitedTid andPostData:nil];
-                    };
-                }
-                else { // 回复帖.
-                    Reply *reply = [[Reply alloc] init];
-                    reply.tid           = newCommitedTid;
-                    reply.repliedAt     = self.editedAt;
-                    reply.tidBelongTo   = self.topicTid;
-                    
-                    NSLog(@"vbn %@", reply);
-                    
-                    [[AppConfig sharedConfigDB] configDBReplyAdd:reply];
-                    
-                    popupView.finish = ^(void) {
-                        [self.navigationController popViewControllerAnimated:YES];
-                        [[NSNotificationCenter defaultCenter] postNotificationName:@"CreateReplyFinish" object:self userInfo:nil];
-                    };
-                }
-            }
-            else {
-                popupView.finish = ^(void) {
-                    [self.navigationController popViewControllerAnimated:YES];
-                };
-            }
-        }
-        else {
-            NSString *msg = (NSString*)[dict objectForKey:@"msg"];
-            if(!msg) {
-                msg = (NSString*)[dict objectForKey:@"message"];
-            }
-            popupView.titleLabel = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-            popupView.titleLabel = msg;
-        }
-    }
-    else {
-        NSLog(@"obj [%@] nil or not NSDictionary class", @"JSONObjectWithData");
-        popupView.titleLabel = @"发送失败.数据错误或服务器响应异常.";
-    }
-    
-    [[CookieManage sharedCookieManage] showCookie:@"cookie after POST."];
-#endif
-}
-
-
-
-
-- (void)connectionDidFinishLoading:(NSURLConnection*)connection {
-    NSLog(@"%@数据包传输完成%s", [NSThread currentThread], __FUNCTION__);
-    
-    NSNumber *number = [[NSNumber alloc] initWithUnsignedInteger:(NSInteger)connection];
-    NSMutableData *connectionData = (NSMutableData*)[_dictConnectionData objectForKey:number];
-    NSLog(@"2. %@", [[NSString alloc] initWithData:connectionData encoding:NSUTF8StringEncoding]);
-    
-    NSData *data = [[NSData alloc] initWithData:connectionData];
-    [_dictConnectionData removeObjectForKey:number];
-    
-    
-    [self responseData:data];
-
-#if 0
-    
-    
-    
-    PopupView *popupView = (PopupView*)[self.view viewWithTag:(NSInteger)@"PopupView"];
-    popupView.numofTapToClose = 1;
-    popupView.secondsOfstringIncrease = 0;
-    
-    NSObject *obj;
-    NSDictionary *dict;
-    obj = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableLeaves error:nil];
-    if(obj && [obj isKindOfClass:[NSDictionary class]]) {
-        dict = (NSDictionary*)obj;
-        NSLog(@"dict : %@", [NSString stringFromNSDictionary:dict]);
-        NSInteger code = [(NSNumber*)[dict objectForKey:@"code"] integerValue];
-        BOOL success = [(NSNumber*)[dict objectForKey:@"success"] boolValue];
-        NSInteger newCommitedTid = [(NSNumber*)[dict objectForKey:@"threadsId"] integerValue];
-        NSLog(@"%zi, %d, %zi", code, success, newCommitedTid);
-        
-        if(200 == code && success){
-            NSLog(@"post successfully.");
-            popupView.titleLabel = @"发送成功";
-            if(newCommitedTid > 0) {
-                self.newCommitedTid = newCommitedTid;
-            
-            
-#if 0
-                //占位record表.
-                NSDictionary *infoInsert = @{
-                                             @"tid":[NSNumber numberWithInteger:newCommitedTid],
-                                             @"belongToTid":self.topicTid==0?[NSNumber numberWithInteger:newCommitedTid]:[NSNumber numberWithInteger:self.topicTid],
-                                             @"createdAt":[NSNumber numberWithLongLong:0],
-                                             @"updatedAt":[NSNumber numberWithLongLong:0],
-                                             @"jsonstring":@""
-                                             };
-                
-                [[AppConfig sharedConfigDB] configDBRecordInsertOrReplace:infoInsert];
-#endif
-                //主题贴.
-                if(self.topicTid == 0 || self.topicTid == NSNotFound) {
-                    Post *post = [[Post alloc] init];
-                    post.tid        = newCommitedTid;
-                    post.postedAt   = self.editedAt;
-                    
-                    [[AppConfig sharedConfigDB] configDBPostAdd:post];
-                    
-                    popupView.finish = ^(void) {
-                        [self createFinishedWithTid:newCommitedTid];
-                    };
-                }
-                else { // 回复帖.
-                    Reply *reply = [[Reply alloc] init];
-                    reply.tid           = newCommitedTid;
-                    reply.repliedAt     = self.editedAt;
-                    reply.tidBelongTo   = self.topicTid;
-                    
-                    NSLog(@"vbn %@", reply);
-                    
-                    [[AppConfig sharedConfigDB] configDBReplyAdd:reply];
-                    
-                    popupView.finish = ^(void) {
-                        [self.navigationController popViewControllerAnimated:YES];
-                        [[NSNotificationCenter defaultCenter] postNotificationName:@"CreateReplyFinish" object:self userInfo:nil];
-                    };
-                }
-            }
-            else {
-                popupView.finish = ^(void) {
-                    [self.navigationController popViewControllerAnimated:YES];
-                };
-            }
-        }
-        else {
-            NSString *msg = (NSString*)[dict objectForKey:@"msg"];
-            if(!msg) {
-                msg = (NSString*)[dict objectForKey:@"message"];
-            }
-            popupView.titleLabel = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-            popupView.titleLabel = msg;
-        }
-    }
-    else {
-        NSLog(@"obj [%@] nil or not NSDictionary class", @"JSONObjectWithData");
-        popupView.titleLabel = @"发送失败.数据错误或服务器响应异常.";
-    }
-    
-    [[CookieManage sharedCookieManage] showCookie:@"cookie after POST."];
-#endif
-}
-
-
 - (void)createTopicFinishedWithTid:(NSInteger)tid andPostData:(PostData*)postData
 {
     [self.navigationController popViewControllerAnimated:YES];
@@ -1261,6 +863,360 @@ totalBytesExpectedToWrite:(NSInteger)totalBytesExpectedToWrite
 
 @end
 
+
+
+
+#if 0
+- (void)clickSend0
+{
+    
+    NSTimeInterval t = [[NSDate date] timeIntervalSince1970];
+    self.editedAt = t * 1000.0;
+    
+    [self notFocusToInput];
+    
+    Host *host = [[AppConfig sharedConfigDB] configDBHostsGetCurrent];
+    NSString *str = nil;
+    
+    if(self.topicTid == 0 || self.topicTid == NSNotFound) {
+        str = [NSString stringWithFormat:@"%@/t/%zi/create", host.host, self.topicTid];
+    }
+    else {
+        str =[NSString stringWithFormat:@"%@/%@/create", host.host, self.category.name];
+    }
+    
+    NSURL *url=[[NSURL alloc] initWithString:[str stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+    
+    NSMutableURLRequest *mutableRequest = [[NSMutableURLRequest alloc] initWithURL:url cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:60];
+    
+    //分界线的标识符
+    //    NSString *TWITTERFON_FORM_BOUNDARY = @"----WebKitFormBoundaryJCYFNcctaaOtDHN2";
+    NSString *TWITTERFON_FORM_BOUNDARY = @"----WebKitFormBoundary2UCyBQVe8R5PwpHo";
+    
+    NSString *firstMPboundary=[[NSString alloc]initWithFormat:@"--%@\r\n", TWITTERFON_FORM_BOUNDARY];
+    //分界线 --AaB03x
+    NSString *MPboundary=[[NSString alloc]initWithFormat:@"\r\n--%@\r\n", TWITTERFON_FORM_BOUNDARY];
+    //结束符 AaB03x--
+    NSString *endMPboundary=[[NSString alloc]initWithFormat:@"\r\n--%@--\r\n", TWITTERFON_FORM_BOUNDARY];
+    //要上传的图片
+    //    UIImage *image=[params objectForKey:@"pic"];
+    //    //得到图片的data
+    //    NSData* data = UIImagePNGRepresentation(image);
+    //    //http body的字符串
+    NSMutableData *body = [[NSMutableData alloc]init];
+    //参数的集合的所有key的集合
+    NSMutableDictionary *dic = [NSMutableDictionary dictionaryWithCapacity:30];
+    [dic setObject:@"" forKey:@"name"];
+    [dic setObject:@"sage" forKey:@"email"]; //莫拉岛民的平均值.
+    [dic setObject:@"" forKey:@"email"];
+    [dic setObject:@"" forKey:@"title"];
+    NSString *contentInput = [NSString stringWithFormat:@"客户端测试.[%@]沉的快...", self.category.name];
+    contentInput = _textView.text;
+    [dic setObject:contentInput forKey:@"content"];
+    [dic setObject:@"" forKey:@"image"];
+    
+    NSMutableArray *ary = [[NSMutableArray alloc]init];
+    [ary addObject:@"name"];
+    [ary addObject:@"email"];
+    [ary addObject:@"title"];
+    [ary addObject:@"content"];
+    if(_imageDataPost) {
+        [ary addObject:@"image"];
+    }
+    
+    NSInteger idx = 0;
+    
+    for(id key in ary) {
+        NS0Log(@"key : %@    , value : %@", key, [dic objectForKey:key]);
+        
+        if(0 == idx) {
+            NS0Log(@"first boundary");
+            [body appendData:[[NSString stringWithFormat:@"%@", firstMPboundary] dataUsingEncoding:NSUTF8StringEncoding]];
+        }
+        else {
+            [body appendData:[[NSString stringWithFormat:@"%@", MPboundary] dataUsingEncoding:NSUTF8StringEncoding]];
+        }
+        idx ++;
+        
+        if([(NSString*)key isEqualToString:@"image"]) {
+            if(_imageDataPost) {
+                [body appendData:[[NSString stringWithFormat:@"Content-Disposition: form-data; name=\"%@\"; filename=\"1.jpg\"\r\nContent-Type: image/jpeg\r\n\r\n",key] dataUsingEncoding:NSUTF8StringEncoding]];
+                
+                NSData *imageData = _imageDataPost;
+                
+                NSLog(@"imageData : %zi", [imageData length]);
+                [body appendData:imageData];
+            }
+            else {
+                [body appendData:[[NSString stringWithFormat:@"Content-Disposition: form-data; name=\"%@\"; filename=\"\"\r\nContent-Type: image/jpeg\r\n\r\n",key] dataUsingEncoding:NSUTF8StringEncoding]];
+            }
+        }
+        else {
+            [body appendData:[[NSString stringWithFormat:@"Content-Disposition: form-data; name=\"%@\"\r\n\r\n",key] dataUsingEncoding:NSUTF8StringEncoding]];
+            NSString *strContent = (NSString*)[dic objectForKey:key];
+            [body appendData:[[NSString stringWithFormat:@"%@", strContent] dataUsingEncoding:NSUTF8StringEncoding]];
+        }
+    }
+    
+    [body appendData:[[NSString stringWithFormat:@"%@", endMPboundary] dataUsingEncoding:NSUTF8StringEncoding]];
+    
+    //声明结束符：--AaB03x--
+    //NSString *end=[[NSString alloc]initWithFormat:@"\r\n%@",endMPboundary];
+    //声明myRequestData，用来放入http body
+    NSMutableData *myRequestData=[NSMutableData data];
+    //将body字符串转化为UTF8格式的二进制
+    [myRequestData appendData:body];
+    //将image的data加入
+    //    [myRequestData appendData:data];
+    //加入结束符--AaB03x--
+    //[myRequestData appendData:[end dataUsingEncoding:NSUTF8StringEncoding]];
+    
+    //设置HTTPHeader中Content-Type的值
+    NSString *content=[[NSString alloc]initWithFormat:@"multipart/form-data; boundary=%@",TWITTERFON_FORM_BOUNDARY];
+    //设置HTTPHeader
+    [mutableRequest setValue:content forHTTPHeaderField:@"Content-Type"];
+    //设置Content-Length
+    [mutableRequest setValue:[NSString stringWithFormat:@"%lu", (unsigned long)[myRequestData length]] forHTTPHeaderField:@"Content-Length"];
+    NSLog(@"content-length : %zi", [myRequestData length]);
+    //设置http body
+    [mutableRequest setHTTPBody:myRequestData];
+    //http method
+    [mutableRequest setHTTPMethod:@"POST"];
+    
+    [[CookieManage sharedCookieManage] showCookie:@"cookie before POST."];
+    
+    [NSURLConnection connectionWithRequest:mutableRequest delegate:self];
+    
+    //NSString *stringRequestData = [[NSString alloc] initWithData:myRequestData encoding:NSUTF8StringEncoding];
+    NS0Log(@"%zi\n%@", stringRequestData.length, stringRequestData);
+    NS0Log(@"%zi\n%@", stringRequestData.length, myRequestData);
+    NS0Log(@"Request : \n\n%@\n\n", stringRequestData);
+    
+    PopupView *popupView = [[PopupView alloc] init];
+    popupView.rectPadding = 10;
+    popupView.rectCornerRadius = 2;
+    popupView.numofTapToClose = 0;
+    popupView.secondsOfAutoClose = 0;
+    popupView.titleLabel = @"发送服务器中";
+    popupView.borderLabel = 3;
+    popupView.line = 3;
+    popupView.stringIncrease = @".";
+    popupView.secondsOfstringIncrease = 1;
+    popupView.finish = ^(void) {
+        NSLog(@"-=-=-=%@", self);
+        [self focusToInput];
+    };
+    [popupView setTag:(NSInteger)@"PopupView"];
+    [popupView popupInSuperView:self.view];
+}
+
+
+
+- (void)connection:(NSURLConnection*)connection didReceiveResponse:(NSURLResponse *)response {
+    NSLog(@"%@已经接收到响应%@", [NSThread currentThread], response);
+    NSLog(@"------\n%@------\n", connection.description);
+    
+    NSNumber *number = [[NSNumber alloc] initWithUnsignedInteger:(NSInteger)connection];
+    NSMutableData *connectionData = [[NSMutableData alloc] init];
+    [_dictConnectionData setObject:connectionData forKey:number];
+}
+
+
+- (void)connection:(NSURLConnection*)connection didReceiveData:(NSData *)data {
+    NSLog(@"%@已经接收到数据 %@", [NSThread currentThread], data);
+    
+    NSNumber *number = [[NSNumber alloc] initWithUnsignedInteger:(NSInteger)connection];
+    NSMutableData *connectionData = (NSMutableData*)[_dictConnectionData objectForKey:number];
+    [connectionData appendData:data];
+    
+    NSLog(@"1. %@", [[NSString alloc] initWithData:connectionData encoding:NSUTF8StringEncoding]);
+}
+
+
+
+- (void)responseData:(NSData*)data
+{
+#if 0
+    PopupView *popupView = (PopupView*)[self.view viewWithTag:(NSInteger)@"PopupView"];
+    popupView.numofTapToClose = 1;
+    popupView.secondsOfstringIncrease = 0;
+    
+    NSObject *obj;
+    NSDictionary *dict;
+    obj = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableLeaves error:nil];
+    if(obj && [obj isKindOfClass:[NSDictionary class]]) {
+        dict = (NSDictionary*)obj;
+        NSLog(@"dict : %@", [NSString stringFromNSDictionary:dict]);
+        NSInteger code = [(NSNumber*)[dict objectForKey:@"code"] integerValue];
+        BOOL success = [(NSNumber*)[dict objectForKey:@"success"] boolValue];
+        NSInteger newCommitedTid = [(NSNumber*)[dict objectForKey:@"threadsId"] integerValue];
+        NSLog(@"%zi, %d, %zi", code, success, newCommitedTid);
+        
+        if(200 == code && success){
+            NSLog(@"post successfully.");
+            popupView.titleLabel = @"发送成功";
+            if(newCommitedTid > 0) {
+                self.newCommitedTid = newCommitedTid;
+                
+                //主题贴.
+                if(self.topicTid == 0 || self.topicTid == NSNotFound) {
+                    Post *post = [[Post alloc] init];
+                    post.tid        = newCommitedTid;
+                    post.postedAt   = self.editedAt;
+                    
+                    [[AppConfig sharedConfigDB] configDBPostAdd:post];
+                    
+                    popupView.finish = ^(void) {
+                        [self createTopicFinishedWithTid:newCommitedTid andPostData:nil];
+                    };
+                }
+                else { // 回复帖.
+                    Reply *reply = [[Reply alloc] init];
+                    reply.tid           = newCommitedTid;
+                    reply.repliedAt     = self.editedAt;
+                    reply.tidBelongTo   = self.topicTid;
+                    
+                    NSLog(@"vbn %@", reply);
+                    
+                    [[AppConfig sharedConfigDB] configDBReplyAdd:reply];
+                    
+                    popupView.finish = ^(void) {
+                        [self.navigationController popViewControllerAnimated:YES];
+                        [[NSNotificationCenter defaultCenter] postNotificationName:@"CreateReplyFinish" object:self userInfo:nil];
+                    };
+                }
+            }
+            else {
+                popupView.finish = ^(void) {
+                    [self.navigationController popViewControllerAnimated:YES];
+                };
+            }
+        }
+        else {
+            NSString *msg = (NSString*)[dict objectForKey:@"msg"];
+            if(!msg) {
+                msg = (NSString*)[dict objectForKey:@"message"];
+            }
+            popupView.titleLabel = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+            popupView.titleLabel = msg;
+        }
+    }
+    else {
+        NSLog(@"obj [%@] nil or not NSDictionary class", @"JSONObjectWithData");
+        popupView.titleLabel = @"发送失败.数据错误或服务器响应异常.";
+    }
+    
+    [[CookieManage sharedCookieManage] showCookie:@"cookie after POST."];
+#endif
+}
+
+
+
+
+- (void)connectionDidFinishLoading:(NSURLConnection*)connection {
+    NSLog(@"%@数据包传输完成%s", [NSThread currentThread], __FUNCTION__);
+    
+    NSNumber *number = [[NSNumber alloc] initWithUnsignedInteger:(NSInteger)connection];
+    NSMutableData *connectionData = (NSMutableData*)[_dictConnectionData objectForKey:number];
+    NSLog(@"2. %@", [[NSString alloc] initWithData:connectionData encoding:NSUTF8StringEncoding]);
+    
+    NSData *data = [[NSData alloc] initWithData:connectionData];
+    [_dictConnectionData removeObjectForKey:number];
+    
+    
+    [self responseData:data];
+    
+#if 0
+    
+    
+    
+    PopupView *popupView = (PopupView*)[self.view viewWithTag:(NSInteger)@"PopupView"];
+    popupView.numofTapToClose = 1;
+    popupView.secondsOfstringIncrease = 0;
+    
+    NSObject *obj;
+    NSDictionary *dict;
+    obj = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableLeaves error:nil];
+    if(obj && [obj isKindOfClass:[NSDictionary class]]) {
+        dict = (NSDictionary*)obj;
+        NSLog(@"dict : %@", [NSString stringFromNSDictionary:dict]);
+        NSInteger code = [(NSNumber*)[dict objectForKey:@"code"] integerValue];
+        BOOL success = [(NSNumber*)[dict objectForKey:@"success"] boolValue];
+        NSInteger newCommitedTid = [(NSNumber*)[dict objectForKey:@"threadsId"] integerValue];
+        NSLog(@"%zi, %d, %zi", code, success, newCommitedTid);
+        
+        if(200 == code && success){
+            NSLog(@"post successfully.");
+            popupView.titleLabel = @"发送成功";
+            if(newCommitedTid > 0) {
+                self.newCommitedTid = newCommitedTid;
+                
+                
+#if 0
+                //占位record表.
+                NSDictionary *infoInsert = @{
+                                             @"tid":[NSNumber numberWithInteger:newCommitedTid],
+                                             @"belongToTid":self.topicTid==0?[NSNumber numberWithInteger:newCommitedTid]:[NSNumber numberWithInteger:self.topicTid],
+                                             @"createdAt":[NSNumber numberWithLongLong:0],
+                                             @"updatedAt":[NSNumber numberWithLongLong:0],
+                                             @"jsonstring":@""
+                                             };
+                
+                [[AppConfig sharedConfigDB] configDBRecordInsertOrReplace:infoInsert];
+#endif
+                //主题贴.
+                if(self.topicTid == 0 || self.topicTid == NSNotFound) {
+                    Post *post = [[Post alloc] init];
+                    post.tid        = newCommitedTid;
+                    post.postedAt   = self.editedAt;
+                    
+                    [[AppConfig sharedConfigDB] configDBPostAdd:post];
+                    
+                    popupView.finish = ^(void) {
+                        [self createFinishedWithTid:newCommitedTid];
+                    };
+                }
+                else { // 回复帖.
+                    Reply *reply = [[Reply alloc] init];
+                    reply.tid           = newCommitedTid;
+                    reply.repliedAt     = self.editedAt;
+                    reply.tidBelongTo   = self.topicTid;
+                    
+                    NSLog(@"vbn %@", reply);
+                    
+                    [[AppConfig sharedConfigDB] configDBReplyAdd:reply];
+                    
+                    popupView.finish = ^(void) {
+                        [self.navigationController popViewControllerAnimated:YES];
+                        [[NSNotificationCenter defaultCenter] postNotificationName:@"CreateReplyFinish" object:self userInfo:nil];
+                    };
+                }
+            }
+            else {
+                popupView.finish = ^(void) {
+                    [self.navigationController popViewControllerAnimated:YES];
+                };
+            }
+        }
+        else {
+            NSString *msg = (NSString*)[dict objectForKey:@"msg"];
+            if(!msg) {
+                msg = (NSString*)[dict objectForKey:@"message"];
+            }
+            popupView.titleLabel = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+            popupView.titleLabel = msg;
+        }
+    }
+    else {
+        NSLog(@"obj [%@] nil or not NSDictionary class", @"JSONObjectWithData");
+        popupView.titleLabel = @"发送失败.数据错误或服务器响应异常.";
+    }
+    
+    [[CookieManage sharedCookieManage] showCookie:@"cookie after POST."];
+#endif
+}
+
+#endif
 
 
 

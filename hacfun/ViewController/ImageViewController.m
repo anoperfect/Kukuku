@@ -111,10 +111,7 @@
             self.imageDataDownload = [[NSMutableData alloc] init];
             self.labelPercentage.text = @"准备加载";
             NSLog(@"------ start download.");
-            NSMutableURLRequest *mutableRequest = [[NSMutableURLRequest alloc] initWithURL:self.url cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:10];
-            
-            mutableRequest.HTTPMethod = @"GET";
-            //[NSURLConnection connectionWithRequest:mutableRequest delegate:self];
+
             
             __weak typeof(self) weakSelf = self;
             [HTTPMANAGE GET:[self.url absoluteString]
@@ -226,7 +223,7 @@
 
 - (void)sd_setImageWithURL:(NSURL*)url placeholderImage:(UIImage*)image {
     self.url = url;
-    self.stringUrl = [[self.url absoluteString] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+    self.stringUrl = [NSString stringFromNSURL:self.url];
     self.placeHoldImage = image;
 }
 
@@ -237,50 +234,7 @@
 }
 
 
-- (void)connection:(NSURLConnection*)connection didReceiveResponse:(NSURLResponse *)response {
-    NSLog(@"%@已经接收到响应%@", [NSThread currentThread], response);
-    NSLog(@"------\n%@------\n", connection.description);
-    
-    NSLog(@"%lld", response.expectedContentLength);
-    self.expectedContentLength = response.expectedContentLength;
-    if(self.expectedContentLength <= 0) {
-        self.expectedContentLength = 1024 * 1024;
-    }
-}
 
-
-- (void)connection:(NSURLConnection*)connection didReceiveData:(NSData *)data {
-    NS0Log(@"%@已经接收到数据%s", [NSThread currentThread], __FUNCTION__);
-    
-    [self.imageDataDownload appendData:data];
-    [self.labelPercentage setText:[NSString stringWithFormat:@"加载中%lld%%", (long long)[self.imageDataDownload length] * 100 / self.expectedContentLength]];
-}
-
-
-- (void)connectionDidFinishLoading:(NSURLConnection*)connection {
-    NSLog(@"%@数据包传输完成%s", [NSThread currentThread], __FUNCTION__);
-    
-    [self.labelPercentage setText:@""];
-    
-    NSString *value = [[AppConfig sharedConfigDB] configDBSettingKVGet:@"autosaveimagetoalbum"] ;
-    BOOL bAutoSaveImageToAlbum = [value isEqualToString:@"bool1"];
-    NSData *imageDataDownload = [NSData dataWithData:self.imageDataDownload];
-    if(bAutoSaveImageToAlbum) {
-        UIImage *image = [UIImage imageWithData:imageDataDownload];
-        UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil);
-        [self showIndicationText:@"自动存图到相册" inTime:1.0];
-    }
-    
-    [ImageViewCache setImageViewCache:self.stringUrl withData:imageDataDownload];
-    [self updateImageViewByDownloadOrCachedData:self.imageDataDownload];
-}
-
-
-- (void)connection:(NSURLConnection*)connection didFailWithError:(NSError *)error {
-    [self.labelPercentage setText:@"加载不成功"];
-    NSLog(@"%@数据传输失败,产生错误%s", [NSThread currentThread], __FUNCTION__);
-    NSLog(@"error:%@", error);
-}
 
 
 - (void)updateImageViewByImage:(UIImage*)image
@@ -355,17 +309,65 @@
 
 
 
-
-
 #if 0
-- (void)updateImageViewByData:(NSData*)imageData
+
+- (void)download
 {
-    UIImage *image = [UIImage imageWithData:imageData];
-    if(image) {
-        [self updateImageViewByImage:image];
+    NSMutableURLRequest *mutableRequest = [[NSMutableURLRequest alloc] initWithURL:self.url cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:10];
+    mutableRequest.HTTPMethod = @"GET";
+    [NSURLConnection connectionWithRequest:mutableRequest delegate:self];
+}
+
+
+- (void)connection:(NSURLConnection*)connection didReceiveResponse:(NSURLResponse *)response {
+    NSLog(@"%@已经接收到响应%@", [NSThread currentThread], response);
+    NSLog(@"------\n%@------\n", connection.description);
+    
+    NSLog(@"%lld", response.expectedContentLength);
+    self.expectedContentLength = response.expectedContentLength;
+    if(self.expectedContentLength <= 0) {
+        self.expectedContentLength = 1024 * 1024;
     }
 }
+
+
+- (void)connection:(NSURLConnection*)connection didReceiveData:(NSData *)data {
+    NS0Log(@"%@已经接收到数据%s", [NSThread currentThread], __FUNCTION__);
+    
+    [self.imageDataDownload appendData:data];
+    [self.labelPercentage setText:[NSString stringWithFormat:@"加载中%lld%%", (long long)[self.imageDataDownload length] * 100 / self.expectedContentLength]];
+}
+
+
+- (void)connectionDidFinishLoading:(NSURLConnection*)connection {
+    NSLog(@"%@数据包传输完成%s", [NSThread currentThread], __FUNCTION__);
+    
+    [self.labelPercentage setText:@""];
+    
+    NSString *value = [[AppConfig sharedConfigDB] configDBSettingKVGet:@"autosaveimagetoalbum"] ;
+    BOOL bAutoSaveImageToAlbum = [value isEqualToString:@"bool1"];
+    NSData *imageDataDownload = [NSData dataWithData:self.imageDataDownload];
+    if(bAutoSaveImageToAlbum) {
+        UIImage *image = [UIImage imageWithData:imageDataDownload];
+        UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil);
+        [self showIndicationText:@"自动存图到相册" inTime:1.0];
+    }
+    
+    [ImageViewCache setImageViewCache:self.stringUrl withData:imageDataDownload];
+    [self updateImageViewByDownloadOrCachedData:self.imageDataDownload];
+}
+
+
+- (void)connection:(NSURLConnection*)connection didFailWithError:(NSError *)error {
+    [self.labelPercentage setText:@"加载不成功"];
+    NSLog(@"%@数据传输失败,产生错误%s", [NSThread currentThread], __FUNCTION__);
+    NSLog(@"error:%@", error);
+}
 #endif
+
+
+
+
 
 /*
 #pragma mark - Navigation

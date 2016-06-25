@@ -22,8 +22,7 @@
 {
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
-    
-//    self.tableView.backgroundView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"bgleft"]];
+
     self.tableView.backgroundColor =  [UIColor colorWithName:@"RightMenuBackground"];
     [self custmizeBackgroundView];
     

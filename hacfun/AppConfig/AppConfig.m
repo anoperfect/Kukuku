@@ -96,7 +96,7 @@
 
 
 @property (nonatomic, strong) AFHTTPSessionManager *session;
-
+@property (nonatomic, strong) dispatch_queue_t postDataRetreatQueueInstance;
 @end
 
 
@@ -140,6 +140,26 @@
         //[self authAsync:nil];
         
         [self HTTPSessionManager];
+        
+        //设备基础信息读取.
+        //当前未开启sign校验. 随意写一个. token校验同样未开启.
+#if ENABLE_IDFA
+        NSString *hwidraw = [NSString deviceIdfa];
+#else
+        NSString *hwidraw = [NSString deviceUuid];
+#endif
+        self.hwid = [hwidraw calculateMD5];
+        
+        self.token = [self configDBSettingKVGet:@"token"];
+        
+        if([self.token isEqualToString:@"NAN"]) {
+            self.token = nil;
+        }
+        
+        self.authResult = NO;
+        
+        [self test];
+        
     }
     
     return self;
@@ -2515,168 +2535,175 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
 
 
 
+
 - (void)authAsync:(void(^)(BOOL result))handle
 {
-    //当前未开启sign校验. 随意写一个. token校验同样未开启.
-#if ENABLE_IDFA
-    NSString *hwidraw = [NSString deviceIdfa];
-#else 
-    NSString *hwidraw = [NSString deviceUuid];
-#endif
-    self.hwid = [hwidraw calculateMD5];
+    NSLog(@"authAsync");
     
-    self.token = [self configDBSettingKVGet:@"token"];
-    
-    if([self.token isEqualToString:@"NAN"]) {
-        self.token = nil;
+    __block NSString *query = nil;
+    //CreateNewIfNotExist
+    if(!self.token) {
+        query = @"v2/token/createNewIfNotExist";
+        [self GET:query
+      andArgument:nil
+         progress:nil
+          success:^(NSURLSessionDataTask *task, NSData *responseData, NSDictionary *dictionary) {
+              self.token = [NSString stringWithString:dictionary[@"token"]];
+              [self configDBSettingKVSet:@"token" withValue:self.token];
+              NSLog(@"auth <%@> token got : %@", query, self.token);
+              
+              query = @"v2/system/healthy";
+              [self GET:query
+            andArgument:nil
+               progress:nil
+                success:^(NSURLSessionDataTask *task, NSData *responseData, NSDictionary *dictionary) {
+                    if([self checkResponseDict:dictionary]) {
+                        self.authResult = YES;
+                        if(handle) {
+                            handle(YES);
+                        }
+                    }
+                    else {
+                        NSLog(@"#error - auth <%@> response failed.", query);
+                        if(handle) {
+                            handle(NO);
+                        }
+                    }
+                }
+                failure:^(NSURLSessionDataTask *task, NSError *error) {
+                    NSLog(@"#error - GET <%@> error : %@", query, error);
+                    if(handle) {
+                        handle(NO);
+                    }
+                }
+               ];
+          }
+         failure:^(NSURLSessionDataTask *task, NSError *error) {
+             NSLog(@"#error - GET <%@> error : %@", query, error);
+             if(handle) {
+                 handle(NO);
+             }
+         }
+         ];
     }
-    
-    self.authResult = NO;
-    
-    dispatch_queue_t concurrentQueue = dispatch_queue_create("my.auth.queue", DISPATCH_QUEUE_CONCURRENT);
-    dispatch_async(concurrentQueue, ^{
-        NSString *query = @"";
-        NSDictionary *argument = nil;
-        
-        //NSData *data = nil;
-        NSDictionary* dict = nil;
-        
-        if(!self.token) {
-            query = @"v2/token/createNewIfNotExist";
-            argument = nil;
-            
-            NSLog(@"auth : perform <%@>.", query);
-            dict = [self sendSynchronousRequestAndJsonParseTo:query andArgument:argument];
-            NSLog(@"tyu : %@", dict);
-            
-            if([dict isKindOfClass:[NSDictionary class]] && [dict[@"token"] isKindOfClass:[NSString class]]) {
-                self.token = [NSString stringWithString:dict[@"token"]];
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self configDBSettingKVSet:@"token" withValue:self.token];
-                });
-                NSLog(@"auth <%@> token got : %@", query, self.token);
-            }
-            else {
-                NSLog(@"#error : auth <%@> get token failed.", query);
-            }
-        }
-        
-        if(self.token) {
-            query = @"v2/system/healthy";
-            argument = nil;
-            NSLog(@"auth : perform <%@>.", query);
-            dict = [self sendSynchronousRequestAndJsonParseTo:query andArgument:argument];
-            if([self checkResponseDict:dict]) {
-                self.authResult = YES;
-            }
-            else {
-                NSLog(@"#error - auth <%@> response failed.", query);
-            }
-        }
-        
-        if(handle) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                handle(self.authResult);
-            });
-        }
-    });
+    else {
+        query = @"v2/system/healthy";
+        [self GET:query
+      andArgument:nil
+         progress:nil
+          success:^(NSURLSessionDataTask *task, NSData *responseData, NSDictionary *dictionary) {
+              if([self checkResponseDict:dictionary]) {
+                  self.authResult = YES;
+                  if(handle) {
+                      handle(YES);
+                  }
+              }
+              else {
+                  NSLog(@"#error - auth <%@> response failed.", query);
+                  if(handle) {
+                      handle(NO);
+                  }
+              }
+          }
+          failure:^(NSURLSessionDataTask *task, NSError *error) {
+              NSLog(@"#error - GET <%@> error : %@", query, error);
+              if(handle) {
+                  handle(NO);
+              }
+          }
+         ];
+    }
 }
+
+
+
 
 
 - (void)updateCategoryAsync:(void(^)(BOOL result, NSInteger total, NSInteger updateNumber))handle
 {
     __weak typeof(self) weakSelf = self;
     
-    dispatch_queue_t concurrentQueue = dispatch_queue_create("my.auth.queue", DISPATCH_QUEUE_CONCURRENT);
-    dispatch_async(concurrentQueue, ^{
-        NSMutableArray *categoriesUpdate = [[NSMutableArray alloc] init];
-        NSMutableArray *categoriesInsert = [[NSMutableArray alloc] init];
-        
-        NSInteger total         = self.categories.count;
-        NSInteger updateNumber  = 0;
-        BOOL result             = YES;
-        
-        NSString *query = @"";
-        NSDictionary *argument = nil;
-        
-        query = @"v2/group/list";
-        argument = nil;
-        
-        NSLog(@"auth : perform <%@>.", query);
-        NSDictionary* dict = [weakSelf sendSynchronousRequestAndJsonParseTo:query andArgument:argument];
+    NSString *query = @"v2/group/list";
+    NSDictionary *argument = nil;
+    
+    [self GET:query
+  andArgument:argument
+     progress:nil
+      success:^(NSURLSessionDataTask *task, NSData *responseData, NSDictionary *dictionary) {
+          
+          NSInteger total         = self.categories.count;
+          NSInteger updateNumber  = 0;
+          BOOL result             = YES;
+          NSMutableArray *categoriesUpdate = [[NSMutableArray alloc] init];
+          NSMutableArray *categoriesInsert = [[NSMutableArray alloc] init];
 
-        NS0Log(@"group : %@", dict);
-        
-        if([dict isKindOfClass:[NSDictionary class]] && [[dict objectForKey:@"result"] isKindOfClass:[NSArray class]]) {
-            NSArray *result = [dict objectForKey:@"result"];
-            for(NSDictionary *dict in result) {
-                if(![dict isKindOfClass:[NSDictionary class]]) {
-                    NSLog(@"#error - format.");
-                    continue;
-                }
-                
-                Category *category = [weakSelf configDBCategoryParseFromDict:dict onHostName:[weakSelf configDBHostsGetCurrent].hostname];
-                if(!category) {
-                    NSLog(@"#error - configDBCategoryParseFromDict <%@>.", [NSString stringFromNSDictionary:dict]);
-                    continue;
-                }
-                
-                Category *categoryDB = nil;
-                for(Category *c in self.categories) {
-                    if([c.name isEqualToString:category.name]) {
-                        categoryDB = c;
-                        break;
-                    }
-                }
-                
-                if(!categoryDB) {
-                    [categoriesInsert addObject:category];
-                    total ++;
-                    updateNumber ++;
-                }
-                else {
-                    if([category isEqual:categoryDB]) {
-                        
-                    }
-                    else {
-                        NSLog(@"parsed : %@", category);
-                        NSLog(@"stored : %@", categoryDB);
-                        [categoriesUpdate addObject:category];
-                        updateNumber ++;
-                    }
-                }
-                
-            }
-        }
-        else {
-            NSLog(@"#error - <%@> response nil.", query);
-            result = NO;
-        }
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
-            BOOL refresh = NO;
-            
-            if(categoriesInsert.count > 0) {
-                [weakSelf configDBCategoryInserts:categoriesInsert];
-                refresh = YES;
-            }
-            
-            if(categoriesUpdate.count > 0) {
-                [weakSelf configDBCategoryUpdates:categoriesUpdate];
-                refresh = YES;
-            }
-            
-            
-        });
-        
-        NSLog(@"updateCategoryAsync result:%d, total:%zd, updateNumber:%zd", result, total, updateNumber);
-        
-        if(handle) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                handle(result, total, updateNumber);
-            });
-        }
-    });
+          if([[dictionary objectForKey:@"result"] isKindOfClass:[NSArray class]]) {
+              NSArray *result = [dictionary objectForKey:@"result"];
+              for(NSDictionary *dict in result) {
+                  if(![dict isKindOfClass:[NSDictionary class]]) {
+                      NSLog(@"#error - format.");
+                      continue;
+                  }
+                  
+                  Category *category = [weakSelf configDBCategoryParseFromDict:dict onHostName:[weakSelf configDBHostsGetCurrent].hostname];
+                  if(!category) {
+                      NSLog(@"#error - configDBCategoryParseFromDict <%@>.", [NSString stringFromNSDictionary:dict]);
+                      continue;
+                  }
+                  
+                  Category *categoryDB = nil;
+                  for(Category *c in self.categories) {
+                      if([c.name isEqualToString:category.name]) {
+                          categoryDB = c;
+                          break;
+                      }
+                  }
+                  
+                  if(!categoryDB) {
+                      [categoriesInsert addObject:category];
+                      total ++;
+                      updateNumber ++;
+                  }
+                  else {
+                      if([category isEqual:categoryDB]) {
+                          
+                      }
+                      else {
+                          NSLog(@"parsed : %@", category);
+                          NSLog(@"stored : %@", categoryDB);
+                          [categoriesUpdate addObject:category];
+                          updateNumber ++;
+                      }
+                  }
+                  
+              }
+              
+              BOOL refresh = NO;
+              
+              if(categoriesInsert.count > 0) {
+                  [weakSelf configDBCategoryInserts:categoriesInsert];
+                  refresh = YES;
+              }
+              
+              if(categoriesUpdate.count > 0) {
+                  [weakSelf configDBCategoryUpdates:categoriesUpdate];
+                  refresh = YES;
+              }
+          }
+          else {
+              NSLog(@"#error - <%@> response nil.", query);
+              result = NO;
+          }
+
+          if(handle) {
+              handle(result, total, updateNumber);
+          }
+     }
+      failure:^(NSURLSessionDataTask *task, NSError *error) {
+          if(handle) {
+              handle(NO, self.categories.count, 0);
+          }
+    }];
 }
 
 
@@ -3011,14 +3038,77 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
 }
    
 
+- (dispatch_queue_t)postDataRetreatQueue
+{
+    if(!self.postDataRetreatQueueInstance) {
+        self.postDataRetreatQueueInstance = dispatch_queue_create("my.postdataretreat.queue", DISPATCH_QUEUE_SERIAL);
+    }
+    
+    return self.postDataRetreatQueueInstance;
+}
 
 
+- (void)GET:(NSString*)query
+andArgument:(NSDictionary*)argument
+   progress:(void (^)(NSProgress *downloadProgress))downloadProgressHandle
+    success:(void (^)(NSURLSessionDataTask *task, NSData * responseData, NSDictionary * dictionary))successHandle
+    failure:(void (^)(NSURLSessionDataTask *task, NSError *error))failureHandle
+{
+    NSString *urlString = [self generateRequestURL:query andArgument:argument];
+    [HTTPMANAGE GET:urlString
+         parameters:nil
+           progress:^(NSProgress * _Nonnull downloadProgress) {
+               if(downloadProgress) {
+                   dispatch_async(dispatch_get_main_queue(), ^{
+                       downloadProgressHandle(downloadProgress);
+                   });
+               }
+           }
+     
+            success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                NSLog(@"Networking GET : success");
+                if([responseObject isKindOfClass:[NSData class]]) {
+                    LOG_POSTION
+                    NSDictionary *dictionary = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingMutableLeaves error:nil];
+                    if([dictionary isKindOfClass:[NSDictionary class]]) {
+                        LOG_POSTION
+                        if(successHandle) {
+                            LOG_POSTION
+                            successHandle(task, responseObject, dictionary);
+                        }
+                    }
+                    else {
+                        LOG_POSTION
+                        if(failureHandle) {
+                            NSError *error = [[NSError alloc] initWithDomain:[NSString stringWithFormat:@"Data parse to NSDictionary error (%@)", responseObject] code:400 userInfo:nil];
+                            failureHandle(task, error);
+                        }
+                        
+                    }
+                }
+                else {
+                    LOG_POSTION
+                    if(failureHandle) {
+                        NSError *error = [[NSError alloc] initWithDomain:[NSString stringWithFormat:@"#error - responseObject not NSData.(%@)", [responseObject class]] code:400 userInfo:nil];
+                        failureHandle(task, error);
+                    }
+                }
+            }
+            failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                NSLog(@"Networking GET : failure");
+                if(failureHandle) {
+                    failureHandle(task, error);
+                }
+            }
+     ];
+}
 
 
+- (void)test
+{
 
-
-
-
+    
+}
 
 
 

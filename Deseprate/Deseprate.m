@@ -3461,3 +3461,154 @@ printf("%s\n", [str UTF8String]);\
 
 #endif
 #endif
+
+
+#if 0
+- (void)authAsync:(void(^)(BOOL result))handle
+{
+    dispatch_queue_t concurrentQueue = dispatch_queue_create("my.auth.queue", DISPATCH_QUEUE_CONCURRENT);
+    dispatch_async(concurrentQueue, ^{
+        NSString *query = @"";
+        NSDictionary *argument = nil;
+        
+        //NSData *data = nil;
+        NSDictionary* dict = nil;
+        
+        if(!self.token) {
+            query = @"v2/token/createNewIfNotExist";
+            argument = nil;
+            
+            NSLog(@"auth : perform <%@>.", query);
+            dict = [self sendSynchronousRequestAndJsonParseTo:query andArgument:argument];
+            NSLog(@"tyu : %@", dict);
+            
+            if([dict isKindOfClass:[NSDictionary class]] && [dict[@"token"] isKindOfClass:[NSString class]]) {
+                self.token = [NSString stringWithString:dict[@"token"]];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self configDBSettingKVSet:@"token" withValue:self.token];
+                });
+                NSLog(@"auth <%@> token got : %@", query, self.token);
+            }
+            else {
+                NSLog(@"#error : auth <%@> get token failed.", query);
+            }
+        }
+        
+        if(self.token) {
+            query = @"v2/system/healthy";
+            argument = nil;
+            NSLog(@"auth : perform <%@>.", query);
+            dict = [self sendSynchronousRequestAndJsonParseTo:query andArgument:argument];
+            if([self checkResponseDict:dict]) {
+                self.authResult = YES;
+            }
+            else {
+                NSLog(@"#error - auth <%@> response failed.", query);
+            }
+        }
+        
+        if(handle) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                handle(self.authResult);
+            });
+        }
+    });
+}
+#endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#if 0
+
+/Users/Ben/Workspace/Kukuku/hacfun/ViewController/ThreadsViewController.m:1545:58: 'stringByAddingPercentEscapesUsingEncoding:' is deprecated: first deprecated in iOS 9.0 - Use -stringByAddingPercentEncodingWithAllowedCharacters: instead, which always uses the recommended UTF-8 encoding, and which encodes for a specific URL component or subcomponent since each URL component or subcomponent has different rules for what characters are valid.
+
+
+/Users/Ben/Workspace/Kukuku/hacfun/ViewController/ImageViewController.m:226:49: 'stringByReplacingPercentEscapesUsingEncoding:' is deprecated: first deprecated in iOS 9.0 - Use -stringByRemovingPercentEncoding instead, which always uses the recommended UTF-8 encoding.
+
+
+/Users/Ben/Workspace/Kukuku/hacfun/AppConfig/AppConfig.m:2464:37: 'sendSynchronousRequest:returningResponse:error:' is deprecated: first deprecated in iOS 9.0 - Use [NSURLSession dataTaskWithRequest:completionHandler:] (see NSURLSession.h
+
+#endif
+
+
+
+

@@ -53,6 +53,13 @@
 - (NSString*)desc;
 
 
++ (NSString*) contentLabelContentRetreat:(NSString*)content;
+
+
++ (id)postDataContentTreat:(PostData*)postData; //原始的content转为显示htm内容的控制的可使用数据.
++ (void)postDataContentAsyncTreat:(PostData*)postData; //通常在解析后即调用异步处置. 可能因为时序的原因未能完成异步处置的, 则直接在主线程同步获取之.
+
+
 @end
 
 
