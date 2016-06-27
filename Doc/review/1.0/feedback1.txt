@@ -1,0 +1,35 @@
+Safety - 1.2
+
+
+Your app enables users to post content anonymously but does not have the required precautions in place.
+
+Next Steps
+
+Please revise your app to implement all of the following precautions:
+
+- Age rating must reflect 17+.
+- Require that users agree to terms (EULA) and these terms must make it clear that there is no tolerance for objectionable content.
+- A method for filtering objectionable content.
+- A mechanism for users to flag objectionable content 
+- The ability to block abusive users from the service. 
+- Developer must act on objectionable content reports within 24 hours by removing the content and ejecting the user who provided the offending content.
+
+
+App Add a EULA while users launch the first time, users need to read and agree it, or deny then exit.
+After enter the App, the EULA could be also read from the left menu-kukuku . could be helpful to make users to know the rule more clear.
+
+About objectionable content, in replies page, users could report (举报) to duty room (值班室). The administrator would treat it based on the rule. 
+And users could use the "Do not Show"(屏蔽) function to make the objectionable content not display on this App. 
+
+
+
+
+
+Design - 4.0
+
+
+Your app also includes an update button or alerts the user to update the app. Specifically, your app's 版本 table cell is responsive to tap, which may mislead users to tap on it for update. To avoid user confusion, app version updates must utilize the iOS built-in update mechanism. 
+
+App do not have the self-update function. it's a mistake for the tap response. 
+The UI about version part is modified. 
+
