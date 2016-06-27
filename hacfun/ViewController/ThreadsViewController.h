@@ -33,6 +33,17 @@ typedef NS_ENUM(NSInteger, ThreadsStatus) {
 };
 
 
+typedef NS_ENUM(NSInteger, ThreadsType) {
+    ThreadsTypeRoot,
+    ThreadsTypeNetwork,
+    ThreadsTypeCategory,
+    ThreadsTypeDetail,
+    ThreadsTypeCreate,
+    ThreadsTypeSearch, 
+    ThreadsTypeLocal
+};
+
+
 #define TAG_PostView    (4500000 + 1)
 
 @property (assign,nonatomic) NSInteger  numberOfAll;
@@ -99,6 +110,8 @@ typedef NS_ENUM(NSInteger, ThreadsStatus) {
 
 @property (nonatomic, assign) BOOL showSection;
 
+@property (nonatomic, strong) NSIndexPath *rowActionIndexPath;
+
 //UITableView的foot view用于显示状态数据. 使用此接口具体设置.
 - (void)showfootViewWithTitle:(NSString*)title andActivityIndicator:(BOOL)isActive andDate:(BOOL)isShowDate;//###
 
@@ -152,6 +165,7 @@ typedef NS_ENUM(NSInteger, ThreadsStatus) {
 
 
 - (NSMutableArray*)actionStringsForRowAtIndexPathStaple:(NSIndexPath*)indexPath;
+- (void)showRowActionMenuOnIndexPath:(NSIndexPath*)indexPath;
 
 
 //override.

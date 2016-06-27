@@ -253,7 +253,7 @@
     PostData *postDataDetail = [[PostData alloc] init];
     [postDataDetail copyFrom:postData];
     
-    [vc setDetailedTid:tid onCategory:self.category withData:postDataDetail];
+    [vc setDetailedTid:tid withData:postDataDetail from:ThreadsTypeCategory addtional:self.category];
 
     [self.navigationController pushViewController:vc animated:YES];
 }

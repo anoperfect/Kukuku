@@ -60,7 +60,7 @@
 }
 
 
-- (Post *)getCollectionOnIndexPath:(NSIndexPath*)indexPath
+- (Post *)getPostOnIndexPath:(NSIndexPath*)indexPath
 {
     return self.concreteDatas[indexPath.row];
 }
@@ -68,8 +68,8 @@
 
 - (void)removeRecordsWithIndexPath:(NSIndexPath*)indexPath
 {
-    Post *post = [self getCollectionOnIndexPath:indexPath];
-    [[AppConfig sharedConfigDB] configDBCollectionRemoveByTidArray:@[[NSNumber numberWithInteger:post.tid]]];
+    Post *post = [self getPostOnIndexPath:indexPath];
+    [[AppConfig sharedConfigDB] configDBPostRemoveByTidArray:@[[NSNumber numberWithInteger:post.tid]]];
 }
 
 

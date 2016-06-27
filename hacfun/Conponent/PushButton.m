@@ -7,7 +7,7 @@
 //
 
 #import "PushButton.h"
-
+#import "UIpConfig.h"
 @implementation PushButton
 
 
@@ -413,7 +413,27 @@
 {
     NSInteger index = button.tag - TEXTBUTTONLINE_BUTTON_TAG;
     if(index >= 0 && index < _buttonTexts.count && self.action) {
-        self.action(_buttonTexts[index]);
+//        button.backgroundColor = [UIColor colorWithName:@"RowActionButtonClickBackground"];
+        
+        [UIView animateWithDuration:0.6
+                         animations:^{
+                             button.layer.borderWidth = 3.6;
+//                             button.layer.backgroundColor = [UIColor purpleColor].CGColor;
+                             
+                             button.layer.shadowColor = [UIColor blackColor].CGColor;//shadowColor阴影颜色
+                             button.layer.shadowOffset = CGSizeMake(4,4);//shadowOffset阴影偏移,x向右偏移4，y向下偏移4，默认(0, -3),这个跟shadowRadius配合使用
+                             button.layer.shadowOpacity = 0.8;//阴影透明度，默认0
+                             button.layer.shadowRadius = 4;//阴影半径，默认3
+                         }
+                         completion:^(BOOL finished) {
+//                             button.layer.borderWidth = 1.7;
+                             
+                         }
+         ];
+        
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.6 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            self.action(_buttonTexts[index]);
+        });
     }
 }
 

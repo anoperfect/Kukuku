@@ -5,7 +5,7 @@
 //  Created by Ben on 16/5/18.
 //  Copyright © 2016年 Ben. All rights reserved.
 //
-
+#import "TestViewController.h"
 #import "IntroductionViewController.h"
 #import "TypeModel.h"
 #import "AppConfig.h"
@@ -17,7 +17,7 @@
 @property (nonatomic, strong) UIImageView *imageIntroduction;
 @property (nonatomic, strong) UIWebView *webView;
 
-
+@property (nonatomic, strong) EULAView *eula;
 @end
 
 @implementation IntroductionViewController
@@ -41,17 +41,17 @@
     [self.view addSubview:self.webView];
     self.webView.delegate = self;
     
-    dispatch_async(dispatch_get_main_queue(), ^{
-        //[self loadIntroduction];
-    });
-    
     [self.webView removeFromSuperview];
     
     self.imageScrollViewContainer = [[UIScrollView alloc] init];
-    [self.view addSubview:self.imageScrollViewContainer];
+    //[self.view addSubview:self.imageScrollViewContainer];
     
     self.imageIntroduction = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"Introduction_Kukuku.jpg"]];
     [self.imageScrollViewContainer addSubview:self.imageIntroduction];
+    
+    
+    self.eula = [[EULAView alloc] initWithFrame:self.view.bounds withAgreement:NO andUserFeedbackHanle:nil];
+    [self.view addSubview:self.eula];
 }
 
 
@@ -67,6 +67,8 @@
     
     self.imageIntroduction.frame = CGRectMake(0, 0, self.view.bounds.size.width, heightImage);
     self.imageScrollViewContainer.contentSize = self.imageIntroduction.frame.size;
+    
+    self.eula.frame = self.view.bounds;
 }
 
 

@@ -10,4 +10,14 @@
 
 @interface TestViewController : CustomViewController
 
+
+
+
+
+@end
+
+
+@interface EULAView : UIView
+- (instancetype)initWithFrame:(CGRect)frame withAgreement:(BOOL)withAgreement andUserFeedbackHanle:(void(^)(BOOL isUserAgree, BOOL notShowAgain))userFeedbackHanle;
+
 @end

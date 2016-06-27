@@ -51,6 +51,8 @@
 - (void)viewDidLoad {
     LOG_POSTION
     [super viewDidLoad];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(notificationHandle:) name:@"deleteThreads" object:nil];
 }
 
 
@@ -95,9 +97,10 @@
         [self postViewReload];
         self.threadsStatus = ThreadsStatusLoadSuccessful;
         
-        [self showfootViewWithTitle:[NSString stringWithFormat:@"已加载%zi条", [self numberOfPostDatasTotal]]
-               andActivityIndicator:NO andDate:NO];
+        //footer显示加载的条数.
+        [self updateTotalNumberTitle];
         
+        //对only tid的开始自动加载.
         [self autoLoadOnlyTidThread];
     });
 }
@@ -175,7 +178,7 @@
 
     NSInteger tid = postData.tid;
     NSLog(@"tid = %zi", tid);
-    [vc setDetailedTid:tid onCategory:nil withData:postData];
+    [vc setDetailedTid:tid withData:postData from:ThreadsTypeLocal addtional:nil];
     
     [self.navigationController pushViewController:vc animated:YES];
 }
@@ -199,6 +202,8 @@
     
     
     NSDate *e = [NSDate date];
+    [e timeIntervalSinceDate:s];
+    
     NSLog(@"------%lf", [e timeIntervalSinceDate:s]);
     NSLog(@"count : %zd", count);
 }
@@ -494,10 +499,74 @@
 }
 
 
+- (void)notificationHandle:(NSNotification *)notification
+{
+    NSString *name = [notification name];
+    NSDictionary *userInfo = [notification userInfo];
+    NSLog(@"notificationHandle. name = %@, userInfo = %@", name, userInfo);
+    
+    if([name isEqualToString:@"deleteThreads"]) {
+        NSString *action = userInfo[@"action"];
+        
+        if([action isEqualToString:@"deleteThreadsByTid"]) {
+            NSNumber *tidNumber = [userInfo objectForKey:@"tid"];
+            NSInteger tid = 0;
+            if([tidNumber isKindOfClass:[NSNumber class]] && (tid = [tidNumber integerValue]) > 0) {
+                [self deleteThreadsByTid:tid];
+            }
+            else {
+                NSLog(@"#error - not treate.");
+            }
+        }
+        else {
+            NSLog(@"#error - not treate.");
+        }
+        
+        return ;
+    }
+}
+
+
+- (void)deleteThreadsByTid:(NSInteger)tid
+{
+    NSLog(@"deleteThreadsByTid : tid [%zd]", tid);
+    [self enumerateObjectsUsingBlock:^(PostData *postData, NSIndexPath *indexPath, BOOL *stop) {
+        NSLog(@"enumerateObjectsUsingBlock on [%@] with tid [%zd]", [NSString stringFromTableIndexPath:indexPath], postData.tid);
+        
+        if(postData.tid == tid) {
+            //更新本地存储数据.
+            [self removeRecordsWithIndexPath:indexPath];
+            
+            //更新数据源.
+            PostDataPage *page = self.postDataPages[indexPath.section];
+            [page.postDatas removeObject:postData];
+            
+            [self postViewReload];
+            
+            //退出遍历. 否则因为已经更新self.postDataPages数据源, 继续执行导致数目不匹配.
+            *stop = YES;
+        }
+    }];
+    
+    [self updateTotalNumberTitle];
+}
+
+
+- (void)updateTotalNumberTitle
+{
+    NSInteger countTotal = [self numberOfPostDatasTotal];
+    if(countTotal > 0) {
+        [self showfootViewWithTitle:[NSString stringWithFormat:@"已加载%zi条", [self numberOfPostDatasTotal]] andActivityIndicator:NO andDate:NO];
+    }
+    else {
+        [self showfootViewWithTitle:[NSString stringWithFormat:@"当前没有数据"] andActivityIndicator:NO andDate:NO];
+    }
+}
+
+
 - (void)removeRecordsWithIndexPath:(NSIndexPath*)indexPath
 {
     NSLog(@"#error - should be override.");
 }
-
 
 @end

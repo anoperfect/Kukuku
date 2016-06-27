@@ -714,10 +714,10 @@ PostView 接收的字段字段
         [dict setObject:@"SAGE" forKey:@"manageInfo"];
     }
     else {
-        [dict setObject:@"" forKey:@"manageInfo"];
+        
     }
     
-    [dict setObject:@"" forKey:@"otherInfo"];
+    
     
     //正文.
 
@@ -775,7 +775,8 @@ PostView 接收的字段字段
 {
     if(self.type == PostDataTypeOnlyTid) {
         self.postViewData = [[NSMutableDictionary alloc] init];
-        [self.postViewData setObject:[NSString stringWithFormat:@"NO.%zd", self.tid] forKey:@"title"];
+        [self.postViewData setObject:[NSString stringWithFormat:@"%zd", self.tid] forKey:@"tid"];
+        return ;
     }
     
     [self generatePostViewDataUseCustom];
@@ -798,11 +799,11 @@ PostView 接收的字段字段
             break;
             
         case ThreadDataToViewTypeFold:
-            [dictm removeObjectsForKeys:@[@"manageInfo", @"otherInfo", @"statusInfo", @"content", @"colorUid", @"colorUidSign", @"thumb", @"replies"]];
+            [dictm removeObjectsForKeys:@[@"manageInfo", @"otherInfo", @"statusInfo", @"content", @"contentPrefix", @"contentPrefix", @"colorUid", @"colorUidSign", @"thumb", @"replies"]];
             break;
             
         case ThreadDataToViewTypeSimple:
-            [dictm removeObjectsForKeys:@[@"manageInfo", @"otherInfo", @"statusInfo", @"colorUid", @"colorUidSign", @"thumb", @"replies"]];
+            [dictm removeObjectsForKeys:@[@"manageInfo", @"otherInfo", @"statusInfo", @"contentPrefix", @"contentPrefix", @"colorUid", @"colorUidSign", @"thumb", @"replies"]];
             [dictm setObject:@2 forKey:@"contentLineLimit"];
             break;
             
@@ -1515,6 +1516,9 @@ PostView 接收的字段字段
         return nil;
     }
 }
+
+
+
 
 
 - (NSString*)stringByJsonEscape:(NSString*)str

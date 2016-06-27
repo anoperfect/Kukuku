@@ -224,7 +224,6 @@
 
                                    ["BannerTopicText", "", 0,                                     "black", "black"],
                                    
-
                                    ["CreateDraftBackground", "", 0,                            "#eeeeee@80", "#eeeeee@80"],
                                    ["CreateDraftText", "", 0,                                       "#000000@80", "#000000@80"],
                                    

@@ -19,10 +19,12 @@
 
 
 
-@property (strong,nonatomic) NSMutableArray *arraySettingItem ;
-@property (strong,nonatomic) NSMutableDictionary *cellDict;
-@property (strong,nonatomic) UISegmentedControl *viewSelectHostName;
-@property (nonatomic, strong) UITableView *tableView ;
+@property (nonatomic, strong) NSMutableArray        *arraySettingItem ;
+@property (nonatomic, strong) NSMutableDictionary   *cellDict;
+@property (nonatomic, strong) UISegmentedControl    *viewSelectHostName;
+
+@property (nonatomic, strong) UITableView           *tableView ;
+@property (nonatomic, strong) UIView                *version;
 
 @end
 
@@ -57,10 +59,32 @@
     [self.arraySettingItem addObject:@"清除缓存"];
     [self.arraySettingItem addObject:@"界面设置"];
     //[self.arraySettingItem addObject:@"饼干管理"];
-    [self.arraySettingItem addObject:@"版本"];
+//    [self.arraySettingItem addObject:@"版本"];
     [self.arraySettingItem addObject:@"反馈建议"];//: Ben.ZhaoBin@qq.com"];
     
     self.cellDict = [[NSMutableDictionary alloc] init];
+    
+    self.version = [[UIView alloc] init];
+    
+    UIImageView *logo = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"appicon180x180"]];
+    [self.version addSubview:logo];
+    logo.tag = 10;
+    
+    UILabel *versionText = [[UILabel alloc] init];
+    [self.version addSubview:versionText];
+    versionText.tag = 11;
+    
+    NSDictionary *infoDictionary = [[NSBundle mainBundle] infoDictionary];
+    NSString *name = [infoDictionary objectForKey:@"CFBundleDisplayName"];
+    NSString *version = [infoDictionary objectForKey:@"CFBundleShortVersionString"];
+    NSString *build = [infoDictionary objectForKey:@"CFBundleVersion"];
+    NSString *label = [NSString stringWithFormat:@"%@ v%@ (build %@)", name, version, build];
+    NSLog(@"%@",label);
+    label = nil;
+    versionText.text = [NSString stringWithFormat:@"版本 %@", version];
+    versionText.textAlignment = NSTextAlignmentCenter;
+    
+    self.tableView.tableFooterView = self.version;
 }
 
 
@@ -75,11 +99,21 @@
 //    frameTableView = self.view.bounds;
     [self.tableView setFrame:frameTableView];
     
+    CGRect frameVersion = CGRectMake(0, 0, frameTableView.size.width, frameTableView.size.height - 45 * self.arraySettingItem.count/*frameTableView.size.height - self.tableView.contentSize.height*/);
+    self.version.frame = frameVersion;
     
+    CGFloat heightLogo = 45;
+    CGFloat heightLabel = 45;
     
+    //self.version.backgroundColor = [UIColor blueColor];
     
+    UIImageView *logo = [self.version viewWithTag:10];
+    logo.frame = CGRectMake((frameVersion.size.width - 45) / 2, (frameVersion.size.height - (heightLogo + heightLabel)) / 2, heightLogo, heightLogo);
     
+    UILabel *versionText = [self.version viewWithTag:11];
+    versionText.frame = CGRectMake(0, logo.frame.origin.y + logo.frame.size.height, frameVersion.size.width, heightLabel);
     
+    self.tableView.tableFooterView = self.version;
 }
 
 
@@ -203,6 +237,12 @@
         cell.accessoryView = sw;
     }
     
+    if([[self.arraySettingItem objectAtIndex:indexPath.row] isEqualToString:@"界面设置"]) {
+        NSLog(@"界面设置");
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
+        cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+    }
+    
     if([[self.arraySettingItem objectAtIndex:indexPath.row] isEqualToString:@"版本"]) {
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:nil];
         cell.detailTextLabel.text = @"V0.1";
@@ -249,11 +289,6 @@
         [cell addGestureRecognizer:tapGestureRecognizer];
     }
 
-    
-    
-    
-    
-    
     if(nil == cell) {
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
     }
@@ -264,6 +299,23 @@
 }
 
 
+- (BOOL)tableView:(UITableView *)tableView shouldHighlightRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    NSString *s = self.arraySettingItem[indexPath.row];
+    if([s isEqualToString:@"无图模式"]
+        || [s isEqualToString:@"自动存图"]
+        || [s isEqualToString:@"反馈建议"]
+        ) {
+        return NO;
+    }
+
+    return YES;
+}
+
+
+
+
+
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     
     NSLog(@"点击的行数是:%zi", indexPath.row);
@@ -272,12 +324,17 @@
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     
     if([[self.arraySettingItem objectAtIndex:indexPath.row] isEqualToString:@"版块排序"]) {
-        [self showIndicationText:@"版块排序依照版块点击次数自动排序" inTime:2.0];
+        [self showIndicationText:@"版块排序依照点击次数自动排序" inTime:2.0];
     }
     
     if([[self.arraySettingItem objectAtIndex:indexPath.row] isEqualToString:@"清除缓存"]) {
         [ImageViewCache deleteCachesAsyncWithProgressHandle:^(NSInteger total, NSInteger index){
-            [self showIndicationText:[NSString stringWithFormat:@"已删除%zd, 共%zd张.", index+1, total] inTime:1.0];
+            if(total == 0) {
+                [self showIndicationText:[NSString stringWithFormat:@"已清除图片缓存"] inTime:1.0];
+            }
+            else {
+                [self showIndicationText:[NSString stringWithFormat:@"已删除%zd, 共%zd张.", index+1, total] inTime:1.0];
+            }
         }];
     }
     
@@ -285,8 +342,6 @@
         UICustmizeViewController *vc = [[UICustmizeViewController alloc] init];
         [self.navigationController pushViewController:vc animated:YES];
     }
-    
-    
 }
 
 

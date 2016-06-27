@@ -704,7 +704,7 @@
 {
     [self.navigationController popViewControllerAnimated:YES];
     DetailViewController *newDetailViewController = [[DetailViewController alloc] init];
-    [newDetailViewController setDetailedTid:tid onCategory:self.category withData:postData];
+    [newDetailViewController setDetailedTid:tid withData:postData from:ThreadsTypeCreate addtional:self.category];
     [self.navigationController pushViewController:newDetailViewController animated:YES];
 }
 

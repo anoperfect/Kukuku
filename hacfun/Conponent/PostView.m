@@ -9,6 +9,10 @@
 #import "PostView.h"
 #import "AppConfig.h"
 #import "NSAttributedString+HTML.h"
+#import "NSString+Category.h"
+
+
+
 @interface PostView () <RTLabelDelegate, TTTAttributedLabelDelegate> {
     
     
@@ -33,6 +37,8 @@
  @"thumb"           - 图片显示的地址.
  @"replies"         - 需显示的回应. 类型为NSArray, 数组成员为PostData.
  @"showAction"      - 是否显示postdata中的操作菜单.
+ @"tid"             - 只显示tid.
+ @"tidStatus"       - 只显示tid时的说明信息.
  */
 @property (strong,nonatomic) UILabel        *titleLabel;
 @property (strong,nonatomic) UILabel        *infoLabel;
@@ -227,9 +233,31 @@ static NSInteger kcountObject = 0;
 #endif
 
 
+- (void)setContentClear
+{
+    for(UIView *view in self.subviews) {
+        view.hidden = YES;
+    }
+}
+
+
 - (void)setContent
 {
+    [self setContentClear];
+    
+    
+    
     NS0Log(@"PostView data : %@", [NSString stringFromNSDictionary:self.data.postViewData]);
+    
+    NSString *tidString = [self.data.postViewData objectForKey:@"tid"];
+    if([tidString isKindOfClass:[NSString class]]) {
+        NSString *tidStatus = [self.data.postViewData objectForKey:@"tidStatus"];
+        NSString *title = [NSString stringWithFormat:@"No.%@ %@", tidString, tidStatus?tidStatus:@""];
+        self.titleLabel.text = title;
+        self.titleLabel.hidden = NO;
+        
+        return;
+    }
     
     NSString *title = [self.data.postViewData objectForKey:@"title"];
     title = title?title:@"TITLE NAN";
@@ -268,51 +296,62 @@ static NSInteger kcountObject = 0;
     else {
         self.titleLabel.text = title;
     }
+    self.titleLabel.hidden = NO;
     
     NSString *info = [self.data.postViewData objectForKey:@"info"];
-    info = info?info:@"";
-    [self.infoLabel setText:info];
+    if([info isKindOfClass:[NSString class]]) {
+        [self.infoLabel setText:info];
+        self.infoLabel.hidden = NO;
+    }
     
     //关于折叠.
     NSString *foldReason = [self.data.postViewData objectForKey:@"fold"];
     if(foldReason) {
         self.fold = YES;
         [self.infoLabel setText:foldReason];
-        self.manageInfoLabel.hidden = YES;
-        self.otherInfoLabel.hidden = YES;
-        self.contentPrefixLabel.hidden = YES;
-        self.contentSuffixLabel.hidden = YES;
-        self.contentLabel.hidden = YES;
-        self.imageView.hidden = YES;
     }
     else {
         self.fold = NO;
         NSString *manageInfoString = [self.data.postViewData objectForKey:@"manageInfo"];
-        [self.manageInfoLabel setText:manageInfoString];
-        self.manageInfoLabel.hidden = NO;
+        if([manageInfoString isKindOfClass:[NSString class]]) {
+            [self.manageInfoLabel setText:manageInfoString];
+            self.manageInfoLabel.hidden = NO;
+        }
         
         NSString *otherInfoString = [self.data.postViewData objectForKey:@"otherInfo"];
-        [self.otherInfoLabel setText:otherInfoString];
-        self.otherInfoLabel.hidden = NO;
+        if([otherInfoString isKindOfClass:[NSString class]]) {
+            [self.otherInfoLabel setText:otherInfoString];
+            self.otherInfoLabel.hidden = NO;
+        }
         
         NSString *statusInfoString = [self.data.postViewData objectForKey:@"statusInfo"];
-        [self.statusInfoLabel setText:statusInfoString?statusInfoString:@""];
-        self.statusInfoLabel.hidden = NO;
+        if([statusInfoString isKindOfClass:[NSString class]]) {
+            [self.statusInfoLabel setText:statusInfoString?statusInfoString:@""];
+            self.statusInfoLabel.hidden = NO;
+        }
         
-        [self.contentPrefixLabel setText:[self.data.postViewData objectForKey:@"contentPrefix"]];
-        [self.contentSuffixLabel setText:[self.data.postViewData objectForKey:@"contentSuffix"]];
+        NSString *contentPrefixString = [self.data.postViewData objectForKey:@"contentPrefix"];
+        if([contentPrefixString isKindOfClass:[NSString class]]) {
+            [self.contentPrefixLabel setText:contentPrefixString];
+            self.contentPrefixLabel.hidden = NO;
+        }
+        
+        NSString *contentSuffixString = [self.data.postViewData objectForKey:@"contentSuffix"];
+        if([contentSuffixString isKindOfClass:[NSString class]]) {
+            [self.contentSuffixLabel setText:contentSuffixString];
+            self.contentSuffixLabel.hidden = NO;
+        }
+        
         
         //可能更换content控件.
         [self contentLabelSet];
 
         self.imageView.hidden = YES;
+        self.imageView.downloadString = nil;
         NSString *thumb = [self.data.postViewData objectForKey:@"thumb"];
         if([thumb isKindOfClass:[NSString class]] && thumb.length > 0) {
             self.imageView.hidden = NO;
             self.imageView.downloadString = thumb;
-        }
-        else {
-            self.imageView.downloadString = nil;
         }
         
         self.repliesView.hidden = YES;
@@ -323,11 +362,7 @@ static NSInteger kcountObject = 0;
             LOG_POSTION
             self.repliesView.frame = CGRectMake(self.frame.size.width * 0.1, 0, self.frame.size.width * 0.9 - 10, 360);
             LOG_RECT(self.repliesView.frame, @"replies0")
-#if 0
-            self.repliesView.type = ThreadDataToViewTypeSimple;
-            [self.repliesView appendDataOnPage:0 with:postDataReplies removeDuplicate:NO andReload:YES];
-            NSLog(@"rtrtrt%f", [self.repliesView optumizeHeight]);
-#endif
+
             NSMutableArray *postViews = [[NSMutableArray alloc] init];
             for(PostData *postDataReply in postDataReplies) {
                 [postDataReply generatePostViewData:ThreadDataToViewTypeSimple];
@@ -443,7 +478,7 @@ static NSInteger kcountObject = 0;
     [layout setUseEdge:@"LayoutAll" in:FRAMELAYOUT_NAME_MAIN withEdgeValue:edge];
     [layout setUseIncludedMode:@"LineInit" includedTo:@"LayoutAll" withPostion:FrameLayoutPositionTop andSizeValue:0.0];
     
-    if(self.titleLabel.text.length > 0 || self.infoLabel.text.length > 0) {
+    if(!self.titleLabel.hidden || !self.infoLabel.hidden) {
         [layout setUseBesideMode:@"PaddingLineTitle" besideTo:@"LineInit" withDirection:FrameLayoutDirectionBelow andSizeValue:heightPaddingLineTitle];
         //UIFont *font = [UIFont systemFontOfSize:12];
         UIFont *font = [UIFont fontWithName:@"PostTitle"];
@@ -520,7 +555,8 @@ static NSInteger kcountObject = 0;
         
     }
     else {
-        if([self.manageInfoLabel.text length] > 0 || [self.otherInfoLabel.text length] > 0) {
+        if(!self.manageInfoLabel.hidden || !self.otherInfoLabel.hidden) {
+            NSLog(@"%@ : 111---", self.titleLabel.text);
             [layout setUseBesideMode:@"PaddingLineOther" besideTo:@"LineTitle" withDirection:FrameLayoutDirectionBelow andSizeValue:heightPaddingLineOther];
             [layout setUseBesideMode:@"LineOther" besideTo:@"PaddingLineOther" withDirection:FrameLayoutDirectionBelow andSizeValue:20.0];
             [layout divideInVertical:@"LineOther" to:@"manageInfo" and:@"otherInfo" withWidthValue:60.0];
@@ -532,17 +568,20 @@ static NSInteger kcountObject = 0;
             [layout setUseBesideMode:@"LineOther" besideTo:@"PaddingLineOther" withDirection:FrameLayoutDirectionBelow andSizeValue:0.0];
         }
         
-        if(self.statusInfoLabel.text.length > 0) {
+        if(!self.statusInfoLabel.hidden) {
+            NSLog(@"%@ : 222---", self.titleLabel.text);
             [layout setUseBesideMode:@"PaddingLineStatus" besideTo:@"LineOther" withDirection:FrameLayoutDirectionBelow andSizeValue:0.0];
             [layout setUseBesideMode:@"LineStatus" besideTo:@"PaddingLineStatus" withDirection:FrameLayoutDirectionBelow andSizeValue:10.0];
             frameStatusInfo = [layout getCGRect:@"LineStatus"];
+            
+            heightPaddingLineContent = 16;
         }
         else {
             [layout setUseBesideMode:@"PaddingLineStatus" besideTo:@"LineOther" withDirection:FrameLayoutDirectionBelow andSizeValue:0.0];
             [layout setUseBesideMode:@"LineStatus" besideTo:@"PaddingLineStatus" withDirection:FrameLayoutDirectionBelow andSizeValue:0.0];
         }
         
-        if(self.contentPrefixLabel.text.length > 0) {
+        if(!self.contentPrefixLabel.hidden) {
             [layout setUseBesideMode:@"PaddingContentPrefixLabel" besideTo:@"LineStatus" withDirection:FrameLayoutDirectionBelow andSizeValue:0.0];
             [layout setUseBesideMode:@"ContentPrefixLabel" besideTo:@"PaddingContentPrefixLabel" withDirection:FrameLayoutDirectionBelow andSizeValue:10.0];
             frameContentPrefixLabel = [layout getCGRect:@"ContentPrefixLabel"];
@@ -580,7 +619,7 @@ static NSInteger kcountObject = 0;
         [layout setCGRect:frameContentLabel toName:@"LineContent"];
         
         
-        if(self.contentSuffixLabel.text.length > 0) {
+        if(!self.contentSuffixLabel.hidden) {
             [layout setUseBesideMode:@"PaddingContentSuffixLabel" besideTo:@"LineContent" withDirection:FrameLayoutDirectionBelow andSizeValue:6.0];
             [layout setUseBesideMode:@"ContentSuffixLabel" besideTo:@"PaddingContentSuffixLabel" withDirection:FrameLayoutDirectionBelow andSizeValue:10.0];
             frameContentSuffixLabel = [layout getCGRect:@"ContentSuffixLabel"];
@@ -668,9 +707,6 @@ static NSInteger kcountObject = 0;
 }
 
 
-
-
-
 + (PostView*)PostViewWith:(PostData*)postData andFrame:(CGRect)frame
 {
     PostView *postView = [[PostView alloc] initWithFrame:frame];
@@ -693,32 +729,33 @@ static NSInteger kcountObject = 0;
                  completionHandle:(void (^)(PostView* postView, NSError* connectionError))handle
 {
     PostData *postData = [PostData fromOnlyTid:tid];
-    [postData generatePostViewData:ThreadDataToViewTypeInfoUseNumber];
-    [postData.postViewData setObject:@"加载中..." forKey:@"content"];
+    [postData generatePostViewData:type];
+    [postData.postViewData setObject:@"加载中..." forKey:@"tidStatus"];
     
     NS0Log(@"%@", postData.postViewData);
     PostView *postView = [self PostViewWith:postData andFrame:frame];
 
     NSLog(@"update %zd", tid);
-    dispatch_queue_t concurrentQueue = dispatch_queue_create("my.concurrent.queue", DISPATCH_QUEUE_CONCURRENT);
-    dispatch_async(concurrentQueue, ^(void){
-        //获取last page的信息.
-        NSMutableArray *replies = [[NSMutableArray alloc] init];
-        PostData *topic = [PostData sendSynchronousRequestByTid:tid atPage:1 repliesTo:replies storeAdditional:nil];
-        if(topic) {
-            [postView.data copyFrom:topic];
-            [postView.data generatePostViewData:type];
-        }
-        else {
-            [postView.data.postViewData setObject:@"加载失败" forKey:@"content"];
-        }
-        
-        dispatch_async(dispatch_get_main_queue(), ^(void) {
-            [postView setContent];
-            [postView layoutContent];
-            handle(postView, nil);
-        });
-    });
+    
+    [[AppConfig sharedConfigDB] sendAsynchronousRequestByTidDetail:tid
+                                                            atPage:1
+                                                               asc:YES
+                                                            handle:^(PostData *topic, NSMutableArray *replies, NSMutableDictionary *additonal, NSError *error){
+                                                                if(topic) {
+                                                                    [postView.data copyFrom:topic];
+                                                                    postView.data.type = PostDataTypeReal;
+                                                                    [postView.data generatePostViewData:type];
+                                                                }
+                                                                else {
+                                                                    [postView.data.postViewData setObject:@"加载失败" forKey:@"onlytid"];
+                                                                }
+                                                                
+                                                                [postView setContent];
+                                                                [postView layoutContent];
+                                                                handle(postView, nil);
+                                                            }
+
+     ];
 
     return postView;
 }
@@ -781,7 +818,13 @@ static NSInteger kcountObject = 0;
 
 + (id)postDataContentTreat:(PostData*)postData
 {
+    //此为所有控件都执行的转换. 转换[ref]标签. 对站内引用加链接.
     NSString *content = [PostView addLinkForRefTag:postData.content];
+    content = [PostView addLinkForThreadWebAddr:content];
+    
+    
+    
+    
     content = [PostView contentLabelContentRetreatRTLabel:content];
     return content;
 }
@@ -1105,6 +1148,38 @@ static NSInteger kcountObject = 0;
     
     return searchText;
 }
+
+
++ (NSString*)addLinkForThreadWebAddr:(NSString*)stringFrom {
+    NSArray* ranges = [stringFrom subStringRangesWithString:@"http://h.koukuko.com/t/"];
+    NSString *searchText = stringFrom;
+    NSInteger num = [ranges count];
+    for(NSInteger i = num-1; i>=0 ; i--) {
+        
+        NS0Log(@"%zi %zi",
+               [((NSNumber*)[aryLocation objectAtIndex:i]) integerValue],
+               [((NSNumber*)[aryLength objectAtIndex:i]) integerValue]);
+        
+        NSValue *value = ranges[i];
+        NSRange range = [value rangeValue];
+        
+        NSString *tidString = [stringFrom digitStringFromIndex:(range.location + range.length)];
+        if(tidString.length > 0) {
+            range.length += tidString.length;
+            NSString *sub = [searchText substringWithRange:range];
+            
+            NSString *replacement = [NSString stringWithFormat:@"<a href='No.%zd'>%@</a>", [tidString integerValue], sub];
+            searchText = [searchText stringByReplacingCharactersInRange:range withString:replacement];
+        }
+    }
+    
+    return searchText;
+}
+
+
+
+
+
 
 
 + (NSString*)addLinkForWebAddr:(NSString*)stringFrom {

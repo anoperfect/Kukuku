@@ -117,6 +117,7 @@ typedef NS_ENUM(NSInteger, ThreadDataToViewType) {
 
 
 
+
 //发送时候使用到的数据和接口.
 //@property (nonatomic, strong) NSString  *postImageType;
 //@property (nonatomic, strong) NSString  *postImageName;

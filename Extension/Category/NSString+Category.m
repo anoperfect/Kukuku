@@ -277,6 +277,57 @@
 }
 
 
+- (NSArray*)subStringRangesWithString:(NSString*)substring
+{
+    NSString *searchText = self;
+    NSRange rangeResult;
+    NSRange rangeSearch = NSMakeRange(0, searchText.length);
+    
+    NSMutableArray *ranges = [[NSMutableArray alloc] init];
+    
+    while(1) {
+        rangeResult = [searchText rangeOfString:substring options:0 range:rangeSearch];
+        if (rangeResult.location == NSNotFound || rangeResult.length == 0) {
+            break;
+        }
+        
+        [ranges addObject:[NSValue valueWithRange:rangeResult]];
+        
+        rangeSearch.location = rangeResult.location + rangeResult.length;
+        rangeSearch.length = searchText.length - rangeSearch.location;
+    }
+    
+    return [NSArray arrayWithArray:ranges];
+}
+
+
+- (NSString*)digitStringFromIndex:(NSInteger)index
+{
+    if(index >= self.length) {
+        return nil;
+    }
+    
+    NSString *subString = [self substringFromIndex:index];
+    char cstr[128] = {0};
+    for(NSInteger idx = 0; idx < 128 && idx < subString.length; idx ++) {
+        unichar ch = [subString characterAtIndex:idx];
+        if(ch >= '0' && ch <= '9') {
+            cstr[idx] = ch;
+        }
+        else {
+            break;
+        }
+    }
+    
+    if(strlen(cstr) > 0) {
+        return [NSString stringWithUTF8String:cstr];
+    }
+    else {
+        return nil;
+    }
+}
+
+
 +(NSString*)diffFromString:(NSString*)s1 toString:(NSString*)s2 referentceLineNumber:(NSInteger)lineNumber
 {
     NSArray *a1 = [s1 componentsSeparatedByString:@"\n"];

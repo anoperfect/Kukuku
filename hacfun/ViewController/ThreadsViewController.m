@@ -21,8 +21,9 @@
 
 @interface ThreadsViewController () <UITableViewDataSource, UITableViewDelegate, UIActionSheetDelegate, PostViewDelegate>
 
-
 @property (nonatomic, strong) NSIndexPath *longPressIndexPath;
+
+
 
 @end
 
@@ -131,6 +132,8 @@
            forKeyPath:@"pageNumLoading"
               options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld
               context:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(notificationHandle:) name:@"updateThreadsDisplay" object:nil];
     
     return;
 }
@@ -1052,6 +1055,18 @@
         
         [self postViewReloadRow:indexPath];
         
+        //主题发送屏蔽tid通知.
+        //#DetailViewController会执行两次postViewReloadRow.
+        if(indexPath.section == 0 && indexPath.row == 0) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:@"updateThreadsDisplay"
+                                                                object:nil
+                                                              userInfo:@{
+                                                                         @"action":@"notshowtid",
+                                                                         @"tid":[NSNumber numberWithInteger:postData.tid]
+                                                                         }
+             ];
+        }
+        
         return YES;
     }
     
@@ -1059,6 +1074,18 @@
         NSLog(@"disable NotShowTid : %zd", postData.tid);
         [[AppConfig sharedConfigDB] configDBNotShowTidRemove:postData.tid];
         [self postViewReloadRow:indexPath];
+        
+        if(indexPath.section == 0 && indexPath.row == 0) {
+            //发送取消屏蔽tid通知.
+            //#DetailViewController会执行两次postViewReloadRow.
+            [[NSNotificationCenter defaultCenter] postNotificationName:@"updateThreadsDisplay"
+                                                                object:nil
+                                                              userInfo:@{
+                                                                         @"action":@"disablenotshowtid",
+                                                                         @"tid":[NSNumber numberWithInteger:postData.tid]
+                                                                         }
+             ];
+        }
         
         return YES;
     }
@@ -1208,6 +1235,7 @@
 - (void)longPressOnRow:(NSIndexPath*)indexPath at:(CGPoint)pointInView1 {
     LOG_POSTION
     
+#if 0
     //标记需显示 cell栏的action.
     //[self showCellActionButtonsOnIndexPath:indexPath andReload:YES];
     
@@ -1224,7 +1252,25 @@
     }];
     
     [self showPopupView:v];
+#endif
 }
+
+
+- (void)showRowActionMenuOnIndexPath:(NSIndexPath*)indexPath
+{
+    CGFloat width = 45;
+    TextButtonLine *v = [[TextButtonLine alloc] initWithFrame:CGRectMake(self.view.frame.size.width - width - 10, 10, width, self.view.frame.size.height - 10 * 2)];
+    v.layoutMode = TextButtonLineLayoutModeVertical;
+    [v setTexts:[self actionStringsForRowAtIndexPath:indexPath]];
+    __weak typeof(self) weakSelf = self;
+    [v setButtonActionByText:^(NSString* actionText) {
+        [weakSelf dismissPopupView];
+        [weakSelf actionForRowAtIndexPath:indexPath viaString:actionText];
+    }];
+    
+    [self showPopupView:v];
+}
+
 
 
 - (NSInteger)numberOfPostDatasTotal
@@ -1561,17 +1607,88 @@
 }
 
 
+- (void)notificationHandle:(NSNotification *)notification
+{
+    NSString *name = [notification name];
+    NSDictionary *userInfo = [notification userInfo];
+    NSLog(@"notificationHandle. name = %@, userInfo = %@", name, userInfo);
+    
+    if([name isEqualToString:@"updateThreadsDisplay"]) {
+        NSString *action = userInfo[@"action"];
+        
+        if([action isEqualToString:@"notshowtid"]) {
+            NSNumber *tidNumber = [userInfo objectForKey:@"tid"];
+            NSInteger tid = 0;
+            if([tidNumber isKindOfClass:[NSNumber class]] && (tid = [tidNumber integerValue]) > 0) {
+                [self updateThreadsDisplayByNotShowTid:tid];
+            }
+            else {
+                NSLog(@"#error - not treate.");
+            }
+        }
+        else if([action isEqualToString:@"disablenotshowtid"]) {
+            NSNumber *tidNumber = [userInfo objectForKey:@"tid"];
+            NSInteger tid = 0;
+            if([tidNumber isKindOfClass:[NSNumber class]] && (tid = [tidNumber integerValue]) > 0) {
+                [self updateThreadsDisplayByDisableNotShowTid:tid];
+            }
+            else {
+                NSLog(@"#error - not treate.");
+            }
+        }
+        else {
+            NSLog(@"#error - not treate.");
+        }
+        
+        return ;
+    }
+}
+
+
+- (void)updateThreadsDisplayByNotShowTid:(NSInteger)tid
+{
+    NSLog(@"updateThreadsDisplayByNotShowTid");
+    
+    [self enumerateObjectsUsingBlock:^(PostData *postData, NSIndexPath *indexPath, BOOL *stop) {
+        
+        NSLog(@"enumerateObjectsUsingBlock on [%@] with tid [%zd]", [NSString stringFromTableIndexPath:indexPath], postData.tid);
+        if(postData.tid == tid) {
+            [self postViewReloadRow:indexPath];
+            *stop = YES;
+        }
+    }];
+}
+
+
+- (void)updateThreadsDisplayByDisableNotShowTid:(NSInteger)tid
+{
+    NSLog(@"updateThreadsDisplayByDisableNotShowTid");
+    
+    [self enumerateObjectsUsingBlock:^(PostData *postData, NSIndexPath *indexPath, BOOL *stop) {
+        
+        NSLog(@"enumerateObjectsUsingBlock on [%@] with tid [%zd]", [NSString stringFromTableIndexPath:indexPath], postData.tid);
+        if(postData.tid == tid) {
+            [self postViewReloadRow:indexPath];
+            *stop = YES;
+        }
+    }];
+}
+
+
+
+
+
+
 -(void)dealloc
 {
     [self removeObserver:self forKeyPath:@"pageNumLoading"];
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 
 
 @end
-
-
-
 
 
 

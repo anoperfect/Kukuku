@@ -54,6 +54,8 @@
 		B523CA201B78FDB100944004 /* reply1.png in Resources */ = {isa = PBXBuildFile; fileRef = B523CA0E1B78FDB100944004 /* reply1.png */; };
 		B523CA211B78FDB100944004 /* reply2.png in Resources */ = {isa = PBXBuildFile; fileRef = B523CA0F1B78FDB100944004 /* reply2.png */; };
 		B523CA221B78FDB100944004 /* zheshiluwei.jpg in Resources */ = {isa = PBXBuildFile; fileRef = B523CA101B78FDB100944004 /* zheshiluwei.jpg */; };
+		B52BCE731D1F8184006F004E /* appicon180x180.png in Resources */ = {isa = PBXBuildFile; fileRef = B52BCE721D1F8184006F004E /* appicon180x180.png */; };
+		B52BCE751D1F9908006F004E /* EULA.txt in Resources */ = {isa = PBXBuildFile; fileRef = B52BCE741D1F9908006F004E /* EULA.txt */; };
 		B55E9D771C9B091400F581F5 /* FrameLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = B55E9D761C9B091400F581F5 /* FrameLayout.m */; };
 		B55E9D7E1C9CFD7D00F581F5 /* capture.png in Resources */ = {isa = PBXBuildFile; fileRef = B55E9D7B1C9CFD7D00F581F5 /* capture.png */; };
 		B55E9D7F1C9CFD7D00F581F5 /* photolibrary.png in Resources */ = {isa = PBXBuildFile; fileRef = B55E9D7C1C9CFD7D00F581F5 /* photolibrary.png */; };
@@ -205,6 +207,8 @@
 		B523CA0F1B78FDB100944004 /* reply2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = reply2.png; sourceTree = "<group>"; };
 		B523CA101B78FDB100944004 /* zheshiluwei.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = zheshiluwei.jpg; sourceTree = "<group>"; };
 		B525792B1D0D1BB2007558B6 /* PrefixHeader.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = PrefixHeader.pch; path = ../PrefixHeader.pch; sourceTree = "<group>"; };
+		B52BCE721D1F8184006F004E /* appicon180x180.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = appicon180x180.png; path = appiconk/appicon180x180.png; sourceTree = "<group>"; };
+		B52BCE741D1F9908006F004E /* EULA.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = EULA.txt; sourceTree = SOURCE_ROOT; };
 		B55E9D751C9B091400F581F5 /* FrameLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FrameLayout.h; sourceTree = "<group>"; };
 		B55E9D761C9B091400F581F5 /* FrameLayout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FrameLayout.m; sourceTree = "<group>"; };
 		B55E9D7B1C9CFD7D00F581F5 /* capture.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = capture.png; sourceTree = "<group>"; };
@@ -522,6 +526,7 @@
 				B523C9F11B78FAFD00944004 /* AppConfig.m */,
 				B5B0771F1CC626DE00CF50A2 /* db.json */,
 				B502373C1CFD390900C8AE1A /* koukukoisland.appkey */,
+				B52BCE741D1F9908006F004E /* EULA.txt */,
 			);
 			path = AppConfig;
 			sourceTree = "<group>";
@@ -548,6 +553,7 @@
 		B523C9FE1B78FDB100944004 /* images */ = {
 			isa = PBXGroup;
 			children = (
+				B52BCE721D1F8184006F004E /* appicon180x180.png */,
 				B58EF9111D1848B50021A842 /* checkupdate.png */,
 				B58EF9121D1848B50021A842 /* stopcheckupdate.png */,
 				B52347151D0C03AC008A1C50 /* Introduction_Kukuku.jpg */,
@@ -878,6 +884,7 @@
 				B523CA1C1B78FDB100944004 /* new.png in Resources */,
 				B5D8D4841B52060C0091DA20 /* LaunchScreen.xib in Resources */,
 				B523CA171B78FDB100944004 /* backn.png in Resources */,
+				B52BCE731D1F8184006F004E /* appicon180x180.png in Resources */,
 				B523CA1B1B78FDB100944004 /* more.png in Resources */,
 				B523CA131B78FDB100944004 /* appicon0.png in Resources */,
 				B5039B461CBA5C1100C7865F /* gallery.png in Resources */,
@@ -887,6 +894,7 @@
 				B57780DA1CE9FBB900F60B6F /* send.png in Resources */,
 				B5039B201CB7FF1E00C7865F /* buttonsave.png in Resources */,
 				B5A803411CA6A7C500F88EC7 /* loadall.png in Resources */,
+				B52BCE751D1F9908006F004E /* EULA.txt in Resources */,
 				B523CA211B78FDB100944004 /* reply2.png in Resources */,
 				B57780D81CE9FBB900F60B6F /* folding.png in Resources */,
 				B5039B391CBA5C1100C7865F /* album.png in Resources */,

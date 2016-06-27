@@ -142,6 +142,11 @@
         fileList = [fileManager contentsOfDirectoryAtPath:imageCacheFolder error:&error];
         NSInteger index = 0;
         NSInteger total = fileList.count;
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            handle(total, 0);
+        });
+        
         for(NSString *name in fileList) {
             NSString *fullName = [NSString stringWithFormat:@"%@/%@", imageCacheFolder, name];
             [fileManager removeItemAtPath:fullName error:&error];
@@ -157,6 +162,9 @@
         NSLog(@"路径==%@,fileList%@", imageCacheFolder, fileList);
     });
 }
+
+
+
 
 
 @end

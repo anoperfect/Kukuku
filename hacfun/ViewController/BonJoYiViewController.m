@@ -5,12 +5,15 @@
 //  Created by Ben on 16/6/2.
 //  Copyright © 2016年 Ben. All rights reserved.
 //
-
+#import "TestViewController.h"
 #import "BonJoYiViewController.h"
 #import "ModelAndViewInc.h"
 #import "MainVC.h"
 #import "AppConfig.h"
 
+
+
+#import "AppDelegate.h"
 
 
 @interface BonJoYiViewController ()
@@ -33,6 +36,8 @@
 @property (nonatomic, assign) BOOL enableShow;
 @property (nonatomic, assign) BOOL couldEnter;
 
+@property (nonatomic, strong) EULAView *eula;
+@property (nonatomic, assign) BOOL isEULAShowing;
 
 //@property (nonatomic, strong) UIView        *bonJoYiView;
 //@property (nonatomic, strong) UIImageView   *bonJoYiIcon;
@@ -65,6 +70,22 @@
     UIWindow *keyWindow = [UIApplication sharedApplication].keyWindow;
     NSLog(@"qqq%@", keyWindow.subviews);
     keyWindow = nil;
+    
+    BOOL showEULA = YES;
+    NSString *showEULASetting = [[AppConfig sharedConfigDB] configDBSettingKVGet:@"notshoweulaagain"];
+    if([showEULASetting isEqualToString:@"bool1"]) {
+        showEULA = NO;
+    }
+    
+    if(showEULA) {
+        self.eula = [[EULAView alloc] initWithFrame:self.view.bounds withAgreement:YES andUserFeedbackHanle:^(BOOL isUserAgree, BOOL notShowAgain) {
+            [self actionEULAIsUserAgree:isUserAgree andNotShowAgain:notShowAgain];
+        }];
+        
+        [self.view addSubview:self.eula];
+        
+        self.isEULAShowing = YES;
+    }
     
     [self auth];
     
@@ -131,11 +152,17 @@
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         [weakSelf showViews];
     });
+    
+    [self.view bringSubviewToFront:self.eula];
+    
+    
 }
 
 
 - (void)viewWillLayoutSubviews
 {
+    [self.view bringSubviewToFront:self.eula];
+    
     self.buttonAuth.frame = CGRectMake(10, 36, 127, 36);
     self.buttonUpdate.frame = CGRectMake(10, 80, 127, 36);
     
@@ -177,26 +204,59 @@
 //    self.bonJoYiLabel.frame = [layout getCGRect:@"bonJoYiLabel"];
     
     
-    
-    
-    
+    self.eula.frame = self.view.bounds;
+}
+
+
+- (void)actionEULAIsUserAgree:(BOOL)isUserAgree andNotShowAgain:(BOOL)notShowAgain
+{
+    if(isUserAgree) {
+        if(notShowAgain) {
+            [[AppConfig sharedConfigDB] configDBSettingKVSet:@"notshoweulaagain" withValue:@"bool1"];
+        }
+        
+        if(self.couldEnter) {
+            [self showIndicationText:@"欢迎登录kukuku.cc" inTime:2.0];
+            [self enter];
+        }
+        else {
+            [self showViews];
+        }
+    }
+    else {
+        [self showIndicationText:@"即将退出程序.欢迎下次使用." inTime:1.0];
+        
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            AppDelegate *app = [UIApplication sharedApplication].delegate;
+            UIWindow *window = app.window;
+            
+            [UIView animateWithDuration:1.0f animations:^{
+                window.alpha = 0;
+                window.frame = CGRectMake(0, window.bounds.size.width, 0, 0);
+            } completion:^(BOOL finished) {
+                exit(0);
+            }];
+        });
+    }
 }
 
 
 - (void)hiddenViews
 {
     NSLog(@"BJY : hiddenViews");
-    self.enableShow             = NO;
+    //self.enableShow             = NO;
     self.buttonAuth.hidden      = YES;
     self.buttonUpdate.hidden    = YES;
     self.labelInfo.hidden       = YES;
+    self.buttonEnter.hidden     = YES;
+    
 }
 
 
 - (void)showViews
 {
     NSLog(@"BJY : showViews");
-    self.enableShow             = YES;
+    //self.enableShow             = YES;
     self.buttonAuth.hidden      = NO;
     self.buttonUpdate.hidden    = NO;
     self.labelInfo.hidden       = NO;
@@ -241,7 +301,7 @@
     [[AppConfig sharedConfigDB] authAsync:^(BOOL result){
         self.onAuth = NO;
         if(result) {
-            if(!self.view.hidden) {
+            if(!self.isEULAShowing) {
                 [self showIndicationText:@"欢迎登录kukuku.cc" inTime:2.0];
             }
             [self appendInfo:@"鉴权OK.\n"];
@@ -298,7 +358,7 @@
                 self.buttonEnter.hidden = NO;
             }
             self.couldEnter = YES;
-            if(self.authTimes == 1) {
+            if(self.authTimes == 1 && !self.isEULAShowing) {
                 [self enter];
             }
         }

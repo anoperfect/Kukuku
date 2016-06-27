@@ -23,6 +23,10 @@
 + (NSString*)stringFromMSecondInterval:(long long) msecs andTimeZoneAdjustSecondInterval:(NSInteger)adjustSeconds;
 + (NSString*)stringFromRelativeDescriptorOfDateForMSec:(long long)msec;
 
+- (NSArray*)subStringRangesWithRegularExpression:(NSString*)regularExpression;
+- (NSArray*)subStringRangesWithString:(NSString*)substring;
+- (NSString*)digitStringFromIndex:(NSInteger)index;
+
 +(NSString*)diffFromString:(NSString*)s1 toString:(NSString*)s2 referentceLineNumber:(NSInteger)lineNumber;
 
 

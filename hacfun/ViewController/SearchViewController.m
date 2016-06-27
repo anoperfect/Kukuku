@@ -163,7 +163,7 @@
     if([self.textView.text hasPrefix:keyString]) {
         NSInteger tid = [[self.textView.text substringFromIndex:keyString.length] integerValue];
         DetailViewController *vc = [[DetailViewController alloc] init];
-        [vc setDetailedTid:tid onCategory:nil withData:nil];
+        [vc setDetailedTid:tid withData:nil from:ThreadsTypeSearch addtional:nil];
         [self.navigationController pushViewController:vc animated:YES];
     }
     else {

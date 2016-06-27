@@ -171,12 +171,22 @@
 
 
 
-
+//AFNetworking基础上封装的接口.
 - (void)GET:(NSString*)query
 andArgument:(NSDictionary*)argument
    progress:(void (^)(NSProgress *downloadProgress))downloadProgressHandle
     success:(void (^)(NSURLSessionDataTask *task, NSData * responseData, NSDictionary * dictionary))successHandle
     failure:(void (^)(NSURLSessionDataTask *task, NSError *error))failureHandle;
+
+
+//GET接口上封装的接口.
+//正常顺序从旧到新的显示, asc为YES.
+- (void)sendAsynchronousRequestByTidDetail:(NSInteger)tid
+                                    atPage:(NSInteger)page
+                                       asc:(BOOL)asc
+                                    handle:(void(^)(PostData *topic, NSMutableArray* replies, NSMutableDictionary* additonal, NSError *error))handle;
+
+
 
 
 

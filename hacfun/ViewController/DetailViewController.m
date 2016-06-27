@@ -18,7 +18,10 @@
 @property (assign,nonatomic) NSInteger tid;
 @property (nonatomic, strong) Category *category;
 
-@property (strong,nonatomic) PostData *topic;
+@property (strong, nonatomic) PostData *topic;
+@property (nonatomic, assign) ThreadsType fromThreadsType;
+
+
 @property (nonatomic,strong) NSMutableDictionary *threadsInfo;
 
 //@property (assign,nonatomic) NSInteger idCollection;
@@ -146,7 +149,7 @@
     [self actionViaString:@"lastpage"];
 }
 
-
+#if 0
 - (void)setDetailedTid:(NSInteger)tid onCategory:(Category*)category withData:(PostData*)postDataTopic
 {
     self.tid = tid;
@@ -167,6 +170,42 @@
     [self.postDataPages addObject:postDataPage];
     
 }
+#endif
+
+
+- (void)setDetailedTid:(NSInteger)tid withData:(PostData*)postDataTopic from:(ThreadsType)type addtional:(id)addtional
+{
+    self.tid = tid;
+    
+    self.textTopic =[NSString stringWithFormat:@"No.%zi", self.tid];
+    if(postDataTopic) {
+        self.topic = [postDataTopic copy];
+    }
+    else {
+        self.topic = [PostData fromOnlyTid:tid];
+    }
+
+    PostDataPage *postDataPage = [[PostDataPage alloc] init];
+    postDataPage.page = 0;
+    postDataPage.section = 0;
+    postDataPage.postDatas = [NSMutableArray arrayWithObject:self.topic];
+    
+    [self.postDataPages addObject:postDataPage];
+    
+    self.fromThreadsType = type;
+    switch (self.fromThreadsType) {
+        case ThreadsTypeCategory:
+        case ThreadsTypeCreate:
+            if([addtional isKindOfClass:[Category class]]) {
+                self.category = addtional;
+            }
+            break;
+            
+        default:
+            break;
+    }
+}
+
 
 
 - (void)toLastPage {
@@ -491,9 +530,12 @@
 
 - (void)didSelectActionOnIndexPath:(NSIndexPath*)indexPath withPostData:(PostData*)postData
 {
-    NSInteger tidReference = postData.tid;
-    NSLog(@"tidReference = %zi", tidReference);
-    [self presentCreateViewControllerWithReferenceId:tidReference];
+//    NSInteger tidReference = postData.tid;
+//    NSLog(@"tidReference = %zi", tidReference);
+//    [self presentCreateViewControllerWithReferenceId:tidReference];
+    
+    self.rowActionIndexPath = indexPath;
+    [self showRowActionMenuOnIndexPath:indexPath];
 }
 
 
@@ -772,21 +814,76 @@
     postData = nil;
     urlStrings = nil;
     
-    NSMutableArray *arrayM = [self actionStringsForRowAtIndexPathStaple:indexPath];
+    NSMutableArray *arrayM = [self actionStringsForRowAtIndexPathDetailStaple:indexPath];
+    
+    switch (self.fromThreadsType) {
+        case ThreadsTypeCategory:
+            //取消这个功能.
+            if(indexPath.section == 0 && indexPath.row == 1) {
+                [arrayM insertObject:@"最近回复" atIndex:(arrayM.count - 1)];
+            }
+            break;
+            
+        case ThreadsTypeLocal:
+            if(indexPath.section == 0 && indexPath.row == 0) {
+                [arrayM insertObject:@"删除" atIndex:(arrayM.count - 1)];
+            }
+            break;
+            
+        default:
+            break;
+    }
+    
     return [NSArray arrayWithArray:arrayM];
 }
 
 
+- (NSMutableArray*)actionStringsForRowAtIndexPathDetailStaple:(NSIndexPath*)indexPath
+{
+    PostData *postData = [self postDataOnIndexPath:indexPath];
+    NSMutableArray *arrayM = [NSMutableArray arrayWithArray:@[@"复制", @"加入草稿", ]];
+    
+    if([[AppConfig sharedConfigDB] configDBNotShowTidGet:postData.tid]) {
+        [arrayM addObject:@"取消屏蔽"];
+    }
+    else {
+        [arrayM addObject:@"屏蔽"];
+    }
+#if 0
+    if([[AppConfig sharedConfigDB] configDBNotShowUidGet:postData.uid]) {
+        [arrayM addObject:@"取消屏蔽id"];
+    }
+    else {
+        [arrayM addObject:@"屏蔽id"];
+    }
+    
+    if([[AppConfig sharedConfigDB] configDBAttentGet:postData.uid]) {
+        [arrayM addObject:@"取消关注"];
+    }
+    else {
+        [arrayM addObject:@"关注"];
+    }
+#endif
+    [arrayM addObject:@"举报"];
+    
+    [arrayM addObject:@"回应"];
+    
+    return arrayM;
+}
+
 
 - (BOOL)actionForRowAtIndexPath:(NSIndexPath*)indexPath viaString:(NSString*)string
 {
-    BOOL finishAction = [super actionForRowAtIndexPath:indexPath viaString:string];
-    if(finishAction) {
-        return finishAction;
-    }
+    PostData *postData = [self postDataOnIndexPath:indexPath];
     
-    finishAction = YES;
-    //PostData *postDataRow = [self postDataOnIndexPath:indexPath];
+    if([string isEqualToString:@"回应"]) {
+        
+        NSInteger tidReference = postData.tid;
+        NSLog(@"tidReference = %zi", tidReference);
+        [self presentCreateViewControllerWithReferenceId:tidReference];
+        
+        return YES;
+    }
     
     if([string isEqualToString:@"开启只看Po"]){
         self.isOnlyShowPo = YES;
@@ -795,20 +892,38 @@
         
         [self showfootViewWithTitle:[NSString stringWithFormat:@"当前为只看Po模式"]
                andActivityIndicator:NO andDate:NO];
+        
+        return YES;
     }
-    else if([string isEqualToString:@"关闭只看Po"]){
+    
+    if([string isEqualToString:@"关闭只看Po"]){
         self.isOnlyShowPo = NO;
         
         [self.postView reloadData];
         
         [self showfootViewWithTitle:[NSString stringWithFormat:@"已关闭只看Po模式"]
                andActivityIndicator:NO andDate:NO];
-    }
-    else {
-        finishAction = NO;
+        
+        return YES;
     }
     
-    return finishAction;
+    if([string isEqualToString:@"删除"]){
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"deleteThreads"
+                                                            object:nil
+                                                          userInfo:@{
+                                                                     @"action":@"deleteThreadsByTid",
+                                                                     @"tid":[NSNumber numberWithInteger:postData.tid]
+                                                                     }
+         ];
+        
+        [self.navigationController popViewControllerAnimated:YES];
+    }
+    
+    
+    
+    
+    return [super actionForRowAtIndexPath:indexPath viaString:string];
+
 }
 
 

@@ -5,8 +5,8 @@
 //  Created by Ben on 16/5/10.
 //  Copyright © 2016年 Ben. All rights reserved.
 //
-
 #import "PostGroupView.h"
+#import "AppConfig.h"
 
 
 @interface PostGroupView () <UITableViewDelegate, UITableViewDataSource, PostViewDelegate>
@@ -387,29 +387,26 @@
 - (void)asyncLoadRecentRepliesFromTid:(NSInteger)tid
 {
     __weak typeof(self) __weakSelf = self;
-    dispatch_queue_t concurrentQueue = dispatch_queue_create("recentreplies.concurrent.queue", DISPATCH_QUEUE_CONCURRENT);
-    dispatch_async(concurrentQueue, ^(void){
-        //获取last page的信息.
-        PostData *topic = [[PostData alloc] init];
-        NSMutableArray *replies = [[NSMutableArray alloc] init];
-        topic = [PostData sendSynchronousRequestByTid:tid atPage:-1 repliesTo:replies storeAdditional:nil];
-        
-        dispatch_async(dispatch_get_main_queue(), ^(void) {
-            if(replies.count > 0) {
-                [__weakSelf showfooterViewWithTitle:[NSString stringWithFormat:@"最新回复%zd条", replies.count] andActivityIndicator:NO andDate:NO];
-                [__weakSelf appendDataOnPage:0 with:replies removeDuplicate:NO andReload:NO];
-            }
-            else {
-                [__weakSelf showfooterViewWithTitle:@"无最新回复" andActivityIndicator:NO andDate:NO];
-            }
-        });
-    });
+    
+    [[AppConfig sharedConfigDB] sendAsynchronousRequestByTidDetail:tid
+                                                            atPage:1
+                                                               asc:NO
+                                                            handle:^(PostData *topic, NSMutableArray *replies, NSMutableDictionary *additonal, NSError *error){
+                                                                if(replies.count > 0) {
+                                                                    [__weakSelf showfooterViewWithTitle:[NSString stringWithFormat:@"最新回复%zd条", replies.count] andActivityIndicator:NO andDate:NO];
+                                                                    [__weakSelf appendDataOnPage:0 with:replies removeDuplicate:NO andReload:NO];
+                                                                }
+                                                                else {
+                                                                    [__weakSelf showfooterViewWithTitle:@"无最新回复" andActivityIndicator:NO andDate:NO];
+                                                                    
+                                                                }
+                                                            }
+     ];
 }
 
 
 - (void)appendDataOnPage:(NSInteger)page with:(NSArray<PostData*>*)postDatas removeDuplicate:(BOOL)remove andReload:(BOOL)reload
 {
-
     NSInteger indexInsert = NSNotFound;
     BOOL finished = NO;
     NSInteger section = 0;

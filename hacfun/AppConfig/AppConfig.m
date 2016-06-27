@@ -3104,6 +3104,42 @@ andArgument:(NSDictionary*)argument
 }
 
 
+//正常顺序从旧到新的显示, asc为YES.
+- (void)sendAsynchronousRequestByTidDetail:(NSInteger)tid
+                                    atPage:(NSInteger)page
+                                       asc:(BOOL)asc
+                                    handle:(void(^)(PostData *topic, NSMutableArray* replies, NSMutableDictionary* additonal, NSError *error))handle
+{
+    NSString *query = @"v2/topic/getTopicReplyPage";
+    NSDictionary *argument = @{
+                               @"page":[NSNumber numberWithInteger:page],
+                               @"pageSize":@20,
+                               @"asc":[NSNumber numberWithBool:asc],
+                               @"topicId":[NSNumber numberWithLongLong:tid]
+                               };
+    [self GET:query
+  andArgument:argument
+     progress:^(NSProgress *downloadProgress) {
+        
+     }
+      success:^(NSURLSessionDataTask *task, NSData *responseData, NSDictionary *dictionary) {
+          PostData *topic = nil;
+          NSMutableArray *replies = [[NSMutableArray alloc] init];
+          NSMutableDictionary *addtional = [[NSMutableDictionary alloc] init];
+          topic = [PostData parseFromDetailedJsonData:responseData atPage:page repliesTo:replies storeAdditional:addtional onHostName:HOSTNAME];
+          if(handle) {
+              handle(topic, replies, addtional, nil);
+          }
+      }
+      failure:^(NSURLSessionDataTask *task, NSError *error) {
+          if(handle) {
+              handle(nil, nil, nil, error);
+          }
+      }
+     ];
+}
+
+
 - (void)test
 {
 
