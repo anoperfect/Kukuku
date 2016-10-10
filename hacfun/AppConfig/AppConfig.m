@@ -3058,7 +3058,7 @@ andArgument:(NSDictionary*)argument
     [HTTPMANAGE GET:urlString
          parameters:nil
            progress:^(NSProgress * _Nonnull downloadProgress) {
-               if(downloadProgress) {
+               if(downloadProgressHandle) {
                    dispatch_async(dispatch_get_main_queue(), ^{
                        downloadProgressHandle(downloadProgress);
                    });
