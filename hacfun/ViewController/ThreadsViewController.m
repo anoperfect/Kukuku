@@ -1135,7 +1135,7 @@
         dispatch_async(dispatch_get_main_queue(), ^{
             CreateViewController *createViewController = [[CreateViewController alloc]init];
             NSString *content = [NSString stringWithFormat:@">>No.%zd\n", postData.tid];
-            Category *categoryAdmin = [[AppConfig sharedConfigDB] configDBCategoryGetByName:@"值班室"];
+            PCategory *categoryAdmin = [[AppConfig sharedConfigDB] configDBCategoryGetByName:@"值班室"];
             [createViewController setCreateCategory:categoryAdmin replyTid:NSNotFound withOriginalContent:content];
             [self.navigationController pushViewController:createViewController animated:YES];
         });

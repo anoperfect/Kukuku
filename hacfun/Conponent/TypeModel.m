@@ -32,7 +32,7 @@
 
 
 
-@implementation Category
+@implementation PCategory
 
 - (BOOL)isEqual:(id)other
 {
@@ -41,11 +41,11 @@
         //    } else if (![super isEqual:other]) {
         //        return NO;
     } else {
-        if(![other isKindOfClass:[Category class]]) {
+        if(![other isKindOfClass:[PCategory class]]) {
             return NO;
         }
         
-        Category *otherCategory = other;
+        PCategory *otherCategory = other;
         if([self.name isEqualToString:otherCategory.name]
            && [self.link isEqualToString:otherCategory.link]
            && self.forum == otherCategory.forum

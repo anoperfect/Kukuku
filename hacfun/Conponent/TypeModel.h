@@ -62,7 +62,7 @@
 
 
 
-@interface Category : NSObject
+@interface PCategory : NSObject
 
 @property (nonatomic, assign) NSInteger     sn;
 @property (nonatomic, copy  ) NSString     *name;

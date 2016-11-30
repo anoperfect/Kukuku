@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "FuncDefine.h"
-@class Category;
+@class PCategory;
 @interface PostData : NSObject <NSCoding>
 
 
@@ -143,7 +143,7 @@ typedef NS_ENUM(NSInteger, ThreadDataToViewType) {
 
 
 //异步发送接口.
-- (void)aysncPostToCategory:(Category*)category
+- (void)aysncPostToCategory:(PCategory*)category
                     replyTo:(NSInteger)replyToTid
             responseHandler:(void (^)(NSURLResponse * response))responseHandler
             progrossHandler:(void (^)(NSString *status, BOOL continuous))progrossHandler

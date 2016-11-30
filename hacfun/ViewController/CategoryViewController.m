@@ -16,7 +16,7 @@
 @interface CategoryViewController ()
 
 
-@property (strong,nonatomic) Category *category;
+@property (strong,nonatomic) PCategory *category;
 @property (nonatomic, strong) NSMutableDictionary *forumInfo;
 
 @end
@@ -63,7 +63,7 @@
 }
 
 
-- (void)setCategoryPresent:(Category*)category
+- (void)setCategoryPresent:(PCategory*)category
 {
     self.category = category;
     self.textTopic = self.category.name;

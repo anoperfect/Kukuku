@@ -21,7 +21,7 @@
 //新串需填写category, tid为NSNotFound.
 //回复tid的话, category需填写.
 //originalContent用于举报,引用.
-- (void)setCreateCategory:(Category*)category replyTid:(NSInteger)tid withOriginalContent:(NSString*)originalContent;
+- (void)setCreateCategory:(PCategory*)category replyTid:(NSInteger)tid withOriginalContent:(NSString*)originalContent;
     
 
 @end

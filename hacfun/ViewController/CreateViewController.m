@@ -51,7 +51,7 @@
 @property (strong,nonatomic) NSString *originalContent; //提交主题时的预制内容, 用于举报时.
 @property (assign,nonatomic) NSInteger topicTid; //回复的主题id.
 //@property (assign,nonatomic) NSInteger idReference; //引用的id.
-@property (strong,nonatomic) Category *category;
+@property (strong,nonatomic) PCategory *category;
 
 @property (nonatomic, assign) long long editedAt; //记录开始发送的时间.
 
@@ -537,7 +537,7 @@
 
 
 
-- (void)setCreateCategory:(Category*)category replyTid:(NSInteger)tid withOriginalContent:(NSString*)originalContent
+- (void)setCreateCategory:(PCategory*)category replyTid:(NSInteger)tid withOriginalContent:(NSString*)originalContent
 {
     self.category = category;
     self.topicTid = tid;

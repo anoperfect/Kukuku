@@ -16,7 +16,7 @@
 @interface DetailViewController ()
 
 @property (assign,nonatomic) NSInteger tid;
-@property (nonatomic, strong) Category *category;
+@property (nonatomic, strong) PCategory *category;
 
 @property (strong, nonatomic) PostData *topic;
 @property (nonatomic, assign) ThreadsType fromThreadsType;
@@ -150,7 +150,7 @@
 }
 
 #if 0
-- (void)setDetailedTid:(NSInteger)tid onCategory:(Category*)category withData:(PostData*)postDataTopic
+- (void)setDetailedTid:(NSInteger)tid onCategory:(PCategory*)category withData:(PostData*)postDataTopic
 {
     self.tid = tid;
     self.category = category;
@@ -196,7 +196,7 @@
     switch (self.fromThreadsType) {
         case ThreadsTypeCategory:
         case ThreadsTypeCreate:
-            if([addtional isKindOfClass:[Category class]]) {
+            if([addtional isKindOfClass:[PCategory class]]) {
                 self.category = addtional;
             }
             break;

@@ -18,7 +18,7 @@
 
 @property (nonatomic, assign, readonly)     BOOL                authResult;
 @property (nonatomic, strong, readonly)     NSDate              *updateCategoryDate;
-@property (nonatomic, strong, readonly)     NSArray<Category*>  *categories;
+@property (nonatomic, strong, readonly)     NSArray<PCategory*>  *categories;
 
 + (AppConfig*)sharedConfigDB;
 
@@ -73,7 +73,7 @@
 
 //category.
 - (NSArray*)configDBCategoryGet;
-- (Category*)configDBCategoryGetByName:(NSString*)name;
+- (PCategory*)configDBCategoryGetByName:(NSString*)name;
 -     (BOOL)configDBCategoryAddClick:(NSString*)cateogry;
 
 

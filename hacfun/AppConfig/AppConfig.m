@@ -60,7 +60,7 @@
 @property (assign,nonatomic) NSInteger hostIndex ;
 
 //category缓存.
-@property (nonatomic, strong, readwrite) NSArray<Category*> *categories;
+@property (nonatomic, strong, readwrite) NSArray<PCategory*> *categories;
 
 //config缓存.
 @property (nonatomic, strong)   NSMutableArray *emoticons;
@@ -1010,7 +1010,7 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
             NSMutableArray *arrayReturnM = [NSMutableArray arrayWithCapacity:count];
             
             for(NSInteger index = 0; index < count ;  index ++) {
-                Category *category = [[Category alloc] init];
+                PCategory *category = [[PCategory alloc] init];
                 ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER (category.name ,               nameArray ,             index,  @"NAN")
                 ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER (category.link ,               linkArray ,             index,  @"NAN")
                 ASSIGN_INTEGER_VALUE_FROM_ARRAYMEMBER(category.forum,               forumArray,             index,  0)
@@ -1028,7 +1028,7 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
 
     if(!arrayReturn) {
         NSLog(@"#error - configDBCategoryGet");
-        Category *category = [[Category alloc] init];
+        PCategory *category = [[PCategory alloc] init];
         category.name           = @"获取栏目错误";
         category.link           = @"获取栏目错误";
         category.forum          = 0;
@@ -1041,7 +1041,7 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
 }
 
 
-- (Category*)configDBCategoryGetByName:(NSString*)name
+- (PCategory*)configDBCategoryGetByName:(NSString*)name
 {
     //从数据库查询.
     NSDictionary *queryResult = [self.dbData DBDataQueryDBName:DBNAME_HOST
@@ -1051,7 +1051,7 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
                                                      withLimit:nil];
     NSInteger count = [self.dbData DBDataCheckRowsInDictionary:queryResult];
     
-    Category *category = nil;
+    PCategory *category = nil;
 
     if(count > 0) {
         NSArray *nameArray              = queryResult[@"name"];
@@ -1063,7 +1063,7 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
         NSArray *clickArray             = queryResult[@"click"];
         
         if([self.dbData DBDataCheckCountOfArray:@[nameArray, linkArray, forumArray, headerIconUrlArray, contentArray, passwordRequiredArray, clickArray] withCount:count]) {
-            category = [[Category alloc] init];
+            category = [[PCategory alloc] init];
             ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER (category.name ,               nameArray ,             0,  @"NAN")
             ASSIGN_STRING_VALUE_FROM_ARRAYMEMBER (category.link ,               linkArray ,             0,  @"NAN")
             ASSIGN_INTEGER_VALUE_FROM_ARRAYMEMBER(category.forum,               forumArray,             0,  0)
@@ -1078,9 +1078,9 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
 }
 
 
-- (Category*)configDBCategoryParseFromDict:(NSDictionary*)dict onHostName:(NSString*)hostname
+- (PCategory*)configDBCategoryParseFromDict:(NSDictionary*)dict onHostName:(NSString*)hostname
 {
-    Category* category = [[Category alloc] init];
+    PCategory* category = [[PCategory alloc] init];
     BOOL parsed = YES;
     
     NSString *name = [dict objectForKey:@"name"];
@@ -1163,7 +1163,7 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
     NSArray *columnNames = @[@"name", @"link", @"forum", @"headerIconUrl", @"content", @"passwordRequired", @"click"];
     NSMutableArray *values = [[NSMutableArray alloc] init];
     
-    for(Category *category in categories) {
+    for(PCategory *category in categories) {
         NSMutableArray *value = [NSMutableArray arrayWithCapacity:columnNames.count];
         
         #define ASSIGN_STRING_IF_NULL(s, v) if(!(s)) { (s) = (v);}
@@ -1207,7 +1207,7 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
     NSMutableArray<NSDictionary*> *infosUpdate = [[NSMutableArray alloc] init];
     NSMutableArray<NSDictionary*> *infosQuery = [[NSMutableArray alloc] init];
     
-    for(Category *category in categories) {
+    for(PCategory *category in categories) {
         [infosUpdate addObject:@{
                                  @"link":category.link,
                                  @"forum":[NSNumber numberWithInteger:category.forum],
@@ -2645,14 +2645,14 @@ else {NSLog(@"#error - obj (%@) is not NSData class.", arrayasd[indexzxc]);varqw
                       continue;
                   }
                   
-                  Category *category = [weakSelf configDBCategoryParseFromDict:dict onHostName:[weakSelf configDBHostsGetCurrent].hostname];
+                  PCategory *category = [weakSelf configDBCategoryParseFromDict:dict onHostName:[weakSelf configDBHostsGetCurrent].hostname];
                   if(!category) {
                       NSLog(@"#error - configDBCategoryParseFromDict <%@>.", [NSString stringFromNSDictionary:dict]);
                       continue;
                   }
                   
-                  Category *categoryDB = nil;
-                  for(Category *c in self.categories) {
+                  PCategory *categoryDB = nil;
+                  for(PCategory *c in self.categories) {
                       if([c.name isEqualToString:category.name]) {
                           categoryDB = c;
                           break;

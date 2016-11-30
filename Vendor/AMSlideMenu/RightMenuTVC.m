@@ -37,7 +37,7 @@
     
     self.category = [[AppConfig sharedConfigDB] configDBCategoryGet];
     if(self.category.count <= 0) {
-        Category *category = [[Category alloc] init];
+        PCategory *category = [[PCategory alloc] init];
         category.name = @"获取栏目出错";
         category.link = @"获取栏目出错";
         self.category = @[category];
@@ -88,7 +88,7 @@
     
     [cell setBackgroundColor:[UIColor clearColor]];
     
-    Category *category = self.category[indexPath.row];
+    PCategory *category = self.category[indexPath.row];
     NSString *name = category.name;
     if(name && [name isKindOfClass:[NSString class]]) {
         
@@ -124,7 +124,7 @@
     }
 #endif
 
-    Category *category = self.category[indexPath.row];
+    PCategory *category = self.category[indexPath.row];
     NSString *name = category.name;
     [[AppConfig sharedConfigDB] configDBCategoryAddClick:name];
     

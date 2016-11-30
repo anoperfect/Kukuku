@@ -13,6 +13,6 @@
 
 
 
-- (void)setCategoryPresent:(Category*)category;
+- (void)setCategoryPresent:(PCategory*)category;
 
 @end

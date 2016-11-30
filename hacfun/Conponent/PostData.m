@@ -1589,7 +1589,7 @@ NSMutableDictionary *dictPost = [[NSMutableDictionary alloc] init];
 
 
 
-- (void)aysncPostToCategory:(Category*)category
+- (void)aysncPostToCategory:(PCategory*)category
                     replyTo:(NSInteger)replyToTid
             responseHandler:(void (^)(NSURLResponse * response))responseHandler
             progrossHandler:(void (^)(NSString *status, BOOL continuous))progrossHandler
